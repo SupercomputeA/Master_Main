@@ -1,0 +1,7 @@
+{
+  "routes": [
+    { "pattern": "/assets/*", "script": "" },
+    { "pattern": "/api/*", "script": "worker.js" },
+    { "pattern": "/*", "script": "" }
+  ]
+}

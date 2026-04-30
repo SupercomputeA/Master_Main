@@ -1,0 +1,5 @@
+# Local development variables
+# Copy to .dev.vars (do not commit)
+
+CF_ACCOUNT_ID=your-account-id
+CF_API_TOKEN=your-api-token

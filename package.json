@@ -1,0 +1,26 @@
+{
+  "name": "supercompute",
+  "version": "1.0.0",
+  "description": "SUPERCOMPUTE Web3 Platform - Cloudflare Workers + D1",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create supercompute",
+    "db:push": "wrangler d1 execute supercompute --local --file=./schema.sql",
+    "db:push:prod": "wrangler d1 execute supercompute --file=./schema.sql --env production",
+    "build": "npx esbuild src/worker.js --bundle --outfile=dist/worker.js --format=esm --platform=neutral --target=es2020 --minify",
+    "preview": "wrangler pages project . --preview",
+    "deploy:pages": "wrangler pages deploy public --project-name=supercompute"
+  },
+  "dependencies": {
+    "@cloudflare/workers-types": "^4.20250430.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+  "devDependencies": {
+    "wrangler": "^4.0.0",
+    "esbuild": "^0.24.0"
+  }
+}

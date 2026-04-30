@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SUPERCOMPUTE · Web3 Innovation Platform</title>
+<link rel="stylesheet" href="sc.css">
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="authOverlay" style="display:none">
+<div class="auth-card">
+  <div class="auth-logo">SC</div>
+  <h2 style="font-size:1.3rem;font-weight:800;color:#1a1a2e;margin-bottom:.3rem">Welcome back</h2>
+  <p style="font-size:.8rem;color:#6b7280;margin-bottom:1.5rem;line-height:1.5">Sign in to SUPERCOMPUTE or connect your wallet to access the platform.</p>
+  <div class="auth-tabs">
+    <button class="auth-tab active" onclick="setAuthTab('signin',this)">Sign In</button>
+    <button class="auth-tab" onclick="setAuthTab('signup',this)">Sign Up</button>
+  </div>
+  <input class="auth-input" type="email" placeholder="Email address"/>
+  <input class="auth-input" type="password" placeholder="Password"/>
+  <button class="auth-btn" onclick="doLogin()">Sign In</button>
+  <div class="auth-div">or</div>
+  <button class="siwe-btn" onclick="doLoginDemo('user')"><span style="font-size:14px">◎</span> Sign In with Ethereum</button>
+  <div style="margin-top:1rem;font-size:11px;color:#6b7280">
+    <button onclick="doLoginDemo('user')" style="border:none;background:none;color:var(--pink);cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:inherit">Demo: User Login</button>
+    &nbsp;·&nbsp;
+    <button onclick="doLoginDemo('admin')" style="border:none;background:none;color:var(--gold2);cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:inherit">Demo: Admin Login</button>
+  </div>
+</div>
+</div>
+
+<!-- ARTICLE MODAL -->
+<div id="articleModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeArticle()">
+  <div class="modal-body" id="articleModalContent"></div>
+</div>
+
+<!-- NAV -->
+<nav id="appNav">
+  <div class="nav-brand">
+    <img src="sc-logo.png" alt="SC" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0"/>
+    <div><div class="nav-brand-text">SUPERCOMPUTE</div><div class="nav-brand-sub">Phase 1 · Base Chain</div></div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding-bottom:.5rem">
+    <div class="nav-section">Public</div>
+    <div class="nav-item active" data-page="home" onclick="navigate('home',this)"><span class="nav-ico">⌂</span>Home</div>
+    <div class="nav-item" data-page="about" onclick="navigate('about',this)"><span class="nav-ico">◎</span>About</div>
+    <div class="nav-item" data-page="staking" onclick="navigate('staking',this)"><span class="nav-ico">◈</span>Staking</div>
+    <div class="nav-item" data-page="blog" onclick="navigate('blog',this)"><span class="nav-ico">▤</span>Blog</div>
+    <div class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this)"><span class="nav-ico">◧</span>Projects</div>
+    <div class="nav-item" data-page="consulting" onclick="navigate('consulting',this)"><span class="nav-ico">◑</span>Consulting</div>
+    <div class="nav-item" data-page="token" onclick="navigate('token',this)"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></div>
+    <div class="nav-div"></div>
+    <div class="nav-section">Member</div>
+    <div class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this)"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></div>
+    <div class="nav-item locked" id="nl-social" data-page="social" onclick="authGate('social',this)"><span class="nav-ico">◉</span>Social Feed<span class="nav-badge nb-lock">🔒</span></div>
+    <div class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this)"><span class="nav-ico">◎</span>Alerts<span class="nav-badge nb-num">3</span></div>
+    <div class="nav-item locked" id="nl-profile" data-page="profile" onclick="authGate('profile',this)"><span class="nav-ico">◐</span>Profile<span class="nav-badge nb-lock">🔒</span></div>
+    <div class="nav-item locked" id="nl-agentchat" data-page="agentchat" onclick="authGate('agentchat',this)"><span class="nav-ico">◈</span>Agent Chat<span class="nav-badge nb-num">4</span></div>
+    <div class="nav-item locked" id="nl-web3school" data-page="web3school" onclick="authGate('web3school',this)"><span class="nav-ico">◎</span>Web3 School<span class="nav-badge nb-lock">🔒</span></div>
+    <div class="nav-item locked" id="nl-socialmedia" data-page="socialmedia" onclick="authGate('socialmedia',this)"><span class="nav-ico">◧</span>Social Media<span class="nav-badge nb-lock">🔒</span></div>
+    <div class="nav-div"></div>
+    <div class="nav-section">Admin</div>
+    <div class="nav-item locked" id="nl-dashboard" data-page="dashboard" onclick="authGate('dashboard',this,true)"><span class="nav-ico">▣</span>Dashboard<span class="nav-badge nb-gold">A</span></div>
+    <div class="nav-item locked" id="nl-community" data-page="community" onclick="authGate('community',this,true)"><span class="nav-ico">◈</span>Community<span class="nav-badge nb-gold">A</span></div>
+    <div class="nav-item locked" id="nl-newsdesk" data-page="newsdesk" onclick="authGate('newsdesk',this,true)"><span class="nav-ico">◧</span>NewsDesk CMS<span class="nav-badge nb-gold">A</span></div>
+    <div class="nav-item locked" id="nl-apiStatus" data-page="apiStatus" onclick="authGate('apiStatus',this,true)"><span class="nav-ico">◐</span>API Status<span class="nav-badge nb-gold">A</span></div>
+  </div>
+  <div class="nav-bottom">
+    <button class="btn-wallet" id="walletBtn" onclick="toggleWallet()"><span id="wico">◎</span><span id="wtxt">Connect Wallet</span></button>
+    <div class="bip-badge">
+      <div style="display:flex;align-items:center;gap:5px"><span class="pulse-dot"></span><span style="font-size:10px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.3px">BUILDING IN PUBLIC</span></div>
+      <div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:2px;line-height:1.4">1 builder · 13 agents<br>Phase 1: May 2026</div>
+    </div>
+  </div>
+</nav>
+
+<main id="appMain">
+
+<!-- ══ HOME ══ -->
+<div class="page active" id="page-home">
+  <div class="ticker-wrap"><div class="ticker-inner" id="tickerInner"></div></div>
+  <!-- Hero with WebGL Shader -->
+  <div style="position:relative;overflow:hidden;padding:5rem 2rem 4.5rem;text-align:center;min-height:560px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <canvas id="heroShader" style="position:absolute;inset:0;width:100%;height:100%;display:block"></canvas>
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(10,14,26,.2) 0%,rgba(10,14,26,.72) 100%);pointer-events:none"></div>
+
+    <!-- Live badge -->
+    <div class="fade-up" style="display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.8);font-size:11px;padding:.35rem 1rem;border-radius:20px;margin-bottom:2rem;position:relative;z-index:2;backdrop-filter:blur(6px)">
+      <span class="pulse-dot"></span>Phase 1 · Building in Public · Base Chain · May 2026
+    </div>
+
+    <!-- Logo -->
+    <div class="fade-up fade-d1" style="position:relative;z-index:2;margin-bottom:1.5rem">
+      <img src="sc-logo.png" alt="Supercompute" style="width:88px;height:88px;border-radius:50%;object-fit:cover;box-shadow:0 0 48px rgba(233,30,140,.45),0 0 96px rgba(255,184,0,.18);border:2px solid rgba(255,255,255,.13)"/>
+    </div>
+
+    <!-- Headline -->
+    <h1 class="fade-up fade-d1" style="font-size:clamp(2rem,4.8vw,3.6rem);font-weight:900;color:#fff;line-height:1.06;margin-bottom:1.1rem;letter-spacing:-.6px;position:relative;z-index:2;max-width:780px">
+      Web3 built for<br>
+      <span style="color:var(--pink)">liberation,</span>
+      not extraction.
+    </h1>
+
+    <!-- Sub -->
+    <p class="fade-up fade-d2" style="font-size:1.05rem;color:rgba(255,255,255,.6);max-width:560px;margin:0 auto 1rem;line-height:1.75;position:relative;z-index:2">
+      Supercompute is a sovereign AI-native platform on Base Chain —
+      NewsDesk intelligence, DeFi operations, consulting, and principled Web3 education
+      for founders and communities building what comes next.
+    </p>
+
+    <!-- Founding note -->
+    <p class="fade-up fade-d2" style="font-size:.8rem;color:rgba(255,255,255,.32);margin:0 auto 2.25rem;position:relative;z-index:2;letter-spacing:.3px">
+      Founded 2013 · Occupy LA · 1 human operator · 13 AI agents · supercompute.eth
+    </p>
+
+    <!-- CTAs -->
+    <div class="fade-up fade-d3" style="display:flex;gap:.85rem;justify-content:center;flex-wrap:wrap;position:relative;z-index:2">
+      <button onclick="navigate('consulting',navItem('consulting'))"
+        style="padding:.85rem 1.85rem;background:var(--pink);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.1px"
+        onmouseenter="this.style.background='var(--pink2)';this.style.transform='translateY(-1px)'"
+        onmouseleave="this.style.background='var(--pink)';this.style.transform=''">
+        Book a Strategy Call
+      </button>
+      <button onclick="authGate('web3school',navItem('web3school'))"
+        style="padding:.85rem 1.85rem;background:rgba(255,255,255,.07);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;backdrop-filter:blur(6px)"
+        onmouseenter="this.style.background='rgba(255,255,255,.13)'"
+        onmouseleave="this.style.background='rgba(255,255,255,.07)'">
+        Start Web3 School →
+      </button>
+      <button onclick="navigate('blog',navItem('blog'))"
+        style="padding:.85rem 1.85rem;background:transparent;color:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.1);border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s"
+        onmouseenter="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='rgba(255,255,255,.25)'"
+        onmouseleave="this.style.color='rgba(255,255,255,.55)';this.style.borderColor='rgba(255,255,255,.1)'">
+        Read the NewsDesk
+      </button>
+    </div>
+  </div>
+
+  <script>
+  /* ── WebGL Fluid Shader ── */
+  (function() {
+    const canvas = document.getElementById('heroShader');
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) { canvas.style.background = '#0A0E1A'; return; }
+
+    const vert = `
+      attribute vec2 a_pos;
+      void main() { gl_Position = vec4(a_pos, 0., 1.); }`;
+
+    const frag = `
+      precision highp float;
+      uniform vec2  u_res;
+      uniform float u_time;
+
+      float hash(vec2 p) {
+        p = fract(p * vec2(127.1, 311.7));
+        p += dot(p, p + 43.21);
+        return fract(p.x * p.y);
+      }
+      float noise(vec2 p) {
+        vec2 i = floor(p), f = fract(p);
+        f = f*f*(3.-2.*f);
+        return mix(
+          mix(hash(i), hash(i+vec2(1,0)), f.x),
+          mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), f.x), f.y);
+      }
+      float fbm(vec2 p) {
+        float v=0., a=.5;
+        for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.1+vec2(1.7,9.2);a*=.5;}
+        return v;
+      }
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / u_res;
+        uv.x *= u_res.x / u_res.y;
+        float t = u_time * .16;
+
+        vec2 b1 = vec2(.22 + .20*sin(t*1.0 + 0.0), .52 + .22*cos(t*0.8 + 1.0));
+        vec2 b2 = vec2(.58 + .18*sin(t*0.65+ 2.1), .44 + .20*cos(t*1.2 + 0.5));
+        vec2 b3 = vec2(.78 + .14*sin(t*1.3 + 4.2), .62 + .18*cos(t*0.7 + 3.1));
+        vec2 b4 = vec2(.42 + .16*sin(t*0.55+ 5.5), .28 + .16*cos(t*1.0 + 2.3));
+
+        float d1 = length(uv - b1);
+        float d2 = length(uv - b2);
+        float d3 = length(uv - b3);
+        float d4 = length(uv - b4);
+
+        float field = 1./(d1*d1 + .045)
+                    + 1./(d2*d2 + .055)
+                    + 1./(d3*d3 + .065)
+                    + 1./(d4*d4 + .075);
+
+        /* brand palette */
+        vec3 navy= vec3(.039,.055,.102);
+        vec3 pink = vec3(.914,.118,.549);
+        vec3 gold = vec3(1.00,.722,.000);
+        vec3 cyan = vec3(.000,.831,1.000);
+        vec3 deep = vec3(.05,.02,.14);
+
+        float w1=1./(d1*d1+.045), w2=1./(d2*d2+.055),
+              w3=1./(d3*d3+.065), w4=1./(d4*d4+.075);
+        float wt=w1+w2+w3+w4;
+        vec3 bCol=(w1*pink + w2*gold + w3*cyan + w4*deep)/wt;
+
+        float n  = fbm(uv*2.8 + t*.35);
+        float n2 = fbm(uv*1.6 - t*.28 + 3.7);
+
+        float intensity = smoothstep(5., 20., field + n*4.);
+        float glow      = smoothstep(3.,  9., field + n2*2.) * .30;
+
+        vec3 col = mix(navy, bCol, intensity);
+        col = mix(col, vec3(1.), glow * intensity);
+
+        /* subtle grid overlay for tech feel */
+        vec2 grid = fract(gl_FragCoord.xy / 48.);
+        float line = max(
+          step(.97, grid.x),
+          step(.97, grid.y)
+        ) * .04;
+        col += line * (1. - intensity) * .5;
+
+        /* vignette */
+        float vig = 1. - smoothstep(.35, 1.15, length(uv - vec2(.5*u_res.x/u_res.y,.5))*1.2);
+        col *= vig * .82 + .18;
+
+        gl_FragColor = vec4(col, 1.);
+      }`;
+
+    function compile(type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src); gl.compileShader(s);
+      return s;
+    }
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vert));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
+    gl.linkProgram(prog); gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(prog, 'a_pos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes  = gl.getUniformLocation(prog, 'u_res');
+    const uTime = gl.getUniformLocation(prog, 'u_time');
+
+    function resize() {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    let start = null;
+    function draw(ts) {
+      if (!start) start = ts;
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, (ts - start) * .001);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  })();
+  </script>
+  <!-- Traction Bar -->
+  <div style="background:#080c18;border-bottom:1px solid rgba(255,255,255,.06)">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr)">
+      <div style="padding:1.35rem 1rem;text-align:center;border-right:1px solid rgba(255,255,255,.06)">
+        <div style="font-size:1.6rem;font-weight:900;color:#fff;letter-spacing:-1px"><span id="hc-agents">0</span></div>
+        <div style="font-size:10px;color:var(--cyan);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:.3rem">AI Agents in the Fleet</div>
+      </div>
+      <div style="padding:1.35rem 1rem;text-align:center;border-right:1px solid rgba(255,255,255,.06)">
+        <div style="font-size:1.6rem;font-weight:900;color:#fff"><span id="hc-years">0</span></div>
+        <div style="font-size:10px;color:var(--cyan);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:.3rem">Years Building in Web3</div>
+      </div>
+      <div style="padding:1.35rem 1rem;text-align:center;border-right:1px solid rgba(255,255,255,.06)">
+        <div style="font-size:1.6rem;font-weight:900;color:#fff">0</div>
+        <div style="font-size:10px;color:var(--cyan);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:.3rem">Security Incidents · Ledger + YubiKey</div>
+      </div>
+      <div style="padding:1.35rem 1rem;text-align:center">
+        <div style="font-size:1.6rem;font-weight:900;color:#fff">1</div>
+        <div style="font-size:10px;color:var(--cyan);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:.3rem">Human Operator · Building in Public</div>
+      </div>
+    </div>
+  </div>
+  <!-- Protocol Stack -->
+  <div style="background:#fff;padding:1.75rem 1.5rem;border-bottom:1px solid var(--border);text-align:center">
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:1.5rem">Deployed On · Powered By · Built With</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:.5rem;opacity:.7;transition:opacity .2s;cursor:default" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=.7"><div style="width:28px;height:28px;border-radius:50%;background:#0052FF;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff">B</div><span style="font-weight:700;font-size:13px;color:var(--text)">Base</span></div>
+      <div style="display:flex;align-items:center;gap:.5rem;opacity:.7;transition:opacity .2s;cursor:default" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=.7"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff">V</div><span style="font-weight:700;font-size:13px;color:var(--text)">Virtuals</span></div>
+      <div style="display:flex;align-items:center;gap:.5rem;opacity:.7;transition:opacity .2s;cursor:default" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=.7"><div style="width:28px;height:28px;border-radius:50%;background:#CC785C;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff">A</div><span style="font-weight:700;font-size:13px;color:var(--text)">Anthropic</span></div>
+      <div style="display:flex;align-items:center;gap:.5rem;opacity:.7;transition:opacity .2s;cursor:default" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=.7"><div style="width:28px;height:28px;border-radius:50%;background:#F38020;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff">CF</div><span style="font-weight:700;font-size:13px;color:var(--text)">Cloudflare</span></div>
+      <div style="display:flex;align-items:center;gap:.5rem;opacity:.7;transition:opacity .2s;cursor:default" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=.7"><div style="width:28px;height:28px;border-radius:50%;background:#5284FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff">ENS</div><span style="font-weight:700;font-size:13px;color:var(--text)">ENS</span></div>
+      <div style="display:flex;align-items:center;gap:.5rem;opacity:.7;transition:opacity .2s;cursor:default" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=.7"><div style="width:28px;height:28px;border-radius:50%;background:#635BFF;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff">S</div><span style="font-weight:700;font-size:13px;color:var(--text)">Stripe</span></div>
+    </div>
+  </div>
+  <!-- Platform Pillars -->
+  <div style="background:var(--card);padding:2.5rem 2rem;border-bottom:1px solid var(--border)">
+    <div style="max-width:900px;margin:0 auto">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;text-align:center;margin-bottom:1.5rem">What We Build</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
+        <div onclick="navigate('blog',navItem('blog'))" style="padding:1.25rem;border-radius:12px;border:1px solid var(--border);cursor:pointer;transition:all .2s;text-align:center" onmouseenter="this.style.borderColor='var(--pink)';this.style.background='rgba(233,30,140,.03)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background=''">
+          <div style="font-size:1.5rem;margin-bottom:.6rem">📰</div>
+          <div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.3rem">NewsDesk</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">AI-curated Web3 intelligence across 4 content pillars. Powered by Quanta S.</div>
+          <div style="margin-top:.65rem"><span class="badge badge-live">Live</span></div>
+        </div>
+        <div onclick="navigate('staking',navItem('staking'))" style="padding:1.25rem;border-radius:12px;border:1px solid var(--border);cursor:pointer;transition:all .2s;text-align:center" onmouseenter="this.style.borderColor='var(--cyan2)';this.style.background='rgba(0,212,255,.03)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background=''">
+          <div style="font-size:1.5rem;margin-bottom:.6rem">📈</div>
+          <div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.3rem">TradeDesk</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">DeFi operations via KNIGHT. CDP management, Polymarket, treasury ops on Base.</div>
+          <div style="margin-top:.65rem"><span class="badge badge-progress">Phase 1</span></div>
+        </div>
+        <div onclick="navigate('consulting',navItem('consulting'))" style="padding:1.25rem;border-radius:12px;border:1px solid var(--border);cursor:pointer;transition:all .2s;text-align:center" onmouseenter="this.style.borderColor='var(--pink)';this.style.background='rgba(233,30,140,.03)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background=''">
+          <div style="font-size:1.5rem;margin-bottom:.6rem">🧠</div>
+          <div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.3rem">Consulting</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">DeFi onboarding, agent automation, ReFi strategy, and protocol deep dives via Calendly.</div>
+          <div style="margin-top:.65rem"><span class="badge badge-live">Booking Open</span></div>
+        </div>
+        <div onclick="authGate('web3school',navItem('web3school'))" style="padding:1.25rem;border-radius:12px;border:1px solid var(--border);cursor:pointer;transition:all .2s;text-align:center" onmouseenter="this.style.borderColor='var(--gold)';this.style.background='rgba(255,184,0,.03)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background=''">
+          <div style="font-size:1.5rem;margin-bottom:.6rem">🎓</div>
+          <div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.3rem">Web3 School</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">7 modules. NFT credentials on Base. Guild.xyz roles. Principled education for everyone.</div>
+          <div style="margin-top:.65rem"><span class="badge badge-progress">Beta May 2026</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quanta S Section -->
+  <div style="background:linear-gradient(160deg,#0a0e1a 0%,#0d0520 60%,#0a0e1a 100%);padding:3.5rem 2rem;position:relative;overflow:hidden">
+    <div style="position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.15) 0%,transparent 70%);top:-120px;left:-60px;pointer-events:none"></div>
+    <div style="position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(233,30,140,.1) 0%,transparent 70%);bottom:-80px;right:-40px;pointer-events:none"></div>
+    <div style="max-width:860px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;margin-bottom:.75rem">NewsDesk Intelligence Layer</div>
+        <h2 style="font-size:1.6rem;font-weight:800;color:#fff;line-height:1.25;margin-bottom:1rem">
+          Meet Quanta S —<br>
+          <span style="color:var(--gold)">your on-chain editor.</span>
+        </h2>
+        <p style="font-size:.875rem;color:rgba(255,255,255,.55);line-height:1.8;margin-bottom:1.5rem">
+          Quanta Sovereigna is Supercompute's autonomous publishing agent. She monitors Web3 signals, writes intelligence reports, and cross-posts across platforms — 24/7, without prompting. Her on-chain identity lives on Virtuals Protocol. Her token is $QUANTA.
+        </p>
+        <div style="display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.75rem">
+          <div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:rgba(255,255,255,.6)"><span style="width:16px;height:16px;border-radius:50%;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.25);display:flex;align-items:center;justify-content:center;font-size:8px;color:#4ade80;flex-shrink:0">✓</span>4 content pillars: Intelligence · Sovereignty · Dispatch · Signal</div>
+          <div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:rgba(255,255,255,.6)"><span style="width:16px;height:16px;border-radius:50%;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.25);display:flex;align-items:center;justify-content:center;font-size:8px;color:#4ade80;flex-shrink:0">✓</span>Cross-posts to X, Lens, Farcaster, Substack, Bluesky</div>
+          <div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:rgba(255,255,255,.6)"><span style="width:16px;height:16px;border-radius:50%;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.25);display:flex;align-items:center;justify-content:center;font-size:8px;color:#4ade80;flex-shrink:0">✓</span>On-chain identity via Virtuals Protocol · Base</div>
+          <div style="display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:rgba(255,255,255,.6)"><span style="width:16px;height:16px;border-radius:50%;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.25);display:flex;align-items:center;justify-content:center;font-size:8px;color:#4ade80;flex-shrink:0">✓</span>50% of $QUANTA fees route to $SCOM stakers</div>
+        </div>
+        <button onclick="navigate('blog',navItem('blog'))" style="padding:.75rem 1.5rem;background:var(--pink);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;margin-right:.6rem" onmouseenter="this.style.background='var(--pink2)'" onmouseleave="this.style.background='var(--pink)'">Read the NewsDesk →</button>
+        <button onclick="navigate('token',navItem('token'))" style="padding:.75rem 1.25rem;background:transparent;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.15);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s" onmouseenter="this.style.color='var(--gold)';this.style.borderColor='var(--gold)'" onmouseleave="this.style.color='rgba(255,255,255,.5)';this.style.borderColor='rgba(255,255,255,.15)'">$QUANTA Token</button>
+      </div>
+
+      <!-- Quanta live card -->
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.25rem;backdrop-filter:blur(8px)">
+        <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1rem;padding-bottom:.85rem;border-bottom:1px solid rgba(255,255,255,.07)">
+          <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,var(--cyan));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;flex-shrink:0">QS</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:12px;color:#fff">Quanta Sovereigna</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4)">Virtuals Protocol · supercompute.eth</div>
+          </div>
+          <span style="font-size:9px;background:rgba(74,222,128,.1);color:#4ade80;border:1px solid rgba(74,222,128,.2);padding:.2rem .55rem;border-radius:20px;font-weight:700">● LIVE</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.85rem">
+          <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:.65rem;border:1px solid rgba(255,255,255,.05)"><div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:.2rem;text-transform:uppercase;letter-spacing:.6px">Articles Live</div><div style="font-size:1.15rem;font-weight:800;color:#fff">6</div></div>
+          <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:.65rem;border:1px solid rgba(255,255,255,.05)"><div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:.2rem;text-transform:uppercase;letter-spacing:.6px">Token</div><div style="font-size:1.15rem;font-weight:800;color:var(--gold)">$QUANTA</div></div>
+          <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:.65rem;border:1px solid rgba(255,255,255,.05)"><div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:.2rem;text-transform:uppercase;letter-spacing:.6px">Platforms</div><div style="font-size:1.15rem;font-weight:800;color:#fff">7</div></div>
+          <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:.65rem;border:1px solid rgba(255,255,255,.05)"><div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:.2rem;text-transform:uppercase;letter-spacing:.6px">Uptime</div><div style="font-size:1.15rem;font-weight:800;color:#4ade80">99.9%</div></div>
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,.25);margin-bottom:.5rem;font-weight:600;text-transform:uppercase;letter-spacing:.7px">Latest Activity</div>
+        <div style="display:flex;align-items:center;gap:.5rem;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:.35rem"><span style="width:4px;height:4px;border-radius:50%;background:var(--cyan);flex-shrink:0"></span>Published: SIWE Auth and the End of Password Logins</div>
+        <div style="display:flex;align-items:center;gap:.5rem;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:.35rem"><span style="width:4px;height:4px;border-radius:50%;background:#4ade80;flex-shrink:0"></span>Scheduled: 3-platform thread · Apr 29 9am PT</div>
+        <div style="display:flex;align-items:center;gap:.5rem;font-size:11px;color:rgba(255,255,255,.5)"><span style="width:4px;height:4px;border-radius:50%;background:var(--gold);flex-shrink:0"></span>Signal scan complete · 4 articles flagged</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <div style="background:var(--bg);padding:3rem 2rem;border-top:1px solid var(--border)">
+    <div style="text-align:center;margin-bottom:2rem">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.5rem">Consulting</div>
+      <h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:.4rem">Work with Supercompute</h2>
+      <p style="font-size:.875rem;color:var(--muted);max-width:500px;margin:0 auto">13 years of crypto. Sovereign infrastructure. Sessions from $200. Book at calendly.com/ora_mi</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem;max-width:860px;margin:0 auto">
+      <div class="service-card">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(233,30,140,.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:1rem">◎</div>
+        <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.35rem">DeFi Onboarding</div>
+        <div style="font-size:1.4rem;font-weight:800;color:var(--pink);margin-bottom:.5rem">$200</div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Wallet setup, protocol walkthrough, security best practices, and your first on-chain transaction. 2 hrs via Zoom.</p>
+        <button onclick="openBooking('defi')" style="width:100%;padding:.65rem;background:transparent;color:var(--pink);border:1.5px solid var(--pink);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s" onmouseenter="this.style.background='var(--pink)';this.style.color='#fff'" onmouseleave="this.style.background='transparent';this.style.color='var(--pink)'">Book a Session →</button>
+      </div>
+      <div class="service-card dark">
+        <div class="service-tag">Most Requested</div>
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(233,30,140,.2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:1rem">◈</div>
+        <div style="font-size:.75rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:.35rem">Agent Automation</div>
+        <div style="font-size:1.4rem;font-weight:800;color:var(--gold);margin-bottom:.5rem">$300</div>
+        <p style="font-size:.82rem;color:rgba(255,255,255,.55);line-height:1.6;margin-bottom:1.25rem">Design your 1-human + AI agent workflow. OpenClaw setup, Linear integration, and full automation strategy. 2 hrs.</p>
+        <button onclick="openBooking('agent')" style="width:100%;padding:.65rem;background:var(--pink);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s" onmouseenter="this.style.background='var(--pink2)'" onmouseleave="this.style.background='var(--pink)'">Start Building →</button>
+      </div>
+      <div class="service-card">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,184,0,.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:1rem">◐</div>
+        <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.35rem">Protocol Deep Dive</div>
+        <div style="font-size:1.4rem;font-weight:800;color:var(--gold2);margin-bottom:.5rem">$450</div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Smart contract review, tokenomics design, Base deployment, and go-to-market strategy. 4 hrs via Zoom.</p>
+        <button onclick="openBooking('protocol')" style="width:100%;padding:.65rem;background:transparent;color:var(--gold2);border:1.5px solid var(--gold2);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s" onmouseenter="this.style.background='var(--gold2)';this.style.color='#fff'" onmouseleave="this.style.background='transparent';this.style.color='var(--gold2)'">Plan Your Build →</button>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:1.25rem">
+      <button onclick="navigate('consulting',navItem('consulting'))" style="font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline;font-family:inherit" onmouseenter="this.style.color='var(--pink)'" onmouseleave="this.style.color='var(--muted)'">View all 5 services including Agent Development from $2,000 →</button>
+    </div>
+  </div>
+  <!-- Agent Fleet -->
+  <div style="background:#fff;padding:3rem 2rem;border-top:1px solid var(--border)">
+    <div style="text-align:center;margin-bottom:1.5rem"><div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.5rem">Agent Fleet</div><div style="font-size:1.4rem;font-weight:800;color:var(--text)">13 Agents. One Command.</div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;max-width:860px;margin:0 auto 1.25rem">
+      <div class="agent-card"><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem"><span class="status-dot s-active"></span><span style="font-size:10px;color:var(--success);font-weight:600">Active</span></div><div style="font-weight:700;color:var(--text);margin-bottom:.2rem">OpenClaw</div><div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:.6rem">Browser automation & primary operator. Social, outreach, and web tasks.</div><span class="tag">Infrastructure</span></div>
+      <div class="agent-card"><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem"><span class="status-dot s-active"></span><span style="font-size:10px;color:var(--success);font-weight:600">Active</span></div><div style="font-weight:700;color:var(--text);margin-bottom:.2rem">Quanta S</div><div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:.6rem">NewsDesk intelligence + public identity on Virtuals. On-chain editor-in-chief.</div><span class="tag">NewsDesk</span></div>
+      <div class="agent-card"><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem"><span class="status-dot s-idle"></span><span style="font-size:10px;color:var(--warning);font-weight:600">Observer</span></div><div style="font-weight:700;color:var(--text);margin-bottom:.2rem">KNIGHT</div><div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:.6rem">TradeDesk on Conway Terminal. CDP management, treasury, Polymarket ops.</div><span class="tag">TradeDesk</span></div>
+      <div class="agent-card"><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem"><span class="status-dot s-dev"></span><span style="font-size:10px;color:#3b82f6;font-weight:600">Command</span></div><div style="font-weight:700;color:var(--text);margin-bottom:.2rem">Claude Desktop</div><div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:.6rem">Strategic command layer. Connects Linear (MOLT), coordinates fleet.</div><span class="tag">Command</span></div>
+    </div>
+    <div style="text-align:center"><button onclick="authGate('agentchat',navItem('agentchat'))" style="padding:.7rem 1.5rem;background:transparent;color:var(--text);border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s" onmouseenter="this.style.borderColor='var(--pink)';this.style.color='var(--pink)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text)'">Talk to an Agent →</button></div>
+  </div>
+  <!-- Footer -->
+  <div style="background:var(--navy);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <div style="display:flex;align-items:center;gap:.5rem">
+        <img src="sc-logo.png" alt="SC" style="width:28px;height:28px;border-radius:50%;object-fit:cover"/>
+        <span style="color:#fff;font-weight:700;font-size:13px">SUPERCOMPUTE</span>
+        <span style="color:rgba(255,255,255,.3);font-size:11px">· supercompute.eth · Base Chain</span>
+      </div>
+    <div style="font-size:11px;color:rgba(255,255,255,.3)">© 2026 Supercompute · Phase 1 · 1 Human + 13 Agents</div>
+  </div>
+</div>
+
+<!-- ══ ABOUT ══ -->
+<div class="page" id="page-about"><div id="aboutBody"></div></div>
+
+<!-- ══ STAKING ══ -->
+<div class="page" id="page-staking">
+  <div style="background:linear-gradient(135deg,var(--navy),var(--navy2));padding:2.5rem 2rem;text-align:center;color:#fff">
+    <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:.4rem">Stake <span style="color:var(--cyan)">$SCOM</span></h2>
+    <p style="color:rgba(255,255,255,.5);max-width:420px;margin:0 auto 1.5rem;font-size:.85rem">50% of all sub-token trading fees route back to $SCOM stakers via FeeRouter.sol.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;max-width:440px;margin:0 auto">
+      <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:.9rem;border:1px solid rgba(255,255,255,.07)"><div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.7px">Est. APY</div><div style="font-size:1.2rem;font-weight:800;color:#fff">~12%</div></div>
+      <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:.9rem;border:1px solid rgba(255,255,255,.07)"><div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.7px">TVL</div><div style="font-size:1.2rem;font-weight:800;color:#fff">—</div></div>
+      <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:.9rem;border:1px solid rgba(255,255,255,.07)"><div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.7px">Stakers</div><div style="font-size:1.2rem;font-weight:800;color:#fff">—</div></div>
+    </div>
+  </div>
+  <div style="max-width:500px;margin:2rem auto;padding:0 1.5rem">
+    <div class="card">
+      <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:1.25rem">
+        <div class="dash-tab active" id="st-tab-stake" onclick="setStakeTab('stake')">Stake</div>
+        <div class="dash-tab" id="st-tab-unstake" onclick="setStakeTab('unstake')">Unstake</div>
+        <div class="dash-tab" id="st-tab-rewards" onclick="setStakeTab('rewards')">Rewards</div>
+      </div>
+      <div id="stake-pane">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:.4rem">Amount to stake</div>
+        <div style="background:var(--bg);border-radius:10px;border:1.5px solid var(--border);padding:.85rem 1rem;margin-bottom:.6rem;display:flex;justify-content:space-between;align-items:center">
+          <input type="number" id="stakeAmt" placeholder="0.00" style="background:none;border:none;outline:none;font-size:1.3rem;font-weight:700;color:var(--text);width:60%;font-family:inherit" oninput="updateYield()"/>
+          <div style="display:flex;align-items:center;gap:.4rem;font-size:12px;font-weight:700;color:var(--text)"><div style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold));font-size:7px;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center">SC</div>$SCOM</div>
+        </div>
+        <div style="display:flex;gap:.4rem;justify-content:flex-end;margin-bottom:.9rem">
+          <button onclick="document.getElementById('stakeAmt').value=250;updateYield()" class="tb-btn" style="font-size:10px">25%</button>
+          <button onclick="document.getElementById('stakeAmt').value=500;updateYield()" class="tb-btn" style="font-size:10px">50%</button>
+          <button onclick="document.getElementById('stakeAmt').value=1000;updateYield()" class="tb-btn" style="font-size:10px">MAX</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem">
+          <div style="background:var(--bg);border-radius:8px;padding:.7rem"><div style="font-size:10px;color:var(--muted);margin-bottom:.2rem">Est. APY</div><div style="font-size:.9rem;font-weight:700;color:var(--text)" id="yApy">—</div></div>
+          <div style="background:var(--bg);border-radius:8px;padding:.7rem"><div style="font-size:10px;color:var(--muted);margin-bottom:.2rem">Lock Period</div><div style="font-size:.9rem;font-weight:700;color:var(--text)">None</div></div>
+          <div style="background:var(--bg);border-radius:8px;padding:.7rem"><div style="font-size:10px;color:var(--muted);margin-bottom:.2rem">Daily Yield</div><div style="font-size:.9rem;font-weight:700;color:var(--text)" id="yDaily">—</div></div>
+          <div style="background:var(--bg);border-radius:8px;padding:.7rem"><div style="font-size:10px;color:var(--muted);margin-bottom:.2rem">Annual Yield</div><div style="font-size:.9rem;font-weight:700;color:var(--text)" id="yAnnual">—</div></div>
+        </div>
+        <button style="width:100%;padding:.8rem;background:linear-gradient(135deg,var(--pink),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" onclick="showToast('Staking opens at launch — May 2026')">Stake $SCOM</button>
+        <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:.6rem">Live on Base · May 2026</p>
+      </div>
+      <div id="unstake-pane" style="display:none;text-align:center;padding:2rem 0;color:var(--muted);font-size:.85rem">No staked position. Connect wallet to begin.</div>
+      <div id="rewards-pane" style="display:none">
+        <div style="background:var(--bg);border-radius:10px;padding:1.25rem;text-align:center;margin-bottom:1rem"><div style="font-size:11px;color:var(--muted);margin-bottom:.25rem">Pending Rewards</div><div style="font-size:1.75rem;font-weight:800;color:var(--pink)">0.00 <span style="font-size:.9rem;color:var(--muted)">$SCOM</span></div></div>
+        <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:1rem">Rewards accrue from $QUANTA and $VERB fees via <code style="font-size:10px;background:var(--bg);padding:.1rem .35rem;border-radius:4px">FeeRouter.sol</code></div>
+        <button style="width:100%;padding:.75rem;background:linear-gradient(135deg,var(--pink),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" onclick="showToast('Claim available at launch — May 2026')">Claim Rewards</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BLOG ══ -->
+<div class="page" id="page-blog">
+  <div style="background:linear-gradient(135deg,#fff8f5,#fff0f8);padding:1.75rem 1.5rem;border-bottom:1px solid var(--border)">
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">NewsDesk</div>
+    <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.2rem">Operator Intelligence</h2>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem">AI-curated Web3 signals, sovereignty stack updates, and agent dispatches.</p>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="blogFilters">
+      <button class="tb-btn" data-filter="all" onclick="renderBlog('all')">All</button>
+      <button class="tb-btn" data-filter="intelligence" onclick="renderBlog('intelligence')">Operator Intelligence</button>
+      <button class="tb-btn" data-filter="sovereignty" onclick="renderBlog('sovereignty')">Sovereignty Stack</button>
+      <button class="tb-btn" data-filter="dispatch" onclick="renderBlog('dispatch')">Agent Dispatches</button>
+      <button class="tb-btn" data-filter="signal" onclick="renderBlog('signal')">Community Signal</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;padding:1.5rem" id="blogGrid"></div>
+</div>
+
+<!-- ══ PROJECTS ══ -->
+<div class="page" id="page-pub-projects">
+  <div style="padding:1.5rem 1.5rem 0;background:#fff;border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.2rem">Projects</div><h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.2rem">Community Projects</h2><p style="font-size:.8rem;color:var(--muted);padding-bottom:1.25rem">Every project built by SUPERCOMPUTE — active, in progress, and coming soon.</p></div>
+  <div style="padding:1.5rem"><div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">Active Projects</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1.75rem" id="pubActiveProj"></div><div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">Coming Soon</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem" id="pubSoonProj"></div></div>
+</div>
+
+<!-- ══ CONSULTING ══ -->
+<div class="page" id="page-consulting">
+  <div style="padding:1.75rem 1.5rem;background:linear-gradient(135deg,#fff8f5,#fff0f8);border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.2rem">Consulting</div><h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.2rem">Work with SUPERCOMPUTE</h2><p style="font-size:.8rem;color:var(--muted)">Expert Web3 strategy & agent automation. Sessions via Calendly.</p></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;padding:1.5rem">
+    <div class="card" style="position:relative;overflow:hidden"><div style="font-size:1.6rem;font-weight:800;color:var(--pink);margin-bottom:.1rem">$200</div><div style="font-weight:700;color:var(--text);margin-bottom:.15rem">DeFi Onboarding</div><div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">2 hrs · Zoom</div><p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:1rem">Wallet setup, protocol walkthrough, security best practices, and your first on-chain transaction.</p><button class="tb-btn" style="width:100%;border-color:var(--pink);color:var(--pink)" onclick="openCalendly()">Book Session</button></div>
+    <div class="card" style="border-color:rgba(233,30,140,.3);background:linear-gradient(135deg,#fff,#fff8fb);position:relative;overflow:hidden">
+      <div style="position:absolute;top:10px;right:-14px;background:var(--pink);color:#fff;font-size:9px;font-weight:700;padding:.15rem 1.25rem;transform:rotate(35deg);letter-spacing:.5px">Popular</div>
+      <div style="font-size:1.6rem;font-weight:800;color:var(--pink);margin-bottom:.1rem">$300</div><div style="font-weight:700;color:var(--text);margin-bottom:.15rem">Agent Automation</div><div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">2 hrs · Zoom</div><p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:1rem">Design your 1-human + AI workflow. OpenClaw setup, Linear integration, automation strategy.</p><button class="tb-btn primary" onclick="openCalendly()">Book Session</button></div>
+    <div class="card"><div style="font-size:1.6rem;font-weight:800;color:var(--pink);margin-bottom:.1rem">$350</div><div style="font-weight:700;color:var(--text);margin-bottom:.15rem">ReFi Strategy</div><div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">3 hrs · Zoom</div><p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:1rem">Regenerative finance deep dive. Impact investing, green infrastructure on-chain, community treasury.</p><button class="tb-btn" style="width:100%;border-color:var(--pink);color:var(--pink)" onclick="openCalendly()">Book Session</button></div>
+    <div class="card"><div style="font-size:1.6rem;font-weight:800;color:var(--pink);margin-bottom:.1rem">$450</div><div style="font-weight:700;color:var(--text);margin-bottom:.15rem">Protocol Deep Dive</div><div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">4 hrs · Zoom</div><p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:1rem">Smart contract review, tokenomics design, L2 deployment on Base, and go-to-market strategy.</p><button class="tb-btn" style="width:100%;border-color:var(--pink);color:var(--pink)" onclick="openCalendly()">Book Session</button></div>
+  </div>
+  <div style="background:var(--navy);margin:0 1.5rem 1.5rem;border-radius:14px;padding:2rem;text-align:center;color:#fff">
+    <div style="font-size:1.25rem;font-weight:800;margin-bottom:.5rem">Ready to build your <span style="color:var(--cyan)">sovereign stack?</span></div>
+    <p style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:1.25rem">13 years of crypto. 1 operator. Infinite agents.</p>
+    <button style="padding:.75rem 1.75rem;background:var(--pink);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" onclick="openCalendly()">Book on Calendly →</button>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:.6rem">calendly.com/ora_mi</div>
+  </div>
+</div>
+
+<!-- ══ TOKEN ══ -->
+<div class="page" id="page-token">
+  <div class="topbar"><div><div class="topbar-title">$SCOM Token</div><div class="topbar-sub">Supercompute Protocol Token · Base Chain</div></div><div class="topbar-actions"><span class="badge badge-pink">Pre-Launch · Q3 2026</span><button class="tb-btn" onclick="copyToClipboard('supercompute.eth')">Copy ENS</button></div></div>
+  <div class="pg-body" id="tokenPage"></div>
+</div>
+
+<!-- ══ ASSETS (member) ══ -->
+<div class="page" id="page-assets">
+  <div class="topbar"><div class="topbar-title">Assets</div><div class="topbar-actions"><button class="tb-btn primary">+ Add Asset</button></div></div>
+  <div class="pg-body">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1.25rem">
+      <div class="stat-card"><div class="stat-label">Portfolio Value</div><div class="stat-val">$0.00</div><div class="stat-sub s-neu">Awaiting launch</div></div>
+      <div class="stat-card"><div class="stat-label">$SCOM Holdings</div><div class="stat-val">0</div><div class="stat-sub s-neu">Pre-launch</div></div>
+      <div class="stat-card"><div class="stat-label">$QUANTA</div><div class="stat-val">0</div><div class="stat-sub s-neu">Pending verification</div></div>
+      <div class="stat-card"><div class="stat-label">NFTs Held</div><div class="stat-val">0</div><div class="stat-sub s-neu">WordWatcher</div></div>
+    </div>
+    <div class="grid2-3">
+      <div class="card"><div class="section-title">Token Portfolio</div>
+        <div class="asset-row"><div class="asset-ico" style="background:linear-gradient(135deg,var(--pink),var(--gold))">SC</div><div style="flex:1"><div style="font-weight:700;font-size:13px">$SCOM</div><div style="font-size:11px;color:var(--muted)">Builder Coin · Base</div></div><div style="text-align:right"><div style="font-weight:700;font-size:13px">$0.00</div><div style="font-size:11px;color:var(--muted)">0 tokens</div></div></div>
+        <div class="asset-row"><div class="asset-ico" style="background:linear-gradient(135deg,#6366f1,var(--cyan2))">QT</div><div style="flex:1"><div style="font-weight:700;font-size:13px">$QUANTA</div><div style="font-size:11px;color:var(--muted)">NewsDesk · Virtuals</div></div><div style="text-align:right"><div style="font-weight:700;font-size:13px">$0.00</div><div style="font-size:11px;color:var(--muted)">Pending</div></div></div>
+        <div class="asset-row"><div class="asset-ico" style="background:linear-gradient(135deg,var(--gold),#f97316)">VB</div><div style="flex:1"><div style="font-weight:700;font-size:13px">$VERB</div><div style="font-size:11px;color:var(--muted)">WordWatcher · Base</div></div><div style="text-align:right"><div style="font-weight:700;font-size:13px">$0.00</div><div style="font-size:11px;color:var(--muted)">0 tokens</div></div></div>
+        <div class="asset-row"><div class="asset-ico" style="background:linear-gradient(135deg,#4ade80,var(--cyan2))">E</div><div style="flex:1"><div style="font-weight:700;font-size:13px">ETH (Base)</div><div style="font-size:11px;color:var(--muted)">Native gas token</div></div><div style="text-align:right"><div style="font-weight:700;font-size:13px">—</div><div style="font-size:11px;color:var(--muted)">Connect wallet</div></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.75rem">
+        <div class="card"><div class="section-title">Staking Position</div><div style="text-align:center;padding:1rem 0;color:var(--muted);font-size:.8rem">No active stake.<br>Staking opens May 2026.</div><button class="tb-btn primary" style="width:100%" onclick="navigate('staking',navItem('staking'))">Stake $SCOM</button></div>
+        <div class="card"><div class="section-title">NFT Collection</div><div style="text-align:center;padding:.75rem 0;font-size:.8rem;color:var(--muted)">0 WordWatcher NFTs<br><span style="font-size:10px">Mint at launch</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SOCIAL FEED (member) ══ -->
+<div class="page" id="page-social">
+  <div class="topbar"><div class="topbar-title">Social Feed</div><div class="topbar-actions"><button class="tb-btn primary" onclick="showToast('OpenClaw queuing post...')">+ New Post</button></div></div>
+  <div class="pg-body">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.25rem">
+      <div class="stat-card"><div class="stat-label">X Followers</div><div class="stat-val">156</div><div class="stat-sub s-up">@supercomputeco</div></div>
+      <div class="stat-card"><div class="stat-label">Lens Posts</div><div class="stat-val">12</div><div class="stat-sub s-neu">@quanta.lens</div></div>
+      <div class="stat-card"><div class="stat-label">Scheduled</div><div class="stat-val">4</div><div class="stat-sub s-up">Via OpenClaw</div></div>
+      <div class="stat-card"><div class="stat-label">Published</div><div class="stat-val">23</div><div class="stat-sub s-up">This month</div></div>
+    </div>
+    <div class="grid2-3">
+      <div class="card"><div class="section-title">Connected Platforms</div>
+        <div class="platform-card" style="margin-bottom:.5rem"><div class="platform-icon" style="background:#000;color:#fff;font-size:14px">𝕏</div><div style="flex:1"><div style="font-weight:700;font-size:13px">X (Twitter)</div><div style="font-size:11px;color:var(--muted)">@supercomputeco</div></div><span class="badge badge-live">Connected</span></div>
+        <div class="platform-card" style="margin-bottom:.5rem"><div class="platform-icon" style="background:rgba(233,30,140,.1);color:var(--pink);font-size:18px">◉</div><div style="flex:1"><div style="font-weight:700;font-size:13px">Lens Protocol</div><div style="font-size:11px;color:var(--muted)">@quanta.lens</div></div><span class="badge badge-live">Connected</span></div>
+        <div class="platform-card"><div class="platform-icon" style="background:rgba(99,102,241,.1);color:#6366f1;font-size:18px">⬡</div><div style="flex:1"><div style="font-weight:700;font-size:13px">Farcaster</div><div style="font-size:11px;color:var(--muted)">Pending connection</div></div><span class="badge badge-soon">Pending</span></div>
+      </div>
+      <div class="card"><div class="section-title">OpenClaw Queue</div>
+        <div style="background:var(--bg);border-radius:8px;padding:.75rem;border:1px solid var(--border);margin-bottom:.5rem"><div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:.2rem">NewsDesk Launch Announcement</div><div style="font-size:10px;color:var(--muted)">Scheduled: Apr 25, 2026 · X + Lens</div></div>
+        <div style="background:var(--bg);border-radius:8px;padding:.75rem;border:1px solid var(--border);margin-bottom:.5rem"><div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:.2rem">$SCOM Token Introduction Thread</div><div style="font-size:10px;color:var(--muted)">Scheduled: May 5, 2026 · X</div></div>
+        <div style="background:var(--bg);border-radius:8px;padding:.75rem;border:1px solid var(--border)"><div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:.2rem">Web3 School Beta Invite</div><div style="font-size:10px;color:var(--muted)">Scheduled: May 10, 2026 · Lens</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ALERTS (member) ══ -->
+<div class="page" id="page-alerts">
+  <div class="topbar"><div class="topbar-title">Alerts <span style="font-size:11px;background:rgba(233,30,140,.1);color:var(--pink);padding:.15rem .5rem;border-radius:10px;margin-left:.4rem;font-weight:700">3</span></div><div class="topbar-actions"><button class="tb-btn" onclick="showToast('All alerts marked as read')">Mark all read</button></div></div>
+  <div class="pg-body">
+    <div class="alert-item"><div class="alert-ico" style="background:rgba(74,222,128,.1);color:#16a34a">✓</div><div class="alert-content"><h4>NewsDesk Draft Published</h4><p>6 founding articles saved to Sanity CMS (project: 2i3obqvj)</p></div><div class="alert-time">2h ago</div></div>
+    <div class="alert-item"><div class="alert-ico" style="background:rgba(233,30,140,.1);color:var(--pink)">◉</div><div class="alert-content"><h4>OpenClaw: X post scheduled</h4><p>NewsDesk launch announcement queued for Apr 25, 2026</p></div><div class="alert-time">5h ago</div></div>
+    <div class="alert-item"><div class="alert-ico" style="background:rgba(255,184,0,.1);color:var(--gold2)">⚡</div><div class="alert-content"><h4>Linear: 9 tickets open (MOL-294–302)</h4><p>Remaining functional gaps identified for NewsDesk launch</p></div><div class="alert-time">1d ago</div></div>
+    <div class="alert-item" style="opacity:.55"><div class="alert-ico" style="background:var(--bg)">◎</div><div class="alert-content"><h4>$QUANTA pending verification</h4><p>Contract 0x5acdc...371a awaiting Virtuals.io verification</p></div><div class="alert-time">3d ago</div></div>
+    <div class="alert-item" style="opacity:.55"><div class="alert-ico" style="background:var(--bg)">◎</div><div class="alert-content"><h4>Security Flag: AuthContext.jsx</h4><p>isAuthenticated hardcoded to true — Sprint 1 priority fix</p></div><div class="alert-time">5d ago</div></div>
+  </div>
+</div>
+
+<!-- ══ PROFILE (member) ══ -->
+<div class="page" id="page-profile">
+  <div class="topbar"><div class="topbar-title">Profile</div><div class="topbar-actions"><button class="tb-btn primary" onclick="showToast('✓ Profile saved')">Save Changes</button></div></div>
+  <div class="pg-body" style="max-width:680px">
+    <div class="card" style="margin-bottom:1rem;text-align:center;padding:2rem">
+      <div class="profile-avatar-lg">O</div>
+      <div style="font-weight:800;font-size:1.1rem;color:var(--text);margin-bottom:.25rem" id="profileName">Orami</div>
+      <div id="profileRoleDisplay" style="margin-bottom:.75rem"></div>
+      <div style="font-size:.8rem;color:var(--muted)">supercompute.eth · @supercomputeco</div>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-bottom:1rem">Account Details</div>
+      <div class="grid2">
+        <div class="profile-field"><label>Display Name</label><input value="Orami" id="pName" oninput="document.getElementById('profileName').textContent=this.value"/></div>
+        <div class="profile-field"><label>Role</label><input value="Founder / Admin" disabled style="opacity:.6"/></div>
+        <div class="profile-field"><label>Email</label><input value="service@supercompute.io"/></div>
+        <div class="profile-field"><label>ENS</label><input value="supercompute.eth"/></div>
+        <div class="profile-field"><label>X Handle</label><input value="@supercomputeco"/></div>
+        <div class="profile-field"><label>Lens</label><input value="@quanta.lens"/></div>
+      </div>
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+        <div class="section-title">Wallet</div>
+        <div style="display:flex;align-items:center;gap:.75rem;background:var(--bg);border-radius:8px;padding:.75rem 1rem;font-size:12px">
+          <span style="font-size:16px">◎</span>
+          <span id="profileWallet" style="font-weight:600;color:var(--text)">Not connected</span>
+          <button class="tb-btn" style="margin-left:auto;font-size:11px" onclick="toggleWallet()">Connect</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AGENT CHAT (member) ══ -->
+<div class="page" id="page-agentchat">
+  <div class="topbar"><div><div class="topbar-title">Agent Chat</div><div class="topbar-sub">Powered by Claude AI · Talk to your fleet</div></div><div class="topbar-actions"><span class="badge badge-live">Live</span></div></div>
+  <div class="chat-wrap" style="height:calc(100vh - 52px)">
+    <div class="chat-header">
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy2));border:1px solid rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--cyan)">SC</div>
+      <div style="flex:1"><div style="font-weight:700;font-size:13px;color:var(--text)">SUPERCOMPUTE Agent Chat</div><div style="font-size:11px;color:var(--muted)">Active: <span id="activeAgentLabel" style="color:var(--pink);font-weight:600">OpenClaw</span></div></div>
+      <span class="pulse-green"></span><span style="font-size:11px;color:var(--success);font-weight:600;margin-left:4px">Claude AI</span>
+    </div>
+    <div class="chat-agents-row">
+      <div class="agent-chip sel" id="chip-openclaw" onclick="selectAgent('openclaw')"><span class="status-dot s-active" style="width:5px;height:5px"></span>OpenClaw</div>
+      <div class="agent-chip" id="chip-quanta" onclick="selectAgent('quanta')"><span class="status-dot s-active" style="width:5px;height:5px"></span>Quanta S</div>
+      <div class="agent-chip" id="chip-knight" onclick="selectAgent('knight')"><span class="status-dot s-idle" style="width:5px;height:5px"></span>KNIGHT</div>
+      <div class="agent-chip" id="chip-claude" onclick="selectAgent('claude')"><span class="status-dot s-dev" style="width:5px;height:5px"></span>Claude Desktop</div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg ai"><div class="chat-av ai-av">OC</div><div><div style="font-size:10px;color:var(--muted);margin-bottom:.25rem">OpenClaw · Infrastructure</div><div class="chat-bubble">Hey. I'm online and ready. What would you like me to do today? I can handle social posting, web research, Linear ticket updates, or any browser automation task.</div></div></div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" placeholder="Message OpenClaw..."/>
+      <button class="chat-send" onclick="sendChat()">Send →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WEB3 SCHOOL (member) ══ -->
+<div class="page" id="page-web3school">
+  <div class="topbar"><div><div class="topbar-title">Web3 School</div><div class="topbar-sub">Principled Web3 Education · Unlock TradeDesk on completion</div></div><div class="topbar-actions"><button class="tb-btn" onclick="school=[];localStorage.removeItem('sc_school');renderWeb3School();showToast('Progress reset')">Reset</button></div></div>
+  <div class="pg-body" id="schoolBody"></div>
+</div>
+
+<!-- ══ SOCIAL MEDIA (member) ══ -->
+<div class="page" id="page-socialmedia">
+  <div class="topbar"><div><div class="topbar-title">Social Media</div><div class="topbar-sub">Content Publishing · Powered by Quanta S</div></div><div class="topbar-actions"><span class="pulse-green"></span><span style="font-size:11px;color:var(--success);font-weight:600;margin-left:4px">Quanta S Online</span><button class="tb-btn primary" onclick="showToast('New post flow → compose')">+ New Post</button></div></div>
+  <div class="pg-body">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem">
+      <div class="card" style="display:flex;align-items:center;gap:.75rem"><div style="width:38px;height:38px;border-radius:10px;background:#000;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0">𝕏</div><div><div style="font-weight:600;font-size:12px;color:var(--text)">@supercomputeco</div><div style="font-size:11px;color:var(--muted)">156 followers</div></div></div>
+      <div class="card" style="display:flex;align-items:center;gap:.75rem"><div style="width:38px;height:38px;border-radius:10px;background:rgba(233,30,140,.1);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--pink);flex-shrink:0">◉</div><div><div style="font-weight:600;font-size:12px;color:var(--text)">@quanta.lens</div><div style="font-size:11px;color:var(--muted)">89 followers</div></div></div>
+      <div class="stat-card"><div class="stat-label">Scheduled</div><div class="stat-val">4</div><div class="stat-sub s-up">Via OpenClaw</div></div>
+      <div class="stat-card"><div class="stat-label">Published MTD</div><div class="stat-val">23</div><div class="stat-sub s-up">All platforms</div></div>
+    </div>
+    <div style="display:flex;gap:.5rem;margin-bottom:1rem">
+      <button class="tb-btn sm-tab active" data-tab="scheduled" onclick="renderSocialMedia('scheduled')">Scheduled (4)</button>
+      <button class="tb-btn sm-tab" data-tab="templates" onclick="renderSocialMedia('templates')">Templates (4)</button>
+    </div>
+    <div id="smBody"></div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD (admin) ══ -->
+<div class="page" id="page-dashboard">
+  <div class="topbar"><div class="topbar-breadcrumb" style="font-size:11px;color:var(--muted)">Admin</div><div class="topbar-title" style="margin-left:.4rem">Dashboard</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span></div></div>
+  <div class="dash-tabs">
+    <div class="dash-tab active" data-tab="overview"  onclick="renderDash('overview')">Overview</div>
+    <div class="dash-tab" data-tab="users"       onclick="renderDash('users')">Users</div>
+    <div class="dash-tab" data-tab="data"        onclick="renderDash('data')">Data</div>
+    <div class="dash-tab" data-tab="analytics"   onclick="renderDash('analytics')">Analytics</div>
+    <div class="dash-tab" data-tab="agents"      onclick="renderDash('agents')">Agents</div>
+    <div class="dash-tab" data-tab="automations" onclick="renderDash('automations')">Automations</div>
+    <div class="dash-tab" data-tab="logs"        onclick="renderDash('logs')">Logs</div>
+    <div class="dash-tab" data-tab="api"         onclick="renderDash('api')">API</div>
+    <div class="dash-tab" data-tab="integrations"onclick="renderDash('integrations')">Integrations</div>
+    <div class="dash-tab" data-tab="domains"     onclick="renderDash('domains')">Domains</div>
+    <div class="dash-tab" data-tab="social"      onclick="renderDash('social')">Social Content</div>
+    <div class="dash-tab" data-tab="security"    onclick="renderDash('security')">Security</div>
+    <div class="dash-tab" data-tab="settings"    onclick="renderDash('settings')">Settings</div>
+    <div class="dash-tab" data-tab="secrets"     onclick="renderDash('secrets')">Secrets</div>
+  </div>
+  <div class="pg-body" id="dashBody"></div>
+</div>
+
+<!-- ══ COMMUNITY (admin) ══ -->
+<div class="page" id="page-community">
+  <div class="topbar"><div class="topbar-title">Community Management</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><button class="tb-btn primary" onclick="showToast('Invite sent via OpenClaw')">+ Invite Member</button></div></div>
+  <div class="pg-body">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.25rem">
+      <div class="stat-card"><div class="stat-label">Total Members</div><div class="stat-val">21</div><div class="stat-sub s-up">+3 this week</div></div>
+      <div class="stat-card"><div class="stat-label">Guild.xyz Roles</div><div class="stat-val">7</div><div class="stat-sub s-neu">NFT gated</div></div>
+      <div class="stat-card"><div class="stat-label">Web3 School</div><div class="stat-val">0</div><div class="stat-sub s-neu">Beta pending</div></div>
+      <div class="stat-card"><div class="stat-label">NFT Credentials</div><div class="stat-val">0</div><div class="stat-sub s-neu">ERC-1155 Base</div></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Member Roster</div>
+      <table><thead><tr><th>Member</th><th>Role</th><th>Joined</th><th>Guild Role</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Orami</strong></td><td><span class="badge badge-admin">Admin</span></td><td>2013</td><td>Founder</td><td><span class="badge badge-live">Active</span></td></tr>
+        <tr><td>QuantaS.Molt</td><td><span class="badge badge-pink">Agent</span></td><td>2025</td><td>NewsDesk</td><td><span class="badge badge-live">Active</span></td></tr>
+        <tr><td>Mario Jefferson</td><td><span class="badge badge-cyan">Contributor</span></td><td>2025</td><td>Dev</td><td><span class="badge badge-live">Active</span></td></tr>
+        <tr><td>Community (18)</td><td><span class="badge badge-soon">Member</span></td><td>Various</td><td>Pending</td><td><span class="badge badge-progress">Onboarding</span></td></tr>
+      </tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NEWSDESK CMS (admin) ══ -->
+<div class="page" id="page-newsdesk">
+  <div class="topbar"><div class="topbar-title">NewsDesk CMS</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><button class="tb-btn primary" onclick="authGate('createarticle',navItem('createarticle'),true)">+ Create Article</button></div></div>
+  <div class="pg-body">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem">
+      <div class="stat-card"><div class="stat-label">Total Articles</div><div class="stat-val">6</div><div class="stat-sub s-up">All categories</div></div>
+      <div class="stat-card"><div class="stat-label">Published</div><div class="stat-val">1</div><div class="stat-sub s-neu">Intelligence</div></div>
+      <div class="stat-card"><div class="stat-label">Sanity Project</div><div class="stat-val" style="font-size:.9rem;font-family:monospace">2i3obqvj</div></div>
+      <div class="stat-card"><div class="stat-label">QUANTA Agent</div><div class="stat-val" style="font-size:.85rem">Active</div><div class="stat-sub s-up">Writing</div></div>
+    </div>
+    <div class="card"><div class="section-title">Article Queue</div><div id="newsdeskQueue"></div></div>
+  </div>
+</div>
+
+<!-- ══ CREATE ARTICLE (admin) ══ -->
+<div class="page" id="page-createarticle">
+  <div class="topbar"><div class="topbar-title">Create Article</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><button class="tb-btn" onclick="navigate('newsdesk',navItem('newsdesk'))">Cancel</button><button class="tb-btn" style="border-color:rgba(233,30,140,.3);color:var(--pink)" onclick="showToast('✓ Saved to Sanity draft')">Save Draft</button><button class="tb-btn primary" onclick="showToast('✨ Publishing via QUANTA...')">Publish</button></div></div>
+  <div class="editor-wrap">
+    <div class="editor-main">
+      <input class="editor-input" id="articleTitle" placeholder="Article title..."/>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <select class="form-select" style="width:auto"><option>Operator Intelligence</option><option>Sovereignty Stack</option><option>Agent Dispatches</option><option>Community Signal</option></select>
+        <input class="form-input" style="flex:1;min-width:120px" placeholder="Author (e.g. QUANTA)"/>
+      </div>
+      <textarea class="editor-textarea" id="articleContent" placeholder="Start writing your article... (Markdown supported)"></textarea>
+      <div id="aiResult" style="display:none;background:rgba(233,30,140,.04);border:1px solid rgba(233,30,140,.15);border-radius:10px;padding:1rem;font-size:12px;color:var(--text);line-height:1.7;white-space:pre-wrap"></div>
+    </div>
+    <div class="editor-sidebar">
+      <div class="card-sm"><div class="section-title">Publish Settings</div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-select"><option>Draft</option><option>Review</option><option>Published</option></select></div>
+        <div class="form-group"><label class="form-label">Pillar</label><select class="form-select"><option>Operator Intelligence</option><option>Sovereignty Stack</option><option>Agent Dispatches</option><option>Community Signal</option></select></div>
+      </div>
+      <div class="card-sm"><div class="section-title">✨ AI Assist (Quanta S)</div>
+        <button class="tb-btn" style="width:100%;margin-bottom:.4rem;font-size:11px" onclick="aiAssist('headline')">Generate headline ideas</button>
+        <button class="tb-btn" style="width:100%;margin-bottom:.4rem;font-size:11px" onclick="aiAssist('excerpt')">Write excerpt</button>
+        <button class="tb-btn" style="width:100%;font-size:11px" onclick="aiAssist('seo')">Generate SEO tags</button>
+      </div>
+      <div class="card-sm"><div class="section-title">Cross-post</div>
+        <label style="display:flex;align-items:center;gap:.4rem;font-size:12px;margin-bottom:.35rem;cursor:pointer"><input type="checkbox" checked/> X (Twitter)</label>
+        <label style="display:flex;align-items:center;gap:.4rem;font-size:12px;margin-bottom:.35rem;cursor:pointer"><input type="checkbox" checked/> Lens Protocol</label>
+        <label style="display:flex;align-items:center;gap:.4rem;font-size:12px;cursor:pointer"><input type="checkbox"/> Farcaster</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ API STATUS (admin) ══ -->
+<div class="page" id="page-apiStatus">
+  <div class="topbar"><div class="topbar-title">API Status</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><span class="badge badge-live">All Systems Operational</span></div></div>
+  <div class="pg-body">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem">
+      <div class="stat-card"><div class="stat-label">Uptime (30d)</div><div class="stat-val">99.9<span style="font-size:.9rem">%</span></div><div class="stat-sub s-up">Cloudflare</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Latency</div><div class="stat-val">48<span style="font-size:.9rem">ms</span></div><div class="stat-sub s-up">Workers edge</div></div>
+      <div class="stat-card"><div class="stat-label">Requests (24h)</div><div class="stat-val">1.2k</div><div class="stat-sub s-neu">Dev traffic</div></div>
+      <div class="stat-card"><div class="stat-label">Errors (24h)</div><div class="stat-val">0</div><div class="stat-sub s-up">Clean</div></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Service Status</div>
+      <div class="api-row"><div class="api-status-dot api-up"></div><div style="flex:1"><div style="font-weight:600;font-size:12px">Cloudflare Workers (API)</div><div style="font-size:10px;color:var(--muted)">supercompute.io/api · Hono framework</div></div><div class="uptime-bar"><div class="uptime-fill" style="width:99.9%"></div></div><div style="font-size:11px;font-weight:700;color:var(--success);margin-left:.75rem;min-width:45px">99.9%</div></div>
+      <div class="api-row"><div class="api-status-dot api-up"></div><div style="flex:1"><div style="font-weight:600;font-size:12px">Cloudflare D1 (Database)</div><div style="font-size:10px;color:var(--muted)">SQLite edge DB · schema v1.0</div></div><div class="uptime-bar"><div class="uptime-fill" style="width:100%"></div></div><div style="font-size:11px;font-weight:700;color:var(--success);margin-left:.75rem;min-width:45px">100%</div></div>
+      <div class="api-row"><div class="api-status-dot api-up"></div><div style="flex:1"><div style="font-weight:600;font-size:12px">Cloudflare R2 (Storage)</div><div style="font-size:10px;color:var(--muted)">Media & asset storage</div></div><div class="uptime-bar"><div class="uptime-fill" style="width:100%"></div></div><div style="font-size:11px;font-weight:700;color:var(--success);margin-left:.75rem;min-width:45px">100%</div></div>
+      <div class="api-row"><div class="api-status-dot api-up"></div><div style="flex:1"><div style="font-weight:600;font-size:12px">Sanity CMS</div><div style="font-size:10px;color:var(--muted)">Project 2i3obqvj · 6 articles</div></div><div class="uptime-bar"><div class="uptime-fill" style="width:99.7%"></div></div><div style="font-size:11px;font-weight:700;color:var(--success);margin-left:.75rem;min-width:45px">99.7%</div></div>
+      <div class="api-row"><div class="api-status-dot api-deg"></div><div style="flex:1"><div style="font-weight:600;font-size:12px">Virtuals Protocol</div><div style="font-size:10px;color:var(--muted)">$QUANTA pending verification</div></div><div class="uptime-bar"><div class="uptime-fill" style="width:85%;background:var(--gold)"></div></div><div style="font-size:11px;font-weight:700;color:var(--warning);margin-left:.75rem;min-width:45px">Pending</div></div>
+      <div class="api-row"><div class="api-status-dot api-up"></div><div style="flex:1"><div style="font-weight:600;font-size:12px">Linear (MOLT) MCP</div><div style="font-size:10px;color:var(--muted)">Claude Desktop integration active</div></div><div class="uptime-bar"><div class="uptime-fill" style="width:100%"></div></div><div style="font-size:11px;font-weight:700;color:var(--success);margin-left:.75rem;min-width:45px">100%</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ CREATE PROJECT ══ -->
+<div class="page" id="page-create-project">
+  <div class="topbar">
+    <div><div class="topbar-title">Submit a Project</div><div class="topbar-sub">Propose a new Supercompute community project</div></div>
+    <div class="topbar-actions">
+      <button class="tb-btn" onclick="navigate('pub-projects',navItem('pub-projects'))">Cancel</button>
+      <button class="tb-btn" style="border-color:rgba(233,30,140,.3);color:var(--pink)" onclick="saveProjectDraft()">Save Draft</button>
+      <button class="tb-btn primary" onclick="submitProject()">Submit Project →</button>
+    </div>
+  </div>
+  <div class="pg-body" style="max-width:820px">
+    <!-- Progress indicator -->
+    <div id="projFormStepBar" style="display:flex;align-items:center;margin-bottom:1.75rem"></div>
+    <div id="projFormBody"></div>
+  </div>
+</div>
+
+<!-- ══ ADD ASSET / TOKEN ══ -->
+<div class="page" id="page-add-asset">
+  <div class="topbar">
+    <div><div class="topbar-title">Add Asset</div><div class="topbar-sub">Add a token or NFT to your portfolio</div></div>
+    <div class="topbar-actions">
+      <button class="tb-btn" onclick="navigate('assets',navItem('assets'))">← Back to Assets</button>
+    </div>
+  </div>
+  <div class="pg-body" id="addAssetBody" style="max-width:640px"></div>
+</div>
+
+<!-- ══ NEW SOCIAL POST ══ -->
+<div class="page" id="page-new-post">
+  <div class="topbar">
+    <div><div class="topbar-title">New Post</div><div class="topbar-sub">Compose · Schedule · Publish via OpenClaw</div></div>
+    <div class="topbar-actions">
+      <div id="postCharCount" style="font-size:11px;color:var(--muted)">0 / 280</div>
+      <button class="tb-btn" onclick="navigate('socialmedia',navItem('socialmedia'))">Cancel</button>
+      <button class="tb-btn" style="border-color:rgba(233,30,140,.3);color:var(--pink)" onclick="schedulePost(false)">Schedule</button>
+      <button class="tb-btn primary" onclick="schedulePost(true)">Publish Now →</button>
+    </div>
+  </div>
+  <div id="newPostBody" style="display:grid;grid-template-columns:1fr 300px;height:calc(100vh - 52px);overflow:hidden"></div>
+</div>
+
+<!-- ══ PROJECT DETAIL ══ -->
+<div class="page" id="page-project-detail">
+  <div class="topbar">
+    <div><div class="topbar-title" id="projDetailTitle">Project</div><div class="topbar-sub">Supercompute Community Projects</div></div>
+    <div class="topbar-actions">
+      <button class="tb-btn" onclick="navigate('pub-projects',navItem('pub-projects'))">← All Projects</button>
+      <button class="tb-btn primary" onclick="currentProjectId && openInvestFlow(currentProjectId)">Back This Project</button>
+    </div>
+  </div>
+  <div id="projectDetailBody" style="overflow-y:auto;flex:1"></div>
+</div>
+
+<!-- ══ PROJECT INVEST CHECKOUT ══ -->
+<div class="page" id="page-project-invest">
+  <div class="topbar">
+    <div><div class="topbar-title">Back a Project</div><div class="topbar-sub">Secure checkout · USDC on Base</div></div>
+    <div class="topbar-actions">
+      <button class="tb-btn" onclick="currentProjectId && openProject(currentProjectId)">← Project Details</button>
+    </div>
+  </div>
+  <div class="pg-body" id="investBody"></div>
+</div>
+
+<!-- ══ BLOG DRAFTS MANAGER ══ -->
+<div class="page" id="page-blog-drafts">
+  <div class="topbar">
+    <div><div class="topbar-title">Blog Manager</div><div class="topbar-sub">Drafts, published articles, and queue</div></div>
+    <div class="topbar-actions">
+      <button class="tb-btn" onclick="navigate('blog',navItem('blog'))">← Public Blog</button>
+      <button class="tb-btn primary" onclick="editingDraftId=null;navigate('blog-compose',null)">+ New Article</button>
+    </div>
+  </div>
+  <!-- Tabs -->
+  <div style="display:flex;border-bottom:1px solid var(--border);background:var(--card);padding:0 1.5rem;flex-shrink:0">
+    <div class="dash-tab active" id="bdTab-all" onclick="filterDrafts('all',this)">All</div>
+    <div class="dash-tab" id="bdTab-draft" onclick="filterDrafts('draft',this)">Drafts</div>
+    <div class="dash-tab" id="bdTab-published" onclick="filterDrafts('published',this)">Published</div>
+  </div>
+  <div class="pg-body">
+    <!-- Stats row -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.25rem">
+      <div class="stat-card"><div class="stat-label">Total Articles</div><div class="stat-val" id="draftStatTotal">—</div></div>
+      <div class="stat-card"><div class="stat-label">Drafts</div><div class="stat-val" id="draftStatDrafts">—</div></div>
+      <div class="stat-card"><div class="stat-label">Published</div><div class="stat-val" id="draftStatPublished">—</div></div>
+      <div class="stat-card"><div class="stat-label">Agent</div><div class="stat-val" style="font-size:.9rem">Quanta S</div><div class="stat-sub s-up">Online</div></div>
+    </div>
+    <div id="blogDraftsBody"></div>
+  </div>
+</div>
+
+<!-- ══ BLOG COMPOSE ══ -->
+<div class="page" id="page-blog-compose">
+  <div class="topbar">
+    <div><div class="topbar-title" id="composeTitle">New Article</div><div class="topbar-sub">NewsDesk CMS · Powered by Quanta S</div></div>
+    <div class="topbar-actions">
+      <div id="wordCount" style="font-size:11px;color:var(--muted)">0 words</div>
+      <button class="tb-btn" onclick="navigate('blog-drafts',null)">Cancel</button>
+      <button class="tb-btn" style="border-color:rgba(233,30,140,.3);color:var(--pink)" onclick="saveBlogDraft(false)">Save Draft</button>
+      <button class="tb-btn primary" onclick="saveBlogDraft(true)">Publish →</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 290px;height:calc(100vh - 52px);overflow:hidden">
+    <!-- Editor -->
+    <div style="padding:1.5rem;border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;gap:.85rem">
+      <!-- Title -->
+      <input class="editor-input" id="blogTitle" placeholder="Article title…" oninput="updateWordCount();document.getElementById('composeTitle').textContent=this.value||'New Article'" />
+      <!-- Meta row -->
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+        <select class="form-select" id="blogCat" style="width:auto">
+          <option value="intelligence">Operator Intelligence</option>
+          <option value="sovereignty">Sovereignty Stack</option>
+          <option value="dispatch">Agent Dispatches</option>
+          <option value="signal">Community Signal</option>
+        </select>
+        <input class="form-input" id="blogAuthor" placeholder="Author" style="width:130px" value="Quanta S"/>
+        <div id="wordCount" style="font-size:11px;color:var(--muted);margin-left:auto">0 words</div>
+      </div>
+      <!-- Excerpt -->
+      <div>
+        <div class="form-label">Excerpt / Summary</div>
+        <textarea class="form-input" id="blogExcerpt" rows="2" placeholder="One or two sentences summarising the article…" style="resize:none"></textarea>
+      </div>
+      <!-- Body -->
+      <div style="flex:1;display:flex;flex-direction:column">
+        <div class="form-label">Content <span style="font-weight:400;text-transform:none;letter-spacing:0">(plain text or Markdown)</span></div>
+        <textarea class="editor-textarea" id="blogContent" placeholder="Start writing…&#10;&#10;You can use Markdown: ## Heading, **bold**, *italic*, > blockquote, - list" oninput="updateWordCount()" style="flex:1;min-height:360px"></textarea>
+      </div>
+      <!-- AI result panel -->
+      <div id="blogAiOutput" style="display:none;background:rgba(233,30,140,.04);border:1px solid rgba(233,30,140,.15);border-radius:10px;padding:1rem;font-size:12px;color:var(--text);line-height:1.7;white-space:pre-wrap;position:relative">
+        <button onclick="document.getElementById('blogAiOutput').style.display='none'" style="position:absolute;top:.5rem;right:.5rem;border:none;background:none;cursor:pointer;font-size:14px;color:var(--muted)">×</button>
+        <div style="font-size:10px;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.4rem">✨ Quanta S Output</div>
+        <div id="blogAiOutputText"></div>
+        <button onclick="insertAiContent()" class="tb-btn primary" style="margin-top:.75rem;font-size:11px">Insert into editor ↑</button>
+      </div>
+    </div>
+    <!-- Sidebar -->
+    <div style="background:var(--bg);overflow-y:auto;display:flex;flex-direction:column;gap:.75rem;padding:1.25rem">
+      <!-- Publish settings -->
+      <div class="card-sm">
+        <div class="section-title">Publish Settings</div>
+        <div class="form-group"><label class="form-label">Status</label>
+          <select class="form-select"><option>Draft</option><option>Review</option><option>Published</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Visibility</label>
+          <select class="form-select"><option>Public</option><option>Members Only</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Publish Date</label>
+          <input class="form-input" type="datetime-local"/>
+        </div>
+      </div>
+      <!-- AI Assist -->
+      <div class="card-sm">
+        <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.65rem">
+          <span class="pulse-green"></span>
+          <div class="section-title" style="margin:0">✨ Quanta S AI Assist</div>
+        </div>
+        <button class="tb-btn" style="width:100%;margin-bottom:.4rem;font-size:11px;justify-content:flex-start" onclick="blogAiAssist('headline')">💡 Generate headlines</button>
+        <button class="tb-btn" style="width:100%;margin-bottom:.4rem;font-size:11px;justify-content:flex-start" onclick="blogAiAssist('expand')">✍️ Expand draft</button>
+        <button class="tb-btn" style="width:100%;margin-bottom:.4rem;font-size:11px;justify-content:flex-start" onclick="blogAiAssist('excerpt')">📝 Write excerpt</button>
+        <button class="tb-btn" style="width:100%;font-size:11px;justify-content:flex-start" onclick="blogAiAssist('tags')">🏷️ SEO tags</button>
+      </div>
+      <!-- Cross-post -->
+      <div class="card-sm">
+        <div class="section-title">Cross-post on Publish</div>
+        <label style="display:flex;align-items:center;gap:.5rem;font-size:12px;cursor:pointer;margin-bottom:.45rem"><input type="checkbox" checked/> 𝕏 X (Twitter)</label>
+        <label style="display:flex;align-items:center;gap:.5rem;font-size:12px;cursor:pointer;margin-bottom:.45rem"><input type="checkbox" checked/> ◉ Lens Protocol</label>
+        <label style="display:flex;align-items:center;gap:.5rem;font-size:12px;cursor:pointer"><input type="checkbox"/> ⬡ Farcaster</label>
+      </div>
+      <!-- SEO preview -->
+      <div class="card-sm">
+        <div class="section-title">SEO Preview</div>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:.75rem;background:#fff">
+          <div style="font-size:11px;color:#1a0dab;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="seoTitle">Article title will appear here</div>
+          <div style="font-size:10px;color:var(--success);margin:.15rem 0">supercompute.io/blog/article-slug</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden" id="seoExcerpt">Excerpt will appear here as the meta description.</div>
+        </div>
+        <script>
+          document.getElementById('blogTitle')?.addEventListener('input', e => { const el = document.getElementById('seoTitle'); if(el) el.textContent = e.target.value || 'Article title'; });
+          document.getElementById('blogExcerpt')?.addEventListener('input', e => { const el = document.getElementById('seoExcerpt'); if(el) el.textContent = e.target.value || 'Excerpt will appear here as the meta description.'; });
+        </script>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONSULTING BOOKING ══ -->
+<div class="page" id="page-booking">
+  <div class="topbar">
+    <div><div class="topbar-title">Book a Session</div><div class="topbar-sub">Web3 Strategy & Agent Automation · calendly.com/ora_mi</div></div>
+    <div class="topbar-actions">
+      <button class="tb-btn" onclick="navigate('consulting',navItem('consulting'))">← All Services</button>
+    </div>
+  </div>
+  <div class="pg-body" id="bookingBody"></div>
+</div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="sc-logic.js"></script>
+<script src="sc-flows.js"></script>
+<script>
+// Init NewsDesk CMS on navigate
+document.querySelector('[data-page="newsdesk"]')?.addEventListener('click', () => setTimeout(renderNewsDeskCMS, 50));
+document.querySelector('[data-page="token"]')?.addEventListener('click', () => setTimeout(renderToken, 50));
+
+// Wire new nav items
+function filterDrafts(status, btn) {
+  document.querySelectorAll('#page-blog-drafts .dash-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const all = [...blogDrafts, ...ARTICLES.map(a => ({...a, status: a.live ? 'published' : 'draft'}))];
+  const filtered = status === 'all' ? all : all.filter(d => d.status === status);
+  // Update stats
+  const total = all.length;
+  const drafts = all.filter(d => d.status === 'draft').length;
+  const published = all.filter(d => d.status === 'published').length;
+  document.getElementById('draftStatTotal').textContent = total;
+  document.getElementById('draftStatDrafts').textContent = drafts;
+  document.getElementById('draftStatPublished').textContent = published;
+  // Re-render with filter
+  const el = document.getElementById('blogDraftsBody');
+  if (!el) return;
+  const catStyle = { intelligence:'background:rgba(233,30,140,.1);color:var(--pink)', sovereignty:'background:rgba(0,212,255,.1);color:var(--cyan2)', dispatch:'background:rgba(255,184,0,.1);color:var(--gold2)', signal:'background:rgba(99,102,241,.1);color:#6366f1' };
+  el.innerHTML = filtered.map(d => `<div style="display:flex;align-items:center;gap:.75rem;padding:.85rem;border-radius:10px;border:1px solid var(--border);background:var(--card);margin-bottom:.6rem;transition:all .15s;cursor:pointer" onmouseenter="this.style.borderColor='rgba(233,30,140,.3)'" onmouseleave="this.style.borderColor='var(--border)'" onclick="${d.id && !d.id.startsWith('draft-') ? `openArticle('${d.id}')` : ''}">
+    <span class="article-cat" style="${catStyle[d.cat]||catStyle.intelligence}">${(d.cat||'intel').slice(0,4)}</span>
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:700;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.title}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:.15rem">${d.date} · ${d.author}</div>
+    </div>
+    <span class="badge ${d.status==='published'?'badge-live':'badge-progress'}">${d.status}</span>
+    <div style="display:flex;gap:.4rem;flex-shrink:0">
+      ${d.id && d.id.startsWith('draft-') ? `<button class="tb-btn" style="font-size:10px;padding:.2rem .55rem" onclick="event.stopPropagation();editDraft('${d.id}')">Edit</button><button class="tb-btn primary" style="font-size:10px;padding:.2rem .55rem" onclick="event.stopPropagation();publishDraft('${d.id}')">Publish</button><button class="tb-btn" style="font-size:10px;padding:.2rem .55rem;border-color:var(--danger);color:var(--danger)" onclick="event.stopPropagation();deleteDraft('${d.id}')">×</button>` : `<button class="tb-btn" style="font-size:10px;padding:.2rem .55rem" onclick="event.stopPropagation();openArticle('${d.id}')">View</button>`}
+    </div>
+  </div>`).join('') || `<div style="text-align:center;padding:2.5rem;color:var(--muted);font-size:13px">No ${status === 'all' ? '' : status+' '}articles yet.</div>`;
+}
+
+// Patch Assets page "+ Add Asset" button
+document.querySelector('#page-assets .tb-btn.primary')?.addEventListener('click', () => openAddAsset());
+
+// Patch Social Media "+ New Post" button
+document.querySelectorAll('#page-socialmedia .tb-btn.primary').forEach(btn => {
+  if (btn.textContent.includes('New Post')) btn.onclick = () => authGate('new-post', null);
+});
+
+// Patch consulting "Book Session" buttons → booking flow
+document.querySelectorAll('#page-consulting .tb-btn').forEach((btn, i) => {
+  const services = ['defi','agent','refi','protocol'];
+  btn.onclick = () => openBooking(services[i] || 'defi');
+});
+
+// Patch blog page "+ Write" button if it exists
+const blogPage = document.getElementById('page-blog');
+if (blogPage) {
+  const blogHeader = blogPage.querySelector('[style*="gradient"]');
+  if (blogHeader) {
+    const writeBtn = document.createElement('button');
+    writeBtn.className = 'tb-btn primary';
+    writeBtn.style.cssText = 'margin-top:.75rem;font-size:11px';
+    writeBtn.textContent = '+ Write Article';
+    writeBtn.onclick = () => { editingDraftId = null; navigate('blog-compose', null); };
+    blogHeader.appendChild(writeBtn);
+  }
+}
+
+// Initialize blog-drafts page when navigated
+const origNavigate = window.navigate || function(){};
+window.navigate = function(page, el) {
+  origNavigate(page, el);
+  if (page === 'blog-drafts') {
+    setTimeout(() => filterDrafts('all', document.getElementById('bdTab-all')), 30);
+  }
+  if (page === 'blog-compose') {
+    setTimeout(() => {
+      if (!editingDraftId) {
+        ['blogTitle','blogContent','blogExcerpt'].forEach(id => { const f = document.getElementById(id); if(f) f.value=''; });
+        document.getElementById('blogAuthor') && (document.getElementById('blogAuthor').value = 'Quanta S');
+        document.getElementById('blogCat') && (document.getElementById('blogCat').value = 'intelligence');
+        updateWordCount();
+        document.getElementById('composeTitle') && (document.getElementById('composeTitle').textContent = 'New Article');
+      }
+    }, 40);
+  }
+  if (page === 'project-detail' && currentProjectId) {
+    const p = PROJECT_DETAIL[currentProjectId];
+    if (p) document.getElementById('projDetailTitle').textContent = p.name;
+  }
+  if (page === 'add-asset') setTimeout(() => renderAddAsset('search'), 30);
+  if (page === 'new-post')  setTimeout(() => renderNewPostComposer(), 30);
+  if (page === 'create-project') setTimeout(() => renderProjectForm(1), 30);
+  if (page === 'socialmedia') setTimeout(() => renderSocialMedia(activeSocialTab), 30);
+};
+
+// Add nav items for new flows to sidebar
+const navMain = document.querySelector('#appNav [style*="overflow-y"]');
+if (navMain) {
+  const blogItem = document.querySelector('[data-page="blog"]');
+  if (blogItem) {
+    const writeItem = document.createElement('div');
+    writeItem.className = 'nav-item locked';
+    writeItem.id = 'nl-blog-compose';
+    writeItem.dataset.page = 'blog-compose';
+    writeItem.innerHTML = '<span class="nav-ico">✏</span>Write Article<span class="nav-badge nb-lock">🔒</span>';
+    writeItem.onclick = () => authGate('blog-compose', writeItem);
+    blogItem.after(writeItem);
+    const draftsItem = document.createElement('div');
+    draftsItem.className = 'nav-item locked';
+    draftsItem.id = 'nl-blog-drafts';
+    draftsItem.dataset.page = 'blog-drafts';
+    draftsItem.innerHTML = '<span class="nav-ico">◧</span>Drafts & Queue<span class="nav-badge nb-lock">🔒</span>';
+    draftsItem.onclick = () => authGate('blog-drafts', draftsItem);
+    writeItem.after(draftsItem);
+  }
+}
+
+// Patch updateAuthUI to also unlock new nav items
+const origUpdateAuth = window.updateAuthUI;
+window.updateAuthUI = function(role) {
+  origUpdateAuth(role);
+  ['blog-compose','blog-drafts'].forEach(id => {
+    const el = document.getElementById('nl-' + id);
+    if (el) { el.classList.remove('locked'); const lk = el.querySelector('.nb-lock'); if(lk) lk.style.display='none'; }
+  });
+  // Re-wire asset button after auth
+  const assetBtn = document.querySelector('#page-assets .tb-btn.primary');
+  if (assetBtn) assetBtn.onclick = () => openAddAsset();
+  // Re-wire new post button
+  document.querySelectorAll('#page-socialmedia .tb-btn').forEach(btn => {
+    if (btn.textContent.includes('New Post')) btn.onclick = () => navigate('new-post', null);
+  });
+};
+</script>
+</body>
+</html>

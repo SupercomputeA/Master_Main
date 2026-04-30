@@ -52,6 +52,7 @@ jobs:
           # Check for TODO comments
           grep -c "TODO" public/sc-logic.js || true
           echo "✓ Code scan complete"
+          echo "✓ CI validation complete"
 
   deploy:
     needs: validate

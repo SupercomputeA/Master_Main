@@ -202,8 +202,10 @@ function updateAuthUI(role) {
     if (role === 'admin') {
         ['dashboard', 'community', 'newsdesk', 'apiStatus', 'token'].forEach(id => {
             const el = document.getElementById('nl-' + id);
-            if (el) { el.classList.remove('locked'); const lk = el.querySelector('.nb-lock, .nb-gold'); if (lk) lk.style.display = 'none'; }
+            if (el) { el.classList.remove('locked'); el.style.display = ''; const lk = el.querySelector('.nb-lock, .nb-gold'); if (lk) lk.style.display = 'none'; }
         });
+        document.getElementById('adminNavDivider').style.display = '';
+        document.getElementById('adminNavSection').style.display = '';
     }
     const pwallet = document.getElementById('profileWallet');
     if (pwallet && walletConnected) pwallet.textContent = '0x7f3a...d4e2';

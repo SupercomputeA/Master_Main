@@ -23,11 +23,12 @@
   <button class="auth-btn" onclick="doLogin()">Sign In</button>
   <div class="auth-div">or</div>
   <button class="siwe-btn" onclick="doLoginDemo('user')"><span style="font-size:14px">◎</span> Sign In with Ethereum</button>
-  <div style="margin-top:1rem;font-size:11px;color:#6b7280">
-    <button onclick="doLoginDemo('user')" style="border:none;background:none;color:var(--pink);cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:inherit">Demo: User Login</button>
-    &nbsp;·&nbsp;
-    <button onclick="doLoginDemo('admin')" style="border:none;background:none;color:var(--gold2);cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:inherit">Demo: Admin Login</button>
-  </div>
+<div style="margin-top:1rem;font-size:11px;color:#6b7280" id="demoLoginDiv">
+      <button onclick="doLoginDemo('user')" style="border:none;background:none;color:var(--pink);cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:inherit">Demo: User Login</button>
+      &nbsp;·&nbsp;
+      <button onclick="doLoginDemo('admin')" style="border:none;background:none;color:var(--gold2);cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:inherit">Demo: Admin Login</button>
+    </div>
+    <script>if(location.hostname!=='localhost'&&!location.hostname.includes('.localhost')&&!location.hostname.includes('127.0.0.1'))document.getElementById('demoLoginDiv').style.display='none';</script>
 </div>
 </div>
 
@@ -38,21 +39,24 @@
 
 <!-- NAV -->
 <nav id="appNav">
-  <div class="nav-brand">
-    <img src="sc-logo.png" alt="SC" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0"/>
-    <div><div class="nav-brand-text">SUPERCOMPUTE</div><div class="nav-brand-sub">Phase 1 · Base Chain</div></div>
-  </div>
+<div class="nav-brand">
+      <img src="sc-logo.jpg" alt="SC" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0"/>
+      <div><div class="nav-brand-text">SUPERCOMPUTE</div><div class="nav-brand-sub">Phase 1 · Base Chain</div></div>
+    </div>
   <div style="flex:1;overflow-y:auto;padding-bottom:.5rem">
     <div class="nav-section">Public</div>
     <div class="nav-item active" data-page="home" onclick="navigate('home',this)"><span class="nav-ico">⌂</span>Home</div>
     <div class="nav-item" data-page="about" onclick="navigate('about',this)"><span class="nav-ico">◎</span>About</div>
-    <div class="nav-item" data-page="staking" onclick="navigate('staking',this)"><span class="nav-ico">◈</span>Staking</div>
+    <div class="nav-item" data-page="community-live" onclick="navigate('community-live',this)"><span class="nav-ico">◈</span>Community</div>
+    <div class="nav-item" data-page="social-feed" onclick="navigate('social-feed',this)"><span class="nav-ico">◉</span>Social Feed</div>
+<div class="nav-item" data-page="live-stream" onclick="navigate('live-stream',this)"><span class="nav-ico">◐</span>Live Stream</div>
     <div class="nav-item" data-page="blog" onclick="navigate('blog',this)"><span class="nav-ico">▤</span>Blog</div>
-    <div class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this)"><span class="nav-ico">◧</span>Projects</div>
     <div class="nav-item" data-page="consulting" onclick="navigate('consulting',this)"><span class="nav-ico">◑</span>Consulting</div>
-    <div class="nav-item" data-page="token" onclick="navigate('token',this)"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></div>
     <div class="nav-div"></div>
     <div class="nav-section">Member</div>
+    <div class="nav-item locked" id="nl-projects" data-page="pub-projects" onclick="authGate('projects',this)"><span class="nav-ico">◧</span>Projects<span class="nav-badge nb-lock">🔒</span></div>
+    <div class="nav-item locked" data-page="staking" onclick="authGate('staking',this)"><span class="nav-ico">◈</span>Staking<span class="nav-badge nb-lock">🔒</span></div>
+    <div class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this)"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-lock">🔒</span></div>
     <div class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this)"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></div>
     <div class="nav-item locked" id="nl-social" data-page="social" onclick="authGate('social',this)"><span class="nav-ico">◉</span>Social Feed<span class="nav-badge nb-lock">🔒</span></div>
     <div class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this)"><span class="nav-ico">◎</span>Alerts<span class="nav-badge nb-num">3</span></div>
@@ -93,7 +97,7 @@
 
     <!-- Logo -->
     <div class="fade-up fade-d1" style="position:relative;z-index:2;margin-bottom:1.5rem">
-      <img src="sc-logo.png" alt="Supercompute" style="width:88px;height:88px;border-radius:50%;object-fit:cover;box-shadow:0 0 48px rgba(233,30,140,.45),0 0 96px rgba(255,184,0,.18);border:2px solid rgba(255,255,255,.13)"/>
+      <img src="sc-logo.jpg" alt="Supercompute" style="width:88px;height:88px;border-radius:50%;object-fit:cover;box-shadow:0 0 48px rgba(233,30,140,.45),0 0 96px rgba(255,184,0,.18);border:2px solid rgba(255,255,255,.13)"/>
     </div>
 
     <!-- Headline -->
@@ -431,7 +435,7 @@
   <!-- Footer -->
   <div style="background:var(--navy);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
     <div style="display:flex;align-items:center;gap:.5rem">
-        <img src="sc-logo.png" alt="SC" style="width:28px;height:28px;border-radius:50%;object-fit:cover"/>
+        <img src="sc-logo.jpg" alt="SC" style="width:28px;height:28px;border-radius:50%;object-fit:cover"/>
         <span style="color:#fff;font-weight:700;font-size:13px">SUPERCOMPUTE</span>
         <span style="color:rgba(255,255,255,.3);font-size:11px">· supercompute.eth · Base Chain</span>
       </div>
@@ -441,6 +445,113 @@
 
 <!-- ══ ABOUT ══ -->
 <div class="page" id="page-about"><div id="aboutBody"></div></div>
+
+<!-- ══ COMMUNITY LIVE ══ -->
+<div class="page" id="page-community-live">
+  <div style="background:linear-gradient(135deg,var(--navy),var(--navy2));padding:2.5rem 2rem;text-align:center;color:#fff">
+    <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:.4rem">Community <span style="color:var(--cyan)">Engagement</span></h2>
+    <p style="color:rgba(255,255,255,.5);max-width:500px;margin:0 auto;font-size:.9rem">Connect with the Supercompute community. Join the conversation across platforms.</p>
+  </div>
+  <div style="padding:2rem;max-width:800px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem">
+      <div class="card" style="text-align:center;cursor:pointer" onclick="window.open('https://x.com/supercomputeco','_blank')">
+        <div style="font-size:2rem;margin-bottom:.5rem">𝕏</div>
+        <div style="font-weight:700;font-size:14px">X (Twitter)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:.25rem">@supercomputeco</div>
+        <div style="font-size:11px;color:var(--success);margin-top:.5rem">Follow →</div>
+      </div>
+      <div class="card" style="text-align:center;cursor:pointer" onclick="window.open('https://warpcast.com/(supercompute','_blank')">
+        <div style="font-size:2rem;margin-bottom:.5rem">⬡</div>
+        <div style="font-weight:700;font-size:14px">Farcaster</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:.25rem">@supercompute</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:.5rem">Connect →</div>
+      </div>
+      <div class="card" style="text-align:center;cursor:pointer" onclick="window.open('https://warpcast.com/ channel/supercompute','_blank')">
+        <div style="font-size:2rem;margin-bottom:.5rem">◈</div>
+        <div style="font-weight:700;font-size:14px">Warpcast Channel</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:.25rem">supercompute</div>
+        <div style="font-size:11px;color:var(--pink);margin-top:.5rem">Join →</div>
+      </div>
+      <div class="card" style="text-align:center;cursor:pointer" onclick="window.open('https://discord.gg/supercompute','_blank')">
+        <div style="font-size:2rem;margin-bottom:.5rem">🎮</div>
+        <div style="font-weight:700;font-size:14px">Discord</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:.25rem">supercompute.io</div>
+        <div style="font-size:11px;color:var(--cyan);margin-top:.5rem">Join →</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SOCIAL FEED ══ -->
+<div class="page" id="page-social-feed">
+  <div style="background:linear-gradient(135deg,var(--navy),var(--navy2));padding:2.5rem 2rem;text-align:center;color:#fff">
+    <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:.4rem">Social <span style="color:var(--cyan)">Feed</span></h2>
+    <p style="color:rgba(255,255,255,.5);max-width:500px;margin:0 auto;font-size:.9rem">Live updates from across the network.</p>
+  </div>
+  <div style="padding:1.5rem;max-width:600px;margin:0 auto">
+    <div class="card" style="margin-bottom:1rem">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff">SC</div>
+        <div><div style="font-weight:700;font-size:13px">SUPERCOMPUTE</div><div style="font-size:11px;color:var(--muted)">@supercomputeco · 2h</div></div>
+      </div>
+      <div style="font-size:14px;line-height:1.6;margin-bottom:.75rem">Building in public. Phase 1 live on Base Chain. 1 human + 13 AI agents.</div>
+      <div style="display:flex;gap:1.5rem;font-size:12px;color:var(--muted)"><span>♡ 24</span><span>↺ 8</span><span>👁 156</span></div>
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff">SC</div>
+        <div><div style="font-weight:700;font-size:13px">SUPERCOMPUTE</div><div style="font-size:11px;color:var(--muted)">@supercomputeco · 1d</div></div>
+      </div>
+      <div style="font-size:14px;line-height:1.6;margin-bottom:.75rem">NewsDesk is now live. AI-curated Web3 intelligence. Check it out →</div>
+      <div style="display:flex;gap:1.5rem;font-size:12px;color:var(--muted)"><span>♡ 42</span><span>↺ 12</span><span>★ 289</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LIVE STREAM ══ -->
+<div class="page" id="page-live-stream">
+  <div style="background:linear-gradient(135deg,var(--navy),var(--navy2));padding:2.5rem 2rem;text-align:center;color:#fff">
+    <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:.4rem">Live <span style="color:var(--cyan)">Stream</span></h2>
+    <p style="color:rgba(255,255,255,.5);max-width:500px;margin:0 auto;font-size:.9rem">Streams, events, and scheduled broadcasts.</p>
+  </div>
+  <div style="padding:2rem;max-width:800px;margin:0 auto">
+    <div class="card" style="background:linear-gradient(135deg,var(--navy),var(--navy2));padding:2rem;text-align:center;color:#fff">
+      <div style="font-size:3rem;margin-bottom:1rem">◉</div>
+      <div style="font-size:1.2rem;font-weight:700;margin-bottom:.5rem">No Live Stream Currently</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:1.5rem">Subscribe to get notified when we go live</div>
+      <button style="padding:.75rem 1.5rem;background:var(--pink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer" onclick="showToast('✓ Subscribed to stream notifications')">Notify Me</button>
+    </div>
+    <div style="margin-top:2rem">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:1rem">Upcoming Streams</div>
+      <div style="display:flex;flex-direction:column;gap:.75rem">
+        <div class="card" style="display:flex;align-items:center;gap:1rem;padding:1rem">
+          <div style="width:50px;height:50px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:1.5rem">📅</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:13px">Weekly Build Update</div>
+            <div style="font-size:12px;color:var(--muted)">Every Friday · 2PM PT</div>
+          </div>
+          <span class="badge badge-progress">Fri 2PM</span>
+        </div>
+        <div class="card" style="display:flex;align-items:center;gap:1rem;padding:1rem">
+          <div style="width:50px;height:50px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:1.5rem">🎓</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:13px">Web3 School Live Session</div>
+            <div style="font-size:12px;color:var(--muted)">Tuesdays · 3PM PT</div>
+          </div>
+          <span class="badge badge-progress">Tue 3PM</span>
+        </div>
+        <div class="card" style="display:flex;align-items:center;gap:1rem;padding:1rem">
+          <div style="width:50px;height:50px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:1.5rem">◈</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:13px">Town Hall</div>
+            <div style="font-size:12px;color:var(--muted)">Monthly · First Saturday</div>
+          </div>
+          <span class="badge badge-soon">TBD</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ══ STAKING ══ -->
 <div class="page" id="page-staking">
@@ -1056,7 +1167,7 @@ if (blogPage) {
     writeBtn.className = 'tb-btn primary';
     writeBtn.style.cssText = 'margin-top:.75rem;font-size:11px';
     writeBtn.textContent = '+ Write Article';
-    writeBtn.onclick = () => { editingDraftId = null; navigate('blog-compose', null); };
+    writeBtn.onclick = () => { authGate('blog-compose', null, true); };
     blogHeader.appendChild(writeBtn);
   }
 }
@@ -1088,28 +1199,6 @@ window.navigate = function(page, el) {
   if (page === 'create-project') setTimeout(() => renderProjectForm(1), 30);
   if (page === 'socialmedia') setTimeout(() => renderSocialMedia(activeSocialTab), 30);
 };
-
-// Add nav items for new flows to sidebar
-const navMain = document.querySelector('#appNav [style*="overflow-y"]');
-if (navMain) {
-  const blogItem = document.querySelector('[data-page="blog"]');
-  if (blogItem) {
-    const writeItem = document.createElement('div');
-    writeItem.className = 'nav-item locked';
-    writeItem.id = 'nl-blog-compose';
-    writeItem.dataset.page = 'blog-compose';
-    writeItem.innerHTML = '<span class="nav-ico">✏</span>Write Article<span class="nav-badge nb-lock">🔒</span>';
-    writeItem.onclick = () => authGate('blog-compose', writeItem);
-    blogItem.after(writeItem);
-    const draftsItem = document.createElement('div');
-    draftsItem.className = 'nav-item locked';
-    draftsItem.id = 'nl-blog-drafts';
-    draftsItem.dataset.page = 'blog-drafts';
-    draftsItem.innerHTML = '<span class="nav-ico">◧</span>Drafts & Queue<span class="nav-badge nb-lock">🔒</span>';
-    draftsItem.onclick = () => authGate('blog-drafts', draftsItem);
-    writeItem.after(draftsItem);
-  }
-}
 
 // Patch updateAuthUI to also unlock new nav items
 const origUpdateAuth = window.updateAuthUI;

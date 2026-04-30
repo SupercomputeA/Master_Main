@@ -195,12 +195,12 @@ function doLoginDemo(role) {
     if (prd) prd.innerHTML = `<span class="role-chip">${role === 'admin' ? '⭐ Founder / Admin' : '◎ Member'}</span>`;
 }
 function updateAuthUI(role) {
-    ['assets', 'social', 'commerce', 'alerts', 'profile', 'agentchat', 'web3school', 'socialmedia'].forEach(id => {
+    ['assets', 'social', 'commerce', 'alerts', 'profile', 'agentchat', 'web3school', 'socialmedia', 'token'].forEach(id => {
         const el = document.getElementById('nl-' + id);
         if (el) { el.classList.remove('locked'); const lk = el.querySelector('.nb-lock'); if (lk) lk.style.display = 'none'; }
     });
     if (role === 'admin') {
-        ['dashboard', 'community', 'newsdesk', 'apiStatus'].forEach(id => {
+        ['dashboard', 'community', 'newsdesk', 'apiStatus', 'blog-compose', 'blog-drafts', 'token'].forEach(id => {
             const el = document.getElementById('nl-' + id);
             if (el) { el.classList.remove('locked'); const lk = el.querySelector('.nb-lock, .nb-gold'); if (lk) lk.style.display = 'none'; }
         });

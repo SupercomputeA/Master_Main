@@ -1,18 +1,2 @@
 name = "supercompute"
 compatibility_date = "2026-04-30"
-compatibility_flags = ["cloudflare_sqlite"]
-
-[site]
-bucket = "./public"
-
-[env.production]
-name = "supercompute-prod"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "supercompute"
-database_id = "your-d1-db-id"
-
-[[kv_namespaces]]
-binding = "CACHE"
-id = "your-kv-id"

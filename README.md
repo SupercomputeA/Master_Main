@@ -11,13 +11,6 @@ Sovereign AI-native platform on Base Chain — NewsDesk intelligence, DeFi opera
 │  Workers (API)  │  D1 (SQLite)  │  KV (Sessions)  │  R2 (Storage)  │
 │  Pages (Frontend)  │  Access (Auth)  │  Durable Objects  │
 └─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      Frontend                                │
-│  Supercompute.html (React via CDN + Babel)                   │
-│  sc-app.jsx · sc-landing.jsx · sc-shared.jsx                 │
-└─────────────────────────────────────────────────────────────┘
 ```
 
 ## Quick Start
@@ -34,186 +27,133 @@ Sovereign AI-native platform on Base Chain — NewsDesk intelligence, DeFi opera
 npm install
 ```
 
-### 2. Configure Cloudflare
+### 2. Local Development
 
 ```bash
-# Login to Cloudflare
-npx wrangler login
-
-# Create D1 database
-npx wrangler d1 create supercompute
-
-# Get the database ID from output, then add to wrangler.toml
-```
-
-### 3. Push Database Schema
-
-```bash
-# Local development
-npx wrangler d1 execute supercompute --local --file=schema.sql
-
-# Production (after first deploy)
-npx wrangler d1 execute supercompute --env production --file=schema.sql
-```
-
-### 4. Start Dev Server
-
-```bash
-# API + local D1
-npm run dev
-
-# Or static files only (for frontend dev)
+# Serve static files locally
 npx serve public
+
+# Or use any local server
+python -m http.server 8080
 ```
 
-### 5. Deploy
+### 3. Validate Build
 
 ```bash
-# Deploy worker + site
-npm run deploy
-
-# Or just pages
-npm run deploy:pages
+bash validate.sh
 ```
+
+### 4. Deploy
+
+```bash
+# Deploy to Cloudflare Pages
+npx wrangler pages deploy public --project-name=artifact-main
+```
+
+## CI/CD Setup
+
+### GitHub Actions (Automatic Deploy)
+
+1. **Add Secrets** to your GitHub repo:
+   - Go to: Settings → Secrets and variables → Actions
+   - Add:
+     - `CLOUDFLARE_API_TOKEN` - Your Cloudflare API token
+     - `CLOUDFLARE_ACCOUNT_ID` - Your Cloudflare account ID
+
+2. **Push to main** - Deploys automatically
+
+### What CI/CD Does
+
+- ✅ Validates HTML structure
+- ✅ Checks required files exist
+- ✅ Scans for code issues
+- ✅ Deploys to Cloudflare Pages on main branch
+- ✅ Runs on every PR and push
 
 ## Project Structure
 
 ```
 /supercompute
-├── wrangler.toml          # Cloudflare config (Workers + D1 + site)
-├── package.json            # Scripts & deps
-├── tsconfig.json          # TypeScript config
-├── schema.sql             # D1 database schema
-├── _headers              # Cloudflare Pages headers
-├── _redirects            # Cloudflare Pages redirects
+├── .github/workflows/ci-cd.yml  # CI/CD pipeline
+├── validate.sh                   # Build validation script
+├── wrangler.toml                # Cloudflare config
+├── package.json                 # Scripts
+├── schema.sql                  # D1 database schema
 │
-├── public/                # Static assets (served by Workers)
-│   ├── Supercompute.html # Main SPA
-│   ├── sc.css            # Styles
-│   ├── sc-app.jsx        # React components (dashboard)
-│   ├── sc-landing.jsx   # React components (landing)
-│   ├── sc-shared.jsx    # React components (shared)
-│   ├── sc-logic.js      # Frontend logic & data
-│   └── _headers        # Cache & security headers
+├── public/                     # Static assets (deployed)
+│   ├── Supercompute.html     # Main SPA
+│   ├── sc.css               # Styles
+│   ├── sc-app.jsx           # React components
+│   └── siwe-client.js       # SIWE auth client
 │
-└── src/                  # Cloudflare Worker source
-    ├── worker.js         # Main entry point
-    ├── api/
-    │   ├── auth.js      # SIWE authentication
-    │   ├── articles.js # NewsDesk API
-    │   ├── staking.js   # Staking API
-    │   └── agents.js    # Agent fleet API
-    └── utils/
-        ├── siwe.js      # SIWE message generation
-        └── wallet.js    # Wallet connection helpers
+└── src/                       # Cloudflare Worker source
+    ├── worker.js             # Main entry
+    └── api/                  # API routes
+        ├── auth.js          # SIWE auth
+        ├── articles.js     # NewsDesk API
+        ├── staking.js       # Staking API
+        └── agents.js        # Agent fleet API
 ```
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `CF_ACCOUNT_ID` | Cloudflare account ID | Yes |
-| `CF_API_TOKEN` | Cloudflare API token | Yes |
+| Variable | Description |
+|----------|-------------|
+| `CF_ACCOUNT_ID` | Cloudflare account ID |
+| `CF_API_TOKEN` | Cloudflare API token |
 
-Set via `wrangler.toml` or `.dev.vars`.
+Set via GitHub secrets or `.dev.vars` for local.
 
 ## API Endpoints
 
 | Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/auth/nonce` | GET | Generate SIWE login nonce |
-| `/api/auth/message` | GET | Get SIWE message to sign |
-| `/api/auth/login` | POST | Verify signature, create session |
+|---------|--------|-------------|
+| `/api/auth/nonce` | GET | Generate SIWE nonce |
+| `/api/auth/login` | POST | SIWE login |
 | `/api/auth/profile` | GET | Get current user |
-| `/api/auth/logout` | POST | Destroy session |
-| `/api/articles` | GET | List NewsDesk articles |
+| `/api/articles` | GET | List articles |
 | `/api/staking` | GET | Get staking stats |
-| `/api/agents` | GET | List agent fleet |
+| `/api/agents` | GET | List agents |
 
-## SIWE Authentication Flow
-
-```
-1. User clicks "Connect Wallet"
-       │
-       ▼
-2. Frontend requests /api/auth/nonce
-       │
-       ▼
-3. Frontend gets nonce + generates SIWE message
-       │
-       ▼
-4. User signs message with wallet
-       │
-       ▼
-5. Frontend POSTs to /api/auth/login with:
-   { address, signature, nonce }
-       │
-       ▼
-6. Backend verifies, stores session,
-   returns JWT in response
-       │
-       ▼
-7. Frontend stores JWT, includes in
-   Authorization: Bearer <token> header
-```
-
-## Deployment
-
-### Staging
+## Development Workflow
 
 ```bash
-wrangler deploy --env staging
+# 1. Make changes
+code .
+
+# 2. Validate locally
+bash validate.sh
+
+# 3. Test locally
+npx serve public
+
+# 4. Commit & push
+git add . && git commit -m "feat: new feature"
+git push origin main
+
+# 5. CI/CD auto-deploys
 ```
 
-### Production
+## Troubleshooting
 
-```bash
-wrangler deploy --env production
-```
+### Site not updating?
+- Hard refresh: `Cmd+Shift+R`
+- Check: https://dash.cloudflare.com → Pages → artifact-main
 
-### Create Preview
-
-```bash
-npm run preview
-```
+### Deployment fails?
+- Check GitHub Actions logs
+- Verify Cloudflare secrets are set
+- Run validate.sh locally first
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | React 18, Babel (in-browser), Vanilla CSS |
-| API Runtime | Cloudflare Workers, Hono |
-| Database | Cloudflare D1 (SQLite) |
-| Sessions | Cloudflare KV |
-| Storage | Cloudflare R2 |
+| Frontend | React, Vanilla CSS |
+| API | Cloudflare Workers |
+| Database | Cloudflare D1 |
 | Auth | SIWE (EIP-4361) |
 | Chain | Base (L2) |
-
-## Development
-
-### Adding a New API Route
-
-1. Create `/src/api/your-route.js`
-2. Import in `/src/worker.js`
-3. Add route matching in the fetch handler
-4. Deploy
-
-### Updating Schema
-
-```bash
-# Edit schema.sql, then:
-npx wrangler d1 execute supercompute --local --file=schema.sql
-```
-
-### Testing SIWE Locally
-
-Use MetaMask or Coinbase Wallet browser extension. The worker will verify signatures against connected wallet.
-
-## Known Limitations
-
-- SIWE signature verification uses simplified validation in dev mode
-- For production, add proper EIP-191 signature recovery with `viem`
-- D1 local mode requires `sqlite3` installed
 
 ## License
 

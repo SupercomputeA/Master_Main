@@ -23,11 +23,12 @@
   <button class="auth-btn" onclick="doLogin()">Sign In</button>
   <div class="auth-div">or</div>
   <button class="siwe-btn" onclick="doLoginDemo('user')"><span style="font-size:14px">◎</span> Sign In with Ethereum</button>
-  <div style="margin-top:1rem;font-size:11px;color:#6b7280">
-    <button onclick="doLoginDemo('user')" style="border:none;background:none;color:var(--pink);cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:inherit">Demo: User Login</button>
-    &nbsp;·&nbsp;
-    <button onclick="doLoginDemo('admin')" style="border:none;background:none;color:var(--gold2);cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:inherit">Demo: Admin Login</button>
-  </div>
+<div style="margin-top:1rem;font-size:11px;color:#6b7280" id="demoLoginDiv">
+      <button onclick="doLoginDemo('user')" style="border:none;background:none;color:var(--pink);cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:inherit">Demo: User Login</button>
+      &nbsp;·&nbsp;
+      <button onclick="doLoginDemo('admin')" style="border:none;background:none;color:var(--gold2);cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:inherit">Demo: Admin Login</button>
+    </div>
+    <script>if(location.hostname!=='localhost'&&!location.hostname.includes('.localhost')&&!location.hostname.includes('127.0.0.1'))document.getElementById('demoLoginDiv').style.display='none';</script>
 </div>
 </div>
 
@@ -50,7 +51,7 @@
     <div class="nav-item" data-page="blog" onclick="navigate('blog',this)"><span class="nav-ico">▤</span>Blog</div>
     <div class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this)"><span class="nav-ico">◧</span>Projects</div>
     <div class="nav-item" data-page="consulting" onclick="navigate('consulting',this)"><span class="nav-ico">◑</span>Consulting</div>
-    <div class="nav-item" data-page="token" onclick="navigate('token',this)"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></div>
+    <div class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this)"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></div>
     <div class="nav-div"></div>
     <div class="nav-section">Member</div>
     <div class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this)"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></div>
@@ -1056,7 +1057,7 @@ if (blogPage) {
     writeBtn.className = 'tb-btn primary';
     writeBtn.style.cssText = 'margin-top:.75rem;font-size:11px';
     writeBtn.textContent = '+ Write Article';
-    writeBtn.onclick = () => { editingDraftId = null; navigate('blog-compose', null); };
+    writeBtn.onclick = () => { authGate('blog-compose', null, true); };
     blogHeader.appendChild(writeBtn);
   }
 }
@@ -1088,28 +1089,6 @@ window.navigate = function(page, el) {
   if (page === 'create-project') setTimeout(() => renderProjectForm(1), 30);
   if (page === 'socialmedia') setTimeout(() => renderSocialMedia(activeSocialTab), 30);
 };
-
-// Add nav items for new flows to sidebar
-const navMain = document.querySelector('#appNav [style*="overflow-y"]');
-if (navMain) {
-  const blogItem = document.querySelector('[data-page="blog"]');
-  if (blogItem) {
-    const writeItem = document.createElement('div');
-    writeItem.className = 'nav-item locked';
-    writeItem.id = 'nl-blog-compose';
-    writeItem.dataset.page = 'blog-compose';
-    writeItem.innerHTML = '<span class="nav-ico">✏</span>Write Article<span class="nav-badge nb-lock">🔒</span>';
-    writeItem.onclick = () => authGate('blog-compose', writeItem);
-    blogItem.after(writeItem);
-    const draftsItem = document.createElement('div');
-    draftsItem.className = 'nav-item locked';
-    draftsItem.id = 'nl-blog-drafts';
-    draftsItem.dataset.page = 'blog-drafts';
-    draftsItem.innerHTML = '<span class="nav-ico">◧</span>Drafts & Queue<span class="nav-badge nb-lock">🔒</span>';
-    draftsItem.onclick = () => authGate('blog-drafts', draftsItem);
-    writeItem.after(draftsItem);
-  }
-}
 
 // Patch updateAuthUI to also unlock new nav items
 const origUpdateAuth = window.updateAuthUI;

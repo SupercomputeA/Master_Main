@@ -31,6 +31,6 @@ npm-debug.log*
 .env.*.local
 
 # Build
-public/*.js
-public/*.css
+# public/*.js
+# public/*.css
 !public/*.jsx

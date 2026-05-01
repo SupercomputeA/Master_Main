@@ -44,7 +44,7 @@ jobs:
 
       - name: Check required files exist
         run: |
-          ls -la public/Supercompute.html
+          ls -la public/index.html
           ls -la public/sc.css
           ls -la public/sc-logic.js
           echo "✓ All required files exist"

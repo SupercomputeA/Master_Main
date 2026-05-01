@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SUPERCOMPUTE · Web3 Innovation Platform</title>
 <link rel="stylesheet" href="sc.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.9.0/ethers.umd.min.js"></script>
 </head>
 <body>
 
@@ -644,7 +645,7 @@
 
 <!-- ══ TOKEN ══ -->
 <div class="page" id="page-token">
-  <div class="topbar"><div><div class="topbar-title">$SCOM Token</div><div class="topbar-sub">Supercompute Protocol Token · Base Chain</div></div><div class="topbar-actions"><span class="badge badge-pink">Pre-Launch · Q3 2026</span><button class="tb-btn" onclick="copyToClipboard('supercompute.eth')">Copy ENS</button></div></div>
+  <div class="topbar"><div><div class="topbar-title">$SCOM Token</div><div class="topbar-sub">Supercompute Protocol Token · Base Chain</div></div><div class="topbar-actions"><span class="badge badge-pink">Pre-Launch · Q3 2026</span><button class="tb-btn" id="ensCopyBtn">Copy ENS</button></div></div>
   <div class="pg-body" id="tokenPage"></div>
 </div>
 
@@ -726,7 +727,7 @@
         <div class="profile-field"><label>Display Name</label><input value="Orami" id="pName" oninput="document.getElementById('profileName').textContent=this.value"/></div>
         <div class="profile-field"><label>Role</label><input value="Founder / Admin" disabled style="opacity:.6"/></div>
         <div class="profile-field"><label>Email</label><input value="service@supercompute.io"/></div>
-        <div class="profile-field"><label>ENS</label><input value="supercompute.eth"/></div>
+        <div class="profile-field"><label>ENS</label><input value="supercompute.eth" id="ensAddress"/></div>
         <div class="profile-field"><label>X Handle</label><input value="@supercomputeco"/></div>
         <div class="profile-field"><label>Lens</label><input value="@quanta.lens"/></div>
       </div>

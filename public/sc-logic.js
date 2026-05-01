@@ -1,3 +1,32 @@
+/* ENS CONFIG */
+const ENS_NAME = "supercompute.eth";
+const ENS_PROVIDER = "https://mainnet.base.org";
+
+async function resolveENS(name) {
+    try {
+        const provider = new ethers.JsonRpcProvider(ENS_PROVIDER);
+        return await provider.resolveName(name);
+    } catch(e) { return null; }
+}
+
+async function lookupENS(address) {
+    try {
+        const provider = new ethers.JsonRpcProvider(ENS_PROVIDER);
+        return await provider.lookupAddress(address);
+    } catch(e) { return null; }
+}
+
+// Initialize and display ENS
+resolveENS(ENS_NAME).then(addr => {
+    if (addr) {
+        console.log("ENS resolved:", ENS_NAME, "→", addr);
+        const el = document.getElementById('ensAddress');
+        if (el) el.textContent = addr.slice(0, 6) + '...' + addr.slice(-4);
+        const btn = document.getElementById('ensCopyBtn');
+        if (btn) btn.onclick = () => navigator.clipboard.writeText(addr).then(() => showToast('✓ Address copied'));
+    }
+});
+
 /* ━━━ DATA ━━━ */
 const ARTICLES = [
     {

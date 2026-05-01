@@ -1,1 +1,5 @@
-/index.html /Supercompute.html 200
+# Redirect root to Supercompute.html
+/ /Supercompute.html 200
+
+# SPA fallback
+/* /Supercompute.html 200

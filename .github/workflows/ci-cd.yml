@@ -30,9 +30,9 @@ jobs:
       - name: Validate HTML structure
         run: |
           # Check for common HTML issues
-          grep -q '<!DOCTYPE html>' public/Supercompute.html
-          grep -q '<html' public/Supercompute.html
-          grep -q '</html>' public/Supercompute.html
+          grep -q '<!DOCTYPE html>' public/index.html
+          grep -q '<html' public/index.html
+          grep -q '</html>' public/index.html
           echo "✓ HTML structure valid"
 
       - name: Validate JS syntax

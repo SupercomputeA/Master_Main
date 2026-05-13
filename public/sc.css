@@ -128,7 +128,7 @@ nav#appNav {
 
 .nav-section {
     color: rgba(255, 255, 255, .25);
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 1.5px;
     padding: .6rem 1rem .2rem;
@@ -141,7 +141,7 @@ nav#appNav {
     gap: 8px;
     padding: .48rem 1rem;
     color: rgba(255, 255, 255, .5);
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
     border-left: 2px solid transparent;
     transition: all .15s;

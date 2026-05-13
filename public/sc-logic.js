@@ -673,13 +673,42 @@ const DASH_CONTENT = {
   </tbody></table></div>`
 };
 
+const DASH_CONTENT_PUBLIC = {
+    overview: `<div style="padding:.75rem 1.25rem;background:rgba(233,30,140,.06);border:1px solid rgba(233,30,140,.2);border-radius:10px;margin-bottom:1.25rem;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:.5rem"><span style="font-size:14px">🔒</span><span>Sign in to access your portfolio, agent controls, and admin tools.</span></div>
+  <div class="grid4 mb-6">${[['Community Members', '21', 'Growing', 'up'], ['Active Agents', '13', 'All systems go', 'up'], ['Projects Live', '5', 'Staking + offerings', 'up'], ['Phase', 'May 2026', 'Launch target', 'neu']].map(([l, v, s, sv]) => `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-val">${v}</div><div class="stat-sub s-${sv}">${s}</div></div>`).join('')}</div>
+  <div class="card mb-4"><div class="section-title">Available Token Offerings</div>
+    <div style="display:flex;flex-direction:column;gap:.5rem">
+      <div class="asset-row"><div class="asset-ico" style="background:linear-gradient(135deg,var(--pink),var(--gold))">SC</div><div style="flex:1"><div style="font-weight:700;font-size:13px">$SCOM</div><div style="font-size:11px;color:var(--muted)">Supercompute Protocol Token · Base Chain</div></div><div style="text-align:right"><div style="font-weight:700;font-size:13px">Pre-Launch</div><div style="font-size:11px;color:var(--muted)">Q3 2026 · staking opens May 2026</div></div></div>
+      <div class="asset-row"><div class="asset-ico" style="background:linear-gradient(135deg,#6366f1,var(--cyan2))">QT</div><div style="flex:1"><div style="font-weight:700;font-size:13px">$QUANTA</div><div style="font-size:11px;color:var(--muted)">NewsDesk Intelligence · Virtuals Protocol</div></div><div style="text-align:right"><div style="font-weight:700;font-size:13px">Pending</div><div style="font-size:11px;color:var(--muted)">Virtuals verification in progress</div></div></div>
+      <div class="asset-row"><div class="asset-ico" style="background:linear-gradient(135deg,var(--gold),#f97316)">VB</div><div style="flex:1"><div style="font-weight:700;font-size:13px">$VERB</div><div style="font-size:11px;color:var(--muted)">WordWatcher · Base Chain</div></div><div style="text-align:right"><div style="font-weight:700;font-size:13px">Pre-Launch</div><div style="font-size:11px;color:var(--muted)">NFT mint at launch</div></div></div>
+    </div>
+  </div>
+  <div class="card mb-4"><div class="section-title">Platform Offerings</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem">
+      ${[{ t: 'Sovereign Consulting', d: 'DeFi ops, agent automation, ReFi strategy from $300/session', c: 'var(--gold)', l: 'From $300' }, { t: 'Web3 School', d: '7 modules → NFT credential + TradeDesk access', c: 'var(--cyan2)', l: 'Free beta' }, { t: 'NewsDesk', d: 'AI-curated Web3 intelligence, 6 articles live', c: 'var(--pink)', l: 'Public' }, { t: 'TradeDesk (KNIGHT)', d: 'CDP monitoring, Polymarket analysis, observer mode', c: '#6366f1', l: 'Web3 School unlock' }].map(o => `<div style="background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--border)"><div style="font-weight:700;font-size:12px;color:${o.c};margin-bottom:.3rem">${o.t}</div><div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:.5rem">${o.d}</div><div style="font-size:10px;font-weight:600;color:${o.c}">${o.l}</div></div>`).join('')}
+    </div>
+  </div>
+  <div class="card"><div class="section-title">Agent Fleet Preview</div>
+    ${[{ n: 'OpenClaw', r: 'Browser automation · social scheduling · web research', s: 'Active', c: '#3b82f6' }, { n: 'Quanta S', r: 'NewsDesk · intelligence · Base Chain monitoring', s: 'Active', c: 'var(--gold)' }, { n: 'KNIGHT', r: 'TradeDesk · CDP observer · Polymarket analysis', s: 'Observer', c: 'var(--cyan2)' }, { n: 'Claude Desktop', r: 'Strategic command · Linear MCP · agent coordination', s: 'Command', c: '#6366f1' }].map(a => `<div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-bottom:.4rem;font-size:12px"><span style="width:8px;height:8px;border-radius:50%;background:${a.s === 'Active' ? '#4ade80' : a.s === 'Observer' ? 'var(--gold)' : '#6366f1'};flex-shrink:0"></span><div style="flex:1"><div style="font-weight:700;font-size:12px;color:var(--text)">${a.n}</div><div style="font-size:10px;color:var(--muted)">${a.r}</div></div><span style="font-size:10px;color:var(--muted)">${a.s}</span></div>`).join('')}
+  </div>`,
+};
+
 function renderDash(tab) {
+    const isAdmin = authState.loggedIn && authState.role === 'admin';
+    // Non-admins see public dashboard — overview only
+    if (!isAdmin && tab !== 'overview') { tab = 'overview'; }
     activeDashTab = tab;
     document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
     const activeEl = document.querySelector(`.dash-tab[data-tab="${tab}"]`);
     if (activeEl) activeEl.classList.add('active');
     const el = document.getElementById('dashBody');
-    if (el) el.innerHTML = DASH_CONTENT[tab] || `<div style="color:var(--muted);text-align:center;padding:3rem;font-size:.85rem">Panel coming soon.</div>`;
+    if (!el) return;
+    // Show public content for non-admins, admin content for admins
+    if (!isAdmin && DASH_CONTENT_PUBLIC[tab]) {
+        el.innerHTML = DASH_CONTENT_PUBLIC[tab];
+    } else {
+        el.innerHTML = DASH_CONTENT[tab] || `<div style="color:var(--muted);text-align:center;padding:3rem;font-size:.85rem">Panel coming soon.</div>`;
+    }
 }
 
 /* ━━━ AGENT CHAT ━━━ */

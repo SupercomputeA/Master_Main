@@ -204,6 +204,87 @@ function doLoginDemo(role) {
     const prd = document.getElementById('profileRoleDisplay');
     if (prd) prd.innerHTML = `<span class="role-chip">${role === 'admin' ? '⭐ Founder / Admin' : '◎ Member'}</span>`;
 }
+/* ━━━ WELCOME GUIDE — first-time member onboarding ━━━ */
+const WELCOME_KEY = 'scom_welcomed_v1';
+const WELCOME_STEPS = [
+  {
+    title: 'Welcome to SUPERCOMPUTE',
+    sub: '13 sovereign AI agents. One platform. Here\'s how to get started.',
+    items: [
+      { ico: '⌂', name: 'Public pages', desc: 'Read the NewsDesk, explore projects, book consulting' },
+      { ico: '🔐', name: 'Member access', desc: 'Connect wallet → unlock Alerts, Profile, Web3 School' },
+      { ico: '🎓', name: 'Web3 School', desc: '7 modules → NFT credential + TradeDesk access' },
+      { ico: '📰', name: 'NewsDesk CMS', desc: 'Create and publish articles (admin only)' },
+      { ico: '📈', name: 'TradeDesk', desc: 'DeFi portfolio via KNIGHT agent (Phase 1)' },
+      { ico: '🛡', name: 'Agent Chat', desc: 'Quanta S, KNIGHT, OpenClaw — chat with any agent' },
+    ]
+  },
+  {
+    title: 'Navigate the Agent Fleet',
+    sub: 'Each agent is purpose-built. Hover any nav item to see what it does.',
+    items: [
+      { ico: '🧠', name: 'HERMES', desc: 'Your chief of staff. C&C layer. Handles scheduling, SMS, iMessage' },
+      { ico: '📰', name: 'QUANTA-S', desc: 'CEO agent. NewsDesk editor-in-chief. Research intelligence' },
+      { ico: '📈', name: 'KNIGHT', desc: 'TradeDesk. CDP management, treasury ops, on-chain execution' },
+      { ico: '🔧', name: 'OPENCLAW', desc: 'Browser automation, web scraping, social outreach' },
+      { ico: '🤖', name: 'CONDOR', desc: 'Hummingbot trading bot. Auto-execution on Base' },
+      { ico: '🗂', name: 'ORAMI / VIRTUALS', desc: 'ACP revenue agents — Virtuals Protocol agent monetization' },
+    ]
+  },
+  {
+    title: 'Start Here',
+    sub: 'Three things most members do first. Pick your path.',
+    items: [
+      { ico: '📰', name: 'Read NewsDesk', desc: 'AI-curated Web3 intelligence. No login required.' },
+      { ico: '🎓', name: 'Start Web3 School', desc: '7 free modules. Earn NFT credential. Unlocks $SCOM token.' },
+      { ico: '🧠', name: 'Book a Strategy Call', desc: 'DeFi setup, agent automation, or ReFi planning.' },
+      { ico: '📈', name: 'Try Agent Chat', desc: 'Ask Quanta S anything. KNIGHT for on-chain questions.' },
+    ]
+  }
+];
+
+function showWelcomeGuide() {
+  if (localStorage.getItem(WELCOME_KEY)) return;
+  let step = 0;
+  const overlay = document.createElement('div');
+  overlay.className = 'welcome-overlay';
+  document.body.appendChild(overlay);
+
+  function renderStep() {
+    const s = WELCOME_STEPS[step];
+    const pips = WELCOME_STEPS.map((_, i) =>
+      `<div class="welcome-step-pip ${i < step ? 'done' : ''} ${i === step ? 'active' : ''}"></div>`
+    ).join('');
+    const grid = s.items.map(item =>
+      `<div class="welcome-flow-item">
+        <div class="wfi-ico">${item.ico}</div>
+        <div class="wfi-name">${item.name}</div>
+        <div class="wfi-desc">${item.desc}</div>
+      </div>`
+    ).join('');
+    overlay.innerHTML = `
+      <div class="welcome-card">
+        <div class="welcome-step-bar">${pips}</div>
+        <div class="welcome-step-title">${s.title}</div>
+        <div class="welcome-step-sub">${s.sub}</div>
+        <div class="welcome-flow-grid">${grid}</div>
+        <div class="welcome-nav">
+          ${step > 0 ? '<button class="welcome-nav-btn ghost" onclick="welcomePrev()">← Back</button>' : '<button class="welcome-nav-btn ghost" onclick="welcomeSkip()">Skip tour</button>'}
+          ${step < WELCOME_STEPS.length - 1
+            ? `<button class="welcome-nav-btn primary" onclick="welcomeNext()">Next →</button>`
+            : `<button class="welcome-nav-btn primary" onclick="welcomeDone()">Start exploring →</button>`
+          }
+        </div>
+      </div>`;
+  }
+
+  window.welcomeNext = () => { step++; renderStep(); };
+  window.welcomePrev = () => { step--; renderStep(); };
+  window.welcomeSkip = () => { localStorage.setItem(WELCOME_KEY, '1'); document.body.removeChild(overlay); };
+  window.welcomeDone = () => { localStorage.setItem(WELCOME_KEY, '1'); document.body.removeChild(overlay); };
+  renderStep();
+}
+
 function updateAuthUI(role) {
     ['assets', 'social', 'commerce', 'alerts', 'profile', 'agentchat', 'web3school', 'socialmedia', 'token'].forEach(id => {
         const el = document.getElementById('nl-' + id);
@@ -217,6 +298,10 @@ function updateAuthUI(role) {
     }
     const pwallet = document.getElementById('profileWallet');
     if (pwallet && walletConnected) pwallet.textContent = '0x7f3a...d4e2';
+    /* Trigger welcome guide on first successful login */
+    if (!localStorage.getItem(WELCOME_KEY)) {
+        setTimeout(showWelcomeGuide, 600);
+    }
 }
 
 /* ━━━ WALLET ━━━ */

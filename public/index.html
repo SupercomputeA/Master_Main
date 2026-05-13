@@ -56,28 +56,28 @@
   </div>
   <div style="flex:1;overflow-y:auto;padding-bottom:.5rem">
     <div class="nav-section">Public</div>
-    <div class="nav-item active" data-page="home" onclick="navigate('home',this)"><span class="nav-ico">⌂</span>Home</div>
-    <div class="nav-item" data-page="about" onclick="navigate('about',this)"><span class="nav-ico">◎</span>About</div>
-    <div class="nav-item" data-page="staking" onclick="navigate('staking',this)"><span class="nav-ico">◈</span>Staking</div>
-    <div class="nav-item" data-page="blog" onclick="navigate('blog',this)"><span class="nav-ico">▤</span>Blog</div>
-    <div class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this)"><span class="nav-ico">◧</span>Projects</div>
-    <div class="nav-item" data-page="consulting" onclick="navigate('consulting',this)"><span class="nav-ico">◑</span>Consulting</div>
-    <div class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this)"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></div>
+    <div class="nav-item active" data-page="home" onclick="navigate('home',this)" title="Public landing page — overview of Supercompute"><span class="nav-ico">⌂</span>Home</div>
+    <div class="nav-item" data-page="about" onclick="navigate('about',this)" title="Who we are, what we build, why it matters"><span class="nav-ico">◎</span>About</div>
+    <div class="nav-item" data-page="staking" onclick="navigate('staking',this)" title="$SCOM token staking — live May 2026"><span class="nav-ico">◈</span>Staking</div>
+    <div class="nav-item" data-page="blog" onclick="navigate('blog',this)" title="NewsDesk articles — AI-curated Web3 intelligence"><span class="nav-ico">▤</span>Blog</div>
+    <div class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this)" title="Public investment opportunities"><span class="nav-ico">◧</span>Projects</div>
+    <div class="nav-item" data-page="consulting" onclick="navigate('consulting',this)" title="DeFi consulting, agent automation, ReFi strategy"><span class="nav-ico">◑</span>Consulting</div>
+    <div class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this)" title="$SCOM token — access gated by Web3 School completion"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></div>
     <div class="nav-div"></div>
     <div class="nav-section">Member</div>
-    <div class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this)"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></div>
-    <div class="nav-item locked" id="nl-social" data-page="social" onclick="authGate('social',this)"><span class="nav-ico">◉</span>Social Feed<span class="nav-badge nb-lock">🔒</span></div>
-    <div class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this)"><span class="nav-ico">◎</span>Alerts<span class="nav-badge nb-num">3</span></div>
-    <div class="nav-item locked" id="nl-profile" data-page="profile" onclick="authGate('profile',this)"><span class="nav-ico">◐</span>Profile<span class="nav-badge nb-lock">🔒</span></div>
-    <div class="nav-item locked" id="nl-agentchat" data-page="agentchat" onclick="authGate('agentchat',this)"><span class="nav-ico">◈</span>Agent Chat<span class="nav-badge nb-num">4</span></div>
-    <div class="nav-item locked" id="nl-web3school" data-page="web3school" onclick="authGate('web3school',this)"><span class="nav-ico">◎</span>Web3 School<span class="nav-badge nb-lock">🔒</span></div>
-    <div class="nav-item locked" id="nl-socialmedia" data-page="socialmedia" onclick="authGate('socialmedia',this)"><span class="nav-ico">◧</span>Social Media<span class="nav-badge nb-lock">🔒</span></div>
+    <div class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this)" title="Your portfolio assets and positions"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></div>
+    <div class="nav-item locked" id="nl-social" data-page="social" onclick="authGate('social',this)" title="Social feed — posts, shares, community activity"><span class="nav-ico">◉</span>Social Feed<span class="nav-badge nb-lock">🔒</span></div>
+    <div class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this)" title="System alerts and agent activity notifications"><span class="nav-ico">◎</span>Alerts<span class="nav-badge nb-num">3</span></div>
+    <div class="nav-item locked" id="nl-profile" data-page="profile" onclick="authGate('profile',this)" title="Your profile — wallet, roles, credentials"><span class="nav-ico">◐</span>Profile<span class="nav-badge nb-lock">🔒</span></div>
+    <div class="nav-item locked" id="nl-agentchat" data-page="agentchat" onclick="authGate('agentchat',this)" title="Chat with the agent fleet — Quanta S, KNIGHT, OpenClaw"><span class="nav-ico">◈</span>Agent Chat<span class="nav-badge nb-num">4</span></div>
+    <div class="nav-item locked" id="nl-web3school" data-page="web3school" onclick="authGate('web3school',this)" title="7 modules → NFT credential + TradeDesk access"><span class="nav-ico">◎</span>Web3 School<span class="nav-badge nb-lock">🔒</span></div>
+    <div class="nav-item locked" id="nl-socialmedia" data-page="socialmedia" onclick="authGate('socialmedia',this)" title="Schedule and publish to X, Lens, and more"><span class="nav-ico">◧</span>Social Media<span class="nav-badge nb-lock">🔒</span></div>
     <div class="nav-div"></div>
     <div class="nav-section">Admin</div>
-    <div class="nav-item locked" id="nl-dashboard" data-page="dashboard" onclick="authGate('dashboard',this,true)"><span class="nav-ico">▣</span>Dashboard<span class="nav-badge nb-gold">A</span></div>
-    <div class="nav-item locked" id="nl-community" data-page="community" onclick="authGate('community',this,true)"><span class="nav-ico">◈</span>Community<span class="nav-badge nb-gold">A</span></div>
-    <div class="nav-item locked" id="nl-newsdesk" data-page="newsdesk" onclick="authGate('newsdesk',this,true)"><span class="nav-ico">◧</span>NewsDesk CMS<span class="nav-badge nb-gold">A</span></div>
-    <div class="nav-item locked" id="nl-apiStatus" data-page="apiStatus" onclick="authGate('apiStatus',this,true)"><span class="nav-ico">◐</span>API Status<span class="nav-badge nb-gold">A</span></div>
+    <div class="nav-item locked" id="nl-dashboard" data-page="dashboard" onclick="authGate('dashboard',this,true)" title="Fleet overview, portfolio, agent activity"><span class="nav-ico">▣</span>Dashboard<span class="nav-badge nb-gold">A</span></div>
+    <div class="nav-item locked" id="nl-community" data-page="community" onclick="authGate('community',this,true)" title="Members, roles, Guild.xyz integration"><span class="nav-ico">◈</span>Community<span class="nav-badge nb-gold">A</span></div>
+    <div class="nav-item locked" id="nl-newsdesk" data-page="newsdesk" onclick="authGate('newsdesk',this,true)" title="NewsDesk CMS — articles, drafts, publishing"><span class="nav-ico">◧</span>NewsDesk CMS<span class="nav-badge nb-gold">A</span></div>
+    <div class="nav-item locked" id="nl-apiStatus" data-page="apiStatus" onclick="authGate('apiStatus',this,true)" title="API health, D1 DB, Web3 CMS status"><span class="nav-ico">◐</span>API Status<span class="nav-badge nb-gold">A</span></div>
   </div>
   <div class="nav-bottom">
     <button class="btn-wallet" id="walletBtn" onclick="toggleWallet()"><span id="wico">◎</span><span id="wtxt">Connect Wallet</span></button>
@@ -129,9 +129,43 @@
     </div>
 
     <div class="hero-ctas">
-      <button class="btn-primary">Book a Strategy Call</button>
-      <button class="btn-outline">Start Web3 School</button>
-      <button class="btn-outline">Read the NewsDesk</button>
+      <button class="btn-primary" onclick="navigate('consulting',navItem('consulting'))">Book a Strategy Call</button>
+      <button class="btn-outline" onclick="authGate('web3school',navItem('web3school'))">Start Web3 School</button>
+      <button class="btn-outline" onclick="navigate('blog',navItem('blog'))">Read the NewsDesk</button>
+    </div>
+  </section>
+
+  <!-- WHAT IS SUPERCOMPUTE — onboard every visitor -->
+  <section style="padding:2.5rem 1.5rem;background:var(--surface-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div style="max-width:860px;margin:0 auto">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.15em;color:var(--muted);margin-bottom:.75rem">// WHAT IS SUPERCOMPUTE</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
+          <div style="font-size:1.4rem;margin-bottom:.5rem">📰</div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:.3rem">NewsDesk Intelligence</div>
+          <div style="font-size:11px;color:var(--muted)">AI-curated Web3 news. Sovereign media powered by Quanta S. Read free, connect wallet to publish.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
+          <div style="font-size:1.4rem;margin-bottom:.5rem">📈</div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:.3rem">TradeDesk Operations</div>
+          <div style="font-size:11px;color:var(--muted)">DeFi portfolio via KNIGHT agent. CDP management, treasury, on-chain positions on Base.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
+          <div style="font-size:1.4rem;margin-bottom:.5rem">🧠</div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:.3rem">Sovereign Consulting</div>
+          <div style="font-size:11px;color:var(--muted)">DeFi onboarding, agent automation, ReFi strategy. Direct access to the founder.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
+          <div style="font-size:1.4rem;margin-bottom:.5rem">🎓</div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:.3rem">Web3 School</div>
+          <div style="font-size:11px;color:var(--muted)">7 modules. NFT credentials. Guild.xyz roles. Learn by doing, earn while you learn.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+        <span style="font-size:11px;font-weight:700;color:var(--muted)">AGENT FLEET:</span>
+        <span class="ac-tag" style="margin:0">HERMES · QUANTA-S · KNIGHT · CLAUDE DESKTOP · OPENCLAW · CONDOR · Z VINEYARD · ORAMI · VIRTUALS · WORDWATCHER · OPENSCRape · 8 MORE</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--muted-dim)">SIWE auth · supercompute.eth · Founded 2013 at Occupy LA</span>
+      </div>
     </div>
   </section>
 
@@ -143,7 +177,37 @@
   <!-- TECH STACK BAR -->
 <div class="stack-bar">
     <span class="stack-label">DEPLOYED ON · POWERED BY · BUILT WITH</span>
-    <div class="stack-item"><div class="stack-dot base">B</div>
+    <a class="stack-item" href="https://base.org" target="_blank" rel="noopener" title="Base Chain">
+        <div class="stack-dot base" style="display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 256 417" fill="none"><path d="M128 0C93.867 0 71.547 7.574 53.333 22.667L6.24 69.973C2.347 73.867 0 78.933 0 84.267V164c0 5.333 2.347 10.4 6.24 14.293l47.093 47.36c18.214 15.04 40.534 22.667 74.667 22.667s56.453-7.573 74.667-22.667l47.093-47.36c3.894-3.893 6.24-8.96 6.24-14.293v-79.733c0-5.333-2.346-10.4-6.24-14.293L181.547 22.667C163.36 7.574 141.04 0 106.88 0h21.12zm0 50.133h-21.12c-19.2 0-34.987 5.973-47.413 17.92L32 95.147V148l27.467-27.307c12.373-11.893 28.214-17.92 47.413-17.92h21.12v-21.333L101.12 64l26.88 17.067V50.133zm0 74.667V208H72.96L101.12 180l26.88-55.2zM184 95.147l-27.467 27.307V180h111.04L236.373 148l-52.373-52.853z" fill="#fff"/></svg>
+        </div>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Base</span>
+    </a>
+    <a class="stack-item" href="https://virtuals.io" target="_blank" rel="noopener" title="Virtuals Protocol">
+        <div class="stack-dot virtuals" style="display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><defs><linearGradient id="vg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs><path d="M16 2L28 9v14l-12 7L4 23V9L16 2z" stroke="url(#vg)" stroke-width="2" fill="none"/><path d="M16 2v28M4 9l24 14M28 9L4 23" stroke="url(#vg)" stroke-width="1.5" opacity=".5"/></svg>
+        </div>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Virtuals</span>
+    </a>
+    <a class="stack-item" href="https://anthropic.com" target="_blank" rel="noopener" title="Anthropic">
+        <div class="stack-dot anth" style="display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 2c1.93 0 3.68.7 5.05 1.85L12 12l-5.05-6.15A7.96 7.96 0 0 1 12 4zm-7 8c0-3.09 2.13-5.67 5-6.65L12 12l-2.05-6.65A7.96 7.96 0 0 1 5 12zm4.95 7.85L12 12l-2.05 6.65A7.96 7.96 0 0 1 5 12a7.96 7.96 0 0 1 4.95-1.85zM12 20a7.96 7.96 0 0 1-4.95-1.85L12 12l5.05 6.15A7.96 7.96 0 0 1 12 20zm2.95-2.85L12 12l2.95-4.15A7.96 7.96 0 0 1 19 12a7.96 7.96 0 0 1-4.05 5.15z" fill="#fff"/></svg>
+        </div>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Anthropic</span>
+    </a>
+    <a class="stack-item" href="https://cloudflare.com" target="_blank" rel="noopener" title="Cloudflare">
+        <div class="stack-dot cf" style="display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 200 168" fill="none"><path d="M100 30.5c-16.57 0-30 13.43-30 30s13.43 30 30 30 30-13.43 30-30-13.43-30-30-30zm0 48.5c-10.22 0-18.5-8.28-18.5-18.5S89.78 42 100 60.5s18.5 8.28 18.5 18.5-8.28 18.5-18.5 18.5zm0-75.7C72.06 3.3 48.3 21.78 40.7 46.5H100V3.3zm0 19.5c9.8 0 18.1 6.27 20.8 15H100V22.8zm0 19.5c-9.8 0-18.1-6.27-20.8-15H100v15zm0 27h-20.8c1.1-12.55 7.97-23.35 17.9-28.67A33.13 33.13 0 0 1 100 73.3zm0 27h20.8c-1.1 12.55-7.97 23.35-17.9 28.67A33.13 33.13 0 0 1 100 100.3zM100 114.5c-10.22 0-18.5 8.28-18.5 18.5S89.78 151.5 100 151.5V114.5zm39.3-45.2c8.6-24.72-3.16-43.2-19.3-48H100v48zm0 19.5V100.3c10.22 0 18.5-8.28 18.5-18.5S110.22 63.3 100 63.3v25.5z" fill="#fff"/></svg>
+        </div>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Cloudflare</span>
+    </a>
+    <a class="stack-item" href="https://supabase.com" target="_blank" rel="noopener" title="Supabase">
+        <div class="stack-dot supa" style="display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 109 113" fill="none"><path d="M63.707 2.217a2.786 2.786 0 0 1 3.09 2.217l12.516 71.482a2.786 2.786 0 0 1-2.654 3.373L53.3 75.922a2.786 2.786 0 0 1-2.654-3.373l12.516-71.482a2.786 2.786 0 0 1 2.545-1.85z" fill="#fff"/><path d="M54.5 79.29L42.12 108.9a2.786 2.786 0 0 1-2.654 1.85 2.79 2.79 0 0 1-2.545-1.85L24.43 79.29a2.786 2.786 0 0 1 2.653-3.373L50.44 79.29a2.786 2.786 0 0 1 2.654 3.373l1.407-3.373z" fill="#fff"/><path d="M81.34 0a2.786 2.786 0 0 1 2.786 2.786v71.482a2.786 2.786 0 0 1-2.786 2.786 2.786 2.786 0 0 1-2.786-2.786V2.786A2.786 2.786 0 0 1 81.34 0z" fill="#fff"/></svg>
+        </div>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Supabase</span>
+    </a>
+</div>
 
   <!-- PLATFORM GRID -->
 <!-- ─── PLATFORM ──────────────────────────────────────────── -->

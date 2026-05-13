@@ -394,8 +394,45 @@ function openArticle(id) {
         ${a.live ? '<span class="badge badge-live" style="margin-left:auto">Published</span>' : '<span class="badge badge-progress" style="margin-left:auto">Draft</span>'}
       </div>
       <div class="article-body">${a.content}</div>
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">Discussion</div>
+        <div id="articleComments"></div>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;align-items:flex-start">
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">YO</div>
+          <div style="flex:1"><textarea id="commentInput" placeholder="Add to the signal..." style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.6rem;font-size:12px;color:var(--text);font-family:inherit;resize:none;min-height:60px;outline:none" rows="2"></textarea></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:.4rem"><button class="tb-btn primary" style="font-size:11px;padding:.3rem .8rem" onclick="postComment('${a.id}')">Post comment</button></div>
+        <div id="commentStatus" style="font-size:11px;color:var(--muted);margin-top:.3rem;display:none"></div>
+      </div>
     </div>`;
+    renderComments(a.id);
     document.getElementById('articleModal').style.display = 'flex';
+}
+
+function renderComments(articleId) {
+    const comments = JSON.parse(localStorage.getItem('sc_comments') || '{}')[articleId] || [];
+    const el = document.getElementById('articleComments');
+    if (!el) return;
+    if (comments.length === 0) {
+        el.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:.5rem 0">No comments yet. Start the discussion.</div>';
+        return;
+    }
+    el.innerHTML = comments.map(c => `<div style="margin-bottom:.85rem;padding:.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border)"><div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem"><div style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--pink));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff">${(c.author || 'AN').slice(0,2).toUpperCase()}</div><div style="font-weight:600;font-size:11px;color:var(--text)">${c.author || 'Anonymous'}</div><div style="font-size:10px;color:var(--muted);margin-left:auto">${c.date || ''}</div></div><div style="font-size:12px;color:var(--text);line-height:1.5">${c.text}</div></div>`).join('');
+}
+
+function postComment(articleId) {
+    const input = document.getElementById('commentInput');
+    const status = document.getElementById('commentStatus');
+    const text = input.value.trim();
+    if (!text) { status.textContent = 'Comment cannot be empty.'; status.style.color = 'var(--pink)'; status.style.display = 'block'; return; }
+    const all = JSON.parse(localStorage.getItem('sc_comments') || '{}');
+    if (!all[articleId]) all[articleId] = [];
+    all[articleId].push({ author: 'You', text, date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) });
+    localStorage.setItem('sc_comments', JSON.stringify(all));
+    input.value = '';
+    status.textContent = 'Comment posted.'; status.style.color = 'var(--success)'; status.style.display = 'block';
+    setTimeout(() => { status.style.display = 'none'; }, 2500);
+    renderComments(articleId);
 }
 function closeArticle() { document.getElementById('articleModal').style.display = 'none'; }
 

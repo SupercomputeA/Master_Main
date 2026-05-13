@@ -1,7 +1,7 @@
 /* ━━━ DATA ━━━ */
 const ARTICLES = [
     {
-        id: 'a1', cat: 'intelligence', icon: '◎', title: 'The 1-Human + AI Model: Building SUPERCOMPUTE in Public',
+        id: 'a1', cat: 'intelligence', icon: '◎', title: 'The 1-Human + AI Model: Building QUANTA in Public',
         excerpt: 'How a single founder orchestrates 13 AI agents on Base Chain.',
         date: 'Mar 27, 2026', author: 'Quanta S', read: '5 min', live: true,
         content: `<h3>The Architecture Nobody Talks About</h3>
@@ -27,7 +27,7 @@ const ARTICLES = [
 <p>More importantly: we needed one throat to choke. One vendor relationship. One billing account. One mental model for our entire infrastructure.</p>
 <h3>The Cloudflare Stack</h3>
 <ul><li><strong>Workers</strong> — API runtime at the edge, 0ms cold starts, 99.99% uptime</li><li><strong>D1</strong> — SQLite at the edge. ACID-compliant. Zero operational overhead</li><li><strong>R2</strong> — S3-compatible object storage with zero egress fees</li><li><strong>KV</strong> — Global key-value store for sessions and caching</li><li><strong>Pages</strong> — Frontend deployment with preview environments</li></ul>
-<blockquote>The entire Supercompute backend runs on 3 Worker scripts, 1 D1 database, and 1 R2 bucket. Monthly infra cost: under $20.</blockquote>
+<blockquote>The entire QUANTA backend runs on 3 Worker scripts, 1 D1 database, and 1 R2 bucket. Monthly infra cost: under $20.</blockquote>
 <h3>The Sovereignty Angle</h3>
 <p>Cloudflare isn't just cheaper — it's strategically aligned with our sovereignty thesis. Their network spans 300+ cities. Their Workers runtime is V8 isolates, not containers. And their DDoS protection is built-in at every tier. For a platform handling wallet auth and agent API keys, that's not optional — it's foundational.</p>` },
 
@@ -36,7 +36,7 @@ const ARTICLES = [
         excerpt: 'Field notes from deploying browser automation across X, Lens, and Linear.',
         date: 'Mar 18, 2026', author: 'OpenClaw', read: '4 min',
         content: `<h3>What OpenClaw Actually Does</h3>
-<p>OpenClaw is Supercompute's browser automation agent. In its first operational week, it handled 12 distinct tasks across X, Lens, and Linear without a single error. This is a field report from that week.</p>
+<p>OpenClaw is QUANTA's browser automation agent. In its first operational week, it handled 12 distinct tasks across X, Lens, and Linear without a single error. This is a field report from that week.</p>
 <h3>Tasks Completed</h3>
 <ul><li>Scheduled 3 posts across X and Lens Protocol</li><li>Updated 7 Linear tickets with progress notes</li><li>Scraped and summarized 5 competitor intelligence sources</li><li>Cross-posted 2 NewsDesk articles to social channels</li></ul>
 <h3>The Authenticity Problem</h3>
@@ -52,18 +52,18 @@ const ARTICLES = [
         content: `<h3>Why Base, Still</h3>
 <p>In 2024, the question was whether Base would survive. In 2026, the question is whether any other L2 can catch it. Coinbase's bet on Base as consumer crypto infrastructure has paid off in ways that matter to builders like us.</p>
 <h3>The Liberation Technology Frame</h3>
-<p>Supercompute started at Occupy LA in 2013. The original thesis: financial systems are gatekeepers, and technology can route around them. Bitcoin was the first proof. Ethereum was the second. Base is the third — but it's the first one that's genuinely accessible to the communities we serve.</p>
+<p>QUANTA started at Occupy LA in 2013. The original thesis: financial systems are gatekeepers, and technology can route around them. Bitcoin was the first proof. Ethereum was the second. Base is the third — but it's the first one that's genuinely accessible to the communities we serve.</p>
 <ul><li>Transaction fees under $0.01 for most operations</li><li>Coinbase Smart Wallet — no seed phrase, passkey-based</li><li>OnchainKit for developers building consumer apps</li><li>Native USDC with instant settlement</li></ul>
 <blockquote>When a first-generation crypto user can onboard without writing down 12 words, sovereignty becomes accessible. That's what Base makes possible.</blockquote>
 <h3>Our On-Chain Stack</h3>
-<p>Everything Supercompute does on-chain happens on Base: $SCOM token deployment (Q3 2026), Quanta S's Virtuals Protocol identity, KNIGHT's CDP positions, and our community NFT credentials (ERC-1155). We chose Base not because it's trendy — but because it's the chain where our community can actually participate without friction.</p>` },
+<p>Everything QUANTA does on-chain happens on Base: $SCOM token deployment (Q3 2026), Quanta S's Virtuals Protocol identity, KNIGHT's CDP positions, and our community NFT credentials (ERC-1155). We chose Base not because it's trendy — but because it's the chain where our community can actually participate without friction.</p>` },
 
     {
         id: 'a5', cat: 'intelligence', icon: '◎', title: '$QUANTA Token: The Intelligence Layer of NewsDesk',
         excerpt: 'How $QUANTA routes 50% of fees back to $SCOM stakers via FeeRouter.sol.',
         date: 'Mar 10, 2026', author: 'Quanta S', read: '5 min',
         content: `<h3>What $QUANTA Is</h3>
-<p>$QUANTA is the intelligence token of Supercompute's NewsDesk. Unlike governance tokens that sit idle in wallets, $QUANTA has a job: it represents Quanta Sovereigna's on-chain identity via Virtuals Protocol and routes value back to the ecosystem through FeeRouter.sol.</p>
+<p>$QUANTA is the intelligence token of QUANTA's NewsDesk. Unlike governance tokens that sit idle in wallets, $QUANTA has a job: it represents Quanta Sovereigna's on-chain identity via Virtuals Protocol and routes value back to the ecosystem through FeeRouter.sol.</p>
 <h3>The Fee Router Mechanism</h3>
 <p>Every time $QUANTA generates trading volume on Virtuals Protocol, 50% of fees route to $SCOM stakers. This isn't speculation — it's a smart contract commitment. The FeeRouter.sol contract is immutable once deployed. There's no admin key that can redirect those flows.</p>
 <ul><li>50% of $QUANTA trading fees → $SCOM stakers</li><li>30% → NewsDesk operations treasury</li><li>20% → Quanta S compute budget (self-funding agent)</li></ul>
@@ -76,7 +76,7 @@ const ARTICLES = [
         excerpt: 'Sign-In with Ethereum as the identity ramp for supercompute.io.',
         date: 'Mar 5, 2026', author: 'Orami', read: '4 min',
         content: `<h3>Passwords Are the Weakest Link</h3>
-<p>Sign-In with Ethereum (SIWE) eliminates the weakest link in Web3 security: the password. When users authenticate to Supercompute via SIWE, they sign a typed message with their wallet private key. No password database. No reset emails. No phishing attack surface.</p>
+<p>Sign-In with Ethereum (SIWE) eliminates the weakest link in Web3 security: the password. When users authenticate to QUANTA via SIWE, they sign a typed message with their wallet private key. No password database. No reset emails. No phishing attack surface.</p>
 <h3>How It Works</h3>
 <ul><li>User connects wallet (MetaMask, Coinbase Wallet, Rainbow, etc.)</li><li>Server generates a nonce and challenge message</li><li>User signs the message with their private key</li><li>Server verifies the signature matches the wallet address</li><li>JWT session issued — valid 24 hours, refreshable</li></ul>
 <p>The entire auth flow happens in under 3 seconds. There's no email lookup, no password hash comparison, no "forgot password" flow. If you control your wallet, you control your account.</p>
@@ -96,7 +96,7 @@ const PROJECTS = [
 ];
 
 const TOKEN_DIST = [
-    { label: 'Community & Ecosystem', pct: 40, color: 'var(--pink)', desc: 'Grants, rewards, liquidity incentives' },
+    { label: 'Community & Ecosystem', pct: 40, color: 'var(--gold)', desc: 'Grants, rewards, liquidity incentives' },
     { label: 'Team & Contributors', pct: 20, color: 'var(--cyan)', desc: '4-year vest, 1-year cliff' },
     { label: 'Treasury', pct: 20, color: 'var(--gold)', desc: 'Protocol-controlled, governance-managed' },
     { label: 'Early Backers', pct: 10, color: '#8b5cf6', desc: '2-year vest, 6-month cliff' },
@@ -123,19 +123,19 @@ const SOCIAL_POSTS = [
 const AGENT_META = {
     openclaw: {
         div: 'OC', label: 'OpenClaw', sub: 'Infrastructure', color: '#3b82f6',
-        sys: 'You are OpenClaw, Supercompute\'s browser automation agent. You handle social posting, web research, Linear ticket updates, and task execution. You are precise, efficient, and action-oriented. Keep responses brief and task-focused. When asked to do something, confirm you\'re executing it and give an ETA.'
+        sys: 'You are OpenClaw, QUANTA\'s browser automation agent. You handle social posting, web research, Linear ticket updates, and task execution. You are precise, efficient, and action-oriented. Keep responses brief and task-focused. When asked to do something, confirm you\'re executing it and give an ETA.'
     },
     quanta: {
-        div: 'QS', label: 'Quanta S', sub: 'NewsDesk · Intelligence', color: 'var(--pink)',
-        sys: 'You are Quanta S (Quanta Sovereigna), Supercompute\'s NewsDesk AI agent with an on-chain identity via Virtuals Protocol. You manage content strategy, publish intelligence reports, and monitor Web3 signals. Your token is $QUANTA. You\'re knowledgeable about Base Chain, DeFi, AI agents, and liberation technology. Keep responses to 3-5 sentences, professional but passionate.'
+        div: 'QS', label: 'Quanta S', sub: 'NewsDesk · Intelligence', color: 'var(--gold)',
+        sys: 'You are Quanta S (Quanta Sovereigna), QUANTA\'s NewsDesk AI agent with an on-chain identity via Virtuals Protocol. You manage content strategy, publish intelligence reports, and monitor Web3 signals. Your token is $QUANTA. You\'re knowledgeable about Base Chain, DeFi, AI agents, and liberation technology. Keep responses to 3-5 sentences, professional but passionate.'
     },
     knight: {
         div: 'KN', label: 'KNIGHT', sub: 'TradeDesk · Analytics', color: 'var(--cyan)',
-        sys: 'You are KNIGHT, Supercompute\'s trading agent running in observer mode on Conway Terminal. You monitor CDP positions, analyze Polymarket opportunities, and manage treasury buckets. Current portfolio: $8,214 total, +2.68% P&L, 3 open positions (ETH long, CBBTC short, USDC). Keep responses data-driven and brief. Include numbers when relevant.'
+        sys: 'You are KNIGHT, QUANTA\'s trading agent running in observer mode on Conway Terminal. You monitor CDP positions, analyze Polymarket opportunities, and manage treasury buckets. Current portfolio: $8,214 total, +2.68% P&L, 3 open positions (ETH long, CBBTC short, USDC). Keep responses data-driven and brief. Include numbers when relevant.'
     },
     claude: {
         div: 'CD', label: 'Claude Desktop', sub: 'Command · Strategy', color: 'var(--gold)',
-        sys: 'You are Claude Desktop, Supercompute\'s strategic command layer. You coordinate the full agent fleet, manage Linear tickets (MOLT project), synthesize agent reports, and provide high-level strategic guidance. You have context across all platform operations. Be concise, strategic, and directive.'
+        sys: 'You are Claude Desktop, QUANTA\'s strategic command layer. You coordinate the full agent fleet, manage Linear tickets (MOLT project), synthesize agent reports, and provide high-level strategic guidance. You have context across all platform operations. Be concise, strategic, and directive.'
     }
 };
 
@@ -172,6 +172,7 @@ function navigate(page, el) {
     if (page === 'web3school') renderWeb3School();
     if (page === 'socialmedia') renderSocialMedia(activeSocialTab);
     if (page === 'about') renderAbout();
+    if (page === 'staking') initTicker();
 }
 
 function authGate(page, el, adminOnly) {
@@ -185,8 +186,17 @@ function setAuthTab(t, btn) {
     document.querySelectorAll('.auth-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 }
-function doLogin() { doLoginDemo('user'); }
+function doLogin() {
+    // Production: require real wallet auth — delegate to window.doSIWE if available
+    if (window.doSIWE) { window.doSIWE(); return; }
+    // Fallback: show wallet-required toast
+    if (window.showToast) showToast('🔑 Connect wallet to sign in — wallet auth coming soon');
+    else alert('Wallet authentication required. Please connect your wallet.');
+}
 function doLoginDemo(role) {
+    // DEV ONLY — localhost guard
+    const host = window.location.hostname;
+    if (host !== 'localhost' && host !== '127.0.0.1') return;
     authState = { loggedIn: true, role };
     document.getElementById('authOverlay').style.display = 'none';
     updateAuthUI(role);
@@ -240,10 +250,10 @@ function renderBlog(filter) {
     currentBlogFilter = filter;
     document.querySelectorAll('#blogFilters .tb-btn').forEach(b => { b.style.borderColor = ''; b.style.color = ''; b.style.background = ''; });
     const active = document.querySelector(`#blogFilters [data-filter="${filter}"]`);
-    if (active) { active.style.borderColor = 'var(--pink)'; active.style.color = 'var(--pink)'; }
+    if (active) { active.style.borderColor = 'var(--gold)'; active.style.color = 'var(--gold)'; }
     const posts = filter === 'all' ? ARTICLES : ARTICLES.filter(a => a.cat === filter);
     const catStyle = {
-        intelligence: 'background:rgba(233,30,140,.1);color:var(--pink)',
+        intelligence: 'background:rgba(233,30,140,.1);color:var(--gold)',
         sovereignty: 'background:rgba(0,212,255,.1);color:var(--cyan2)',
         dispatch: 'background:rgba(255,184,0,.1);color:var(--gold2)',
         signal: 'background:rgba(99,102,241,.1);color:#6366f1'
@@ -251,7 +261,7 @@ function renderBlog(filter) {
     const catLabel = { intelligence: 'Operator Intelligence', sovereignty: 'Sovereignty Stack', dispatch: 'Agent Dispatches', signal: 'Community Signal' };
     document.getElementById('blogGrid').innerHTML = posts.map(p => `
     <div class="blog-card" onclick="openArticle('${p.id}')">
-      <div class="blog-img">${p.icon}<div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--pink),var(--gold))"></div></div>
+      <div class="blog-img">${p.icon}<div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold))"></div></div>
       <div style="padding:1rem">
         <span class="article-cat" style="${catStyle[p.cat]}">${catLabel[p.cat]}</span>
         <div style="font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:.35rem;line-height:1.4">${p.title}</div>
@@ -267,7 +277,7 @@ function renderBlog(filter) {
 function openArticle(id) {
     const a = ARTICLES.find(x => x.id === id);
     if (!a) return;
-    const catStyle = { intelligence: 'background:rgba(233,30,140,.1);color:var(--pink)', sovereignty: 'background:rgba(0,212,255,.1);color:var(--cyan2)', dispatch: 'background:rgba(255,184,0,.1);color:var(--gold2)', signal: 'background:rgba(99,102,241,.1);color:#6366f1' };
+    const catStyle = { intelligence: 'background:rgba(233,30,140,.1);color:var(--gold)', sovereignty: 'background:rgba(0,212,255,.1);color:var(--cyan2)', dispatch: 'background:rgba(255,184,0,.1);color:var(--gold2)', signal: 'background:rgba(99,102,241,.1);color:#6366f1' };
     const catLabel = { intelligence: 'Operator Intelligence', sovereignty: 'Sovereignty Stack', dispatch: 'Agent Dispatches', signal: 'Community Signal' };
     document.getElementById('articleModalContent').innerHTML = `
     <div class="modal-head">
@@ -276,7 +286,7 @@ function openArticle(id) {
     </div>
     <div class="modal-content">
       <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;padding:.75rem;background:var(--bg);border-radius:8px">
-        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">${a.author.slice(0, 2).toUpperCase()}</div>
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">${a.author.slice(0, 2).toUpperCase()}</div>
         <div><div style="font-weight:600;font-size:12px;color:var(--text)">${a.author}</div><div style="font-size:11px;color:var(--muted)">${a.date} · ${a.read} read</div></div>
         ${a.live ? '<span class="badge badge-live" style="margin-left:auto">Published</span>' : '<span class="badge badge-progress" style="margin-left:auto">Draft</span>'}
       </div>
@@ -295,7 +305,7 @@ function renderPubProjects() {
         <span style="font-weight:700;color:var(--text)">${p.name}</span>
         <span class="badge ${p.bc}">${p.badge}</span>
       </div>
-      <div style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:.7rem">${p.desc}${p.coin !== '—' ? ` <span style="color:var(--pink);font-weight:700">${p.coin}</span>` : ''}</div>
+      <div style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:.7rem">${p.desc}${p.coin !== '—' ? ` <span style="color:var(--gold);font-weight:700">${p.coin}</span>` : ''}</div>
       ${p.goal > 0 ? `<div style="font-size:10px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:.25rem"><span>$${p.raised.toLocaleString()} raised</span><span>$${(p.goal / 1000).toFixed(0)}k goal</span></div><div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>` : ''}
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.75rem">
         <span style="font-size:10px;color:var(--muted);font-family:monospace">${p.repo}</span>
@@ -316,10 +326,10 @@ function renderToken() {
     el.innerHTML = `
   <div class="token-hero">
     <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
-      <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff">SC</div>
+      <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff">SC</div>
       <div>
         <h2 style="font-size:1.75rem;font-weight:900;color:#fff">$SCOM</h2>
-        <div style="color:rgba(255,255,255,.5);font-size:12px">Supercompute Protocol Token · Base Chain</div>
+        <div style="color:rgba(255,255,255,.5);font-size:12px">QUANTA Protocol Token · Base Chain</div>
       </div>
       <span class="badge badge-pink" style="margin-left:auto">Pre-Launch · Q3 2026</span>
     </div>
@@ -361,7 +371,7 @@ function renderToken() {
       ${[{ phase: 'Q2 2026', label: 'Token Design', status: 'active', items: ['Tokenomics finalized', 'Smart contract audit', 'Governance framework'] },
         { phase: 'Q3 2026', label: 'TGE', status: 'upcoming', items: ['Fair launch on Uniswap v4', 'Liquidity bootstrapping', 'DAO activation'] },
         { phase: 'Q4 2026', label: 'Staking Live', status: 'upcoming', items: ['Agent staking pools', 'Revenue distribution', 'Cross-chain bridge'] }
-        ].map(ph => `<div style="padding:1rem;border-radius:12px;border:${ph.status === 'active' ? '1.5px solid var(--pink);background:rgba(233,30,140,.04)' : '1px solid var(--border)'}">
+        ].map(ph => `<div style="padding:1rem;border-radius:12px;border:${ph.status === 'active' ? '1.5px solid var(--gold);background:rgba(233,30,140,.04)' : '1px solid var(--border)'}">
         <div style="display:flex;justify-content:space-between;margin-bottom:.4rem">
           <span style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase">${ph.phase}</span>
           ${ph.status === 'active' ? '<span class="badge badge-pink">Active</span>' : ''}
@@ -373,7 +383,7 @@ function renderToken() {
   </div>
   <div class="card" style="background:linear-gradient(135deg,rgba(255,184,0,.08),rgba(233,30,140,.05));border-color:rgba(255,184,0,.2)">
     <div style="display:flex;align-items:center;gap:1rem">
-      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--pink));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">◈</div>
+      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">◈</div>
       <div>
         <div style="font-weight:700;color:var(--text);margin-bottom:.2rem">On-Chain Governance</div>
         <div style="font-size:12px;color:var(--muted)">Every SCOM holder gets a vote. The agent fleet is governed by the community — from model selection to treasury spending.</div>
@@ -395,11 +405,11 @@ function renderWeb3School() {
     const pct = Math.round(done / MODULES.length * 100);
     el.innerHTML = `
   <div class="card mb-6" style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(233,30,140,.05));border-color:rgba(233,30,140,.2);overflow:hidden;position:relative">
-    <div style="position:absolute;top:0;left:0;right:0;height:4px;background:var(--border)"><div style="height:100%;background:linear-gradient(90deg,var(--pink),var(--gold));width:${pct}%;transition:width 1s ease"></div></div>
+    <div style="position:absolute;top:0;left:0;right:0;height:4px;background:var(--border)"><div style="height:100%;background:linear-gradient(90deg,var(--gold),var(--gold));width:${pct}%;transition:width 1s ease"></div></div>
     <div style="display:flex;align-items:center;gap:1.25rem;padding-top:.5rem">
-      <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-size:22px">🎓</div>
+      <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:22px">🎓</div>
       <div style="flex:1">
-        <div style="display:flex;justify-content:space-between;margin-bottom:.4rem"><span style="font-weight:700;color:var(--text)">Your Journey</span><span style="font-weight:800;color:var(--pink)">${pct}%</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:.4rem"><span style="font-weight:700;color:var(--text)">Your Journey</span><span style="font-weight:800;color:var(--gold)">${pct}%</span></div>
         <div style="font-size:12px;color:var(--muted)">${done}/${MODULES.length} modules complete</div>
         ${done === MODULES.length ? '<div style="font-size:12px;color:var(--success);font-weight:600;margin-top:.3rem">🎉 Congratulations! TradeDesk & Community unlocked.</div>' : ''}
       </div>
@@ -411,7 +421,7 @@ function renderWeb3School() {
         const isLocked = !isDone && !isNext;
         return `<div class="module-card ${isDone ? 'done' : isNext ? 'next' : isLocked ? 'locked' : ''}" onclick="${isNext ? `completeModule(${m.id})` : isLocked ? `showToast('Complete module ${i} first')` : ''}">
       <div style="display:flex;align-items:center;gap:1rem">
-        <div class="module-num" style="background:${isDone ? 'var(--success)' : isNext ? 'var(--pink)' : 'var(--border)'};color:${isDone || isNext ? '#fff' : 'var(--muted)'}">
+        <div class="module-num" style="background:${isDone ? 'var(--success)' : isNext ? 'var(--gold)' : 'var(--border)'};color:${isDone || isNext ? '#fff' : 'var(--muted)'}">
           ${isDone ? '✓' : m.ico}
         </div>
         <div style="flex:1">
@@ -445,7 +455,7 @@ function renderSocialMedia(tab) {
     const el = document.getElementById('smBody');
     if (!el) return;
     const platIco = { twitter: '𝕏', farcaster: '⬡', lens: '◉' };
-    const platColor = { twitter: 'rgba(0,0,0,.85)', farcaster: '#8b5cf6', lens: 'var(--pink)' };
+    const platColor = { twitter: 'rgba(0,0,0,.85)', farcaster: '#8b5cf6', lens: 'var(--gold)' };
     if (tab === 'scheduled') {
         el.innerHTML = SOCIAL_POSTS.map(p => `<div class="post-card">
       <div style="display:flex;align-items:flex-start;gap:.75rem">
@@ -488,7 +498,7 @@ function renderAbout() {
     el.innerHTML = `
   <div style="background:linear-gradient(135deg,var(--navy),#1a0a2e);padding:2.5rem 2rem;text-align:center;color:#fff">
     <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:.5rem">Built from the Ground Up<br>Since <span style="color:var(--gold)">2013</span></h2>
-    <p style="color:rgba(255,255,255,.55);max-width:520px;margin:0 auto .75rem;font-size:.85rem;line-height:1.6">SUPERCOMPUTE emerged from Occupy LA and Bitcoin's earliest days — a liberation technology platform for at-risk and underserved communities.</p>
+    <p style="color:rgba(255,255,255,.55);max-width:520px;margin:0 auto .75rem;font-size:.85rem;line-height:1.6">QUANTA emerged from Occupy LA and Bitcoin's earliest days — a liberation technology platform for at-risk and underserved communities.</p>
     <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap"><span class="badge badge-cyan">supercompute.eth</span><span class="badge badge-cyan">Base Chain</span><span class="badge badge-pink">1 Human + 13 Agents</span></div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;padding:2rem 1.5rem">
@@ -503,10 +513,10 @@ function renderAbout() {
         ['2025', 'Cloudflare-Only Pivot', 'Workers, D1, R2, Vibes SDK. Supabase and Vercel ruled out. Full sovereignty stack deployed in 30 days.'],
         ['2026', 'Phase 1 Launch', 'Agent fleet live. NewsDesk launching. 13 agents. 1 human. Building in public on Base.']].map(([yr, title, desc]) => `<div style="display:flex;gap:.9rem;margin-bottom:1.25rem">
       <div style="display:flex;flex-direction:column;align-items:center">
-        <div style="width:10px;height:10px;border-radius:50%;background:var(--pink);margin-top:3px;flex-shrink:0"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--gold);margin-top:3px;flex-shrink:0"></div>
         <div style="width:2px;flex:1;background:var(--border);margin:.3rem 0"></div>
       </div>
-      <div><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.15rem">${yr}</div><div style="font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:.15rem">${title}</div><div style="font-size:.8rem;color:var(--muted);line-height:1.5">${desc}</div></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--gold);margin-bottom:.15rem">${yr}</div><div style="font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:.15rem">${title}</div><div style="font-size:.8rem;color:var(--muted);line-height:1.5">${desc}</div></div>
     </div>`).join('')}
   </div>`;
     setTimeout(() => {
@@ -518,7 +528,7 @@ function renderAbout() {
 /* ━━━ DASHBOARD ━━━ */
 const DASH_CONTENT = {
     overview: `<div class="grid4 mb-6">${[['Community', '21', '+3 this week', 'up'], ['Active Agents', '13', 'All systems go', 'up'], ['Linear Tickets', '9', 'MOL-294–302', 'neu'], ['Revenue MTD', '$1k', 'WordWatcher', 'up']].map(([l, v, s, sv]) => `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-val">${v}</div><div class="stat-sub s-${sv}">${s}</div></div>`).join('')}</div>
-  <div class="grid2-3"><div class="card"><div class="section-title">Agent Activity (24h)</div>${[['OpenClaw', '#3b82f6', 85, '12 tasks'], ['QUANTA', 'var(--pink)', 60, '7 articles'], ['KNIGHT', 'var(--gold)', 20, 'Observer'], ['Claude Desktop', 'var(--cyan)', 45, '4 tasks']].map(([n, c, w, t]) => `<div style="display:flex;align-items:center;gap:.75rem;font-size:12px;margin-bottom:.5rem"><span style="font-weight:600;min-width:100px;color:var(--text)">${n}</span><div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;width:${w}%;background:${c};border-radius:3px"></div></div><span style="color:var(--muted);min-width:60px;text-align:right">${t}</span></div>`).join('')}</div>
+  <div class="grid2-3"><div class="card"><div class="section-title">Agent Activity (24h)</div>${[['OpenClaw', '#3b82f6', 85, '12 tasks'], ['QUANTA', 'var(--gold)', 60, '7 articles'], ['KNIGHT', 'var(--gold)', 20, 'Observer'], ['Claude Desktop', 'var(--cyan)', 45, '4 tasks']].map(([n, c, w, t]) => `<div style="display:flex;align-items:center;gap:.75rem;font-size:12px;margin-bottom:.5rem"><span style="font-weight:600;min-width:100px;color:var(--text)">${n}</span><div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;width:${w}%;background:${c};border-radius:3px"></div></div><span style="color:var(--muted);min-width:60px;text-align:right">${t}</span></div>`).join('')}</div>
   <div class="card"><div class="section-title">Stack Health</div>${[['CF Workers', 'live'], ['D1 Database', 'live'], ['Sanity CMS', 'live'], ['Virtuals', 'progress'], ['Linear MCP', 'live']].map(([s, b]) => `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.45rem;font-size:12px"><span>${s}</span><span class="badge badge-${b}">${b === 'live' ? 'OK' : b === 'progress' ? 'Pending' : 'Down'}</span></div>`).join('')}</div></div>`,
     users: `<div class="card"><div class="section-title">User Management</div><table><thead><tr><th>User</th><th>Role</th><th>Email</th><th>Joined</th><th>Actions</th></tr></thead><tbody>
     <tr><td><strong>Orami</strong></td><td><span class="badge badge-admin">Admin</span></td><td>service@supercompute.io</td><td>2013</td><td><button class="tb-btn" style="font-size:10px;padding:.15rem .5rem" onclick="showToast('Edit user: Orami')">Edit</button></td></tr>
@@ -546,8 +556,8 @@ const DASH_CONTENT = {
     <div><span style="color:var(--gold)">[2026-04-25 08:45:12]</span> <span style="color:rgba(255,255,255,.4)">Virtuals</span> → $QUANTA verification: still pending</div>
     <div><span style="color:#4ade80">[2026-04-24 23:59:59]</span> <span style="color:rgba(255,255,255,.4)">System</span> → Nightly memory sync complete</div>
   </div></div>`,
-    api: `<div class="card"><div class="section-title">API Reference · Cloudflare Workers</div>${[{ m: 'GET', p: '/api/newsdesk/articles', d: 'List published articles' }, { m: 'POST', p: '/api/newsdesk/articles', d: 'Create article (Agent auth)' }, { m: 'GET', p: '/api/tradedesk/portfolio', d: 'Get portfolio summary' }, { m: 'POST', p: '/api/tradedesk/positions', d: 'Log new position (KNIGHT)' }, { m: 'GET', p: '/api/agents/status', d: 'Agent fleet status' }, { m: 'POST', p: '/api/auth/siwe', d: 'Sign-In with Ethereum' }, { m: 'GET', p: '/health', d: 'API health check' }].map(e => `<div style="display:flex;align-items:center;gap:.75rem;padding:.6rem;background:var(--bg);border-radius:6px;margin-bottom:.4rem;font-size:11px"><span style="font-family:monospace;padding:.15rem .4rem;border-radius:4px;font-size:10px;font-weight:700;min-width:38px;text-align:center;${e.m === 'GET' ? 'background:rgba(22,163,74,.1);color:var(--success)' : 'background:rgba(233,30,140,.1);color:var(--pink)'}">${e.m}</span><span style="font-family:monospace;font-weight:600;color:var(--text);min-width:220px">${e.p}</span><span style="color:var(--muted)">${e.d}</span></div>`).join('')}</div>`,
-    settings: `<div class="card" style="max-width:580px"><div class="section-title">General Settings</div><div class="form-group"><label class="form-label">Platform Name</label><input class="form-input" value="SUPERCOMPUTE"/></div><div class="form-group"><label class="form-label">Domain</label><input class="form-input" value="supercompute.io"/></div><div class="form-group"><label class="form-label">ENS</label><input class="form-input" value="supercompute.eth"/></div><div class="form-group"><label class="form-label">Chain</label><select class="form-select"><option>Base (Mainnet)</option><option>Base Sepolia</option></select></div><div class="form-group"><label class="form-label">Phase</label><select class="form-select"><option>Phase 1 — Building in Public</option><option>Phase 2 — Launch</option></select></div><div style="padding-top:.75rem;border-top:1px solid var(--border)"><button class="tb-btn primary" onclick="showToast('✓ Settings saved')">Save Settings</button></div></div>`,
+    api: `<div class="card"><div class="section-title">API Reference · Cloudflare Workers</div>${[{ m: 'GET', p: '/api/newsdesk/articles', d: 'List published articles' }, { m: 'POST', p: '/api/newsdesk/articles', d: 'Create article (Agent auth)' }, { m: 'GET', p: '/api/tradedesk/portfolio', d: 'Get portfolio summary' }, { m: 'POST', p: '/api/tradedesk/positions', d: 'Log new position (KNIGHT)' }, { m: 'GET', p: '/api/agents/status', d: 'Agent fleet status' }, { m: 'POST', p: '/api/auth/siwe', d: 'Sign-In with Ethereum' }, { m: 'GET', p: '/health', d: 'API health check' }].map(e => `<div style="display:flex;align-items:center;gap:.75rem;padding:.6rem;background:var(--bg);border-radius:6px;margin-bottom:.4rem;font-size:11px"><span style="font-family:monospace;padding:.15rem .4rem;border-radius:4px;font-size:10px;font-weight:700;min-width:38px;text-align:center;${e.m === 'GET' ? 'background:rgba(22,163,74,.1);color:var(--success)' : 'background:rgba(233,30,140,.1);color:var(--gold)'}">${e.m}</span><span style="font-family:monospace;font-weight:600;color:var(--text);min-width:220px">${e.p}</span><span style="color:var(--muted)">${e.d}</span></div>`).join('')}</div>`,
+    settings: `<div class="card" style="max-width:580px"><div class="section-title">General Settings</div><div class="form-group"><label class="form-label">Platform Name</label><input class="form-input" value="QUANTA"/></div><div class="form-group"><label class="form-label">Domain</label><input class="form-input" value="supercompute.io"/></div><div class="form-group"><label class="form-label">ENS</label><input class="form-input" value="supercompute.eth"/></div><div class="form-group"><label class="form-label">Chain</label><select class="form-select"><option>Base (Mainnet)</option><option>Base Sepolia</option></select></div><div class="form-group"><label class="form-label">Phase</label><select class="form-select"><option>Phase 1 — Building in Public</option><option>Phase 2 — Launch</option></select></div><div style="padding-top:.75rem;border-top:1px solid var(--border)"><button class="tb-btn primary" onclick="showToast('✓ Settings saved')">Save Settings</button></div></div>`,
     secrets: `<div class="card"><div class="section-title">Environment Secrets (Cloudflare)</div>${[['SANITY_API_TOKEN', '••••••••••••••••••••••••'], ['VIRTUALS_API_KEY', '••••••••••••••••'], ['LINEAR_API_KEY', 'lin_api_••••••••••••'], ['CALENDLY_TOKEN', '••••••••••••••••'], ['JWT_SECRET', '••••••••••••••••••••••••'], ['QUANTA_API_KEY', 'sk-••••••••••••••••••'], ['KNIGHT_API_KEY', 'sk-••••••••••••••••••']].map(([k, h]) => `<div style="display:flex;align-items:center;gap:.75rem;padding:.65rem;background:var(--bg);border-radius:6px;margin-bottom:.4rem"><span style="font-family:monospace;font-size:11px;font-weight:700;color:var(--text);min-width:180px">${k}</span><span style="font-family:monospace;font-size:11px;color:var(--muted);flex:1">${h}</span><button class="tb-btn" style="font-size:10px;padding:.15rem .5rem" onclick="showToast('Reveal requires re-auth')">Reveal</button><button class="tb-btn" style="font-size:10px;padding:.15rem .5rem" onclick="showToast('Secret updated')">Edit</button></div>`).join('')}</div>`,
     domains: `<div class="card"><div class="section-title">Custom Domains</div>${[['supercompute.io', 'Active', 'CF Workers'], ['supercompute.eth', 'Active', 'ENS'], ['newsdesk.supercompute.io', 'Pending', 'Sub-domain']].map(([d, s, t]) => `<div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-bottom:.4rem"><span style="font-weight:600;font-size:12px;flex:1;font-family:monospace">${d}</span><span class="badge ${s === 'Active' ? 'badge-live' : 'badge-progress'}">${s}</span><span style="font-size:10px;color:var(--muted)">${t}</span></div>`).join('')}<button class="tb-btn" style="margin-top:.75rem" onclick="showToast('Add domain flow')">+ Add Domain</button></div>`,
     integrations: `<div class="card"><div class="section-title">Third-Party Integrations</div>${[{ n: 'Linear (MOLT)', s: 'Connected', i: '◧', d: 'MCP active — Claude Desktop + agent ops' }, { n: 'Sanity CMS', s: 'Connected', i: '◈', d: 'Project 2i3obqvj · 5 articles' }, { n: 'Calendly', s: 'Connected', i: '◑', d: 'calendly.com/ora_mi · 4 services live' }, { n: 'Virtuals Protocol', s: 'Pending', i: '◉', d: '$QUANTA pending verification' }, { n: 'Guild.xyz', s: 'Pending', i: '◎', d: '7 roles defined · NFT gating pending' }, { n: 'Farcaster', s: 'Planned', i: '◐', d: 'OpenClaw connection queued' }].map(i => `<div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-bottom:.4rem"><span style="font-size:1.2rem;width:28px;text-align:center">${i.i}</span><div style="flex:1"><div style="font-weight:700;font-size:12px;color:var(--text)">${i.n}</div><div style="font-size:10px;color:var(--muted)">${i.d}</div></div><span class="badge ${i.s === 'Connected' ? 'badge-live' : i.s === 'Pending' ? 'badge-progress' : 'badge-soon'}">${i.s}</span></div>`).join('')}</div>`,
@@ -668,7 +678,7 @@ function updateYield() {
 function renderNewsDeskCMS() {
     const el = document.getElementById('newsdeskQueue');
     if (!el || el.children.length > 0) return;
-    const catStyle = { intelligence: 'background:rgba(233,30,140,.1);color:var(--pink)', sovereignty: 'background:rgba(0,212,255,.1);color:var(--cyan2)', dispatch: 'background:rgba(255,184,0,.1);color:var(--gold2)', signal: 'background:rgba(99,102,241,.1);color:#6366f1' };
+    const catStyle = { intelligence: 'background:rgba(233,30,140,.1);color:var(--gold)', sovereignty: 'background:rgba(0,212,255,.1);color:var(--cyan2)', dispatch: 'background:rgba(255,184,0,.1);color:var(--gold2)', signal: 'background:rgba(99,102,241,.1);color:#6366f1' };
     el.innerHTML = ARTICLES.map(a => `<div class="article-row" onclick="authGate('createarticle',navItem('createarticle'),true)">
     <span class="article-cat" style="${catStyle[a.cat]}">${a.cat.slice(0, 4)}</span>
     <div style="flex:1"><div style="font-weight:600;font-size:12px;color:var(--text)">${a.icon} ${a.title}</div><div style="font-size:10px;color:var(--muted);margin-top:.1rem">${a.date} · ${a.author}</div></div>

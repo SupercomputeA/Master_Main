@@ -62,7 +62,7 @@ function Nav({ page, auth, wallet, onNavigate, onWalletToggle }) {
             <div className="nav-brand">
                 <div className="nav-avatar">SC</div>
                 <div>
-                    <div className="nav-brand-text">SUPERCOMPUTE</div>
+                    <div className="nav-brand-text">QUANTA</div>
                     <div className="nav-brand-sub">Phase 1 · Base Chain</div>
                 </div>
             </div>
@@ -184,7 +184,7 @@ function StatCard({ label, value, sub, subVariant = 'neu', mini }) {
 function ActivityItem({ icon, title, sub, time }) {
     return (
         <div className="card-sm card-hover" style={{ display: 'flex', alignItems: 'center', gap: '.75rem', marginBottom: '.5rem' }}>
-            <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(233,30,140,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 13 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 0, background: 'rgba(233,30,140,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 13 }}>
                 {icon}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>

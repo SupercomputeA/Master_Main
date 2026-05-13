@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supercompute CMS Admin</title>
+<style>
+  :root {
+    --navy: #0a1e3d;
+    --gold: #C8A84B;
+    --gold2: #e8c86b;
+    --text: #e8e8e8;
+    --muted: #8899aa;
+    --border: #1e3a5f;
+    --bg: #060d18;
+    --danger: #e53e3e;
+    --success: #38a169;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--text); min-height: 100vh; }
+  .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+
+  /* Login */
+  #login-screen { text-align: center; padding-top: 6rem; }
+  #login-screen h1 { font-size: 2rem; color: var(--gold); margin-bottom: 1rem; letter-spacing: 4px; }
+  #login-screen p { color: var(--muted); margin-bottom: 2rem; }
+  .wallet-btn { background: var(--navy); border: 1px solid var(--gold); color: var(--gold); padding: 1rem 2rem; font-family: 'Courier New'; font-size: 0.9rem; cursor: pointer; letter-spacing: 2px; }
+  .wallet-btn:hover { background: var(--gold); color: var(--navy); }
+  .wallet-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Dashboard */
+  #dashboard { display: none; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
+  .topbar-title { font-size: 1.2rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; }
+  .topbar-actions { display: flex; gap: 0.5rem; align-items: center; }
+  .badge { font-size: 0.65rem; padding: 2px 6px; border: 1px solid var(--gold); color: var(--gold); letter-spacing: 1px; }
+  .btn { background: none; border: 1px solid var(--border); color: var(--text); padding: 0.4rem 0.8rem; font-family: 'Courier New'; font-size: 0.75rem; cursor: pointer; }
+  .btn:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-primary { border-color: var(--gold); color: var(--gold); }
+  .btn-primary:hover { background: var(--gold); color: var(--navy); }
+  .btn-danger { border-color: var(--danger); color: var(--danger); }
+  .btn-danger:hover { background: var(--danger); color: #fff; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .tab { padding: 0.6rem 1.2rem; font-size: 0.75rem; letter-spacing: 2px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .tab:hover { color: var(--text); }
+
+  /* Forms */
+  .form-group { margin-bottom: 1rem; }
+  .form-label { display: block; font-size: 0.7rem; letter-spacing: 2px; color: var(--muted); margin-bottom: 0.4rem; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; background: var(--navy); border: 1px solid var(--border); color: var(--text);
+    padding: 0.6rem; font-family: 'Courier New'; font-size: 0.85rem; outline: none;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold); }
+  .form-textarea { resize: vertical; min-height: 120px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  /* Cards */
+  .card { background: var(--navy); border: 1px solid var(--border); padding: 1rem; margin-bottom: 0.75rem; }
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+  .card-title { font-weight: 600; color: var(--text); font-size: 0.9rem; }
+  .card-meta { font-size: 0.7rem; color: var(--muted); }
+  .card-body { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+  .card-actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+
+  /* Status */
+  .status-dot { display: inline-block; width: 8px; height: 8px; background: var(--success); }
+  #login-status { font-size: 0.75rem; color: var(--muted); margin-bottom: 1rem; }
+
+  /* Toast */
+  #toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--navy); border: 1px solid var(--gold); color: var(--gold); padding: 0.8rem 1.2rem; font-size: 0.8rem; display: none; z-index: 999; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Login Screen -->
+  <div id="login-screen">
+    <h1>SUPERCOMPUTE CMS</h1>
+    <p>Connect your wallet to access the admin panel</p>
+    <button class="wallet-btn" id="connect-wallet-btn" onclick="connectWallet()">◈ CONNECT WALLET</button>
+    <p id="login-status"></p>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard">
+    <div class="topbar">
+      <div class="topbar-title">CMS ADMIN</div>
+      <div class="topbar-actions">
+        <span class="badge" id="user-role">ADMIN</span>
+        <span id="user-address" style="font-size:0.7rem;color:var(--muted)"></span>
+        <button class="btn" onclick="logout()">SIGN OUT</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="articles" onclick="switchTab('articles')">ARTICLES</div>
+      <div class="tab" data-tab="projects" onclick="switchTab('projects')">PROJECTS</div>
+    </div>
+
+    <!-- Articles Panel -->
+    <div id="panel-articles">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <span style="font-size:0.7rem;color:var(--muted);letter-spacing:2px" id="articles-count"></span>
+        <button class="btn btn-primary" onclick="showArticleForm()">+ NEW ARTICLE</button>
+      </div>
+      <div id="articles-list"></div>
+    </div>
+
+    <!-- Article Form Modal -->
+    <div id="article-form" style="display:none; background:var(--navy);border:1px solid var(--border);padding:1.5rem;margin-bottom:1rem;">
+      <h3 style="color:var(--gold);margin-bottom:1rem;font-size:0.9rem;letter-spacing:2px" id="article-form-title">NEW ARTICLE</h3>
+      <input type="hidden" id="article-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">TITLE</label>
+          <input class="form-input" id="article-title" placeholder="Article title">
+        </div>
+        <div class="form-group">
+          <label class="form-label">CATEGORY</label>
+          <select class="form-select" id="article-category">
+            <option value="signal">Signal</option>
+            <option value="intelligence">Intelligence</option>
+            <option value="sovereignty">Sovereignty</option>
+            <option value="dispatch">Dispatch</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">AUTHOR</label>
+          <input class="form-input" id="article-author" placeholder="Quanta S" value="Quanta S">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ICON</label>
+          <input class="form-input" id="article-icon" placeholder="📰" value="📰">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">EXCERPT</label>
+        <input class="form-input" id="article-excerpt" placeholder="Brief excerpt...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">CONTENT (Markdown)</label>
+        <textarea class="form-textarea" id="article-content" placeholder="Full article content..." style="min-height:200px"></textarea>
+      </div>
+      <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
+        <button class="btn" onclick="hideArticleForm()">CANCEL</button>
+        <button class="btn btn-primary" onclick="saveArticle()">SAVE</button>
+      </div>
+    </div>
+
+    <!-- Projects Panel -->
+    <div id="panel-projects" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <span style="font-size:0.7rem;color:var(--muted);letter-spacing:2px" id="projects-count"></span>
+        <button class="btn btn-primary" onclick="showProjectForm()">+ NEW PROJECT</button>
+      </div>
+      <div id="projects-list"></div>
+    </div>
+
+    <!-- Project Form Modal -->
+    <div id="project-form" style="display:none; background:var(--navy);border:1px solid var(--border);padding:1.5rem;margin-bottom:1rem;">
+      <h3 style="color:var(--gold);margin-bottom:1rem;font-size:0.9rem;letter-spacing:2px" id="project-form-title">NEW PROJECT</h3>
+      <input type="hidden" id="project-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">NAME</label>
+          <input class="form-input" id="project-name" placeholder="Project name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">TICKER</label>
+          <input class="form-input" id="project-ticker" placeholder="$TICKER">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">STACK</label>
+          <input class="form-input" id="project-stack" placeholder="Base, Virtuals, Ethereum...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">STATUS</label>
+          <select class="form-select" id="project-status">
+            <option value="active">Active</option>
+            <option value="in-progress">In Progress</option>
+            <option value="coming-soon">Coming Soon</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">DESCRIPTION</label>
+        <textarea class="form-textarea" id="project-description" placeholder="What does this project do?"></textarea>
+      </div>
+      <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
+        <button class="btn" onclick="hideProjectForm()">CANCEL</button>
+        <button class="btn btn-primary" onclick="saveProject()">SAVE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = ''; // same-origin, works on supercompute.io
+let session = localStorage.getItem('scom_session');
+let user = JSON.parse(localStorage.getItem('scom_user') || 'null');
+let editingArticleId = null;
+let editingProjectId = null;
+
+// ── Wallet ──────────────────────────────────────────────────────────────────
+async function connectWallet() {
+  const btn = document.getElementById('connect-wallet-btn');
+  const status = document.getElementById('login-status');
+  if (!window.ethereum) {
+    status.textContent = 'No Web3 wallet found. Install MetaMask.';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'REQUESTING...';
+  try {
+    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+    const address = accounts[0];
+
+    // Get nonce
+    const nonceRes = await fetch(API + '/api/auth/nonce');
+    const { nonce } = await nonceRes.json();
+
+    // Sign SIWE message
+    const message = [
+      'supercompute.io wants you to sign in with your Ethereum account.',
+      '',
+      'URI: https://supercompute.io',
+      'Version: 1',
+      'Chain ID: 8453',
+      `Nonce: ${nonce}`,
+      `Expiration Time: ${new Date(Date.now() + 10 * 60 * 1000).toISOString()}`,
+      '',
+      'Sign in to SUPERCOMPUTE Web3 Platform',
+    ].join('\n');
+
+    const sig = await ethereum.request({ method: 'personal_sign', params: [message, address] });
+
+    // Login
+    const loginRes = await fetch(API + '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address, signature: sig, nonce }),
+    });
+
+    if (!loginRes.ok) {
+      const err = await loginRes.json();
+      status.textContent = 'Login failed: ' + err.error;
+      btn.disabled = false; btn.textContent = '◈ CONNECT WALLET';
+      return;
+    }
+
+    const data = await loginRes.json();
+    session = data.session;
+    user = data.user;
+    localStorage.setItem('scom_session', session);
+    localStorage.setItem('scom_user', JSON.stringify(user));
+    showDashboard();
+  } catch (e) {
+    status.textContent = 'Connection rejected or failed: ' + e.message;
+  }
+  btn.disabled = false;
+  btn.textContent = '◈ CONNECT WALLET';
+}
+
+function logout() {
+  fetch(API + '/api/auth/logout', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + session }
+  }).catch(() => {});
+  session = null; user = null;
+  localStorage.removeItem('scom_session');
+  localStorage.removeItem('scom_user');
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'block';
+}
+
+// ── Auth headers ─────────────────────────────────────────────────────────────
+function authHeaders() {
+  return { 'Authorization': 'Bearer ' + session, 'Content-Type': 'application/json' };
+}
+
+// ── Dashboard ────────────────────────────────────────────────────────────────
+function showDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('user-address').textContent = user?.address ? user.address.slice(0, 8) + '...' : '';
+  document.getElementById('user-role').textContent = (user?.role || 'user').toUpperCase();
+  loadArticles();
+  loadProjects();
+}
+
+if (session && user) showDashboard();
+
+// ── Articles ─────────────────────────────────────────────────────────────────
+async function loadArticles() {
+  const res = await fetch(API + '/api/articles');
+  const { articles } = await res.json();
+  const list = document.getElementById('articles-list');
+  document.getElementById('articles-count').textContent = articles.length + ' ARTICLES';
+  list.innerHTML = articles.length === 0
+    ? '<p style="color:var(--muted);font-size:0.8rem;text-align:center;padding:2rem">No articles yet</p>'
+    : articles.map(a => `
+      <div class="card">
+        <div class="card-header">
+          <div><span class="card-title">${a.icon || '📰'} ${esc(a.title)}</span></div>
+          <span class="badge">${(a.category || '').toUpperCase()}</span>
+        </div>
+        <div class="card-meta">${a.author} · ${a.views || 0} views · ${a.published_at ? new Date(a.published_at * 1000).toLocaleDateString() : 'DRAFT'}</div>
+        <div class="card-body">${esc(a.excerpt || '')}</div>
+        <div class="card-actions">
+          <button class="btn" onclick="editArticle('${a.id}')">EDIT</button>
+          <button class="btn btn-danger" onclick="deleteArticle('${a.id}')">DELETE</button>
+        </div>
+      </div>`).join('');
+}
+
+async function editArticle(id) {
+  const res = await fetch(API + '/api/articles/' + id);
+  const { article } = await res.json();
+  editingArticleId = id;
+  document.getElementById('article-form-title').textContent = 'EDIT ARTICLE';
+  document.getElementById('article-id').value = id;
+  document.getElementById('article-title').value = article.title || '';
+  document.getElementById('article-category').value = article.category || 'signal';
+  document.getElementById('article-author').value = article.author || 'Quanta S';
+  document.getElementById('article-icon').value = article.icon || '📰';
+  document.getElementById('article-excerpt').value = article.excerpt || '';
+  document.getElementById('article-content').value = article.content || '';
+  document.getElementById('article-form').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+async function deleteArticle(id) {
+  if (!confirm('Delete this article?')) return;
+  const res = await fetch(API + '/api/articles/' + id, { method: 'DELETE', headers: authHeaders() });
+  if (res.ok) { loadArticles(); toast('Deleted'); }
+  else { const e = await res.json(); toast('Error: ' + e.error); }
+}
+
+function showArticleForm() {
+  editingArticleId = null;
+  document.getElementById('article-form-title').textContent = 'NEW ARTICLE';
+  document.getElementById('article-id').value = '';
+  ['article-title','article-category','article-author','article-icon','article-excerpt','article-content'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('article-author').value = 'Quanta S';
+  document.getElementById('article-icon').value = '📰';
+  document.getElementById('article-category').value = 'signal';
+  document.getElementById('article-form').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function hideArticleForm() {
+  document.getElementById('article-form').style.display = 'none';
+  editingArticleId = null;
+}
+
+async function saveArticle() {
+  const body = {
+    title: document.getElementById('article-title').value,
+    category: document.getElementById('article-category').value,
+    author: document.getElementById('article-author').value,
+    icon: document.getElementById('article-icon').value,
+    excerpt: document.getElementById('article-excerpt').value,
+    content: document.getElementById('article-content').value,
+  };
+  if (!body.title) { toast('Title required'); return; }
+  const url = editingArticleId ? API + '/api/articles/' + editingArticleId : API + '/api/articles';
+  const method = editingArticleId ? 'PUT' : 'POST';
+  const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
+  if (res.ok) { hideArticleForm(); loadArticles(); toast(editingArticleId ? 'Updated' : 'Created'); }
+  else { const e = await res.json(); toast('Error: ' + e.error); }
+}
+
+// ── Projects ─────────────────────────────────────────────────────────────────
+async function loadProjects() {
+  const res = await fetch(API + '/api/projects');
+  const { projects } = await res.json();
+  const list = document.getElementById('projects-list');
+  document.getElementById('projects-count').textContent = projects.length + ' PROJECTS';
+  list.innerHTML = projects.length === 0
+    ? '<p style="color:var(--muted);font-size:0.8rem;text-align:center;padding:2rem">No projects yet</p>'
+    : projects.map(p => `
+      <div class="card">
+        <div class="card-header">
+          <div><span class="card-title">${esc(p.name)}</span> <span style="color:var(--gold);font-size:0.75rem">${p.ticker || ''}</span></div>
+          <span class="badge">${(p.status || 'active').toUpperCase()}</span>
+        </div>
+        <div class="card-meta">${p.stack || ''}</div>
+        <div class="card-body">${esc(p.description || '')}</div>
+        <div class="card-actions">
+          <button class="btn" onclick="editProject('${p.id}')">EDIT</button>
+          <button class="btn btn-danger" onclick="deleteProject('${p.id}')">DELETE</button>
+        </div>
+      </div>`).join('');
+}
+
+async function editProject(id) {
+  const { projects } = await (await fetch(API + '/api/projects')).json();
+  const p = projects.find(x => x.id === id);
+  if (!p) return;
+  editingProjectId = id;
+  document.getElementById('project-form-title').textContent = 'EDIT PROJECT';
+  document.getElementById('project-id').value = id;
+  document.getElementById('project-name').value = p.name || '';
+  document.getElementById('project-ticker').value = p.ticker || '';
+  document.getElementById('project-stack').value = p.stack || '';
+  document.getElementById('project-status').value = p.status || 'active';
+  document.getElementById('project-description').value = p.description || '';
+  document.getElementById('project-form').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+async function deleteProject(id) {
+  if (!confirm('Delete this project?')) return;
+  const res = await fetch(API + '/api/projects/' + id, { method: 'DELETE', headers: authHeaders() });
+  if (res.ok) { loadProjects(); toast('Deleted'); }
+  else { const e = await res.json(); toast('Error: ' + e.error); }
+}
+
+function showProjectForm() {
+  editingProjectId = null;
+  document.getElementById('project-form-title').textContent = 'NEW PROJECT';
+  document.getElementById('project-id').value = '';
+  ['project-name','project-ticker','project-stack','project-description'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('project-status').value = 'active';
+  document.getElementById('project-form').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function hideProjectForm() {
+  document.getElementById('project-form').style.display = 'none';
+  editingProjectId = null;
+}
+
+async function saveProject() {
+  const body = {
+    name: document.getElementById('project-name').value,
+    ticker: document.getElementById('project-ticker').value,
+    stack: document.getElementById('project-stack').value,
+    status: document.getElementById('project-status').value,
+    description: document.getElementById('project-description').value,
+  };
+  if (!body.name) { toast('Name required'); return; }
+  const url = editingProjectId ? API + '/api/projects/' + editingProjectId : API + '/api/projects';
+  const method = editingProjectId ? 'PUT' : 'POST';
+  const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
+  if (res.ok) { hideProjectForm(); loadProjects(); toast(editingProjectId ? 'Updated' : 'Created'); }
+  else { const e = await res.json(); toast('Error: ' + e.error); }
+}
+
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.getElementById('panel-articles').style.display = tab === 'articles' ? 'block' : 'none';
+  document.getElementById('panel-projects').style.display = tab === 'projects' ? 'block' : 'none';
+}
+
+// ── Util ─────────────────────────────────────────────────────────────────────
+function esc(s) { return (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+</script>
+</body>
+</html>

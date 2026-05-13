@@ -1,23 +1,24 @@
 {
   "name": "supercompute",
   "version": "1.0.0",
-  "description": "SUPERCOMPUTE Web3 Platform - Cloudflare Workers + D1",
+  "description": "QUANTA - Sovereign Compute Platform on Base Chain",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "deploy": "npm run sync && wrangler pages deploy public --project-name=supercompute --commit-dirty=true",
+    "sync": "cp Supercompute.html public/index.html && cp sc.css public/sc.css && cp sc-app.jsx public/sc-app.jsx && cp sc-shared.jsx public/sc-shared.jsx && cp sc-landing.jsx public/sc-landing.jsx && cp sc-flows.js public/sc-flows.js && cp sc-logic.js public/sc-logic.js && cp tweaks-panel.jsx public/tweaks-panel.jsx && echo 'Synced 8 files to public/'",
     "db:create": "wrangler d1 create supercompute",
     "db:push": "wrangler d1 execute supercompute --local --file=./schema.sql",
     "db:push:prod": "wrangler d1 execute supercompute --file=./schema.sql --env production",
     "build": "npx esbuild src/worker.js --bundle --outfile=dist/worker.js --format=esm --platform=neutral --target=es2020 --minify",
-    "preview": "wrangler pages project . --preview",
-    "deploy:pages": "wrangler pages deploy public --project-name=supercompute"
+    "preview": "wrangler pages project . --preview"
   },
   "dependencies": {
-    "@cloudflare/workers-types": "^4.20250430.0"
+    "@cloudflare/workers-types": "^4.20250430.0",
+    "viem": "^2.48.11"
   },
   "devDependencies": {
-    "wrangler": "^4.0.0",
-    "esbuild": "^0.24.0"
+    "esbuild": "^0.24.0",
+    "wrangler": "^4.0.0"
   }
 }

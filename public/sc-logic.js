@@ -760,12 +760,38 @@ function updateYield() {
 }
 
 /* ━━━ BLOG NEWSDESK (admin) ━━━ */
-function renderNewsDeskCMS() {
+async function renderNewsDeskCMS() {
     const el = document.getElementById('newsdeskQueue');
-    if (!el || el.children.length > 0) return;
+    if (!el) return;
     const catStyle = { intelligence: 'background:rgba(233,30,140,.1);color:var(--gold)', sovereignty: 'background:rgba(0,212,255,.1);color:var(--cyan2)', dispatch: 'background:rgba(255,184,0,.1);color:var(--gold2)', signal: 'background:rgba(99,102,241,.1);color:#6366f1' };
-    el.innerHTML = ARTICLES.map(a => `<div class="article-row" onclick="authGate('createarticle',navItem('createarticle'),true)">
-    <span class="article-cat" style="${catStyle[a.cat]}">${a.cat.slice(0, 4)}</span>
+
+    // Try D1 API first; fall back to local mock data
+    let articles = ARTICLES;
+    try {
+        const res = await fetch('/api/articles?action=list', { credentials: 'include' });
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data.articles) && data.articles.length > 0) {
+                articles = data.articles.map(a => ({
+                    id: a.id, cat: a.category || 'intelligence', icon: '◎',
+                    title: a.title, date: a.published_at ? new Date(a.published_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'Unpublished',
+                    author: a.author || 'Quanta S', live: a.status === 'published'
+                }));
+                // Update stat cards with live counts
+                const published = articles.filter(a => a.live).length;
+                const elTotal = document.getElementById('ndStatTotal');
+                const elPub = document.getElementById('ndStatPub');
+                if (elTotal) elTotal.textContent = articles.length;
+                if (elPub) elPub.textContent = published;
+                const elCMS = document.getElementById('ndCMSStatus');
+                if (elCMS) { elCMS.textContent = 'D1 · live'; elCMS.style.color = 'var(--success)'; }
+            }
+        }
+    } catch (_) { /* API unavailable — use mock data */ }
+
+    if (el.children.length > 0 && articles === ARTICLES) return;
+    el.innerHTML = articles.map(a => `<div class="article-row" onclick="authGate('createarticle',navItem('createarticle'),true)">
+    <span class="article-cat" style="${catStyle[a.cat] || ''}">${a.cat.slice(0, 4)}</span>
     <div style="flex:1"><div style="font-weight:600;font-size:12px;color:var(--text)">${a.icon} ${a.title}</div><div style="font-size:10px;color:var(--muted);margin-top:.1rem">${a.date} · ${a.author}</div></div>
     <span class="badge ${a.live ? 'badge-live' : 'badge-progress'}">${a.live ? 'Published' : 'Draft'}</span>
     <button class="tb-btn" style="font-size:10px;padding:.2rem .6rem" onclick="event.stopPropagation();navigate('createarticle',navItem('createarticle'))">Edit</button>
@@ -792,10 +818,10 @@ window.addEventListener('DOMContentLoaded', () => {
     renderBlog('all');
     renderPubProjects();
     renderDash('overview');
-    // Counters
-    const cObs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) { animCount(document.getElementById('hc-agents'), 13, 1200); animCount(document.getElementById('hc-years'), 13, 1000); cObs.disconnect(); } }); }, { threshold: .3 });
-    const hc = document.getElementById('hc-agents');
-    if (hc) { const parent = hc.closest('[style*="grid"]'); if (parent) cObs.observe(parent); }
+    // Counters — trigger when stats bar scrolls into view
+    const cObs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) { animCount(document.getElementById('hc-agents'), 13, 1200); animCount(document.getElementById('hc-years'), 13, 1000); cObs.disconnect(); } }); }, { threshold: .2 });
+    const sb = document.getElementById('statsBar');
+    if (sb) cObs.observe(sb);
     // Scroll reveal
     const rObs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); rObs.unobserve(e.target); } }); }, { threshold: .08 });
     document.querySelectorAll('.reveal').forEach(el => rObs.observe(el));

@@ -170,9 +170,24 @@
   </section>
 
   <!-- STATS BAR -->
-<div class="stats-bar">
+<div class="stats-bar" id="statsBar">
+    <div class="stat-item" id="hc-agents-wrap">
+      <div class="stat-num" id="hc-agents">0</div>
+      <div class="stat-label">AI AGENTS IN THE FLEET</div>
+    </div>
+    <div class="stat-item" id="hc-years-wrap">
+      <div class="stat-num" id="hc-years">0</div>
+      <div class="stat-label">YEARS BUILDING IN WEB3</div>
+    </div>
     <div class="stat-item">
-      <div class="stat-num">13</div>
+      <div class="stat-num">0</div>
+      <div class="stat-label">SECURITY INCIDENTS · LEDGER + YUBIKEY</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">1</div>
+      <div class="stat-label">HUMAN OPERATOR · BUILDING IN PUBLIC</div>
+    </div>
+</div>
 
   <!-- TECH STACK BAR -->
 <div class="stack-bar">
@@ -810,9 +825,9 @@
   <div class="topbar"><div class="topbar-title">NewsDesk CMS</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><button class="tb-btn primary" onclick="authGate('createarticle',navItem('createarticle'),true)">+ Create Article</button></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem">
-      <div class="stat-card"><div class="stat-label">Total Articles</div><div class="stat-val">6</div><div class="stat-sub s-up">All categories</div></div>
-      <div class="stat-card"><div class="stat-label">Published</div><div class="stat-val">1</div><div class="stat-sub s-neu">Intelligence</div></div>
-      <div class="stat-card"><div class="stat-label">Web3 CMS</div><div class="stat-val" style="font-size:.9rem;font-family:monospace">D1 · live</div></div>
+      <div class="stat-card"><div class="stat-label">Total Articles</div><div class="stat-val" id="ndStatTotal">6</div><div class="stat-sub s-up">All categories</div></div>
+      <div class="stat-card"><div class="stat-label">Published</div><div class="stat-val" id="ndStatPub">1</div><div class="stat-sub s-neu">Intelligence</div></div>
+      <div class="stat-card"><div class="stat-label">Web3 CMS</div><div class="stat-val" id="ndCMSStatus" style="font-size:.9rem;font-family:monospace">D1 · live</div></div>
       <div class="stat-card"><div class="stat-label">QUANTA Agent</div><div class="stat-val" style="font-size:.85rem">Active</div><div class="stat-sub s-up">Writing</div></div>
     </div>
     <div class="card"><div class="section-title">Article Queue</div><div id="newsdeskQueue"></div></div>

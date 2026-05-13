@@ -181,7 +181,6 @@ nav#appNav {
     font-size: 10px;
     padding: .35rem .6rem;
     border-radius: 6px;
-    white-space: nowrap;
     z-index: 100;
     pointer-events: none;
     max-width: 200px;

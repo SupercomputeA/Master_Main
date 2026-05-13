@@ -171,10 +171,23 @@ function navigate(page, el) {
     if (page === 'pub-projects') renderPubProjects();
     if (page === 'dashboard') renderDash(activeDashTab);
     if (page === 'token') renderToken();
-    if (page === 'web3school') renderWeb3School();
+    if (page === 'web3school' && authState.loggedIn) renderWeb3School();
     if (page === 'socialmedia') renderSocialMedia(activeSocialTab);
     if (page === 'about') renderAbout();
     if (page === 'staking') initTicker();
+    // TradeDesk: show marketing for non-auth, show dashboard for auth
+    if (page === 'tradedesk') {
+        const marketing = document.getElementById('tradedesk-marketing');
+        const auth = document.getElementById('tradedesk-auth');
+        if (authState.loggedIn) {
+            marketing.style.display = 'none';
+            auth.style.display = 'block';
+            renderTradeDesk();
+        } else {
+            auth.style.display = 'none';
+            if (marketing) marketing.style.display = 'block';
+        }
+    }
 }
 
 // Restore page from URL hash on load and back/forward navigation
@@ -729,6 +742,49 @@ const DASH_CONTENT_PUBLIC = {
     ${[{ n: 'OpenClaw', r: 'Browser automation · social scheduling · web research', s: 'Active', c: '#3b82f6' }, { n: 'Quanta S', r: 'NewsDesk · intelligence · Base Chain monitoring', s: 'Active', c: 'var(--gold)' }, { n: 'KNIGHT', r: 'TradeDesk · CDP observer · Polymarket analysis', s: 'Observer', c: 'var(--cyan2)' }, { n: 'Claude Desktop', r: 'Strategic command · Linear MCP · agent coordination', s: 'Command', c: '#6366f1' }].map(a => `<div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-bottom:.4rem;font-size:12px"><span style="width:8px;height:8px;border-radius:50%;background:${a.s === 'Active' ? '#4ade80' : a.s === 'Observer' ? 'var(--gold)' : '#6366f1'};flex-shrink:0"></span><div style="flex:1"><div style="font-weight:700;font-size:12px;color:var(--text)">${a.n}</div><div style="font-size:10px;color:var(--muted)">${a.r}</div></div><span style="font-size:10px;color:var(--muted)">${a.s}</span></div>`).join('')}
   </div>`,
 };
+
+/* ━━━ TRADEDESK DASHBOARD ━━━ */
+function renderTradeDesk() {
+    const el = document.getElementById('tradedeskBody');
+    if (!el) return;
+    el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem">
+        <div class="stat-card"><div class="stat-label">Portfolio Value</div><div class="stat-val">$8,214</div><div class="stat-sub s-up">+12.4% all-time</div></div>
+        <div class="stat-card"><div class="stat-label">Day P&L</div><div class="stat-val" style="color:var(--success)">+$127</div><div class="stat-sub s-up">+1.5% today</div></div>
+        <div class="stat-card"><div class="stat-label">Open Positions</div><div class="stat-val">3</div><div class="stat-sub">2 active · 1 pending</div></div>
+        <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-val">67%</div><div class="stat-sub s-up">+5% vs last week</div></div>
+    </div>
+    <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1.25rem">
+        <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.75rem">▸ OPEN POSITIONS</div>
+        <table style="width:100%;font-size:11px;border-collapse:collapse">
+            <thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:.5rem;color:var(--muted)">Asset</th><th style="text-align:left;padding:.5rem;color:var(--muted)">Side</th><th style="text-align:left;padding:.5rem;color:var(--muted)">Size</th><th style="text-align:left;padding:.5rem;color:var(--muted)">Entry</th><th style="text-align:left;padding:.5rem;color:var(--muted)">Current</th><th style="text-align:left;padding:.5rem;color:var(--muted)">PnL</th><th style="text-align:left;padding:.5rem;color:var(--muted)">Status</th></tr></thead>
+            <tbody>
+                <tr><td style="padding:.5rem;color:var(--text)">ETH</td><td style="padding:.5rem;color:var(--success)">LONG</td><td style="padding:.5rem;color:var(--text)">2.5 ETH</td><td style="padding:.5rem;color:var(--muted)">$3,214</td><td style="padding:.5rem;color:var(--text)">$3,286</td><td style="padding:.5rem;color:var(--success)">+$180</td><td style="padding:.5rem"><span style="background:rgba(34,197,94,.2);color:var(--success);padding:2px 6px;border-radius:4px;font-size:10px">ACTIVE</span></td></tr>
+                <tr><td style="padding:.5rem;color:var(--text)">cbBTC</td><td style="padding:.5rem;color:var(--danger)">SHORT</td><td style="padding:.5rem;color:var(--text)">0.1</td><td style="padding:.5rem;color:var(--muted)">$67,430</td><td style="padding:.5rem;color:var(--text)">$67,110</td><td style="padding:.5rem;color:var(--success)">+$32</td><td style="padding:.5rem"><span style="background:rgba(34,197,94,.2);color:var(--success);padding:2px 6px;border-radius:4px;font-size:10px">ACTIVE</span></td></tr>
+                <tr><td style="padding:.5rem;color:var(--text)">USDC</td><td style="padding:.5rem;color:var(--success)">LONG</td><td style="padding:.5rem;color:var(--text)">5,000</td><td style="padding:.5rem;color:var(--muted)">$1.00</td><td style="padding:.5rem;color:var(--text)">$1.00</td><td style="padding:.5rem;color:var(--muted)">$0.00</td><td style="padding:.5rem"><span style="background:rgba(251,191,36,.2);color:#fbbf24;padding:2px 6px;border-radius:4px;font-size:10px">PENDING</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.25rem">
+        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+            <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.75rem">▸ POLYMARKET INTELLIGENCE</div>
+            <div style="display:flex;flex-direction:column;gap:.5rem">
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--text)">AI Doom Scenario</span><span style="font-size:11px;color:var(--pink);font-weight:700">62%</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--text)">Fed Rate Cut (Q2)</span><span style="font-size:11px;color:var(--success);font-weight:700">89%</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--text)">ETH ETF Approval</span><span style="font-size:11px;color:var(--danger);font-weight:700">31%</span></div>
+            </div>
+        </div>
+        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+            <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.75rem">▸ CDP MONITOR</div>
+            <div style="display:flex;flex-direction:column;gap:.5rem">
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--muted)">Health Factor</span><span style="font-size:11px;color:var(--success);font-weight:700">2.45</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--muted)">Collateral Ratio</span><span style="font-size:11px;color:var(--text);font-weight:700">185%</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--muted)">Liquidation Price</span><span style="font-size:11px;color:var(--danger);font-weight:700">$1,892</span></div>
+            </div>
+        </div>
+    </div>
+    `;
+}
 
 function renderDash(tab) {
     const isAdmin = authState.loggedIn && authState.role === 'admin';

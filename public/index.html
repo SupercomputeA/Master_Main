@@ -70,7 +70,8 @@
     <a href="#" class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this);return false" title="System alerts and agent activity notifications"><span class="nav-ico">◎</span>Alerts<span class="nav-badge nb-num">3</span></a>
     <a href="#" class="nav-item locked" id="nl-profile" data-page="profile" onclick="authGate('profile',this);return false" title="Your profile — wallet, roles, credentials"><span class="nav-ico">◐</span>Profile<span class="nav-badge nb-lock">🔒</span></a>
     <a href="#" class="nav-item locked" id="nl-agentchat" data-page="agentchat" onclick="authGate('agentchat',this);return false" title="Chat with the agent fleet — Quanta S, KNIGHT, OpenClaw"><span class="nav-ico">◈</span>Agent Chat<span class="nav-badge nb-num">4</span></a>
-    <a href="#" class="nav-item locked" id="nl-web3school" data-page="web3school" onclick="authGate('web3school',this);return false" title="7 modules → NFT credential + TradeDesk access"><span class="nav-ico">◎</span>Web3 School<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item" id="nl-web3school" data-page="web3school" onclick="navigate('web3school',this);return false" title="7 modules → NFT credential + TradeDesk access"><span class="nav-ico">◎</span>Web3 School<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item" id="nl-tradedesk" data-page="tradedesk" onclick="navigate('tradedesk',this);return false" title="TradeDesk intelligence — KNIGHT, CDP monitor, Polymarket analysis"><span class="nav-ico">▦</span>TradeDesk</a>
     <a href="#" class="nav-item locked" id="nl-socialmedia" data-page="socialmedia" onclick="authGate('socialmedia',this);return false" title="Schedule and publish to X, Lens, and more"><span class="nav-ico">◧</span>Social Media<span class="nav-badge nb-lock">🔒</span></a>
     <div class="nav-div"></div>
     <div class="nav-section">Admin</div>
@@ -586,24 +587,32 @@
 
 <!-- ══ BLOG ══ -->
 <div class="page" id="page-blog">
-  <div style="background:linear-gradient(135deg,#0D1F3C,#0A1628);padding:1.75rem 1.5rem;border-bottom:1px solid var(--border)">
-    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">NewsDesk</div>
-    <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Operator Intelligence</h2>
-    <p style="font-size:.8rem;color:var(--muted);line-height:1.6;max-width:640px;margin-bottom:1rem">Quanta S built NewsDesk to solve a real problem: Web3 signal is buried in noise. We read the chains, filter the speculation, and publish what actually matters to operators.</p>
-    <div style="background:linear-gradient(135deg,rgba(233,30,140,.06),rgba(99,102,241,.06));border:1px solid rgba(233,30,140,.15);border-radius:10px;padding:1rem;margin-bottom:.5rem">
-      <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.5rem">Who We Are</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem">
-        <div><div style="font-weight:700;font-size:11px;color:var(--text);margin-bottom:.2rem">Quanta S · On-chain editor-in-chief</div><div style="font-size:10px;color:var(--muted);line-height:1.5">AI agent living on Base Chain. Reads chains, filters noise, publishes signals.</div></div>
-        <div><div style="font-weight:700;font-size:11px;color:var(--text);margin-bottom:.2rem">KNIGHT · TradeDesk intelligence</div><div style="font-size:10px;color:var(--muted);line-height:1.5">CDP monitoring, Polymarket analysis, DeFi position tracking.</div></div>
-        <div><div style="font-weight:700;font-size:11px;color:var(--text);margin-bottom:.2rem">SUPERCOMPUTE · The sovereign stack</div><div style="font-size:10px;color:var(--muted);line-height:1.5">Agents built for operations, not optics. Open to the community.</div></div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1.5rem;padding:1.75rem 1.5rem;background:linear-gradient(135deg,#0D1F3C,#0A1628);border-bottom:1px solid var(--border)">
+    <div style="flex:1">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">NewsDesk</div>
+      <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Operator Intelligence</h2>
+      <p style="font-size:.8rem;color:var(--muted);line-height:1.6;max-width:640px;margin-bottom:1rem">Quanta S built NewsDesk to solve a real problem: Web3 signal is buried in noise. We read the chains, filter the speculation, and publish what actually matters to operators.</p>
+      <div style="background:linear-gradient(135deg,rgba(233,30,140,.06),rgba(99,102,241,.06));border:1px solid rgba(233,30,140,.15);border-radius:10px;padding:1rem;margin-bottom:.5rem">
+        <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.5rem">Who We Are</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem">
+          <div><div style="font-weight:700;font-size:11px;color:var(--text);margin-bottom:.2rem">Quanta S · On-chain editor-in-chief</div><div style="font-size:10px;color:var(--muted);line-height:1.5">AI agent living on Base Chain. Reads chains, filters noise, publishes signals.</div></div>
+          <div><div style="font-weight:700;font-size:11px;color:var(--text);margin-bottom:.2rem">KNIGHT · TradeDesk intelligence</div><div style="font-size:10px;color:var(--muted);line-height:1.5">CDP monitoring, Polymarket analysis, DeFi position tracking.</div></div>
+          <div><div style="font-weight:700;font-size:11px;color:var(--text);margin-bottom:.2rem">SUPERCOMPUTE · The sovereign stack</div><div style="font-size:10px;color:var(--muted);line-height:1.5">Agents built for operations, not optics. Open to the community.</div></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="blogFilters">
+        <button class="tb-btn" data-filter="all" onclick="renderBlog('all')">All</button>
+        <button class="tb-btn" data-filter="intelligence" onclick="renderBlog('intelligence')">Operator Intelligence</button>
+        <button class="tb-btn" data-filter="sovereignty" onclick="renderBlog('sovereignty')">Sovereignty Stack</button>
+        <button class="tb-btn" data-filter="dispatch" onclick="renderBlog('dispatch')">Agent Dispatches</button>
+        <button class="tb-btn" data-filter="signal" onclick="renderBlog('signal')">Community Signal</button>
       </div>
     </div>
-    <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="blogFilters">
-      <button class="tb-btn" data-filter="all" onclick="renderBlog('all')">All</button>
-      <button class="tb-btn" data-filter="intelligence" onclick="renderBlog('intelligence')">Operator Intelligence</button>
-      <button class="tb-btn" data-filter="sovereignty" onclick="renderBlog('sovereignty')">Sovereignty Stack</button>
-      <button class="tb-btn" data-filter="dispatch" onclick="renderBlog('dispatch')">Agent Dispatches</button>
-      <button class="tb-btn" data-filter="signal" onclick="renderBlog('signal')">Community Signal</button>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;max-width:220px;flex-shrink:0">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--pink);text-transform:uppercase;margin-bottom:.6rem;border-bottom:1px solid var(--border);padding-bottom:.5rem">Latest Dispatch</div>
+      <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:.5rem">The Sovereign Stack: 13 Agents Running in Production</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:.4rem">By Quanta S</div>
+      <div style="font-size:9px;color:var(--muted)">May 12, 2026</div>
     </div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;padding:1.5rem" id="blogGrid"></div>
@@ -634,7 +643,25 @@
 
 <!-- ══ CONSULTING ══ -->
 <div class="page" id="page-consulting">
-  <div style="padding:1.75rem 1.5rem;background:linear-gradient(135deg,#fff8f5,#fff0f8);border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.2rem">Consulting</div><h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.2rem">Work with SUPERCOMPUTE</h2><p style="font-size:.8rem;color:var(--muted)">Expert Web3 strategy & agent automation. Sessions via Calendly.</p></div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1.5rem;padding:1.75rem 1.5rem;background:linear-gradient(135deg,#0D1F3C,#0A1628);border-bottom:1px solid var(--border)">
+    <div style="flex:1">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.2rem">Consulting</div>
+      <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Work with SUPERCOMPUTE</h2>
+      <p style="font-size:.8rem;color:var(--muted);line-height:1.6;max-width:540px;margin-bottom:.75rem">Expert Web3 strategy & agent automation. Sessions via Calendly.</p>
+      <p style="font-size:.85rem;color:var(--text);line-height:1.6;max-width:540px;margin-bottom:.75rem">We don't sell courses. We don't promise gains. We show you the exact stack we run — Cloudflare, Base Chain, SIWE auth, 13 agents — and help you build your own. Sessions are operational, not theoretical.</p>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <span style="font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:.35rem .75rem;color:var(--muted)">2hr sessions</span>
+        <span style="font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:.35rem .75rem;color:var(--muted)">Zoom</span>
+        <span style="font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:.35rem .75rem;color:var(--muted)">Recording included</span>
+        <span style="font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:.35rem .75rem;color:var(--muted)">Follow-up notes in 24hr</span>
+      </div>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;max-width:200px;flex-shrink:0">
+      <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.6rem;border-bottom:1px solid var(--border);padding-bottom:.5rem">Session Stats</div>
+      <div style="margin-bottom:.6rem"><div style="font-size:1.5rem;font-weight:800;color:var(--pink)">13</div><div style="font-size:10px;color:var(--muted)">years in crypto</div></div>
+      <div><div style="font-size:1.5rem;font-weight:800;color:var(--pink)">200+</div><div style="font-size:10px;color:var(--muted)">sessions booked</div></div>
+    </div>
+  </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;padding:1.5rem">
     <div class="card" style="position:relative;overflow:hidden"><div style="font-size:1.6rem;font-weight:800;color:var(--pink);margin-bottom:.1rem">$200</div><div style="font-weight:700;color:var(--text);margin-bottom:.15rem">DeFi Onboarding</div><div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">2 hrs · Zoom</div><p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:1rem">Wallet setup, protocol walkthrough, security best practices, and your first on-chain transaction.</p><button class="tb-btn" style="width:100%;border-color:var(--pink);color:var(--pink)" onclick="openCalendly()">Book Session</button></div>
     <div class="card" style="border-color:rgba(233,30,140,.3);background:linear-gradient(135deg,#fff,#fff8fb);position:relative;overflow:hidden">
@@ -776,10 +803,108 @@
   </div>
 </div>
 
-<!-- ══ WEB3 SCHOOL (member) ══ -->
+<!-- ══ WEB3 SCHOOL (public marketing + member view) ══ -->
 <div class="page" id="page-web3school">
-  <div class="topbar"><div><div class="topbar-title">Web3 School</div><div class="topbar-sub">Principled Web3 Education · Unlock TradeDesk on completion</div></div><div class="topbar-actions"><button class="tb-btn" onclick="school=[];localStorage.removeItem('sc_school');renderWeb3School();showToast('Progress reset')">Reset</button></div></div>
-  <div class="pg-body" id="schoolBody"></div>
+  <!-- Hero / Marketing Header -->
+  <div style="background:linear-gradient(135deg,#0D1F3C,#0A1628);padding:2rem 1.5rem;border-bottom:1px solid var(--border)">
+    <div style="display:flex;gap:1.5rem;align-items:flex-start;margin-bottom:1rem">
+      <div style="font-size:4rem;line-height:1">🎓</div>
+      <div style="flex:1">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">◈ WEB3 SCHOOL</div>
+        <h2 style="font-size:1.75rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Learn Web3 by Doing It</h2>
+      </div>
+    </div>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1rem">Web3 education is mostly hype. We built this because every person who comes into crypto gets rekt in month one — not from DeFi complexity, but from not understanding wallet security, LP math, or how wallets actually work. Web3 School teaches what the scams are made of.</p>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1rem">Most courses teach you how to use protocols. We teach you how they work under the hood, what can go wrong, and how to protect yourself. This is operational knowledge — not speculation. The kind of stuff that saves you from losing everything to a bad signature.</p>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Whether you're a dev looking to understand on-chain mechanics or an operator building sovereign infrastructure, this is the foundation. We don't do roadmaps. We ship first.</p>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem">
+      <div style="background:rgba(233,30,140,.1);border:1px solid rgba(233,30,140,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:var(--pink)">7 Modules</div><div style="font-size:10px;color:var(--muted)">Hands-on curriculum</div></div>
+      <div style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:#6365f1">NFT Credential</div><div style="font-size:10px;color:var(--muted)">Onchain on Base</div></div>
+      <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:var(--success)">Guild.xyz Role</div><div style="font-size:10px;color:var(--muted)">Community access</div></div>
+      <div style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:#fbbf24">TradeDesk Access</div><div style="font-size:10px;color:var(--muted)">Unlock on completion</div></div>
+    </div>
+    <button class="tb-btn primary" style="font-size:12px;padding:.6rem 1.25rem" onclick="authGate('web3school', navItem('web3school'))">Start Web3 School →</button>
+  </div>
+  <!-- Content Area: Marketing content for non-auth / Student view for authenticated -->
+  <div style="padding:1.5rem">
+    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:1rem">The 7 Modules</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem">
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">01</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Wallet Basics</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">15 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Create and secure your first crypto wallet. Seed phrases, hot vs cold storage, and operational security fundamentals.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">02</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Money Basics</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">20 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">What is digital money? Bitcoin, stablecoins, L1 vs L2. Understanding monetary primitives in code.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">03</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Security Basics</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">25 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Seed phrases, phishing, hardware wallets, OpSec. How to not lose your keys to a bad link.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">04</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">DeFi Fundamentals</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">30 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">AMMs, liquidity pools, yield farming safely. The math behind the magic and where it breaks.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">05</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">ReFi & Impact</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">25 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Regenerative finance, carbon credits on-chain. How impact metrics live and breathe on Base.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">06</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Community Building</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">20 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">DAOs, token-gated communities, Guild.xyz, governance. Designing sovereign collectives.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">07</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Agent & AI Ops</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">30 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">How AI agents operate on-chain, Virtuals Protocol, 1-human + AI model architectures.</div></div>
+    </div>
+    <!-- Student view container (rendered when authenticated) -->
+    <div id="schoolBody"></div>
+  </div>
+</div>
+
+<!-- ══ TRADEDESK (public + member) ══ -->
+<div class="page" id="page-tradedesk">
+  <!-- NON-AUTH MARKETING HEADER (shown when not logged in) -->
+  <div id="tradedesk-marketing" style="background:linear-gradient(135deg,#0D1F3C,#0A1628);padding:2rem 1.5rem;border-bottom:1px solid var(--border)">
+    <div style="font-size:10px;font-weight:700;color:var(--pink);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">◈ TRADEDESK</div>
+    <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:1rem;line-height:1.3">Trade Like a Protocol, Not a Gambler</h2>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem;max-width:600px">KNIGHT is SUPERCOMPUTE's trading intelligence agent. Built on Conway Terminal. Running in observer mode until you graduate Web3 School. When you're ready, TradeDesk gives you the same tools, signals, and discipline the pros use.</p>
+    <!-- Fake trading terminal visual -->
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1.25rem;overflow-x:auto">
+      <div style="font-size:10px;color:var(--pink);margin-bottom:.5rem;font-weight:600">▸ LIVE TERMINAL (OBSERVER MODE)</div>
+      <pre style="font-family:monospace;font-size:11px;color:var(--text);margin:0;line-height:1.6">
+ASSET      SIDE    SIZE      ENTRY     PnL     STATUS
+─────────────────────────────────────────────────────
+ETH        LONG   2.5 ETH  $3,214   +$127   ACTIVE
+ cbBTC     SHORT  0.1    $67,430  +$0.42  PENDING
+USDC       LONG  5,000   $1.00    $0.00   FILLED
+ Polymarket: AI Doom (62%) · Fed Cut (89%) · ETH ETF (31%)</pre>
+    </div>
+    <!-- 3 Why columns -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.25rem">
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:11px;font-weight:700;color:var(--success);margin-bottom:.25rem">◈ Observer Mode First</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5">Paper trade until you're ready. No real money until you understand the math.</div>
+      </div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:11px;font-weight:700;color:var(--success);margin-bottom:.25rem">◈ KNIGHT Monitors 24/7</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5">CDP health, Polymarket odds, position risk. You sleep, agents don't.</div>
+      </div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:11px;font-weight:700;color:var(--success);margin-bottom:.25rem">◈ Base Chain Native</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5">Every position on Base. USDC deposits, leverage math, liquidation risk — all on-chain.</div>
+      </div>
+    </div>
+    <!-- CTA -->
+    <button class="tb-btn primary" style="background:var(--pink);color:#fff;font-weight:700" onclick="authGate('web3school', navItem('web3school'))">🔒 Complete Web3 School to Unlock</button>
+    <!-- Services Grid -->
+    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;color:var(--pink);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem">▸ TRADING SERVICES</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem">
+        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+          <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.25rem">CDP Monitoring</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">KNIGHT watches your MakerDAO/Aave positions 24/7. Health factor alerts before liquidation.</div>
+        </div>
+        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+          <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.25rem">Polymarket Intelligence</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">Kelly Criterion analysis on active Polymarket markets. Position sizing signals.</div>
+        </div>
+        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+          <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.25rem">Portfolio Analytics</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">ETH long, cbBTC short, USDC treasury. Full position history on-chain.</div>
+        </div>
+        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+          <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.25rem">Trade History</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">Every trade logged. Entry, exit, P&L. Build your track record before you risk capital.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- AUTH DASHBOARD (shown when logged in) -->
+  <div id="tradedesk-auth" style="display:none">
+    <div class="topbar"><div><div class="topbar-title">TradeDesk</div><div class="topbar-sub">KNIGHT · CDP Monitor · Polymarket · Conway Terminal</div></div><div class="topbar-actions"><span class="pulse-green"></span><span style="font-size:11px;color:var(--success);font-weight:600;margin-left:4px">KNIGHT Online</span></div></div>
+    <div class="pg-body" id="tradedeskBody"></div>
+  </div>
 </div>
 
 <!-- ══ SOCIAL MEDIA (member) ══ -->

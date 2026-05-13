@@ -164,6 +164,8 @@ function navigate(page, el) {
     const pg = document.getElementById('page-' + page);
     if (pg) pg.classList.add('active');
     if (el) el.classList.add('active');
+    // Update URL hash so direct links and back-button work
+    history.pushState({ page }, '', '#' + page);
     window.scrollTo(0, 0);
     if (page === 'blog') renderBlog(currentBlogFilter);
     if (page === 'pub-projects') renderPubProjects();
@@ -174,6 +176,22 @@ function navigate(page, el) {
     if (page === 'about') renderAbout();
     if (page === 'staking') initTicker();
 }
+
+// Restore page from URL hash on load and back/forward navigation
+function initRouter() {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+        const el = document.querySelector(`.nav-item[data-page="${hash}"]`);
+        if (el) navigate(hash, el);
+    }
+}
+window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+        const el = document.querySelector(`.nav-item[data-page="${hash}"]`);
+        if (el) navigate(hash, el);
+    }
+});
 
 function authGate(page, el, adminOnly) {
     if (!authState.loggedIn) { showToast('🔒 Sign in to access this'); document.getElementById('authOverlay').style.display = 'flex'; return; }
@@ -814,6 +832,7 @@ function animCount(el, target, dur) {
 
 /* ━━━ INIT ━━━ */
 window.addEventListener('DOMContentLoaded', () => {
+    initRouter(); // Handle direct links and back-button via URL hash
     initTicker();
     renderBlog('all');
     renderPubProjects();

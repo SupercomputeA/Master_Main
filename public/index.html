@@ -33,7 +33,7 @@
   <input class="auth-input" type="password" placeholder="Password"/>
   <button class="auth-btn" onclick="doLogin()">Sign In</button>
   <div class="auth-div">or</div>
-  <button class="siwe-btn" onclick="doLoginDemo('user')"><span style="font-size:14px">◎</span> Sign In with Ethereum</button>
+  <button class="siwe-btn" onclick="doLoginDemo('user')" aria-label="Sign in with Ethereum wallet"><span style="font-size:14px">◎</span> Sign In with Ethereum</button>
 <div style="margin-top:1rem;font-size:11px;color:#6b7280" id="demoLoginDiv">
       <button onclick="doLoginDemo('user')" style="border:none;background:none;color:var(--pink);cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:inherit">Demo: User Login</button>
       &nbsp;·&nbsp;
@@ -56,31 +56,31 @@
   </div>
   <div style="flex:1;overflow-y:auto;padding-bottom:.5rem">
     <div class="nav-section">Public</div>
-    <div class="nav-item active" data-page="home" onclick="navigate('home',this)" title="Public landing page — overview of Supercompute"><span class="nav-ico">⌂</span>Home</div>
-    <div class="nav-item" data-page="about" onclick="navigate('about',this)" title="Who we are, what we build, why it matters"><span class="nav-ico">◎</span>About</div>
-    <div class="nav-item" data-page="staking" onclick="navigate('staking',this)" title="$SCOM token staking — live May 2026"><span class="nav-ico">◈</span>Staking</div>
-    <div class="nav-item" data-page="blog" onclick="navigate('blog',this)" title="NewsDesk articles — AI-curated Web3 intelligence"><span class="nav-ico">▤</span>Blog</div>
-    <div class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this)" title="Public investment opportunities"><span class="nav-ico">◧</span>Projects</div>
-    <div class="nav-item" data-page="consulting" onclick="navigate('consulting',this)" title="DeFi consulting, agent automation, ReFi strategy"><span class="nav-ico">◑</span>Consulting</div>
-    <div class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this)" title="$SCOM token — access gated by Web3 School completion"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></div>
+    <a href="#" class="nav-item active" data-page="home" onclick="navigate('home',this);return false" title="Public landing page — overview of Supercompute"><span class="nav-ico">⌂</span>Home</a>
+    <a href="#" class="nav-item" data-page="about" onclick="navigate('about',this);return false" title="Who we are, what we build, why it matters"><span class="nav-ico">◎</span>About</a>
+    <a href="#" class="nav-item" data-page="staking" onclick="navigate('staking',this);return false" title="$SCOM token staking — live May 2026"><span class="nav-ico">◈</span>Staking</a>
+    <a href="#" class="nav-item" data-page="blog" onclick="navigate('blog',this);return false" title="NewsDesk articles — AI-curated Web3 intelligence"><span class="nav-ico">▤</span>Blog</a>
+    <a href="#" class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this);return false" title="Public investment opportunities"><span class="nav-ico">◧</span>Projects</a>
+    <a href="#" class="nav-item" data-page="consulting" onclick="navigate('consulting',this);return false" title="DeFi consulting, agent automation, ReFi strategy"><span class="nav-ico">◑</span>Consulting</a>
+    <a href="#" class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this);return false" title="$SCOM token — access gated by Web3 School completion"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></a>
     <div class="nav-div"></div>
     <div class="nav-section">Member</div>
-    <div class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this)" title="Your portfolio assets and positions"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></div>
-    <div class="nav-item locked" id="nl-social" data-page="social" onclick="authGate('social',this)" title="Social feed — posts, shares, community activity"><span class="nav-ico">◉</span>Social Feed<span class="nav-badge nb-lock">🔒</span></div>
-    <div class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this)" title="System alerts and agent activity notifications"><span class="nav-ico">◎</span>Alerts<span class="nav-badge nb-num">3</span></div>
-    <div class="nav-item locked" id="nl-profile" data-page="profile" onclick="authGate('profile',this)" title="Your profile — wallet, roles, credentials"><span class="nav-ico">◐</span>Profile<span class="nav-badge nb-lock">🔒</span></div>
-    <div class="nav-item locked" id="nl-agentchat" data-page="agentchat" onclick="authGate('agentchat',this)" title="Chat with the agent fleet — Quanta S, KNIGHT, OpenClaw"><span class="nav-ico">◈</span>Agent Chat<span class="nav-badge nb-num">4</span></div>
-    <div class="nav-item locked" id="nl-web3school" data-page="web3school" onclick="authGate('web3school',this)" title="7 modules → NFT credential + TradeDesk access"><span class="nav-ico">◎</span>Web3 School<span class="nav-badge nb-lock">🔒</span></div>
-    <div class="nav-item locked" id="nl-socialmedia" data-page="socialmedia" onclick="authGate('socialmedia',this)" title="Schedule and publish to X, Lens, and more"><span class="nav-ico">◧</span>Social Media<span class="nav-badge nb-lock">🔒</span></div>
+    <a href="#" class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this);return false" title="Your portfolio assets and positions"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item locked" id="nl-social" data-page="social" onclick="authGate('social',this);return false" title="Social feed — posts, shares, community activity"><span class="nav-ico">◉</span>Social Feed<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this);return false" title="System alerts and agent activity notifications"><span class="nav-ico">◎</span>Alerts<span class="nav-badge nb-num">3</span></a>
+    <a href="#" class="nav-item locked" id="nl-profile" data-page="profile" onclick="authGate('profile',this);return false" title="Your profile — wallet, roles, credentials"><span class="nav-ico">◐</span>Profile<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item locked" id="nl-agentchat" data-page="agentchat" onclick="authGate('agentchat',this);return false" title="Chat with the agent fleet — Quanta S, KNIGHT, OpenClaw"><span class="nav-ico">◈</span>Agent Chat<span class="nav-badge nb-num">4</span></a>
+    <a href="#" class="nav-item locked" id="nl-web3school" data-page="web3school" onclick="authGate('web3school',this);return false" title="7 modules → NFT credential + TradeDesk access"><span class="nav-ico">◎</span>Web3 School<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item locked" id="nl-socialmedia" data-page="socialmedia" onclick="authGate('socialmedia',this);return false" title="Schedule and publish to X, Lens, and more"><span class="nav-ico">◧</span>Social Media<span class="nav-badge nb-lock">🔒</span></a>
     <div class="nav-div"></div>
     <div class="nav-section">Admin</div>
-    <div class="nav-item locked" id="nl-dashboard" data-page="dashboard" onclick="authGate('dashboard',this,true)" title="Fleet overview, portfolio, agent activity"><span class="nav-ico">▣</span>Dashboard<span class="nav-badge nb-gold">A</span></div>
-    <div class="nav-item locked" id="nl-community" data-page="community" onclick="authGate('community',this,true)" title="Members, roles, Guild.xyz integration"><span class="nav-ico">◈</span>Community<span class="nav-badge nb-gold">A</span></div>
-    <div class="nav-item locked" id="nl-newsdesk" data-page="newsdesk" onclick="authGate('newsdesk',this,true)" title="NewsDesk CMS — articles, drafts, publishing"><span class="nav-ico">◧</span>NewsDesk CMS<span class="nav-badge nb-gold">A</span></div>
-    <div class="nav-item locked" id="nl-apiStatus" data-page="apiStatus" onclick="authGate('apiStatus',this,true)" title="API health, D1 DB, Web3 CMS status"><span class="nav-ico">◐</span>API Status<span class="nav-badge nb-gold">A</span></div>
+    <a href="#" class="nav-item locked" id="nl-dashboard" data-page="dashboard" onclick="authGate('dashboard',this,true);return false" title="Fleet overview, portfolio, agent activity"><span class="nav-ico">▣</span>Dashboard<span class="nav-badge nb-gold">A</span></a>
+    <a href="#" class="nav-item locked" id="nl-community" data-page="community" onclick="authGate('community',this,true);return false" title="Members, roles, Guild.xyz integration"><span class="nav-ico">◈</span>Community<span class="nav-badge nb-gold">A</span></a>
+    <a href="#" class="nav-item locked" id="nl-newsdesk" data-page="newsdesk" onclick="authGate('newsdesk',this,true);return false" title="NewsDesk CMS — articles, drafts, publishing"><span class="nav-ico">◧</span>NewsDesk CMS<span class="nav-badge nb-gold">A</span></a>
+    <a href="#" class="nav-item locked" id="nl-apiStatus" data-page="apiStatus" onclick="authGate('apiStatus',this,true);return false" title="API health, D1 DB, Web3 CMS status"><span class="nav-ico">◐</span>API Status<span class="nav-badge nb-gold">A</span></a>
   </div>
   <div class="nav-bottom">
-    <button class="btn-wallet" id="walletBtn" onclick="toggleWallet()"><span id="wico">◎</span><span id="wtxt">Connect Wallet</span></button>
+    <button class="btn-wallet" id="walletBtn" onclick="toggleWallet()" aria-label="Connect wallet"><span id="wico">◎</span><span id="wtxt">Connect Wallet</span></button>
     <div class="bip-badge">
       <div style="display:flex;align-items:center;gap:5px"><span class="pulse-dot"></span><span style="font-size:10px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.3px">BUILDING IN PUBLIC</span></div>
       <div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:2px;line-height:1.4">1 builder · 13 agents<br>Phase 1: May 2026</div>
@@ -453,8 +453,8 @@
       Sovereign AI-native tools for the next generation of Web3 builders.
     </div>
     <div class="cta-btns">
-      <button class="btn-primary">◈ Connect Wallet</button>
-      <button class="btn-outline">Book Strategy Call</button>
+      <button class="btn-primary" onclick="authGate('web3school',navItem('web3school'))" aria-label="Connect wallet to access the platform">◈ Connect Wallet</button>
+      <button class="btn-outline" onclick="navigate('consulting',navItem('consulting'))" aria-label="Book a strategy call">Book a Strategy Call</button>
     </div>
   </section>
 

@@ -1,5 +1,6 @@
 name = "supercompute"
 compatibility_date = "2026-04-30"
+compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "public"
 
 [[d1_databases]]
@@ -7,9 +8,9 @@ binding = "DB"
 database_name = "supercompute-db"
 database_id = "e3c7c7f9-df4a-4e1b-9bc7-97f1faadf282"
 
+[[kv_namespaces]]
+binding = "CACHE"
+id = "031b7cbbfed44d478d7d7c4abe67c666"
+
 [vars]
 CORS_ORIGIN = "https://supercompute.io"
-
-# KV for session/nonce storage — create with:
-# wrangler弄 4.x: wrangler kv:namespace create CACHE
-# For now, auth falls back to memory-only (sessions work, nonces expire per-request)

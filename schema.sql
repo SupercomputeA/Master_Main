@@ -60,3 +60,26 @@ CREATE INDEX idx_articles_published ON articles(published_at);
 CREATE INDEX idx_staking_wallet ON staking_positions(wallet_address);
 CREATE INDEX idx_agent_logs_agent ON agent_logs(agent_id);
 CREATE INDEX idx_sessions_wallet ON sessions(wallet_address);
+
+-- Admin wallets allowlist
+CREATE TABLE admin_wallets (
+  id TEXT PRIMARY KEY,
+  wallet_address TEXT UNIQUE NOT NULL,
+  role TEXT DEFAULT 'admin',
+  created_at INTEGER DEFAULT (unixepoch())
+);
+
+-- Projects
+CREATE TABLE projects (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  ticker TEXT,
+  stack TEXT,
+  description TEXT,
+  status TEXT DEFAULT 'active',
+  created_at INTEGER DEFAULT (unixepoch()),
+  updated_at INTEGER DEFAULT (unixepoch())
+);
+
+CREATE INDEX idx_admin_wallets_address ON admin_wallets(wallet_address);
+CREATE INDEX idx_projects_status ON projects(status);

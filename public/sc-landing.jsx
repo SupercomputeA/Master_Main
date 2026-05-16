@@ -45,16 +45,13 @@ function LandingPage({ onNavigate, auth }) {
 
             {/* HERO */}
             <div style={{ background: 'var(--navy)', position: 'relative', overflow: 'hidden', padding: '4.5rem 2rem 4rem', textAlign: 'center' }}>
-                <div style={{ position: 'absolute', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle,rgba(233,30,140,.18) 0%,transparent 70%)', top: -150, right: -80, pointerEvents: 'none', animation: 'blobMove 9s ease-in-out infinite alternate' }} />
-                <div style={{ position: 'absolute', width: 380, height: 380, borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,212,255,.12) 0%,transparent 70%)', bottom: -80, left: -60, pointerEvents: 'none', animation: 'blobMove 12s ease-in-out infinite alternate-reverse' }} />
-
-                <div className="fade-up" style={{ display: 'inline-flex', alignItems: 'center', gap: '.5rem', background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.12)', color: 'rgba(255,255,255,.7)', fontSize: 11, padding: '.35rem 1rem', borderRadius: 20, marginBottom: '1.75rem', position: 'relative' }}>
+                <div className="fade-up" style={{ display: 'inline-flex', alignItems: 'center', gap: '.5rem', background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.12)', color: 'rgba(255,255,255,.7)', fontSize: 11, padding: '.35rem 1rem', borderRadius: 0, marginBottom: '1.75rem', position: 'relative' }}>
                     <span className="pulse-dot" /> Institutional-Grade Cyborg Agency · Phase 1 Live
                 </div>
 
                 <h1 className="fade-up fade-d1" style={{ fontSize: 'clamp(1.9rem,4.5vw,3.4rem)', fontWeight: 900, color: '#fff', lineHeight: 1.08, marginBottom: '1.1rem', letterSpacing: '-.5px', position: 'relative' }}>
                     Stop manually managing<br />
-                    your <span style={{ color: 'var(--pink)' }}>Web3 community.</span><br />
+                    your <span style={{ color: 'var(--gold)' }}>Web3 community.</span><br />
                     <span style={{ color: 'var(--gold)' }}>Hire a Cyborg Agency.</span>
                 </h1>
 
@@ -64,13 +61,13 @@ function LandingPage({ onNavigate, auth }) {
                 </p>
 
                 <div className="fade-up fade-d3" style={{ display: 'flex', gap: '.75rem', justifyContent: 'center', flexWrap: 'wrap', position: 'relative' }}>
-                    <button onClick={() => onNavigate('consulting')} style={{ padding: '.8rem 1.75rem', background: 'var(--pink)', color: '#fff', border: 'none', borderRadius: 9, fontSize: 14, fontWeight: 700, cursor: 'pointer', letterSpacing: .1, transition: 'all .2s' }}
-                        onMouseEnter={e => { e.target.style.background = 'var(--pink2)'; e.target.style.transform = 'translateY(-1px)' }}
-                        onMouseLeave={e => { e.target.style.background = 'var(--pink)'; e.target.style.transform = '' }}>
+                    <button onClick={() => onNavigate('consulting')} style={{ padding: '.8rem 1.75rem', background: 'var(--gold)', color: '#fff', border: 'none', borderRadius: 0, fontSize: 14, fontWeight: 700, cursor: 'pointer', letterSpacing: .1, transition: 'all .2s' }}
+                        onMouseEnter={e => { e.target.style.background = 'var(--gold)'; e.target.style.transform = 'translateY(-1px)' }}
+                        onMouseLeave={e => { e.target.style.background = 'var(--gold)'; e.target.style.transform = '' }}>
                         Book a Strategy Session
                     </button>
                     <button onClick={() => { const el = document.getElementById('agents-section'); if (el) el.scrollTop = 0; onNavigate('agentchat'); }}
-                        style={{ padding: '.8rem 1.75rem', background: 'rgba(255,255,255,.07)', color: '#fff', border: '1px solid rgba(255,255,255,.18)', borderRadius: 9, fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'all .2s' }}
+                        style={{ padding: '.8rem 1.75rem', background: 'rgba(255,255,255,.07)', color: '#fff', border: '1px solid rgba(255,255,255,.18)', borderRadius: 0, fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'all .2s' }}
                         onMouseEnter={e => e.target.style.background = 'rgba(255,255,255,.12)'}
                         onMouseLeave={e => e.target.style.background = 'rgba(255,255,255,.07)'}>
                         Talk to an Agent →
@@ -135,9 +132,9 @@ function LandingPage({ onNavigate, auth }) {
                                 {f}
                             </div>
                         ))}
-                        <button onClick={() => onNavigate('consulting')} style={{ marginTop: '1.25rem', padding: '.75rem 1.5rem', background: 'var(--pink)', color: '#fff', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', transition: 'all .2s' }}
-                            onMouseEnter={e => e.target.style.background = 'var(--pink2)'}
-                            onMouseLeave={e => e.target.style.background = 'var(--pink)'}>
+                        <button onClick={() => onNavigate('consulting')} style={{ marginTop: '1.25rem', padding: '.75rem 1.5rem', background: 'var(--gold)', color: '#fff', border: 'none', borderRadius: 0, fontSize: 13, fontWeight: 700, cursor: 'pointer', transition: 'all .2s' }}
+                            onMouseEnter={e => e.target.style.background = 'var(--gold)'}
+                            onMouseLeave={e => e.target.style.background = 'var(--gold)'}>
                             Build One for Your Protocol →
                         </button>
                     </div>
@@ -154,7 +151,7 @@ function LandingPage({ onNavigate, auth }) {
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.5rem', marginBottom: '.75rem' }}>
                             {[['Tasks Today', '12'], ['Token', '$QUANTA'], ['Articles', '5'], ['Uptime', '99.9%']].map(([l, v]) => (
-                                <div key={l} style={{ background: 'rgba(255,255,255,.04)', borderRadius: 8, padding: '.65rem' }}>
+                                <div key={l} style={{ background: 'rgba(255,255,255,.04)', borderRadius: 0, padding: '.65rem' }}>
                                     <div style={{ fontSize: 9, color: 'rgba(255,255,255,.35)', marginBottom: .2, textTransform: 'uppercase', letterSpacing: .6 }}>{l}</div>
                                     <div style={{ fontSize: '1.1rem', fontWeight: 800, color: l === 'Token' ? 'var(--gold)' : l === 'Uptime' ? '#4ade80' : '#fff' }}>{v}</div>
                                 </div>
@@ -177,24 +174,24 @@ function LandingPage({ onNavigate, auth }) {
             {/* SERVICES LADDER */}
             <div style={{ background: 'var(--bg)', padding: '3rem 2rem', borderTop: '1px solid var(--border)' }}>
                 <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: 'var(--pink)', textTransform: 'uppercase', marginBottom: '.5rem' }}>Services</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: 'var(--gold)', textTransform: 'uppercase', marginBottom: '.5rem' }}>Services</div>
                     <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text)', marginBottom: '.4rem' }}>The Engagement Ladder</h2>
                     <p style={{ fontSize: '.875rem', color: 'var(--muted)', maxWidth: 460, margin: '0 auto' }}>Start where you are. Scale to where you need to be.</p>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: '1.25rem', maxWidth: 860, margin: '0 auto' }}>
                     {[
-                        { ico: '◎', sub: 'Web3 Consulting', price: 'From $500', desc: 'Architecture and advisory for brand founders entering the Web3 ecosystem. Wallet setup, DeFi strategy, protocol selection.', btn: 'Book a Session →', c: 'var(--pink)', featured: false },
+                        { ico: '◎', sub: 'Web3 Consulting', price: 'From $500', desc: 'Architecture and advisory for brand founders entering the Web3 ecosystem. Wallet setup, DeFi strategy, protocol selection.', btn: 'Book a Session →', c: 'var(--gold)', featured: false },
                         { ico: '◈', sub: 'Agent Development', price: 'From $2,000', desc: 'Custom AI agents built for on-chain operations. Your own Quanta — branded, deployed, running your community 24/7.', btn: 'Start Building →', c: 'var(--gold)', featured: true },
                         { ico: '◐', sub: 'Token Launch Strategy', price: 'From $3,500', desc: 'End-to-end playbook from IP strategy to post-launch ops. Tokenomics, smart contracts on Base, community bootstrapping.', btn: 'Plan Your Launch →', c: 'var(--gold2)', featured: false },
                     ].map(s => (
                         <div key={s.sub} className={`service-card${s.featured ? ' featured' : ''}`}>
-                            {s.featured && <div style={{ position: 'absolute', top: 0, right: 0, background: 'var(--pink)', color: '#fff', fontSize: 9, fontWeight: 700, padding: '.3rem .9rem', borderRadius: '0 14px 0 8px', letterSpacing: .5 }}>Most Requested</div>}
-                            <div style={{ width: 40, height: 40, borderRadius: 10, background: `rgba(${s.featured ? '233,30,140' : '255,184,0'},.15)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', marginBottom: '1rem' }}>{s.ico}</div>
+                            {s.featured && <div style={{ position: 'absolute', top: 0, right: 0, background: 'var(--gold)', color: '#fff', fontSize: 9, fontWeight: 700, padding: '.3rem .9rem', borderRadius: 0, letterSpacing: .5 }}>Most Requested</div>}
+                            <div style={{ width: 40, height: 40, borderRadius: 10, background: `rgba(${s.featured ? '200,168,75' : '255,184,0'},.15)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', marginBottom: '1rem' }}>{s.ico}</div>
                             <div style={{ fontSize: '.75rem', fontWeight: 700, color: s.featured ? 'rgba(255,255,255,.4)' : 'var(--muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: '.35rem' }}>{s.sub}</div>
                             <div style={{ fontSize: '1.4rem', fontWeight: 800, color: s.c, marginBottom: '.5rem' }}>{s.price}</div>
                             <p style={{ fontSize: '.82rem', color: s.featured ? 'rgba(255,255,255,.55)' : 'var(--muted)', lineHeight: 1.6, marginBottom: '1.25rem' }}>{s.desc}</p>
                             <button onClick={() => onNavigate('consulting')}
-                                style={{ width: '100%', padding: '.65rem', background: s.featured ? 'var(--pink)' : 'transparent', color: s.featured ? '#fff' : s.c, border: `1.5px solid ${s.c}`, borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all .2s', fontFamily: 'inherit' }}
+                                style={{ width: '100%', padding: '.65rem', background: s.featured ? 'var(--gold)' : 'transparent', color: s.featured ? '#fff' : s.c, border: `1.5px solid ${s.c}`, borderRadius: 0, fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all .2s', fontFamily: 'inherit' }}
                                 onMouseEnter={e => { if (!s.featured) { e.target.style.background = s.c; e.target.style.color = '#fff' } }}
                                 onMouseLeave={e => { if (!s.featured) { e.target.style.background = 'transparent'; e.target.style.color = s.c } }}>
                                 {s.btn}
@@ -207,7 +204,7 @@ function LandingPage({ onNavigate, auth }) {
             {/* AGENT FLEET */}
             <div id="agents-section" style={{ background: 'var(--card)', padding: '3rem 2rem', borderTop: '1px solid var(--border)' }}>
                 <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: 'var(--pink)', textTransform: 'uppercase', marginBottom: '.5rem' }}>Agent Fleet</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: 'var(--gold)', textTransform: 'uppercase', marginBottom: '.5rem' }}>Agent Fleet</div>
                     <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text)' }}>13 Agents. One Command.</h2>
                     <p style={{ fontSize: '.82rem', color: 'var(--muted)', maxWidth: 440, margin: '.3rem auto 0' }}>Your operations don't stop. Neither do ours.</p>
                 </div>
@@ -230,8 +227,8 @@ function LandingPage({ onNavigate, auth }) {
                     ))}
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                    <button onClick={() => onNavigate('agentchat')} style={{ padding: '.7rem 1.5rem', background: 'transparent', color: 'var(--text)', border: '1.5px solid var(--border)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .2s', fontFamily: 'inherit' }}
-                        onMouseEnter={e => { e.target.style.borderColor = 'var(--pink)'; e.target.style.color = 'var(--pink)' }}
+                    <button onClick={() => onNavigate('agentchat')} style={{ padding: '.7rem 1.5rem', background: 'transparent', color: 'var(--text)', border: '1.5px solid var(--border)', borderRadius: 0, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .2s', fontFamily: 'inherit' }}
+                        onMouseEnter={e => { e.target.style.borderColor = 'var(--gold)'; e.target.style.color = 'var(--gold)' }}
                         onMouseLeave={e => { e.target.style.borderColor = 'var(--border)'; e.target.style.color = 'var(--text)' }}>
                         Talk to an Agent →
                     </button>
@@ -242,10 +239,10 @@ function LandingPage({ onNavigate, auth }) {
             <div style={{ background: ' var(--navy)', padding: '1.5rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
                     <div className="nav-avatar" style={{ width: 28, height: 28, fontSize: 8 }}>SC</div>
-                    <span style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>SUPERCOMPUTE</span>
-                    <span style={{ color: 'rgba(255,255,255,.3)', fontSize: 11 }}>· supercompute.eth · Base Chain</span>
+                    <span style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>QUANTA</span>
+                    <span style={{ color: 'rgba(255,255,255,.3)', fontSize: 11 }}>· quantas.molt.eth · Base Chain</span>
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,.3)' }}>© 2026 Supercompute · Phase 1 · 1 Human + 13 Agents</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,.3)' }}>© 2026 QUANTA · Phase 1 · 1 Human + 13 Agents</div>
             </div>
         </div>
     );

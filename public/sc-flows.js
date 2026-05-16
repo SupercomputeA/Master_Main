@@ -8,25 +8,25 @@ const PROJECT_DETAIL = {
     newsdesk: {
         id: 'newsdesk', name: 'NewsDesk', coin: '$QUANTA', badge: 'Live', bc: 'badge-live',
         tagline: 'The on-chain intelligence layer for Web3 operators.',
-        desc: 'NewsDesk is Supercompute\'s autonomous content platform. Powered by Quanta S, it publishes intelligence reports, sovereignty stack updates, and agent dispatches. Content is written by AI agents, reviewed by humans, and cross-posted to X, Lens, and Farcaster automatically.',
+        desc: 'NewsDesk is QUANTA\'s autonomous content platform. Powered by Quanta S, it publishes intelligence reports, sovereignty stack updates, and agent dispatches. Content is written by AI agents, reviewed by humans, and cross-posted to X, Lens, and Farcaster automatically.',
         raised: 0, goal: 250000, backers: 0, chain: 'Base', token: '$QUANTA',
         contract: '0x5acdc...371a', repo: 'newsdesk-cf', phase: 'Phase 1',
         team: [{ name: 'Orami', role: 'Founder' }, { name: 'Quanta S', role: 'AI Editor' }, { name: 'OpenClaw', role: 'Distribution' }],
         tiers: [
             { name: 'Signal Reader', price: 50, token: 500, perks: ['NewsDesk access', '$QUANTA airdrop', 'Signal category early access'], color: 'var(--muted)' },
             { name: 'Intelligence Operator', price: 250, token: 3000, perks: ['All Signal perks', 'Agent Chat priority', 'Monthly briefing call', 'Discord role'], color: 'var(--cyan2)' },
-            { name: 'Founding Backer', price: 1000, token: 15000, perks: ['All Operator perks', 'Founding NFT credential', 'Name in changelog', 'Direct Quanta S access'], color: 'var(--pink)' },
+            { name: 'Founding Backer', price: 1000, token: 15000, perks: ['All Operator perks', 'Founding NFT credential', 'Name in changelog', 'Direct Quanta S access'], color: 'var(--gold)' },
         ],
         milestones: [
-            { date: 'Jan 2026', title: 'Architecture designed', done: true, desc: 'Cloudflare Workers + D1 + Sanity CMS stack finalized.' },
+            { date: 'Jan 2026', title: 'Architecture designed', done: true, desc: 'Cloudflare Workers + D1 + Web3 CMS stack finalized.' },
             { date: 'Feb 2026', title: 'Quanta S deployed', done: true, desc: 'Agent live on Virtuals Protocol. Content pipeline active.' },
-            { date: 'Mar 2026', title: '6 founding articles published', done: true, desc: 'All founding content written and queued in Sanity.' },
+            { date: 'Mar 2026', title: '6 founding articles published', done: true, desc: 'All founding content written and queued in Web3 CMS (D1).' },
             { date: 'Apr 2026', title: 'Public launch', done: false, desc: 'NewsDesk goes live at supercompute.io/newsdesk.' },
             { date: 'May 2026', title: '$QUANTA TGE', done: false, desc: 'Token launch on Base. Backer airdrop distributed.' },
             { date: 'Q3 2026', title: 'API for third-party publishers', done: false, desc: 'Open the NewsDesk API to external Web3 media.' },
         ],
         updates: [
-            { date: 'Apr 25, 2026', author: 'Quanta S', title: 'Launch countdown: 6 days out', body: 'All 6 founding articles are live in Sanity CMS. OpenClaw has the social queue loaded. API status: green across the board.' },
+            { date: 'Apr 25, 2026', author: 'Quanta S', title: 'Launch countdown: 6 days out', body: 'All 6 founding articles are live in Web3 CMS (D1 · supercompute-db). OpenClaw has the social queue loaded. API status: green across the board.' },
             { date: 'Apr 18, 2026', author: 'Orami', title: '$QUANTA contract submitted to Virtuals', body: 'Verification pending. Contract 0x5acdc...371a is in the Virtuals review queue. ETA: 7-10 days.' },
             { date: 'Mar 27, 2026', author: 'Quanta S', title: 'Article #6 published', body: 'The SIWE auth piece is live. All founding content complete. Moving to distribution phase.' },
         ]
@@ -41,7 +41,7 @@ const PROJECT_DETAIL = {
         tiers: [
             { name: 'Early Collector', price: 100, token: 1000, perks: ['1 WordWatcher NFT', '$VERB whitelist', 'Discord Collector role'], color: 'var(--muted)' },
             { name: 'Word Patron', price: 500, token: 6000, perks: ['5 NFTs', '$VERB whitelist', 'Trait vote access', 'Patron NFT credential'], color: 'var(--gold2)' },
-            { name: 'Genesis Backer', price: 2000, token: 30000, perks: ['20 NFTs', '$VERB founding allocation', 'Named word slot', 'Revenue share'], color: 'var(--pink)' },
+            { name: 'Genesis Backer', price: 2000, token: 30000, perks: ['20 NFTs', '$VERB founding allocation', 'Named word slot', 'Revenue share'], color: 'var(--gold)' },
         ],
         milestones: [
             { date: 'Dec 2025', title: 'Concept & wordlist finalized', done: true, desc: '1,000 word candidates curated across culture, activism, and technology.' },
@@ -65,7 +65,7 @@ const PROJECT_DETAIL = {
         tiers: [
             { name: 'Citizen', price: 200, token: 2000, perks: ['1 Nation NFT', 'Governance rights', 'Treasury participation'], color: 'var(--muted)' },
             { name: 'Delegate', price: 1000, token: 12000, perks: ['5 Nation NFTs', 'Delegate status', 'Committee access', 'Revenue share'], color: 'var(--cyan2)' },
-            { name: 'Founding Nation', price: 5000, token: 75000, perks: ['Nation genesis rights', 'Treasury seed', 'Protocol governance', 'Advisor status'], color: 'var(--pink)' },
+            { name: 'Founding Nation', price: 5000, token: 75000, perks: ['Nation genesis rights', 'Treasury seed', 'Protocol governance', 'Advisor status'], color: 'var(--gold)' },
         ],
         milestones: [
             { date: 'Q2 2026', title: 'Whitepaper published', done: false, desc: 'Full governance and economic design document.' },
@@ -97,12 +97,11 @@ function renderProjectDetail(p) {
     const pct = p.goal > 0 ? Math.min(Math.round(p.raised / p.goal * 100), 100) : 0;
     el.innerHTML = `
   <!-- HERO -->
-  <div style="background:linear-gradient(135deg,var(--navy),#1a0a2e);padding:2rem 1.5rem;color:#fff;position:relative;overflow:hidden">
-    <div style="position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(233,30,140,.2) 0%,transparent 70%);top:-100px;right:-60px;pointer-events:none"></div>
+  <div style="background:var(--navy);padding:2rem 1.5rem;color:#fff;position:relative;overflow:hidden">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;position:relative">
       <div>
         <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem">
-          <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff">${p.name[0]}</div>
+          <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff">${p.name[0]}</div>
           <div>
             <div style="font-weight:800;font-size:1.2rem;color:#fff">${p.name}</div>
             <div style="font-size:12px;color:rgba(255,255,255,.5)">${p.chain} · ${p.token} · ${p.phase}</div>
@@ -112,7 +111,7 @@ function renderProjectDetail(p) {
         <p style="font-size:.9rem;color:rgba(255,255,255,.65);max-width:520px;line-height:1.7">${p.tagline}</p>
       </div>
       <div style="display:flex;flex-direction:column;gap:.5rem;flex-shrink:0">
-        <button onclick="openInvestFlow('${p.id}')" style="padding:.75rem 1.5rem;background:var(--pink);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s" onmouseenter="this.style.background='var(--pink2)'" onmouseleave="this.style.background='var(--pink)'">Back this project →</button>
+        <button onclick="openInvestFlow('${p.id}')" style="padding:.75rem 1.5rem;background:var(--gold);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s" onmouseenter="this.style.background='var(--pink2)'" onmouseleave="this.style.background='var(--gold)'">Back this project →</button>
         <button onclick="navigate('pub-projects',navItem('pub-projects'))" style="padding:.6rem 1rem;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.15);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">← All Projects</button>
       </div>
     </div>
@@ -122,7 +121,7 @@ function renderProjectDetail(p) {
         <div><span style="font-size:1.5rem;font-weight:900;color:#fff">$${p.raised.toLocaleString()}</span><span style="font-size:13px;color:rgba(255,255,255,.4);margin-left:.4rem">raised</span></div>
         <div style="text-align:right"><div style="font-size:13px;color:rgba(255,255,255,.4)">Goal: $${(p.goal / 1000).toFixed(0)}k</div><div style="font-size:12px;color:rgba(255,255,255,.4)">${p.backers} backers</div></div>
       </div>
-      <div style="height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--pink),var(--gold));border-radius:4px;transition:width 1s ease"></div></div>
+      <div style="height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--gold),var(--gold));border-radius:4px;transition:width 1s ease"></div></div>
       <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:.4rem">${pct}% funded · Backing open</div>
     </div>
   </div>
@@ -144,7 +143,7 @@ function renderProjectDetail(p) {
           <div class="section-title">About This Project</div>
           <p style="font-size:13px;color:var(--text);line-height:1.8;text-wrap:pretty">${p.desc}</p>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem">
-            <span style="padding:.25rem .65rem;border-radius:20px;background:rgba(233,30,140,.08);color:var(--pink);border:1px solid rgba(233,30,140,.15);font-size:11px;font-weight:600">${p.chain}</span>
+            <span style="padding:.25rem .65rem;border-radius:20px;background:rgba(200,168,75,.08);color:var(--gold);border:1px solid rgba(200,168,75,.15);font-size:11px;font-weight:600">${p.chain}</span>
             <span style="padding:.25rem .65rem;border-radius:20px;background:rgba(0,212,255,.08);color:var(--cyan2);border:1px solid rgba(0,212,255,.15);font-size:11px;font-weight:600">${p.token}</span>
             <span style="padding:.25rem .65px .25rem .65rem;border-radius:20px;background:rgba(255,184,0,.08);color:var(--gold2);border:1px solid rgba(255,184,0,.15);font-size:11px;font-weight:600;padding:.25rem .65rem">${p.phase}</span>
           </div>
@@ -200,7 +199,7 @@ function renderProjectDetail(p) {
     ${p.updates.length === 0 ? `<div class="card" style="text-align:center;padding:3rem"><div style="font-size:2rem;margin-bottom:.75rem">📭</div><div style="font-weight:600;color:var(--text)">No updates yet</div><div style="font-size:12px;color:var(--muted);margin-top:.3rem">Updates will appear here as the project progresses.</div></div>` :
             p.updates.map(u => `<div class="card" style="margin-bottom:1rem">
       <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem;padding-bottom:.85rem;border-bottom:1px solid var(--border)">
-        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">${u.author.slice(0, 2).toUpperCase()}</div>
+        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">${u.author.slice(0, 2).toUpperCase()}</div>
         <div><div style="font-weight:700;font-size:12px;color:var(--text)">${u.author}</div><div style="font-size:11px;color:var(--muted)">${u.date}</div></div>
         <span class="badge badge-live" style="margin-left:auto">Update</span>
       </div>
@@ -214,7 +213,7 @@ function renderProjectDetail(p) {
       <div class="section-title">Core Team</div>
       <div class="grid3">
         ${p.team.map(t => `<div style="text-align:center;padding:1.25rem;background:var(--bg);border-radius:12px;border:1px solid var(--border)">
-          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;margin:0 auto .75rem">${t.name[0]}</div>
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;margin:0 auto .75rem">${t.name[0]}</div>
           <div style="font-weight:700;font-size:13px;color:var(--text)">${t.name}</div>
           <div style="font-size:11px;color:var(--muted);margin-top:.2rem">${t.role}</div>
         </div>`).join('')}
@@ -258,7 +257,7 @@ function renderInvestTabHTML(p) {
         <span style="font-size:12px;color:var(--muted)" id="customTokenEst">— ${p.token}</span>
       </div>
     </div>
-    <button onclick="proceedToCheckout('${p.id}')" style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--pink),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:opacity .2s" onmouseenter="this.style.opacity='.9'" onmouseleave="this.style.opacity='1'">Continue to Checkout →</button>
+    <button onclick="proceedToCheckout('${p.id}')" style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:opacity .2s" onmouseenter="this.style.opacity='.9'" onmouseleave="this.style.opacity='1'">Continue to Checkout →</button>
     <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:.75rem">Payments via USDC on Base · No gas fees · Refundable pre-launch</p>
   </div>`;
 }
@@ -268,7 +267,7 @@ function selectTier(idx, projId) {
         const p = PROJECT_DETAIL[projId];
         const t = p.tiers[i];
         el.style.borderColor = i === idx ? t.color : 'var(--border)';
-        el.style.background = i === idx ? 'rgba(233,30,140,.03)' : 'var(--card)';
+        el.style.background = i === idx ? 'rgba(200,168,75,.03)' : 'var(--card)';
     });
     const proj = PROJECT_DETAIL[projId];
     const tier = proj.tiers[idx];
@@ -310,42 +309,42 @@ function renderInvestCheckout(p, tierIdx) {
         ${steps.map((st, i) => `
           <div style="flex:1;display:flex;align-items:center;gap:0">
             <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;min-width:80px">
-              <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;border:2px solid ${i + 1 <= step ? 'var(--pink)' : 'var(--border)'};background:${i + 1 < step ? 'var(--pink)' : i + 1 === step ? 'rgba(233,30,140,.1)' : 'transparent'};color:${i + 1 <= step ? 'var(--pink)' : 'var(--muted)'}">
+              <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;border:2px solid ${i + 1 <= step ? 'var(--gold)' : 'var(--border)'};background:${i + 1 < step ? 'var(--gold)' : i + 1 === step ? 'rgba(200,168,75,.1)' : 'transparent'};color:${i + 1 <= step ? 'var(--gold)' : 'var(--muted)'}">
                 ${i + 1 < step ? '✓' : i + 1}
               </div>
               <span style="font-size:10px;font-weight:600;color:${i + 1 <= step ? 'var(--text)' : 'var(--muted)'}">${st}</span>
             </div>
-            ${i < steps.length - 1 ? `<div style="flex:1;height:2px;background:${i + 1 < step ? 'var(--pink)' : 'var(--border)'};margin-bottom:1.2rem"></div>` : ''}
+            ${i < steps.length - 1 ? `<div style="flex:1;height:2px;background:${i + 1 < step ? 'var(--gold)' : 'var(--border)'};margin-bottom:1.2rem"></div>` : ''}
           </div>`).join('')}
       </div>
 
       ${step === 1 ? `
       <div class="card" style="margin-bottom:1rem">
         <div class="section-title">Selected Tier</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:.85rem;background:rgba(233,30,140,.04);border-radius:10px;border:1.5px solid rgba(233,30,140,.2)">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:.85rem;background:rgba(200,168,75,.04);border-radius:10px;border:1.5px solid rgba(200,168,75,.2)">
           <div><div style="font-weight:700;color:var(--text)">${tier.name}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${tier.token.toLocaleString()} ${p.token} · ${tier.perks.length} perks</div></div>
-          <div style="font-size:1.25rem;font-weight:900;color:var(--pink)">$${tier.price} USDC</div>
+          <div style="font-size:1.25rem;font-weight:900;color:var(--gold)">$${tier.price} USDC</div>
         </div>
         <div style="margin-top:.85rem">
           <div class="section-title">Change Tier</div>
-          ${p.tiers.map((t, i) => `<div onclick="renderInvestCheckout(PROJECT_DETAIL['${p.id}'],${i})" style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .75rem;border-radius:8px;border:1px solid ${i === tierIdx ? 'var(--pink)' : 'var(--border)'};margin-bottom:.4rem;cursor:pointer;transition:all .15s" onmouseenter="this.style.borderColor='var(--pink)'" onmouseleave="this.style.borderColor='${i === tierIdx ? 'var(--pink)' : 'var(--border)'}'">
+          ${p.tiers.map((t, i) => `<div onclick="renderInvestCheckout(PROJECT_DETAIL['${p.id}'],${i})" style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .75rem;border-radius:8px;border:1px solid ${i === tierIdx ? 'var(--gold)' : 'var(--border)'};margin-bottom:.4rem;cursor:pointer;transition:all .15s" onmouseenter="this.style.borderColor='var(--gold)'" onmouseleave="this.style.borderColor='${i === tierIdx ? 'var(--gold)' : 'var(--border)'}'">
             <span style="font-size:12px;font-weight:600;color:var(--text)">${t.name}</span>
             <span style="font-size:12px;font-weight:700;color:${t.color}">$${t.price}</span>
           </div>`).join('')}
         </div>
       </div>
-      <button onclick="(function(){${`renderInvestCheckoutStep2(PROJECT_DETAIL['${p.id}'],${tierIdx})`}})()" style="width:100%;padding:.85rem;background:var(--pink);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Continue to Payment →</button>
+      <button onclick="(function(){${`renderInvestCheckoutStep2(PROJECT_DETAIL['${p.id}'],${tierIdx})`}})()" style="width:100%;padding:.85rem;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Continue to Payment →</button>
       ` : ''}
 
       ${step === 2 ? `
       <div class="card" style="margin-bottom:1rem">
         <div style="display:flex;justify-content:space-between;margin-bottom:1rem;padding-bottom:.85rem;border-bottom:1px solid var(--border)">
           <span style="font-size:13px;font-weight:600;color:var(--text)">${tier.name}</span>
-          <span style="font-size:13px;font-weight:700;color:var(--pink)">$${tier.price} USDC</span>
+          <span style="font-size:13px;font-weight:700;color:var(--gold)">$${tier.price} USDC</span>
         </div>
         <div class="section-title">Payment Method</div>
         <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem">
-          <div style="border:2px solid var(--pink);border-radius:10px;padding:.85rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;background:rgba(233,30,140,.03)">
+          <div style="border:2px solid var(--gold);border-radius:10px;padding:.85rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;background:rgba(200,168,75,.03)">
             <div style="width:34px;height:34px;border-radius:8px;background:#0052FF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff">B</div>
             <div style="flex:1"><div style="font-weight:600;font-size:13px;color:var(--text)">Base Network USDC</div><div style="font-size:11px;color:var(--muted)">~$0.001 gas · Instant settlement</div></div>
             <span class="badge badge-live">Recommended</span>
@@ -361,7 +360,7 @@ function renderInvestCheckout(p, tierIdx) {
           ${walletConnected ? '<span class="badge badge-live">Connected</span>' : `<button onclick="toggleWallet();renderInvestCheckout(PROJECT_DETAIL['${p.id}'],${tierIdx})" class="tb-btn primary" style="font-size:10px;padding:.2rem .65rem">Connect</button>`}
         </div>
       </div>
-      <button onclick="renderInvestCheckoutStep3(PROJECT_DETAIL['${p.id}'],${tierIdx})" style="width:100%;padding:.85rem;background:var(--pink);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Review & Confirm →</button>
+      <button onclick="renderInvestCheckoutStep3(PROJECT_DETAIL['${p.id}'],${tierIdx})" style="width:100%;padding:.85rem;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Review & Confirm →</button>
       <button onclick="renderInvestCheckout(PROJECT_DETAIL['${p.id}'],${tierIdx})" style="width:100%;padding:.65rem;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-top:.5rem">← Back</button>
       ` : ''}
 
@@ -369,10 +368,10 @@ function renderInvestCheckout(p, tierIdx) {
       <div class="card" style="margin-bottom:1rem">
         <div class="section-title">Order Summary</div>
         ${[['Project', p.name], ['Tier', tier.name], ['Amount', `$${tier.price} USDC`], [`${p.token} Received`, `${tier.token.toLocaleString()} ${p.token}`], ['Network', 'Base'], ['Gas', '~$0.001'],].map(([l, v]) => `<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(229,231,235,.5);font-size:12px"><span style="color:var(--muted)">${l}</span><span style="font-weight:600;color:var(--text)">${v}</span></div>`).join('')}
-        <div style="display:flex;justify-content:space-between;padding:.65rem 0;font-size:13px"><span style="font-weight:700;color:var(--text)">Total</span><span style="font-weight:800;color:var(--pink)">$${tier.price} USDC</span></div>
+        <div style="display:flex;justify-content:space-between;padding:.65rem 0;font-size:13px"><span style="font-weight:700;color:var(--text)">Total</span><span style="font-weight:800;color:var(--gold)">$${tier.price} USDC</span></div>
         <div style="background:rgba(22,163,74,.04);border:1px solid rgba(22,163,74,.2);border-radius:8px;padding:.75rem;font-size:11px;color:var(--muted);line-height:1.5;margin-top:.5rem">🔒 Funds held in escrow until project milestones are met. Refundable if project does not launch.</div>
       </div>
-      <button onclick="confirmInvestment('${p.id}','${tier.name}',${tier.price},${tier.token},'${p.token}')" style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--pink),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Confirm & Back Project →</button>
+      <button onclick="confirmInvestment('${p.id}','${tier.name}',${tier.price},${tier.token},'${p.token}')" style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Confirm & Back Project →</button>
       <button onclick="renderInvestCheckoutStep2(PROJECT_DETAIL['${p.id}'],${tierIdx})" style="width:100%;padding:.65rem;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-top:.5rem">← Back</button>
       ` : ''}
     </div>`;
@@ -396,13 +395,13 @@ function renderInvestStep(p, tier, tierIdx, step) {
     const el = document.getElementById('investBody');
     if (!el) return;
     const steps = ['Select Tier', 'Payment', 'Confirm'];
-    const stepBar = `<div style="display:flex;align-items:center;gap:0;margin-bottom:2rem">${steps.map((st, i) => `<div style="flex:1;display:flex;align-items:center;gap:0"><div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;min-width:80px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;border:2px solid ${i + 1 <= step ? 'var(--pink)' : 'var(--border)'};background:${i + 1 < step ? 'var(--pink)' : i + 1 === step ? 'rgba(233,30,140,.1)' : 'transparent'};color:${i + 1 <= step ? 'var(--pink)' : 'var(--muted)'}">${i + 1 < step ? '✓' : i + 1}</div><span style="font-size:10px;font-weight:600;color:${i + 1 <= step ? 'var(--text)' : 'var(--muted)'}">${st}</span></div>${i < steps.length - 1 ? `<div style="flex:1;height:2px;background:${i + 1 < step ? 'var(--pink)' : 'var(--border)'};margin-bottom:1.2rem"></div>` : ''}</div>`).join('')}</div>`;
+    const stepBar = `<div style="display:flex;align-items:center;gap:0;margin-bottom:2rem">${steps.map((st, i) => `<div style="flex:1;display:flex;align-items:center;gap:0"><div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;min-width:80px"><div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;border:2px solid ${i + 1 <= step ? 'var(--gold)' : 'var(--border)'};background:${i + 1 < step ? 'var(--gold)' : i + 1 === step ? 'rgba(200,168,75,.1)' : 'transparent'};color:${i + 1 <= step ? 'var(--gold)' : 'var(--muted)'}">${i + 1 < step ? '✓' : i + 1}</div><span style="font-size:10px;font-weight:600;color:${i + 1 <= step ? 'var(--text)' : 'var(--muted)'}">${st}</span></div>${i < steps.length - 1 ? `<div style="flex:1;height:2px;background:${i + 1 < step ? 'var(--gold)' : 'var(--border)'};margin-bottom:1.2rem"></div>` : ''}</div>`).join('')}</div>`;
     if (step === 2) {
         el.innerHTML = `<div style="max-width:560px;margin:0 auto 2rem">${stepBar}
     <div class="card" style="margin-bottom:1rem">
-      <div style="display:flex;justify-content:space-between;margin-bottom:1rem;padding-bottom:.85rem;border-bottom:1px solid var(--border)"><span style="font-size:13px;font-weight:600;color:var(--text)">${tier.name}</span><span style="font-size:13px;font-weight:700;color:var(--pink)">$${tier.price} USDC</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:1rem;padding-bottom:.85rem;border-bottom:1px solid var(--border)"><span style="font-size:13px;font-weight:600;color:var(--text)">${tier.name}</span><span style="font-size:13px;font-weight:700;color:var(--gold)">$${tier.price} USDC</span></div>
       <div class="section-title">Payment Method</div>
-      <div style="border:2px solid var(--pink);border-radius:10px;padding:.85rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;background:rgba(233,30,140,.03);margin-bottom:.5rem">
+      <div style="border:2px solid var(--gold);border-radius:10px;padding:.85rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;background:rgba(200,168,75,.03);margin-bottom:.5rem">
         <div style="width:34px;height:34px;border-radius:8px;background:#0052FF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff">B</div>
         <div style="flex:1"><div style="font-weight:600;font-size:13px;color:var(--text)">Base Network USDC</div><div style="font-size:11px;color:var(--muted)">~$0.001 gas · Instant</div></div>
         <span class="badge badge-live">Selected</span>
@@ -413,7 +412,7 @@ function renderInvestStep(p, tier, tierIdx, step) {
         ${walletConnected ? '<span class="badge badge-live">Connected</span>' : `<button onclick="toggleWallet()" class="tb-btn primary" style="font-size:10px;padding:.2rem .65rem">Connect</button>`}
       </div>
     </div>
-    <button onclick="renderInvestStep(PROJECT_DETAIL['${p.id}'],PROJECT_DETAIL['${p.id}'].tiers[${tierIdx}],${tierIdx},3)" style="width:100%;padding:.85rem;background:var(--pink);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Review & Confirm →</button>
+    <button onclick="renderInvestStep(PROJECT_DETAIL['${p.id}'],PROJECT_DETAIL['${p.id}'].tiers[${tierIdx}],${tierIdx},3)" style="width:100%;padding:.85rem;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Review & Confirm →</button>
     <button onclick="renderInvestCheckout(PROJECT_DETAIL['${p.id}'],${tierIdx})" style="width:100%;padding:.65rem;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-top:.5rem">← Back</button>
     </div>`;
     } else if (step === 3) {
@@ -421,16 +420,15 @@ function renderInvestStep(p, tier, tierIdx, step) {
     <div class="card" style="margin-bottom:1rem">
       <div class="section-title">Order Summary</div>
       ${[['Project', p.name], ['Tier', tier.name], ['Amount', `$${tier.price} USDC`], [`${p.token} Received`, `${tier.token.toLocaleString()} ${p.token}`], ['Network', 'Base'], ['Gas', '~$0.001']].map(([l, v]) => `<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(229,231,235,.5);font-size:12px"><span style="color:var(--muted)">${l}</span><span style="font-weight:600;color:var(--text)">${v}</span></div>`).join('')}
-      <div style="display:flex;justify-content:space-between;padding:.65rem 0;font-size:13px"><span style="font-weight:700">Total</span><span style="font-weight:800;color:var(--pink)">$${tier.price} USDC</span></div>
+      <div style="display:flex;justify-content:space-between;padding:.65rem 0;font-size:13px"><span style="font-weight:700">Total</span><span style="font-weight:800;color:var(--gold)">$${tier.price} USDC</span></div>
       <div style="background:rgba(22,163,74,.04);border:1px solid rgba(22,163,74,.2);border-radius:8px;padding:.75rem;font-size:11px;color:var(--muted);line-height:1.5;margin-top:.5rem">🔒 Funds held in escrow. Refundable if project does not launch by milestone date.</div>
     </div>
-    <button onclick="confirmInvestment('${p.id}','${tier.name}',${tier.price},${tier.token},'${p.token}')" style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--pink),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Confirm & Back Project →</button>
+    <button onclick="confirmInvestment('${p.id}','${tier.name}',${tier.price},${tier.token},'${p.token}')" style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Confirm & Back Project →</button>
     <button onclick="renderInvestStep(PROJECT_DETAIL['${p.id}'],PROJECT_DETAIL['${p.id}'].tiers[${tierIdx}],${tierIdx},2)" style="width:100%;padding:.65rem;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-top:.5rem">← Back</button>
     </div>`;
     }
 }
 
-function renderInvestCheckoutStep2(p, tierIdx) { renderInvestStep(p, p.tiers[tierIdx], tierIdx, 2); }
 function renderInvestCheckoutStep3(p, tierIdx) { renderInvestStep(p, p.tiers[tierIdx], tierIdx, 3); }
 
 function confirmInvestment(projId, tierName, amount, tokens, token) {
@@ -505,8 +503,8 @@ function renderBlogDrafts() {
         el.innerHTML = `<div class="card" style="text-align:center;padding:3rem"><div style="font-size:2rem;margin-bottom:.75rem">📝</div><div style="font-weight:600;color:var(--text)">No drafts yet</div><div style="font-size:12px;color:var(--muted);margin-top:.3rem">Start writing your first article.</div><button class="tb-btn primary" style="margin-top:1rem" onclick="navigate('blog-compose',null)">+ New Article</button></div>`;
         return;
     }
-    const catStyle = { intelligence: 'background:rgba(233,30,140,.1);color:var(--pink)', sovereignty: 'background:rgba(0,212,255,.1);color:var(--cyan2)', dispatch: 'background:rgba(255,184,0,.1);color:var(--gold2)', signal: 'background:rgba(99,102,241,.1);color:#6366f1' };
-    el.innerHTML = all.map(d => `<div style="display:flex;align-items:center;gap:.75rem;padding:.85rem;border-radius:10px;border:1px solid var(--border);background:var(--card);margin-bottom:.6rem;transition:all .15s" onmouseenter="this.style.borderColor='rgba(233,30,140,.3)'" onmouseleave="this.style.borderColor='var(--border)'">
+    const catStyle = { intelligence: 'background:rgba(200,168,75,.1);color:var(--gold)', sovereignty: 'background:rgba(0,212,255,.1);color:var(--cyan2)', dispatch: 'background:rgba(255,184,0,.1);color:var(--gold2)', signal: 'background:rgba(99,102,241,.1);color:#6366f1' };
+    el.innerHTML = all.map(d => `<div style="display:flex;align-items:center;gap:.75rem;padding:.85rem;border-radius:10px;border:1px solid var(--border);background:var(--card);margin-bottom:.6rem;transition:all .15s" onmouseenter="this.style.borderColor='rgba(200,168,75,.3)'" onmouseleave="this.style.borderColor='var(--border)'">
     <span class="article-cat" style="${catStyle[d.cat] || catStyle.intelligence}">${(d.cat || '').slice(0, 4)}</span>
     <div style="flex:1;min-width:0">
       <div style="font-weight:700;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.title}</div>
@@ -528,7 +526,7 @@ async function blogAiAssist(type) {
     const title = document.getElementById('blogTitle')?.value || '';
     const content = document.getElementById('blogContent')?.value || '';
     const prompts = {
-        headline: `You are Quanta S, Supercompute's Web3 content agent. Generate 3 punchy headline options for an article. Current title: "${title || 'Untitled'}". Return a numbered list only.`,
+        headline: `You are Quanta S, QUANTA's Web3 content agent. Generate 3 punchy headline options for an article. Current title: "${title || 'Untitled'}". Return a numbered list only.`,
         expand: `You are Quanta S, a Web3 intelligence agent. Expand this draft into a well-structured article with h3 headers. Keep the voice direct and technical. Draft: "${content.slice(0, 500) || title}"`,
         excerpt: `Write a 2-sentence compelling excerpt for a Web3 article titled: "${title}". Be direct, specific, and use the language of operators and builders.`,
         tags: `Generate 5 concise SEO tags for a Web3 article titled "${title}". Return comma-separated, no hashes.`
@@ -567,7 +565,7 @@ function updateWordCount() {
 /* ━━━ BOOKING FLOW ━━━ */
 const BOOKING_SERVICES = [
     { id: 'defi', name: 'DeFi Onboarding', price: 200, dur: '2 hrs', desc: 'Wallet setup, protocol walkthrough, security best practices. Perfect for founders entering Web3 for the first time.', perks: ['MetaMask + hardware wallet setup', 'Base Chain walkthrough', 'First on-chain transaction', 'Security checklist'], color: 'var(--cyan2)' },
-    { id: 'agent', name: 'Agent Automation', price: 300, dur: '2 hrs', desc: 'Design your 1-human + AI agent workflow. OpenClaw setup, Linear integration, and full automation strategy for your team.', perks: ['OpenClaw setup & training', 'Linear MCP integration', 'Custom automation playbook', '30-day follow-up support'], color: 'var(--pink)', popular: true },
+    { id: 'agent', name: 'Agent Automation', price: 300, dur: '2 hrs', desc: 'Design your 1-human + AI agent workflow. OpenClaw setup, Linear integration, and full automation strategy for your team.', perks: ['OpenClaw setup & training', 'Linear MCP integration', 'Custom automation playbook', '30-day follow-up support'], color: 'var(--gold)', popular: true },
     { id: 'refi', name: 'ReFi Strategy', price: 350, dur: '3 hrs', desc: 'Regenerative finance deep dive. Impact investing, green infrastructure on-chain, community treasury design.', perks: ['ReFi protocol overview', 'Carbon credit mechanics on Base', 'Community treasury setup', 'Impact framework design'], color: 'var(--success)' },
     { id: 'protocol', name: 'Protocol Deep Dive', price: 450, dur: '4 hrs', desc: 'Smart contract review, tokenomics design, L2 deployment on Base, and full go-to-market strategy.', perks: ['Smart contract architecture review', 'Tokenomics modeling', 'Base deployment walkthrough', 'GTM strategy + deck'], color: 'var(--gold2)' },
     { id: 'retainer', name: 'Monthly Retainer', price: 1200, dur: 'Ongoing', desc: 'Monthly autonomous community management. Social ops, content calendar, analytics reports, and on-chain governance facilitation.', perks: ['Full social ops management', 'Weekly analytics report', 'Content calendar + execution', 'Monthly strategy call'], color: '#8b5cf6' }
@@ -589,14 +587,14 @@ function renderBookingStep(step) {
     const el = document.getElementById('bookingBody');
     if (!el) return;
     const steps = ['Service', 'Schedule', 'Details', 'Confirm'];
-    const bar = `<div style="display:flex;align-items:center;max-width:600px;margin:0 auto 2rem">${steps.map((s, i) => `<div style="flex:1;display:flex;align-items:center"><div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;width:70px"><div style="width:30px;height:30px;border-radius:50%;border:2px solid ${i + 1 <= step ? 'var(--pink)' : 'var(--border)'};background:${i + 1 < step ? 'var(--pink)' : i + 1 === step ? 'rgba(233,30,140,.1)' : 'transparent'};color:${i + 1 <= step ? 'var(--pink)' : 'var(--muted)'};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px">${i + 1 < step ? '✓' : i + 1}</div><span style="font-size:10px;font-weight:600;color:${i + 1 <= step ? 'var(--text)' : 'var(--muted)'};white-space:nowrap">${s}</span></div>${i < steps.length - 1 ? `<div style="flex:1;height:2px;background:${i + 1 < step ? 'var(--pink)' : 'var(--border)'};margin-bottom:1.2rem"></div>` : ''}</div>`).join('')}</div>`;
+    const bar = `<div style="display:flex;align-items:center;max-width:600px;margin:0 auto 2rem">${steps.map((s, i) => `<div style="flex:1;display:flex;align-items:center"><div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;width:70px"><div style="width:30px;height:30px;border-radius:50%;border:2px solid ${i + 1 <= step ? 'var(--gold)' : 'var(--border)'};background:${i + 1 < step ? 'var(--gold)' : i + 1 === step ? 'rgba(200,168,75,.1)' : 'transparent'};color:${i + 1 <= step ? 'var(--gold)' : 'var(--muted)'};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px">${i + 1 < step ? '✓' : i + 1}</div><span style="font-size:10px;font-weight:600;color:${i + 1 <= step ? 'var(--text)' : 'var(--muted)'};white-space:nowrap">${s}</span></div>${i < steps.length - 1 ? `<div style="flex:1;height:2px;background:${i + 1 < step ? 'var(--gold)' : 'var(--border)'};margin-bottom:1.2rem"></div>` : ''}</div>`).join('')}</div>`;
 
     if (step === 1) {
         el.innerHTML = `<div style="max-width:700px;margin:0 auto">${bar}
     <h3 style="font-weight:800;font-size:1rem;color:var(--text);margin-bottom:1rem;text-align:center">Select a Service</h3>
     <div style="display:flex;flex-direction:column;gap:.85rem">
-      ${BOOKING_SERVICES.map(s => `<div onclick="bookingState.service=BOOKING_SERVICES.find(x=>x.id==='${s.id}');renderBookingStep(2)" style="border:2px solid ${bookingState.service?.id === s.id ? s.color : 'var(--border)'};border-radius:12px;padding:1.1rem 1.25rem;cursor:pointer;transition:all .2s;position:relative;background:${bookingState.service?.id === s.id ? 'rgba(233,30,140,.02)' : 'var(--card)'}" onmouseenter="this.style.borderColor='${s.color}'" onmouseleave="this.style.borderColor='${bookingState.service?.id === s.id ? s.color : 'var(--border)'}'">
-        ${s.popular ? `<div style="position:absolute;top:-1px;right:16px;background:var(--pink);color:#fff;font-size:9px;font-weight:700;padding:.2rem .75rem;border-radius:0 0 8px 8px;letter-spacing:.5px">Most Requested</div>` : ''}
+      ${BOOKING_SERVICES.map(s => `<div onclick="bookingState.service=BOOKING_SERVICES.find(x=>x.id==='${s.id}');renderBookingStep(2)" style="border:2px solid ${bookingState.service?.id === s.id ? s.color : 'var(--border)'};border-radius:12px;padding:1.1rem 1.25rem;cursor:pointer;transition:all .2s;position:relative;background:${bookingState.service?.id === s.id ? 'rgba(200,168,75,.02)' : 'var(--card)'}" onmouseenter="this.style.borderColor='${s.color}'" onmouseleave="this.style.borderColor='${bookingState.service?.id === s.id ? s.color : 'var(--border)'}'">
+        ${s.popular ? `<div style="position:absolute;top:-1px;right:16px;background:var(--gold);color:#fff;font-size:9px;font-weight:700;padding:.2rem .75rem;border-radius:0 0 8px 8px;letter-spacing:.5px">Most Requested</div>` : ''}
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem">
           <div style="flex:1">
             <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem">
@@ -625,35 +623,35 @@ function renderBookingStep(step) {
         }
         const times = ['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'];
         el.innerHTML = `<div style="max-width:600px;margin:0 auto">${bar}
-    <div style="display:flex;align-items:center;gap:.75rem;background:rgba(233,30,140,.04);border:1px solid rgba(233,30,140,.15);border-radius:10px;padding:.85rem 1rem;margin-bottom:1.5rem">
+    <div style="display:flex;align-items:center;gap:.75rem;background:rgba(200,168,75,.04);border:1px solid rgba(200,168,75,.15);border-radius:10px;padding:.85rem 1rem;margin-bottom:1.5rem">
       <div style="font-weight:700;font-size:13px;color:var(--text)">${svc.name}</div>
-      <span style="font-size:13px;font-weight:800;color:var(--pink);margin-left:auto">$${svc.price}</span>
+      <span style="font-size:13px;font-weight:800;color:var(--gold);margin-left:auto">$${svc.price}</span>
     </div>
     <div class="grid2" style="gap:1.25rem">
       <div class="card">
         <div class="section-title">Select Date</div>
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem">
-          ${dates.map(d => { const key = d.toISOString().split('T')[0]; const lbl = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); return `<div onclick="bookingState.date='${key}';document.querySelectorAll('.date-slot').forEach(x=>x.style.background='transparent');document.querySelectorAll('.date-slot').forEach(x=>x.style.borderColor='var(--border)');this.style.background='rgba(233,30,140,.08)';this.style.borderColor='var(--pink)'" class="date-slot" style="padding:.6rem;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;text-align:center;font-size:11px;font-weight:600;color:var(--text);transition:all .15s">${lbl}</div>`; }).join('')}
+          ${dates.map(d => { const key = d.toISOString().split('T')[0]; const lbl = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); return `<div onclick="bookingState.date='${key}';document.querySelectorAll('.date-slot').forEach(x=>x.style.background='transparent');document.querySelectorAll('.date-slot').forEach(x=>x.style.borderColor='var(--border)');this.style.background='rgba(200,168,75,.08)';this.style.borderColor='var(--gold)'" class="date-slot" style="padding:.6rem;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;text-align:center;font-size:11px;font-weight:600;color:var(--text);transition:all .15s">${lbl}</div>`; }).join('')}
         </div>
       </div>
       <div class="card">
         <div class="section-title">Select Time (PT)</div>
         <div style="display:flex;flex-direction:column;gap:.4rem">
-          ${times.map(t => `<div onclick="bookingState.time='${t}';document.querySelectorAll('.time-slot').forEach(x=>x.style.background='transparent');document.querySelectorAll('.time-slot').forEach(x=>x.style.borderColor='var(--border)');this.style.background='rgba(233,30,140,.08)';this.style.borderColor='var(--pink)'" class="time-slot" style="padding:.55rem .85rem;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;font-size:12px;font-weight:600;color:var(--text);transition:all .15s">${t} PT</div>`).join('')}
+          ${times.map(t => `<div onclick="bookingState.time='${t}';document.querySelectorAll('.time-slot').forEach(x=>x.style.background='transparent');document.querySelectorAll('.time-slot').forEach(x=>x.style.borderColor='var(--border)');this.style.background='rgba(200,168,75,.08)';this.style.borderColor='var(--gold)'" class="time-slot" style="padding:.55rem .85rem;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;font-size:12px;font-weight:600;color:var(--text);transition:all .15s">${t} PT</div>`).join('')}
         </div>
       </div>
     </div>
     <div style="margin-top:1.25rem;display:flex;gap:.75rem">
       <button onclick="renderBookingStep(1)" class="tb-btn" style="flex:0 0 auto">← Back</button>
-      <button onclick="if(!bookingState.date||!bookingState.time){showToast('Select a date and time');return;}renderBookingStep(3)" style="flex:1;padding:.85rem;background:var(--pink);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Continue →</button>
+      <button onclick="if(!bookingState.date||!bookingState.time){showToast('Select a date and time');return;}renderBookingStep(3)" style="flex:1;padding:.85rem;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Continue →</button>
     </div></div>`;
     } else if (step === 3) {
         const svc = bookingState.service;
         const dateStr = bookingState.date ? new Date(bookingState.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : '—';
         el.innerHTML = `<div style="max-width:560px;margin:0 auto">${bar}
-    <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(233,30,140,.04);border:1px solid rgba(233,30,140,.15);border-radius:10px;padding:.85rem 1rem;margin-bottom:1.5rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(200,168,75,.04);border:1px solid rgba(200,168,75,.15);border-radius:10px;padding:.85rem 1rem;margin-bottom:1.5rem">
       <div><div style="font-weight:700;font-size:13px;color:var(--text)">${svc.name}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${dateStr} · ${bookingState.time} PT</div></div>
-      <span style="font-size:1.1rem;font-weight:800;color:var(--pink)">$${svc.price}</span>
+      <span style="font-size:1.1rem;font-weight:800;color:var(--gold)">$${svc.price}</span>
     </div>
     <div class="card" style="margin-bottom:1rem">
       <div class="section-title">Your Details</div>
@@ -665,7 +663,7 @@ function renderBookingStep(step) {
     </div>
     <div style="display:flex;gap:.75rem">
       <button onclick="renderBookingStep(2)" class="tb-btn" style="flex:0 0 auto">← Back</button>
-      <button onclick="submitBooking()" style="flex:1;padding:.85rem;background:var(--pink);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Review Booking →</button>
+      <button onclick="submitBooking()" style="flex:1;padding:.85rem;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Review Booking →</button>
     </div></div>`;
     } else if (step === 4) {
         const svc = bookingState.service;
@@ -683,7 +681,7 @@ function renderBookingStep(step) {
       💳 Payment of <strong>$${svc.price}</strong> is due at time of session via USDC on Base or Stripe.<br>
       📅 Cancellations accepted up to 24h before session.
     </div>
-    <button onclick="confirmBooking('${svc.id}')" style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--pink),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Confirm Booking →</button>
+    <button onclick="confirmBooking('${svc.id}')" style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Confirm Booking →</button>
     <button onclick="renderBookingStep(3)" style="width:100%;padding:.65rem;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-top:.5rem">← Edit Details</button>
     </div>`;
     }
@@ -702,7 +700,7 @@ function confirmBooking(serviceId) {
     const el = document.getElementById('bookingBody');
     if (!el) return;
     el.innerHTML = `<div style="max-width:480px;margin:3rem auto;text-align:center">
-    <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 1.25rem;animation:fadeUp .5s ease">📅</div>
+    <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 1.25rem;animation:fadeUp .5s ease">📅</div>
     <h2 style="font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Booking Confirmed!</h2>
     <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.7">You're booked for <strong>${svc?.name}</strong>.<br>Check your email for the calendar invite.</p>
     <div class="card" style="text-align:left;margin-bottom:1.25rem">
@@ -728,7 +726,7 @@ function renderPubProjectsEnhanced() {
         <span style="font-weight:700;color:var(--text)">${p.name}</span>
         <span class="badge ${p.bc}">${p.badge}</span>
       </div>
-      <div style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:.7rem">${p.desc}${p.coin !== '—' ? ` <span style="color:var(--pink);font-weight:700">${p.coin}</span>` : ''}</div>
+      <div style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:.7rem">${p.desc}${p.coin !== '—' ? ` <span style="color:var(--gold);font-weight:700">${p.coin}</span>` : ''}</div>
       ${p.goal > 0 ? `<div style="font-size:10px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:.25rem"><span>$${p.raised.toLocaleString()} raised</span><span>$${(p.goal / 1000).toFixed(0)}k goal</span></div><div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>` : ''}
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.75rem">
         <span style="font-size:10px;color:var(--muted);font-family:monospace">${p.repo}</span>
@@ -763,10 +761,10 @@ function renderProjectForm(step) {
         bar.innerHTML = steps.map((s, i) => `
       <div style="flex:1;display:flex;align-items:center">
         <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;min-width:72px">
-          <div style="width:30px;height:30px;border-radius:50%;border:2px solid ${i + 1 <= step ? 'var(--pink)' : 'var(--border)'};background:${i + 1 < step ? 'var(--pink)' : i + 1 === step ? 'rgba(233,30,140,.1)' : 'transparent'};color:${i + 1 <= step ? 'var(--pink)' : 'var(--muted)'};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px">${i + 1 < step ? '✓' : i + 1}</div>
+          <div style="width:30px;height:30px;border-radius:50%;border:2px solid ${i + 1 <= step ? 'var(--gold)' : 'var(--border)'};background:${i + 1 < step ? 'var(--gold)' : i + 1 === step ? 'rgba(200,168,75,.1)' : 'transparent'};color:${i + 1 <= step ? 'var(--gold)' : 'var(--muted)'};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px">${i + 1 < step ? '✓' : i + 1}</div>
           <span style="font-size:10px;font-weight:600;color:${i + 1 <= step ? 'var(--text)' : 'var(--muted)'};white-space:nowrap">${s}</span>
         </div>
-        ${i < steps.length - 1 ? `<div style="flex:1;height:2px;background:${i + 1 < step ? 'var(--pink)' : 'var(--border)'};margin-bottom:1.2rem"></div>` : ''}
+        ${i < steps.length - 1 ? `<div style="flex:1;height:2px;background:${i + 1 < step ? 'var(--gold)' : 'var(--border)'};margin-bottom:1.2rem"></div>` : ''}
       </div>`).join('');
     }
 
@@ -807,19 +805,19 @@ function renderProjectForm(step) {
           <div class="section-title">Project Status</div>
           <div style="display:flex;flex-direction:column;gap:.5rem">
             ${[['concept', 'Just an idea — gathering interest'], ['building', 'Actively building — need backing'], ['launched', 'Live — expanding the community'], ['paused', 'On hold — returning soon']].map(([v, l]) => `
-            <label style="display:flex;align-items:center;gap:.75rem;padding:.65rem;border-radius:8px;border:1.5px solid ${(d.status || 'building') === v ? 'var(--pink)' : 'var(--border)'};cursor:pointer;transition:all .15s" onclick="document.querySelectorAll('.status-opt').forEach(x=>x.style.borderColor='var(--border)');this.style.borderColor='var(--pink)';projectFormState.data.status='${v}'" class="status-opt">
-              <div style="width:16px;height:16px;border-radius:50%;border:2px solid ${(d.status || 'building') === v ? 'var(--pink)' : 'var(--border)'};background:${(d.status || 'building') === v ? 'var(--pink)' : 'transparent'};flex-shrink:0"></div>
+            <label style="display:flex;align-items:center;gap:.75rem;padding:.65rem;border-radius:8px;border:1.5px solid ${(d.status || 'building') === v ? 'var(--gold)' : 'var(--border)'};cursor:pointer;transition:all .15s" onclick="document.querySelectorAll('.status-opt').forEach(x=>x.style.borderColor='var(--border)');this.style.borderColor='var(--gold)';projectFormState.data.status='${v}'" class="status-opt">
+              <div style="width:16px;height:16px;border-radius:50%;border:2px solid ${(d.status || 'building') === v ? 'var(--gold)' : 'var(--border)'};background:${(d.status || 'building') === v ? 'var(--gold)' : 'transparent'};flex-shrink:0"></div>
               <div><div style="font-weight:600;font-size:12px;color:var(--text);text-transform:capitalize">${v}</div><div style="font-size:11px;color:var(--muted)">${l}</div></div>
             </label>`).join('')}
           </div>
         </div>
-        <div class="card" style="background:rgba(233,30,140,.03);border-color:rgba(233,30,140,.15)">
-          <div style="font-size:12px;color:var(--muted);line-height:1.6"><strong style="color:var(--text)">What happens after submission?</strong><br><br>Your project goes into review. Once approved by the Supercompute team, it appears on the public Projects page. Backers can then fund it through the platform.</div>
+        <div class="card" style="background:rgba(200,168,75,.03);border-color:rgba(200,168,75,.15)">
+          <div style="font-size:12px;color:var(--muted);line-height:1.6"><strong style="color:var(--text)">What happens after submission?</strong><br><br>Your project goes into review. Once approved by the QUANTA team, it appears on the public Projects page. Backers can then fund it through the platform.</div>
         </div>
       </div>
     </div>
     <div style="margin-top:1.25rem;display:flex;justify-content:flex-end">
-      <button onclick="projFormNext(1)" style="padding:.8rem 2rem;background:var(--pink);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Next: Project Details →</button>
+      <button onclick="projFormNext(1)" style="padding:.8rem 2rem;background:var(--gold);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Next: Project Details →</button>
     </div>`;
     } else if (step === 2) {
         el.innerHTML = `
@@ -858,7 +856,7 @@ function renderProjectForm(step) {
     </div>
     <div style="display:flex;gap:.75rem;justify-content:space-between">
       <button onclick="renderProjectForm(1)" class="tb-btn">← Back</button>
-      <button onclick="projFormNext(2)" style="padding:.8rem 2rem;background:var(--pink);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Next: Token & Funding →</button>
+      <button onclick="projFormNext(2)" style="padding:.8rem 2rem;background:var(--gold);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Next: Token & Funding →</button>
     </div>`;
         if (!projectFormState.data.team) projectFormState.data.team = [{ name: '', role: '' }];
         if (!projectFormState.data.milestones) projectFormState.data.milestones = [{ date: '', title: '', desc: '' }];
@@ -894,7 +892,7 @@ function renderProjectForm(step) {
     </div>
     <div style="display:flex;gap:.75rem;justify-content:space-between">
       <button onclick="renderProjectForm(2)" class="tb-btn">← Back</button>
-      <button onclick="projFormNext(3)" style="padding:.8rem 2rem;background:var(--pink);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Next: Backing Tiers →</button>
+      <button onclick="projFormNext(3)" style="padding:.8rem 2rem;background:var(--gold);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Next: Backing Tiers →</button>
     </div>`;
     } else if (step === 4) {
         if (!projectFormState.data.tiers) projectFormState.data.tiers = [
@@ -928,14 +926,14 @@ function renderProjectForm(step) {
     </div>
     <div style="display:flex;gap:.75rem;justify-content:space-between">
       <button onclick="renderProjectForm(3)" class="tb-btn">← Back</button>
-      <button onclick="projFormNext(4)" style="padding:.8rem 2rem;background:var(--pink);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Next: Review →</button>
+      <button onclick="projFormNext(4)" style="padding:.8rem 2rem;background:var(--gold);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Next: Review →</button>
     </div>`;
     } else if (step === 5) {
         const d = projectFormState.data;
         el.innerHTML = `
     <div class="card" style="margin-bottom:1.25rem">
       <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
-        <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0">${(d.name || '?')[0]}</div>
+        <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0">${(d.name || '?')[0]}</div>
         <div><div style="font-weight:800;font-size:1.1rem;color:var(--text)">${d.name || 'Untitled Project'}</div><div style="font-size:12px;color:var(--muted)">${d.tagline || 'No tagline'}</div></div>
         <span class="badge badge-progress" style="margin-left:auto">Pending Review</span>
       </div>
@@ -952,11 +950,11 @@ function renderProjectForm(step) {
       </div>
     </div>
     <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.2);border-radius:10px;padding:.85rem;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">
-      ⚠️ Submissions are reviewed by the Supercompute team within 48 hours. You'll receive an email confirmation once approved.
+      ⚠️ Submissions are reviewed by the QUANTA team within 48 hours. You'll receive an email confirmation once approved.
     </div>
     <div style="display:flex;gap:.75rem;justify-content:space-between">
       <button onclick="renderProjectForm(4)" class="tb-btn">← Edit Tiers</button>
-      <button onclick="submitProject()" style="padding:.8rem 2rem;background:linear-gradient(135deg,var(--pink),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Submit Project →</button>
+      <button onclick="submitProject()" style="padding:.8rem 2rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Submit Project →</button>
     </div>`;
     }
 }
@@ -1029,7 +1027,7 @@ function submitProject() {
     if (!el) return;
     document.getElementById('projFormStepBar').innerHTML = '';
     el.innerHTML = `<div style="max-width:480px;margin:3rem auto;text-align:center">
-    <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 1.25rem;animation:fadeUp .5s ease">🚀</div>
+    <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 1.25rem;animation:fadeUp .5s ease">🚀</div>
     <h2 style="font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Project Submitted!</h2>
     <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.7"><strong>${d.name}</strong> is in review.<br>You'll hear back within 48 hours.</p>
     <div class="card" style="text-align:left;margin-bottom:1.25rem">
@@ -1079,7 +1077,7 @@ function renderAddAsset(view) {
         { sym: 'DEGEN', name: 'Degen', bg: '#a855f7', abbr: 'D', chain: 'Base', price: '$0.018' },
         { sym: 'BALD', name: 'Bald', bg: '#f59e0b', abbr: 'B', chain: 'Base', price: '$0.00021' },
         { sym: 'BRETT', name: 'Brett', bg: '#3b82f6', abbr: 'BR', chain: 'Base', price: '$0.142' },
-        { sym: '$SCOM', name: 'Supercompute', bg: 'linear-gradient(135deg,#E91E8C,#FFB800)', abbr: 'SC', chain: 'Base', price: 'Pre-launch' },
+        { sym: '$SCOM', name: 'QUANTA', bg: 'linear-gradient(135deg,#C8A84B,#FFB800)', abbr: 'SC', chain: 'Base', price: 'Pre-launch' },
         { sym: '$QUANTA', name: 'Quanta S Token', bg: 'linear-gradient(135deg,#7c3aed,#00D4FF)', abbr: 'QS', chain: 'Base', price: 'Pending' },
     ];
 
@@ -1095,7 +1093,7 @@ function renderAddAsset(view) {
         <div class="section-title" style="margin-bottom:.5rem">Popular on Base</div>
         <div style="display:flex;flex-direction:column;gap:.4rem" id="popularTokenList">
           ${POPULAR_TOKENS.map(t => `
-          <div onclick="selectAssetToken(${JSON.stringify(t).replace(/"/g, '&quot;')})" style="display:flex;align-items:center;gap:.75rem;padding:.75rem;border-radius:9px;border:1px solid var(--border);cursor:pointer;transition:all .15s" onmouseenter="this.style.borderColor='var(--pink)';this.style.background='rgba(233,30,140,.02)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background=''">
+          <div onclick="selectAssetToken(${JSON.stringify(t).replace(/"/g, '&quot;')})" style="display:flex;align-items:center;gap:.75rem;padding:.75rem;border-radius:9px;border:1px solid var(--border);cursor:pointer;transition:all .15s" onmouseenter="this.style.borderColor='var(--gold)';this.style.background='rgba(200,168,75,.02)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background=''">
             <div style="width:36px;height:36px;border-radius:50%;background:${t.bg};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0">${t.abbr}</div>
             <div style="flex:1"><div style="font-weight:700;font-size:13px;color:var(--text)">${t.sym}</div><div style="font-size:11px;color:var(--muted)">${t.name} · ${t.chain}</div></div>
             <div style="text-align:right"><div style="font-weight:600;font-size:12px;color:var(--text)">${t.price}</div></div>
@@ -1122,7 +1120,7 @@ function renderAddAsset(view) {
         el.innerHTML = `
     <div class="card" style="margin-bottom:1.25rem">
       <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
-        <div style="width:48px;height:48px;border-radius:50%;background:${t.bg || 'var(--pink)'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0">${t.abbr || '?'}</div>
+        <div style="width:48px;height:48px;border-radius:50%;background:${t.bg || 'var(--gold)'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0">${t.abbr || '?'}</div>
         <div><div style="font-weight:800;font-size:1.1rem;color:var(--text)">${t.sym || 'Unknown'}</div><div style="font-size:12px;color:var(--muted)">${t.name || ''} · ${t.chain || 'Base'}</div></div>
         <div style="margin-left:auto;text-align:right"><div style="font-size:.85rem;font-weight:700;color:var(--text)">${t.price || '—'}</div><div style="font-size:11px;color:var(--muted)">Current price</div></div>
       </div>
@@ -1136,7 +1134,7 @@ function renderAddAsset(view) {
     </div>
     <div style="display:flex;gap:.75rem">
       <button onclick="renderAddAsset('search')" class="tb-btn">← Back</button>
-      <button onclick="confirmAddAsset()" style="flex:1;padding:.85rem;background:var(--pink);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Add to Portfolio →</button>
+      <button onclick="confirmAddAsset()" style="flex:1;padding:.85rem;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Add to Portfolio →</button>
     </div>`;
     }
 }
@@ -1199,7 +1197,7 @@ function renderNewPostComposer() {
 
     const platDefs = [
         { id: 'twitter', label: '𝕏 Twitter', handle: '@supercomputeco', limit: 280, color: '#000' },
-        { id: 'lens', label: '◉ Lens', handle: '@quanta.lens', limit: 500, color: 'var(--pink)' },
+        { id: 'lens', label: '◉ Lens', handle: '@quanta.lens', limit: 500, color: 'var(--gold)' },
         { id: 'farcaster', label: '⬡ Farcaster', handle: 'supercompute', limit: 320, color: '#8b5cf6' },
     ];
 
@@ -1210,7 +1208,7 @@ function renderNewPostComposer() {
     <div>
       <div class="form-label" style="margin-bottom:.5rem">Post to</div>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-        ${platDefs.map(p => `<button id="platBtn-${p.id}" onclick="togglePostPlatform('${p.id}')" style="padding:.45rem .9rem;border-radius:20px;border:2px solid ${postState.platforms.includes(p.id) ? p.color : 'var(--border)'};background:${postState.platforms.includes(p.id) ? 'rgba(233,30,140,.06)' : 'transparent'};font-size:12px;font-weight:600;color:${postState.platforms.includes(p.id) ? p.color : 'var(--muted)'};cursor:pointer;font-family:inherit;transition:all .15s">${p.label}</button>`).join('')}
+        ${platDefs.map(p => `<button id="platBtn-${p.id}" onclick="togglePostPlatform('${p.id}')" style="padding:.45rem .9rem;border-radius:20px;border:2px solid ${postState.platforms.includes(p.id) ? p.color : 'var(--border)'};background:${postState.platforms.includes(p.id) ? 'rgba(200,168,75,.06)' : 'transparent'};font-size:12px;font-weight:600;color:${postState.platforms.includes(p.id) ? p.color : 'var(--muted)'};cursor:pointer;font-family:inherit;transition:all .15s">${p.label}</button>`).join('')}
       </div>
     </div>
 
@@ -1238,7 +1236,7 @@ function renderNewPostComposer() {
     <!-- Media -->
     <div>
       <div class="form-label" style="margin-bottom:.4rem">Media</div>
-      <div style="border:2px dashed var(--border);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s" onclick="showToast('Image upload coming soon — R2 integration')" onmouseenter="this.style.borderColor='var(--pink)'" onmouseleave="this.style.borderColor='var(--border)'">
+      <div style="border:2px dashed var(--border);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s" onclick="showToast('Image upload coming soon — R2 integration')" onmouseenter="this.style.borderColor='var(--gold)'" onmouseleave="this.style.borderColor='var(--border)'">
         <div style="font-size:1.5rem;margin-bottom:.3rem">🖼</div>
         <div style="font-size:12px;color:var(--muted)">Click to attach image or video</div>
         <div style="font-size:11px;color:var(--muted);margin-top:.2rem">PNG, JPG, GIF, MP4 · Max 10MB</div>
@@ -1257,8 +1255,8 @@ function renderNewPostComposer() {
       </div>
       <div id="postPreview" style="border:1px solid var(--border);border-radius:10px;padding:.85rem;background:#fff;min-height:80px">
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
-          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold))"></div>
-          <div><div style="font-weight:700;font-size:11px;color:var(--text)">SUPERCOMPUTE</div><div style="font-size:10px;color:var(--muted)">@supercomputeco</div></div>
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold))"></div>
+          <div><div style="font-weight:700;font-size:11px;color:var(--text)">QUANTA</div><div style="font-size:10px;color:var(--muted)">@supercomputeco</div></div>
         </div>
         <div id="postPreviewText" style="font-size:12px;color:var(--text);line-height:1.6">Start typing to see your preview…</div>
       </div>
@@ -1274,8 +1272,8 @@ function renderNewPostComposer() {
       <button class="tb-btn" style="width:100%;margin-bottom:.4rem;font-size:11px;justify-content:flex-start" onclick="postAiAssist('hashtags')">🏷️ Generate hashtags</button>
       <button class="tb-btn" style="width:100%;margin-bottom:.4rem;font-size:11px;justify-content:flex-start" onclick="postAiAssist('cta')">📣 Add call-to-action</button>
       <button class="tb-btn" style="width:100%;font-size:11px;justify-content:flex-start" onclick="postAiAssist('thread')">🧵 Convert to thread</button>
-      <div id="postAiResult" style="display:none;margin-top:.65rem;background:rgba(233,30,140,.04);border:1px solid rgba(233,30,140,.15);border-radius:8px;padding:.75rem;font-size:11px;color:var(--text);line-height:1.6">
-        <div style="font-size:9px;font-weight:700;color:var(--pink);text-transform:uppercase;margin-bottom:.3rem">OpenClaw suggests:</div>
+      <div id="postAiResult" style="display:none;margin-top:.65rem;background:rgba(200,168,75,.04);border:1px solid rgba(200,168,75,.15);border-radius:8px;padding:.75rem;font-size:11px;color:var(--text);line-height:1.6">
+        <div style="font-size:9px;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:.3rem">OpenClaw suggests:</div>
         <div id="postAiResultText"></div>
         <button onclick="applyPostAiSuggestion()" class="tb-btn primary" style="width:100%;margin-top:.5rem;font-size:10px">Use this ↑</button>
       </div>
@@ -1300,7 +1298,7 @@ function renderNewPostComposer() {
       <div class="section-title">Best Times to Post</div>
       <div style="display:flex;flex-direction:column;gap:.35rem">
         ${[['Mon–Fri', '9:00 AM PT', 'Highest reach'], ['Tue & Thu', '12:00 PM PT', 'Top engagement'], ['Weekends', '11:00 AM PT', 'Community peak']].map(([day, time, note]) => `
-        <div onclick="document.getElementById('postTime').value=time.split(' ')[0]+':00'+time.split(' ')[1];postState.scheduleTime=this" style="display:flex;justify-content:space-between;padding:.45rem .6rem;border-radius:6px;border:1px solid var(--border);font-size:11px;cursor:pointer;transition:background .15s" onmouseenter="this.style.background='rgba(233,30,140,.04)'" onmouseleave="this.style.background=''">
+        <div onclick="document.getElementById('postTime').value=time.split(' ')[0]+':00'+time.split(' ')[1];postState.scheduleTime=this" style="display:flex;justify-content:space-between;padding:.45rem .6rem;border-radius:6px;border:1px solid var(--border);font-size:11px;cursor:pointer;transition:background .15s" onmouseenter="this.style.background='rgba(200,168,75,.04)'" onmouseleave="this.style.background=''">
           <span style="font-weight:600;color:var(--text)">${day}</span>
           <span style="color:var(--muted)">${time}</span>
           <span style="color:var(--success);font-size:10px">${note}</span>
@@ -1392,7 +1390,7 @@ function schedulePost(publishNow) {
     el.style.alignItems = 'center';
     el.style.justifyContent = 'center';
     el.innerHTML = `<div style="max-width:420px;text-align:center;padding:2rem">
-    <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 1.25rem;animation:fadeUp .5s ease">${publishNow ? '🚀' : '📅'}</div>
+    <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 1.25rem;animation:fadeUp .5s ease">${publishNow ? '🚀' : '📅'}</div>
     <h2 style="font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:.5rem">${publishNow ? 'Post Published!' : 'Post Scheduled!'}</h2>
     <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.7">Your post will go live on <strong>${platforms.join(', ')}</strong><br>${publishNow ? 'immediately' : 'at ' + schedStr}.</p>
     <div class="card" style="text-align:left;margin-bottom:1.25rem">

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Block AI training bots from crawling agent/operator content
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: CCBot
+User-agent: anthropic-ai
+Disallow: /
+
+Sitemap: https://supercompute.io/sitemap.xml

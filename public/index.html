@@ -820,7 +820,190 @@
 
 </div>
 
-<div class="page ts-page" id="page-about"><div id="aboutBody"></div></div>
+<!-- ══ ABOUT ══ -->
+<div class="page ts-page ts-landing" id="page-about">
+
+  <!-- ─── HERO BLOCK ─── -->
+  <section class="ts-hero-block">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">cat ./operator.md</span>
+        <span class="caret"></span>
+      </div>
+
+      <h1 class="ts-page-title">About <span class="accent">the Operator</span></h1>
+
+      <div class="ts-hero-grid">
+        <div>
+          <div class="ts-hero-body">
+            <p>I started in 2013 — Occupy LA, early Bitcoin, the long winter. Fourteen projects shipped since.</p>
+            <p>I <strong>don't outsource the work that matters</strong>. If you hire me, I'm the one on the keyboard — tokenomics, agent design, OpSec, treasury, community ops. The agents in the fleet are tools, not replacements.</p>
+            <p>Today the practice runs from <strong>supercompute.eth on Base Chain</strong>, sovereign by design — Cloudflare Workers, D1, Ledger + YubiKey OpSec, 13 agents in the fleet. One human strategist. Building in public.</p>
+          </div>
+
+          <div class="ts-hero-meta">
+            <span class="k">[ since ]</span>
+            <span class="v">2013<em> · Occupy LA → Base L2</em></span>
+
+            <span class="k">[ shipped ]</span>
+            <span class="v">14 projects<em> · across three crypto cycles</em></span>
+
+            <span class="k">[ incidents ]</span>
+            <span class="v">0<em> · Ledger + YubiKey OpSec</em></span>
+
+            <span class="k">[ contact ]</span>
+            <span class="v">supercompute.eth<em> · Base Chain</em></span>
+          </div>
+
+          <div class="ts-hero-ctas">
+            <button class="cmd-btn solid" onclick="navigate('consulting', navItem('consulting'))">
+              <span class="prompt">//</span>book --intro-call
+            </button>
+            <button class="cmd-btn ghost" onclick="navigate('pub-projects', navItem('pub-projects'))">
+              <span class="prompt">//</span>ls ./work
+            </button>
+          </div>
+        </div>
+
+        <div class="ts-hero-image">
+          <div class="corner tl"></div>
+          <div class="corner tr"></div>
+          <div class="corner bl"></div>
+          <div class="corner br"></div>
+          <div class="label">[ ./operator/portrait · awaiting asset ]</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PRINCIPLES ─── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./principles <span class="gold">--list</span></span>
+      </div>
+      <div class="proj-grid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="proj-cell">
+          <div class="head"><span class="dot"></span>01 · DOCTRINE</div>
+          <div class="title">Hands-on</div>
+          <div class="meta">If you hire me, I'm on the keyboard. I don't subcontract the work that matters. The agents are my tools — I'm the author.</div>
+        </div>
+        <div class="proj-cell">
+          <div class="head"><span class="dot"></span>02 · DOCTRINE</div>
+          <div class="title">Values in order</div>
+          <div class="meta">Sovereignty before convenience. Operators before tourists. Build first, publish second. Decline yield-chasers and retail audiences.</div>
+        </div>
+        <div class="proj-cell">
+          <div class="head"><span class="dot"></span>03 · DOCTRINE</div>
+          <div class="title">Pro expansion</div>
+          <div class="meta">Every engagement compounds. Open-source the patterns. Document the playbook. The next founder ships faster because you did.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STORY (timeline as sheet) ─── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./history <span class="gold">--timeline</span></span>
+      </div>
+      <div class="sheet">
+        <div class="sheet-row">
+          <span class="num">2013</span>
+          <div class="body">
+            <span class="name">occupy_la.md</span>
+            <span class="desc">Founded at Occupy LA. Bitcoin's early community. The thesis: technology can route around gatekeepers.</span>
+          </div>
+          <span class="price"><span class="unit">// origin</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">2025</span>
+          <div class="body">
+            <span class="name">cloudflare_pivot.md</span>
+            <span class="desc">Workers, D1, R2, KV. Supabase and Vercel ruled out for sovereignty. Full self-hosted stack deployed in 30 days.</span>
+          </div>
+          <span class="price"><span class="unit">// pivot</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">2026</span>
+          <div class="body">
+            <span class="name">phase_1_launch.md</span>
+            <span class="desc">13-agent fleet live. NewsDesk + Web3 School in market. Building in public on Base Chain.</span>
+          </div>
+          <span class="price"><span class="unit">// now</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── WHAT I WORK ON ─── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./work <span class="gold">--practice</span></span>
+      </div>
+      <div class="sheet">
+        <div class="sheet-row">
+          <span class="num">01</span>
+          <div class="body">
+            <span class="name">defi_onboarding.sh</span>
+            <span class="desc">Wallet setup, hardware key, OpSec. Zero to self-custody in 90 minutes.</span>
+          </div>
+          <span class="price"><span class="unit">// services/defi</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">02</span>
+          <div class="body">
+            <span class="name">agent_buildout.sh</span>
+            <span class="desc">Build a Quanta-style autonomous agent for your protocol. Strategy + delivery.</span>
+          </div>
+          <span class="price"><span class="unit">// services/agents</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">03</span>
+          <div class="body">
+            <span class="name">token_launch.sh</span>
+            <span class="desc">End-to-end playbook. Tokenomics, contracts on Base, post-launch ops.</span>
+          </div>
+          <span class="price"><span class="unit">// services/token</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">04</span>
+          <div class="body">
+            <span class="name">refi_strategy.sh</span>
+            <span class="desc">Treasury, runway, regenerative tokenomics for impact-aligned protocols.</span>
+          </div>
+          <span class="price"><span class="unit">// services/refi</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CLOSING CTA ─── -->
+  <section class="section closing">
+    <div class="wrap">
+      <div class="prompt-line center">
+        <span>//</span>
+        <span class="cmd">./talk <span class="gold">--operator</span></span>
+      </div>
+      <div class="closing-headline">
+        Want to <span>work together</span>?
+      </div>
+      <p class="closing-body">
+        Thirty minutes. No pitch. You bring a problem, I bring 13 years of crypto experience and a notebook. If we're a fit, we work together. If not, you leave with notes.
+      </p>
+      <button class="cmd-btn solid closing-btn" onclick="navigate('consulting', navItem('consulting'))">
+        <span class="prompt">//</span>book --strategy-call
+      </button>
+    </div>
+  </section>
+
+</div>
 
 <!-- ══ STAKING ══ -->
 <div class="page ts-page" id="page-staking">

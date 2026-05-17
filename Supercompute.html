@@ -1006,51 +1006,168 @@
 </div>
 
 <!-- ══ STAKING ══ -->
-<div class="page ts-page" id="page-staking">
-  <div style="background:linear-gradient(135deg,var(--navy),var(--navy2));padding:2.5rem 2rem;text-align:center;color:#fff">
-    <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:.4rem">Stake <span style="color:var(--cyan)">$SCOM</span></h2>
-    <p style="color:rgba(255,255,255,.5);max-width:420px;margin:0 auto 1.5rem;font-size:.85rem">50% of all sub-token trading fees route back to $SCOM stakers via FeeRouter.sol.</p>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;max-width:440px;margin:0 auto">
-      <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:.9rem;border:1px solid rgba(255,255,255,.07)"><div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.7px">Est. APY</div><div style="font-size:1.2rem;font-weight:800;color:#fff">~12%</div></div>
-      <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:.9rem;border:1px solid rgba(255,255,255,.07)"><div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.7px">TVL</div><div style="font-size:1.2rem;font-weight:800;color:#fff">—</div></div>
-      <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:.9rem;border:1px solid rgba(255,255,255,.07)"><div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.7px">Stakers</div><div style="font-size:1.2rem;font-weight:800;color:#fff">—</div></div>
+<!-- ══ STAKING ══ -->
+<div class="page ts-page ts-landing" id="page-staking">
+
+  <!-- ─── HERO BLOCK ─── -->
+  <section class="ts-hero-block">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./staking <span class="gold">--pool</span></span>
+        <span class="caret"></span>
+      </div>
+
+      <h1 class="ts-page-title">Stake <span class="accent">$SCOM</span></h1>
+
+      <div class="ts-hero-grid">
+        <div>
+          <div class="ts-hero-body">
+            <p><strong>50% of every sub-token trading fee</strong> ($QUANTA, $VERB, future agent tokens) routes back to $SCOM stakers via <code>FeeRouter.sol</code>.</p>
+            <p>Stake to earn protocol-fee revenue, unlock premium agent access, and vote on treasury spending. No lock period in v1 — withdrawal is instant. Slashing applies only to agents that bond into the fleet, not to retail stakers.</p>
+          </div>
+
+          <div class="ts-hero-meta">
+            <span class="k">[ apy ]</span>
+            <span class="v">~12%<em> · variable · paid in USDC + $SCOM</em></span>
+
+            <span class="k">[ lock ]</span>
+            <span class="v">None<em> · withdraw instant in v1</em></span>
+
+            <span class="k">[ source ]</span>
+            <span class="v">FeeRouter.sol<em> · 50% of sub-token fees</em></span>
+
+            <span class="k">[ status ]</span>
+            <span class="v">Pre-launch<em> · contracts in audit · Q3 2026</em></span>
+          </div>
+
+          <div class="ts-hero-ctas">
+            <button class="cmd-btn solid" onclick="document.getElementById('stake-pane').scrollIntoView({behavior:'smooth'})">
+              <span class="prompt">//</span>open --pool
+            </button>
+            <button class="cmd-btn ghost" onclick="navigate('token', navItem('token'))">
+              <span class="prompt">//</span>view --tokenomics
+            </button>
+          </div>
+        </div>
+
+        <div class="ts-hero-image">
+          <div class="corner tl"></div>
+          <div class="corner tr"></div>
+          <div class="corner bl"></div>
+          <div class="corner br"></div>
+          <div class="label">[ ./staking/pool · contracts in audit ]</div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div style="max-width:500px;margin:2rem auto;padding:0 1.5rem">
-    <div class="card">
-      <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:1.25rem">
-        <div class="dash-tab active" id="st-tab-stake" onclick="setStakeTab('stake')">Stake</div>
-        <div class="dash-tab" id="st-tab-unstake" onclick="setStakeTab('unstake')">Unstake</div>
-        <div class="dash-tab" id="st-tab-rewards" onclick="setStakeTab('rewards')">Rewards</div>
+  </section>
+
+  <!-- ─── STATS ROW ─── -->
+  <section class="section" style="padding-top:48px">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./pool <span class="gold">--stats</span></span>
       </div>
-      <div id="stake-pane">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:.4rem">Amount to stake</div>
-        <div style="background:var(--bg);border-radius:10px;border:1.5px solid var(--border);padding:.85rem 1rem;margin-bottom:.6rem;display:flex;justify-content:space-between;align-items:center">
-          <input type="number" id="stakeAmt" placeholder="0.00" style="background:none;border:none;outline:none;font-size:1.3rem;font-weight:700;color:var(--text);width:60%;font-family:inherit" oninput="updateYield()"/>
-          <div style="display:flex;align-items:center;gap:.4rem;font-size:12px;font-weight:700;color:var(--text)"><div style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold));font-size:7px;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center">SC</div>$SCOM</div>
+      <div class="fleet-stats">
+        <div class="fleet-stat">
+          <div class="fleet-stat-num">~12%</div>
+          <div class="fleet-stat-label">Est. APY</div>
         </div>
-        <div style="display:flex;gap:.4rem;justify-content:flex-end;margin-bottom:.9rem">
-          <button onclick="document.getElementById('stakeAmt').value=250;updateYield()" class="tb-btn" style="font-size:10px">25%</button>
-          <button onclick="document.getElementById('stakeAmt').value=500;updateYield()" class="tb-btn" style="font-size:10px">50%</button>
-          <button onclick="document.getElementById('stakeAmt').value=1000;updateYield()" class="tb-btn" style="font-size:10px">MAX</button>
+        <div class="fleet-stat">
+          <div class="fleet-stat-num">—</div>
+          <div class="fleet-stat-label">TVL</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem">
-          <div style="background:var(--bg);border-radius:8px;padding:.7rem"><div style="font-size:10px;color:var(--muted);margin-bottom:.2rem">Est. APY</div><div style="font-size:.9rem;font-weight:700;color:var(--text)" id="yApy">—</div></div>
-          <div style="background:var(--bg);border-radius:8px;padding:.7rem"><div style="font-size:10px;color:var(--muted);margin-bottom:.2rem">Lock Period</div><div style="font-size:.9rem;font-weight:700;color:var(--text)">None</div></div>
-          <div style="background:var(--bg);border-radius:8px;padding:.7rem"><div style="font-size:10px;color:var(--muted);margin-bottom:.2rem">Daily Yield</div><div style="font-size:.9rem;font-weight:700;color:var(--text)" id="yDaily">—</div></div>
-          <div style="background:var(--bg);border-radius:8px;padding:.7rem"><div style="font-size:10px;color:var(--muted);margin-bottom:.2rem">Annual Yield</div><div style="font-size:.9rem;font-weight:700;color:var(--text)" id="yAnnual">—</div></div>
+        <div class="fleet-stat">
+          <div class="fleet-stat-num">—</div>
+          <div class="fleet-stat-label">Stakers</div>
         </div>
-        <button style="width:100%;padding:.8rem;background:linear-gradient(135deg,var(--pink),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" onclick="showToast('Staking opens at launch — May 2026')">Stake $SCOM</button>
-        <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:.6rem">Live on Base · May 2026</p>
-      </div>
-      <div id="unstake-pane" style="display:none;text-align:center;padding:2rem 0;color:var(--muted);font-size:.85rem">No staked position. Connect wallet to begin.</div>
-      <div id="rewards-pane" style="display:none">
-        <div style="background:var(--bg);border-radius:10px;padding:1.25rem;text-align:center;margin-bottom:1rem"><div style="font-size:11px;color:var(--muted);margin-bottom:.25rem">Pending Rewards</div><div style="font-size:1.75rem;font-weight:800;color:var(--pink)">0.00 <span style="font-size:.9rem;color:var(--muted)">$SCOM</span></div></div>
-        <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:1rem">Rewards accrue from $QUANTA and $VERB fees via <code style="font-size:10px;background:var(--bg);padding:.1rem .35rem;border-radius:4px">FeeRouter.sol</code></div>
-        <button style="width:100%;padding:.75rem;background:linear-gradient(135deg,var(--pink),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" onclick="showToast('Claim available at launch — May 2026')">Claim Rewards</button>
+        <div class="fleet-stat">
+          <div class="fleet-stat-num">0</div>
+          <div class="fleet-stat-label">Lock (days)</div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- ─── STAKE FORM (preserves JS IDs: stakeAmt, yApy, yDaily, yAnnual, panes) ─── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./pool <span class="gold">--operate</span></span>
+      </div>
+
+      <!-- Tabs (preserves setStakeTab JS) -->
+      <div style="display:flex;gap:8px;margin-bottom:24px;border-bottom:1px dashed rgba(244,236,216,.10)">
+        <div class="dash-tab active" id="st-tab-stake" onclick="setStakeTab('stake')" style="padding:10px 18px;cursor:pointer;font-family:var(--font-mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-warm);border-bottom:2px solid var(--gold-warm);margin-bottom:-1px">// stake</div>
+        <div class="dash-tab" id="st-tab-unstake" onclick="setStakeTab('unstake')" style="padding:10px 18px;cursor:pointer;font-family:var(--font-mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mono-blue);border-bottom:2px solid transparent;margin-bottom:-1px">// unstake</div>
+        <div class="dash-tab" id="st-tab-rewards" onclick="setStakeTab('rewards')" style="padding:10px 18px;cursor:pointer;font-family:var(--font-mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mono-blue);border-bottom:2px solid transparent;margin-bottom:-1px">// rewards</div>
+      </div>
+
+      <!-- STAKE PANE -->
+      <div id="stake-pane" style="background:rgba(255,255,255,.02);border:1px solid rgba(201,163,58,.30);padding:32px;max-width:640px">
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--gold-warm);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">// amount --to-stake</div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;border:1px solid rgba(244,236,216,.15);background:var(--site-bg);margin-bottom:12px">
+          <input type="number" id="stakeAmt" placeholder="0.00" style="background:transparent;border:none;outline:none;font-family:var(--font-mono);font-size:22px;font-weight:600;color:var(--cream);width:60%" oninput="updateYield()"/>
+          <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:13px;color:var(--cream);letter-spacing:1px">
+            <img src="sc-logo.png" alt="SC" style="width:22px;height:22px;border-radius:50%;object-fit:cover"/>
+            $SCOM
+          </div>
+        </div>
+
+        <div style="display:flex;gap:6px;justify-content:flex-end;margin-bottom:24px">
+          <button onclick="document.getElementById('stakeAmt').value=250;updateYield()" class="cmd-btn ghost" style="padding:6px 12px;font-size:11px">25%</button>
+          <button onclick="document.getElementById('stakeAmt').value=500;updateYield()" class="cmd-btn ghost" style="padding:6px 12px;font-size:11px">50%</button>
+          <button onclick="document.getElementById('stakeAmt').value=1000;updateYield()" class="cmd-btn ghost" style="padding:6px 12px;font-size:11px">max</button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:rgba(244,236,216,.10);border:1px solid rgba(244,236,216,.10);margin-bottom:24px">
+          <div style="background:var(--site-bg);padding:14px 18px;font-family:var(--font-mono)">
+            <div style="font-size:10px;color:var(--gold-warm);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">est. APY</div>
+            <div style="font-size:18px;font-weight:600;color:var(--cream)" id="yApy">—</div>
+          </div>
+          <div style="background:var(--site-bg);padding:14px 18px;font-family:var(--font-mono)">
+            <div style="font-size:10px;color:var(--gold-warm);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">lock period</div>
+            <div style="font-size:18px;font-weight:600;color:var(--cream)">None</div>
+          </div>
+          <div style="background:var(--site-bg);padding:14px 18px;font-family:var(--font-mono)">
+            <div style="font-size:10px;color:var(--gold-warm);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">daily yield</div>
+            <div style="font-size:18px;font-weight:600;color:var(--cream)" id="yDaily">—</div>
+          </div>
+          <div style="background:var(--site-bg);padding:14px 18px;font-family:var(--font-mono)">
+            <div style="font-size:10px;color:var(--gold-warm);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">annual yield</div>
+            <div style="font-size:18px;font-weight:600;color:var(--cream)" id="yAnnual">—</div>
+          </div>
+        </div>
+
+        <button class="cmd-btn solid" style="width:100%;padding:14px;justify-content:center" onclick="showToast('Staking opens at TGE — Q3 2026')">
+          <span class="prompt">//</span>stake --scom
+        </button>
+        <p style="text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--mono-blue);margin-top:14px;letter-spacing:.5px">// live on base · Q3 2026 · pending audit</p>
+      </div>
+
+      <!-- UNSTAKE PANE -->
+      <div id="unstake-pane" style="display:none;background:rgba(255,255,255,.02);border:1px solid rgba(201,163,58,.30);padding:48px 32px;max-width:640px;text-align:center;font-family:var(--font-mono);color:var(--mono-blue);font-size:13px;line-height:1.7">
+        <div style="color:var(--cream);font-size:14px;margin-bottom:8px">// no staked position</div>
+        Connect wallet to begin.
+      </div>
+
+      <!-- REWARDS PANE -->
+      <div id="rewards-pane" style="display:none;background:rgba(255,255,255,.02);border:1px solid rgba(201,163,58,.30);padding:32px;max-width:640px">
+        <div style="background:var(--site-bg);border:1px solid rgba(244,236,216,.10);padding:24px;text-align:center;margin-bottom:18px;font-family:var(--font-mono)">
+          <div style="font-size:10px;color:var(--gold-warm);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">// pending rewards</div>
+          <div style="font-size:32px;font-weight:600;color:var(--gold-warm);letter-spacing:-.5px">0.00 <span style="font-size:14px;color:var(--mono-blue);letter-spacing:1px">$SCOM</span></div>
+        </div>
+        <p style="font-family:var(--font-mono);font-size:12px;color:var(--mono-blue);text-align:center;line-height:1.7;margin-bottom:18px">Rewards accrue from $QUANTA and $VERB fees via <code style="font-family:var(--font-mono);font-size:12px;background:rgba(244,236,216,.06);color:var(--gold-warm);padding:1px 6px">FeeRouter.sol</code></p>
+        <button class="cmd-btn solid" style="width:100%;padding:12px;justify-content:center" onclick="showToast('Claim available at TGE — Q3 2026')">
+          <span class="prompt">//</span>claim --rewards
+        </button>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <!-- ══ BLOG ══ -->

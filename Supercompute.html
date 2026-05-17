@@ -401,65 +401,6 @@
   </footer>
 
 </div>
-
-
-  <!-- Services -->
-  <div style="background:var(--bg);padding:3rem 2rem;border-top:1px solid var(--border)">
-    <div style="text-align:center;margin-bottom:2rem">
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.5rem">Consulting</div>
-      <h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:.4rem">Work with Supercompute</h2>
-      <p style="font-size:.875rem;color:var(--muted);max-width:500px;margin:0 auto">13 years of crypto. Sovereign infrastructure. Sessions from $200. Book at calendly.com/ora_mi</p>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem;max-width:860px;margin:0 auto">
-      <div class="service-card">
-        <div style="width:40px;height:40px;border-radius:10px;background:rgba(233,30,140,.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:1rem">◎</div>
-        <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.35rem">DeFi Onboarding</div>
-        <div style="font-size:1.4rem;font-weight:800;color:var(--pink);margin-bottom:.5rem">$200</div>
-        <p style="font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Wallet setup, protocol walkthrough, security best practices, and your first on-chain transaction. 2 hrs via Zoom.</p>
-        <button onclick="openBooking('defi')" style="width:100%;padding:.65rem;background:transparent;color:var(--pink);border:1.5px solid var(--pink);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s" onmouseenter="this.style.background='var(--pink)';this.style.color='#fff'" onmouseleave="this.style.background='transparent';this.style.color='var(--pink)'">Book a Session →</button>
-      </div>
-      <div class="service-card dark">
-        <div class="service-tag">Most Requested</div>
-        <div style="width:40px;height:40px;border-radius:10px;background:rgba(233,30,140,.2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:1rem">◈</div>
-        <div style="font-size:.75rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:.35rem">Agent Automation</div>
-        <div style="font-size:1.4rem;font-weight:800;color:var(--gold);margin-bottom:.5rem">$300</div>
-        <p style="font-size:.82rem;color:rgba(255,255,255,.55);line-height:1.6;margin-bottom:1.25rem">Design your 1-human + AI agent workflow. OpenClaw setup, Linear integration, and full automation strategy. 2 hrs.</p>
-        <button onclick="openBooking('agent')" style="width:100%;padding:.65rem;background:var(--pink);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s" onmouseenter="this.style.background='var(--pink2)'" onmouseleave="this.style.background='var(--pink)'">Start Building →</button>
-      </div>
-      <div class="service-card">
-        <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,184,0,.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:1rem">◐</div>
-        <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.35rem">Protocol Deep Dive</div>
-        <div style="font-size:1.4rem;font-weight:800;color:var(--gold2);margin-bottom:.5rem">$450</div>
-        <p style="font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Smart contract review, tokenomics design, Base deployment, and go-to-market strategy. 4 hrs via Zoom.</p>
-        <button onclick="openBooking('protocol')" style="width:100%;padding:.65rem;background:transparent;color:var(--gold2);border:1.5px solid var(--gold2);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s" onmouseenter="this.style.background='var(--gold2)';this.style.color='#fff'" onmouseleave="this.style.background='transparent';this.style.color='var(--gold2)'">Plan Your Build →</button>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:1.25rem">
-      <button onclick="navigate('consulting',navItem('consulting'))" style="font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline;font-family:inherit" onmouseenter="this.style.color='var(--pink)'" onmouseleave="this.style.color='var(--muted)'">View all 5 services including Agent Development from $2,000 →</button>
-    </div>
-  </div>
-  <!-- Agent Fleet -->
-  <div style="background:var(--site-bg);padding:3rem 2rem;border-top:1px solid var(--gold-dim)">
-    <div style="text-align:center;margin-bottom:1.5rem"><div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.5rem">Agent Fleet</div><div style="font-size:1.4rem;font-weight:800;color:var(--text)">13 Agents. One Command.</div></div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;max-width:860px;margin:0 auto 1.25rem">
-      <div class="agent-card"><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem"><span class="status-dot s-active"></span><span style="font-size:10px;color:var(--success);font-weight:600">Active</span></div><div style="font-weight:700;color:var(--text);margin-bottom:.2rem">OpenClaw</div><div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:.6rem">Browser automation & primary operator. Social, outreach, and web tasks.</div><span class="tag">Infrastructure</span></div>
-      <div class="agent-card"><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem"><span class="status-dot s-active"></span><span style="font-size:10px;color:var(--success);font-weight:600">Active</span></div><div style="font-weight:700;color:var(--text);margin-bottom:.2rem">Quanta S</div><div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:.6rem">NewsDesk intelligence + public identity on Virtuals. On-chain editor-in-chief.</div><span class="tag">NewsDesk</span></div>
-      <div class="agent-card"><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem"><span class="status-dot s-idle"></span><span style="font-size:10px;color:var(--warning);font-weight:600">Observer</span></div><div style="font-weight:700;color:var(--text);margin-bottom:.2rem">KNIGHT</div><div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:.6rem">TradeDesk on Conway Terminal. CDP management, treasury, Polymarket ops.</div><span class="tag">TradeDesk</span></div>
-      <div class="agent-card"><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem"><span class="status-dot s-dev"></span><span style="font-size:10px;color:#3b82f6;font-weight:600">Command</span></div><div style="font-weight:700;color:var(--text);margin-bottom:.2rem">Claude Desktop</div><div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:.6rem">Strategic command layer. Connects Linear (MOLT), coordinates fleet.</div><span class="tag">Command</span></div>
-    </div>
-    <div style="text-align:center"><button onclick="authGate('agentchat',navItem('agentchat'))" style="padding:.7rem 1.5rem;background:transparent;color:var(--text);border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s" onmouseenter="this.style.borderColor='var(--pink)';this.style.color='var(--pink)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text)'">Talk to an Agent →</button></div>
-  </div>
-  <!-- Footer -->
-  <div style="background:var(--navy);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
-    <div style="display:flex;align-items:center;gap:.5rem">
-        <img src="sc-logo.png" alt="SC" style="width:28px;height:28px;border-radius:50%;object-fit:cover"/>
-        <span style="color:#fff;font-weight:700;font-size:13px">SUPERCOMPUTE</span>
-        <span style="color:rgba(255,255,255,.3);font-size:11px">· supercompute.eth · Base Chain</span>
-      </div>
-    <div style="font-size:11px;color:rgba(255,255,255,.3)">© 2026 Supercompute · Phase 1 · 1 Human + 13 Agents</div>
-  </div>
-</div>
-
 <!-- ══ ABOUT ══ -->
 
 <!-- ══ SHOP ══ -->

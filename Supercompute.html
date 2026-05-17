@@ -104,7 +104,7 @@
 
 <!-- ══ HOME ══ -->
 <!-- ══ HOME ══ -->
-<div class="page active ts-landing" id="page-home">
+<div class="page ts-page active ts-landing" id="page-home">
 
   <!-- ─── HERO — // whoami terminal block ─────────────────────────── -->
   <section class="hero">
@@ -463,7 +463,7 @@
 <!-- ══ ABOUT ══ -->
 
 <!-- ══ SHOP ══ -->
-<div class="page ts-landing" id="page-shop">
+<div class="page ts-page ts-landing" id="page-shop">
 
   <!-- ─── SHOP HEADER ─────────────────────────────────────────── -->
   <section class="hero" style="padding-bottom:64px">
@@ -621,10 +621,10 @@
 
 </div>
 
-<div class="page" id="page-about"><div id="aboutBody"></div></div>
+<div class="page ts-page" id="page-about"><div id="aboutBody"></div></div>
 
 <!-- ══ STAKING ══ -->
-<div class="page" id="page-staking">
+<div class="page ts-page" id="page-staking">
   <div style="background:linear-gradient(135deg,var(--navy),var(--navy2));padding:2.5rem 2rem;text-align:center;color:#fff">
     <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:.4rem">Stake <span style="color:var(--cyan)">$SCOM</span></h2>
     <p style="color:rgba(255,255,255,.5);max-width:420px;margin:0 auto 1.5rem;font-size:.85rem">50% of all sub-token trading fees route back to $SCOM stakers via FeeRouter.sol.</p>
@@ -672,7 +672,7 @@
 </div>
 
 <!-- ══ BLOG ══ -->
-<div class="page" id="page-blog">
+<div class="page ts-page" id="page-blog">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1.5rem;padding:1.75rem 1.5rem;background:linear-gradient(135deg,#0D1F3C,#0A1628);border-bottom:1px solid var(--border)">
     <div style="flex:1">
       <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">NewsDesk</div>
@@ -705,7 +705,7 @@
 </div>
 
 <!-- ══ PROJECTS ══ -->
-<div class="page" id="page-pub-projects">
+<div class="page ts-page" id="page-pub-projects">
   <div style="padding:1.75rem 1.5rem;background:linear-gradient(135deg,#0D1F3C,#0A1628);border-bottom:1px solid var(--border)">
     <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">Projects</div>
     <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Community Projects</h2>
@@ -728,7 +728,7 @@
 </div>
 
 <!-- ══ CONSULTING ══ -->
-<div class="page ts-landing" id="page-consulting">
+<div class="page ts-page ts-landing" id="page-consulting">
 
   <!-- ─── HERO ─────────────────────────────────────────────────── -->
   <section class="hero" style="padding-bottom:48px">
@@ -880,13 +880,13 @@
 </div>
 
 <!-- ══ TOKEN ══ -->
-<div class="page" id="page-token">
+<div class="page ts-page" id="page-token">
   <div class="topbar"><div><div class="topbar-title">$SCOM Token</div><div class="topbar-sub">Supercompute Protocol Token · Base Chain</div></div><div class="topbar-actions"><span class="badge badge-pink">Pre-Launch · Q3 2026</span><button class="tb-btn" onclick="copyToClipboard('supercompute.eth')">Copy ENS</button></div></div>
   <div class="pg-body" id="tokenPage"></div>
 </div>
 
 <!-- ══ ASSETS (member) ══ -->
-<div class="page" id="page-assets">
+<div class="page ts-page" id="page-assets">
   <div class="topbar"><div class="topbar-title">Assets</div><div class="topbar-actions"><button class="tb-btn primary">+ Add Asset</button></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1.25rem">
@@ -911,7 +911,7 @@
 </div>
 
 <!-- ══ SOCIAL FEED (member) ══ -->
-<div class="page" id="page-social">
+<div class="page ts-page" id="page-social">
   <div class="topbar"><div class="topbar-title">Social Feed</div><div class="topbar-actions"><button class="tb-btn primary" onclick="showToast('OpenClaw queuing post...')">+ New Post</button></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.25rem">
@@ -936,7 +936,7 @@
 </div>
 
 <!-- ══ ALERTS (member) ══ -->
-<div class="page" id="page-alerts">
+<div class="page ts-page" id="page-alerts">
   <div class="topbar"><div class="topbar-title">Alerts <span style="font-size:11px;background:rgba(233,30,140,.1);color:var(--pink);padding:.15rem .5rem;border-radius:10px;margin-left:.4rem;font-weight:700">3</span></div><div class="topbar-actions"><button class="tb-btn" onclick="showToast('All alerts marked as read')">Mark all read</button></div></div>
   <div class="pg-body">
     <div class="alert-item"><div class="alert-ico" style="background:rgba(74,222,128,.1);color:#16a34a">✓</div><div class="alert-content"><h4>NewsDesk Draft Published</h4><p>6 founding articles saved to Web3 CMS (D1 · supercompute-db)</p></div><div class="alert-time">2h ago</div></div>
@@ -948,7 +948,7 @@
 </div>
 
 <!-- ══ PROFILE (member) ══ -->
-<div class="page" id="page-profile">
+<div class="page ts-page" id="page-profile">
   <div class="topbar"><div class="topbar-title">Profile</div><div class="topbar-actions"><button class="tb-btn primary" onclick="showToast('✓ Profile saved')">Save Changes</button></div></div>
   <div class="pg-body" style="max-width:680px">
     <div class="card" style="margin-bottom:1rem;text-align:center;padding:2rem">
@@ -980,7 +980,7 @@
 </div>
 
 <!-- ══ AGENT CHAT (member) ══ -->
-<div class="page" id="page-agentchat">
+<div class="page ts-page" id="page-agentchat">
   <div class="topbar"><div><div class="topbar-title">Agent Chat</div><div class="topbar-sub">Powered by Claude AI · Talk to your fleet</div></div><div class="topbar-actions"><span class="badge badge-live">Live</span></div></div>
   <div class="chat-wrap" style="height:calc(100vh - 52px)">
     <div class="chat-header">
@@ -1005,7 +1005,7 @@
 </div>
 
 <!-- ══ WEB3 SCHOOL (public marketing + member view) ══ -->
-<div class="page" id="page-web3school">
+<div class="page ts-page" id="page-web3school">
   <!-- Hero / Marketing Header -->
   <div style="background:linear-gradient(135deg,#0D1F3C,#0A1628);padding:2rem 1.5rem;border-bottom:1px solid var(--border)">
     <div style="display:flex;gap:1.5rem;align-items:flex-start;margin-bottom:1rem">
@@ -1044,7 +1044,7 @@
 </div>
 
 <!-- ══ TRADEDESK (public + member) ══ -->
-<div class="page" id="page-tradedesk">
+<div class="page ts-page" id="page-tradedesk">
   <!-- NON-AUTH MARKETING HEADER (shown when not logged in) -->
   <div id="tradedesk-marketing" style="background:linear-gradient(135deg,#0D1F3C,#0A1628);padding:2rem 1.5rem;border-bottom:1px solid var(--border)">
     <div style="font-size:10px;font-weight:700;color:var(--pink);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">◈ TRADEDESK</div>
@@ -1109,7 +1109,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ SOCIAL MEDIA (member) ══ -->
-<div class="page" id="page-socialmedia">
+<div class="page ts-page" id="page-socialmedia">
   <div class="topbar"><div><div class="topbar-title">Social Media</div><div class="topbar-sub">Content Publishing · Powered by Quanta S</div></div><div class="topbar-actions"><span class="pulse-green"></span><span style="font-size:11px;color:var(--success);font-weight:600;margin-left:4px">Quanta S Online</span><button class="tb-btn primary" onclick="showToast('New post flow → compose')">+ New Post</button></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem">
@@ -1127,7 +1127,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ DASHBOARD (admin) ══ -->
-<div class="page" id="page-dashboard">
+<div class="page ts-page" id="page-dashboard">
   <div class="topbar"><div class="topbar-breadcrumb" style="font-size:11px;color:var(--muted)">Admin</div><div class="topbar-title" style="margin-left:.4rem">Dashboard</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span></div></div>
   <div class="dash-tabs">
     <div class="dash-tab active" data-tab="overview"  onclick="renderDash('overview')">Overview</div>
@@ -1149,7 +1149,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ COMMUNITY (admin) ══ -->
-<div class="page" id="page-community">
+<div class="page ts-page" id="page-community">
   <div class="topbar"><div class="topbar-title">Community Management</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><button class="tb-btn primary" onclick="showToast('Invite sent via OpenClaw')">+ Invite Member</button></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.25rem">
@@ -1172,7 +1172,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ NEWSDESK CMS (admin) ══ -->
-<div class="page" id="page-newsdesk">
+<div class="page ts-page" id="page-newsdesk">
   <div class="topbar"><div class="topbar-title">NewsDesk CMS</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><button class="tb-btn primary" onclick="authGate('createarticle',navItem('createarticle'),true)">+ Create Article</button></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem">
@@ -1186,7 +1186,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ CREATE ARTICLE (admin) ══ -->
-<div class="page" id="page-createarticle">
+<div class="page ts-page" id="page-createarticle">
   <div class="topbar"><div class="topbar-title">Create Article</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><button class="tb-btn" onclick="navigate('newsdesk',navItem('newsdesk'))">Cancel</button><button class="tb-btn" style="border-color:rgba(233,30,140,.3);color:var(--pink)" onclick="showToast('✓ Saved to Web3 CMS draft')">Save Draft</button><button class="tb-btn primary" onclick="showToast('✨ Publishing via QUANTA...')">Publish</button></div></div>
   <div class="editor-wrap">
     <div class="editor-main">
@@ -1218,7 +1218,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ API STATUS (admin) ══ -->
-<div class="page" id="page-apiStatus">
+<div class="page ts-page" id="page-apiStatus">
   <div class="topbar"><div class="topbar-title">API Status</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><span class="badge badge-live">All Systems Operational</span></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem">
@@ -1241,7 +1241,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 
 
 <!-- ══ CREATE PROJECT ══ -->
-<div class="page" id="page-create-project">
+<div class="page ts-page" id="page-create-project">
   <div class="topbar">
     <div><div class="topbar-title">Submit a Project</div><div class="topbar-sub">Propose a new Supercompute community project</div></div>
     <div class="topbar-actions">
@@ -1258,7 +1258,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ ADD ASSET / TOKEN ══ -->
-<div class="page" id="page-add-asset">
+<div class="page ts-page" id="page-add-asset">
   <div class="topbar">
     <div><div class="topbar-title">Add Asset</div><div class="topbar-sub">Add a token or NFT to your portfolio</div></div>
     <div class="topbar-actions">
@@ -1269,7 +1269,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ NEW SOCIAL POST ══ -->
-<div class="page" id="page-new-post">
+<div class="page ts-page" id="page-new-post">
   <div class="topbar">
     <div><div class="topbar-title">New Post</div><div class="topbar-sub">Compose · Schedule · Publish via OpenClaw</div></div>
     <div class="topbar-actions">
@@ -1283,7 +1283,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ PROJECT DETAIL ══ -->
-<div class="page" id="page-project-detail">
+<div class="page ts-page" id="page-project-detail">
   <div class="topbar">
     <div><div class="topbar-title" id="projDetailTitle">Project</div><div class="topbar-sub">Supercompute Community Projects</div></div>
     <div class="topbar-actions">
@@ -1295,7 +1295,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ PROJECT INVEST CHECKOUT ══ -->
-<div class="page" id="page-project-invest">
+<div class="page ts-page" id="page-project-invest">
   <div class="topbar">
     <div><div class="topbar-title">Back a Project</div><div class="topbar-sub">Secure checkout · USDC on Base</div></div>
     <div class="topbar-actions">
@@ -1306,7 +1306,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ BLOG DRAFTS MANAGER ══ -->
-<div class="page" id="page-blog-drafts">
+<div class="page ts-page" id="page-blog-drafts">
   <div class="topbar">
     <div><div class="topbar-title">Blog Manager</div><div class="topbar-sub">Drafts, published articles, and queue</div></div>
     <div class="topbar-actions">
@@ -1333,7 +1333,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ BLOG COMPOSE ══ -->
-<div class="page" id="page-blog-compose">
+<div class="page ts-page" id="page-blog-compose">
   <div class="topbar">
     <div><div class="topbar-title" id="composeTitle">New Article</div><div class="topbar-sub">NewsDesk CMS · Powered by Quanta S</div></div>
     <div class="topbar-actions">
@@ -1428,7 +1428,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 </div>
 
 <!-- ══ CONSULTING BOOKING ══ -->
-<div class="page" id="page-booking">
+<div class="page ts-page" id="page-booking">
   <div class="topbar">
     <div><div class="topbar-title">Book a Session</div><div class="topbar-sub">Web3 Strategy & Agent Automation · calendly.com/ora_mi</div></div>
     <div class="topbar-actions">

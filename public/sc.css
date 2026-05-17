@@ -2685,6 +2685,23 @@ footer {
 }
 
 /* ════════════════════════════════════════════════════════════════════
+   PAGE SHELL — base class applied to every .page in the SPA
+   Adds a 220ms mount animation when window.navigate() flips .active.
+   Sits BELOW .ts-landing and any future content-variant classes.
+   Pure transform + opacity (GPU). Reduced-motion respected.
+   ════════════════════════════════════════════════════════════════════ */
+.ts-page.active {
+    animation: pageMount 220ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes pageMount {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ts-page.active { animation: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
    MARKETING LANDING — Terminal Dossier (handoff §7)
    All rules scoped under .ts-landing to avoid colliding with the
    pre-existing .hero/.section/.footer rules elsewhere in this file.

@@ -2999,6 +2999,39 @@ footer {
 }
 .ts-landing .ls-footer-bottom .right { color: var(--gold-warm); }
 
+/* ─── CONSULTING — sheet rows with inline book button ─── */
+.ts-landing .consulting-row { grid-template-columns: 32px 1fr auto; }
+.ts-landing .consulting-row-popular { background: rgba(201, 163, 58, .04); }
+.ts-landing .consulting-row .tag-popular {
+    display: inline-block; margin-left: 10px;
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--site-bg); background: var(--gold-warm);
+    padding: 2px 8px;
+}
+.ts-landing .consulting-price {
+    display: flex; align-items: center; gap: 18px;
+    flex-wrap: wrap; justify-content: flex-end;
+}
+.ts-landing .consulting-price .price {
+    font-size: 16px; font-weight: 700; color: var(--gold-warm);
+    font-variant-numeric: tabular-nums;
+    text-align: right; white-space: nowrap;
+}
+.ts-landing .consulting-price .price .unit {
+    font-size: 12px; color: var(--mono-blue); margin-left: 4px; font-weight: 500;
+}
+.ts-landing .consulting-price .cmd-btn { padding: 8px 14px; font-size: 12px; }
+@media (max-width: 980px) {
+    .ts-landing .consulting-row { grid-template-columns: 32px 1fr; }
+    .ts-landing .consulting-row .consulting-price {
+        grid-column: 1 / -1;
+        justify-content: space-between;
+        padding-top: 12px;
+        border-top: 1px dashed rgba(244, 236, 216, .08);
+    }
+}
+
 /* ─── SHOP / STOREFRONT ─── */
 .ts-landing .shop-grid { grid-template-columns: 1fr 1fr; }
 .ts-landing .shop-cell { padding: 0; gap: 0; overflow: hidden; }

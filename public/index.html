@@ -27,7 +27,7 @@
 <div class="hud-corner br"></div>
 
 <!-- Build badge — auto-populated by npm run sync (see package.json) -->
-<div class="version-tag" id="versionTag">build · design-system @ a305059 · 20:36</div>
+<div class="version-tag" id="versionTag">build · design-system @ 105227f · 20:38</div>
 
 <!-- AUTH OVERLAY -->
 <div class="auth-overlay" id="authOverlay" style="display:none">
@@ -728,40 +728,155 @@
 </div>
 
 <!-- ══ CONSULTING ══ -->
-<div class="page" id="page-consulting">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1.5rem;padding:1.75rem 1.5rem;background:linear-gradient(135deg,#0D1F3C,#0A1628);border-bottom:1px solid var(--border)">
-    <div style="flex:1">
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.2rem">Consulting</div>
-      <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Work with SUPERCOMPUTE</h2>
-      <p style="font-size:.8rem;color:var(--muted);line-height:1.6;max-width:540px;margin-bottom:.75rem">Expert Web3 strategy & agent automation. Sessions via Calendly.</p>
-      <p style="font-size:.85rem;color:var(--text);line-height:1.6;max-width:540px;margin-bottom:.75rem">We don't sell courses. We don't promise gains. We show you the exact stack we run — Cloudflare, Base Chain, SIWE auth, 13 agents — and help you build your own. Sessions are operational, not theoretical.</p>
-      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-        <span style="font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:.35rem .75rem;color:var(--muted)">2hr sessions</span>
-        <span style="font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:.35rem .75rem;color:var(--muted)">Zoom</span>
-        <span style="font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:.35rem .75rem;color:var(--muted)">Recording included</span>
-        <span style="font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:.35rem .75rem;color:var(--muted)">Follow-up notes in 24hr</span>
+<div class="page ts-landing" id="page-consulting">
+
+  <!-- ─── HERO ─────────────────────────────────────────────────── -->
+  <section class="hero" style="padding-bottom:48px">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./consulting <span class="gold">--book</span></span>
+        <span class="caret"></span>
+      </div>
+
+      <div class="hero-output" style="grid-template-columns:160px 1fr">
+        <span class="k">[ practice ]</span>
+        <span class="v">Web3 strategy<em> · agent automation · token launches</em></span>
+
+        <span class="k">[ format ]</span>
+        <span class="v">2–4 hr sessions<em> · Zoom · recorded · 24h follow-up notes</em></span>
+
+        <span class="k">[ booked ]</span>
+        <span class="v">200+ sessions<em> · 13 years operating in crypto</em></span>
+
+        <span class="k">[ stack ]</span>
+        <span class="v">Base · Cloudflare · Virtuals · SIWE · Ledger</span>
+      </div>
+
+      <p class="hero-body">
+        We don't sell courses. We don't promise gains.
+        <strong>We show you the exact stack we run</strong> — 13 agents, on-chain
+        identity, sovereign infra — and help you build your own. Sessions are
+        operational, not theoretical.
+      </p>
+    </div>
+  </section>
+
+  <!-- ─── PACKAGES ─── 4 .sheet rows + book buttons per row ───── -->
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./packages <span class="gold">--list</span></span>
+      </div>
+
+      <div class="sheet">
+        <div class="sheet-row consulting-row">
+          <span class="num">01</span>
+          <div class="body">
+            <span class="name">defi_onboarding.sh</span>
+            <span class="desc">Wallet setup, protocol walkthrough, security best practices, and your first on-chain transaction.</span>
+          </div>
+          <div class="consulting-price">
+            <span class="price">$200<span class="unit"> · 2 hr</span></span>
+            <button class="cmd-btn solid" onclick="openCalendly()"><span class="prompt">//</span>book</button>
+          </div>
+        </div>
+
+        <div class="sheet-row consulting-row consulting-row-popular">
+          <span class="num">02</span>
+          <div class="body">
+            <span class="name">agent_automation.sh <span class="tag-popular">most requested</span></span>
+            <span class="desc">Design your 1-human + AI workflow. OpenClaw setup, Linear integration, automation strategy.</span>
+          </div>
+          <div class="consulting-price">
+            <span class="price">$300<span class="unit"> · 2 hr</span></span>
+            <button class="cmd-btn solid" onclick="openCalendly()"><span class="prompt">//</span>book</button>
+          </div>
+        </div>
+
+        <div class="sheet-row consulting-row">
+          <span class="num">03</span>
+          <div class="body">
+            <span class="name">refi_strategy.sh</span>
+            <span class="desc">Regenerative finance deep dive. Impact investing, green infrastructure on-chain, community treasury.</span>
+          </div>
+          <div class="consulting-price">
+            <span class="price">$350<span class="unit"> · 3 hr</span></span>
+            <button class="cmd-btn ghost" onclick="openCalendly()"><span class="prompt">//</span>book</button>
+          </div>
+        </div>
+
+        <div class="sheet-row consulting-row">
+          <span class="num">04</span>
+          <div class="body">
+            <span class="name">protocol_deep_dive.sh</span>
+            <span class="desc">Smart contract review, tokenomics design, L2 deployment on Base, and go-to-market strategy.</span>
+          </div>
+          <div class="consulting-price">
+            <span class="price">$450<span class="unit"> · 4 hr</span></span>
+            <button class="cmd-btn ghost" onclick="openCalendly()"><span class="prompt">//</span>book</button>
+          </div>
+        </div>
       </div>
     </div>
-    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;max-width:200px;flex-shrink:0">
-      <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.6rem;border-bottom:1px solid var(--border);padding-bottom:.5rem">Session Stats</div>
-      <div style="margin-bottom:.6rem"><div style="font-size:1.5rem;font-weight:800;color:var(--pink)">13</div><div style="font-size:10px;color:var(--muted)">years in crypto</div></div>
-      <div><div style="font-size:1.5rem;font-weight:800;color:var(--pink)">200+</div><div style="font-size:10px;color:var(--muted)">sessions booked</div></div>
+  </section>
+
+  <!-- ─── WHAT YOU GET ──────────────────────────────────────────── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./deliverables <span class="gold">--per-session</span></span>
+      </div>
+      <div class="proj-grid">
+        <div class="proj-cell">
+          <div class="head"><span class="dot"></span>SESSION</div>
+          <div class="title">Live working session over Zoom</div>
+          <div class="meta"><strong>2–4 hrs</strong> · screen-share, live decisions, real code if needed</div>
+        </div>
+        <div class="proj-cell">
+          <div class="head"><span class="dot"></span>RECORDING</div>
+          <div class="title">Full session recording</div>
+          <div class="meta">Yours to keep · review with your team · no shared drive</div>
+        </div>
+        <div class="proj-cell">
+          <div class="head"><span class="dot"></span>NOTES</div>
+          <div class="title">Follow-up notes within 24 hours</div>
+          <div class="meta">Action items, links, scripts, contract addresses — everything we used</div>
+        </div>
+        <div class="proj-cell">
+          <div class="head"><span class="dot idle"></span>ACCESS</div>
+          <div class="title">Two weeks of async follow-up</div>
+          <div class="meta">Telegram or Signal · short questions, edge cases, sanity checks</div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;padding:1.5rem">
-    <div class="card" style="position:relative;overflow:hidden"><div style="font-size:1.6rem;font-weight:800;color:var(--pink);margin-bottom:.1rem">$200</div><div style="font-weight:700;color:var(--text);margin-bottom:.15rem">DeFi Onboarding</div><div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">2 hrs · Zoom</div><p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:1rem">Wallet setup, protocol walkthrough, security best practices, and your first on-chain transaction.</p><button class="tb-btn" style="width:100%;border-color:var(--pink);color:var(--pink)" onclick="openCalendly()">Book Session</button></div>
-    <div class="card" style="border-color:rgba(233,30,140,.3);background:linear-gradient(135deg,#fff,#fff8fb);position:relative;overflow:hidden">
-      <div style="position:absolute;top:10px;right:-14px;background:var(--pink);color:#fff;font-size:9px;font-weight:700;padding:.15rem 1.25rem;transform:rotate(35deg);letter-spacing:.5px">Popular</div>
-      <div style="font-size:1.6rem;font-weight:800;color:var(--pink);margin-bottom:.1rem">$300</div><div style="font-weight:700;color:var(--text);margin-bottom:.15rem">Agent Automation</div><div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">2 hrs · Zoom</div><p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:1rem">Design your 1-human + AI workflow. OpenClaw setup, Linear integration, automation strategy.</p><button class="tb-btn primary" onclick="openCalendly()">Book Session</button></div>
-    <div class="card"><div style="font-size:1.6rem;font-weight:800;color:var(--pink);margin-bottom:.1rem">$350</div><div style="font-weight:700;color:var(--text);margin-bottom:.15rem">ReFi Strategy</div><div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">3 hrs · Zoom</div><p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:1rem">Regenerative finance deep dive. Impact investing, green infrastructure on-chain, community treasury.</p><button class="tb-btn" style="width:100%;border-color:var(--pink);color:var(--pink)" onclick="openCalendly()">Book Session</button></div>
-    <div class="card"><div style="font-size:1.6rem;font-weight:800;color:var(--pink);margin-bottom:.1rem">$450</div><div style="font-weight:700;color:var(--text);margin-bottom:.15rem">Protocol Deep Dive</div><div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">4 hrs · Zoom</div><p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:1rem">Smart contract review, tokenomics design, L2 deployment on Base, and go-to-market strategy.</p><button class="tb-btn" style="width:100%;border-color:var(--pink);color:var(--pink)" onclick="openCalendly()">Book Session</button></div>
-  </div>
-  <div style="background:var(--navy);margin:0 1.5rem 1.5rem;border-radius:14px;padding:2rem;text-align:center;color:#fff">
-    <div style="font-size:1.25rem;font-weight:800;margin-bottom:.5rem">Ready to build your <span style="color:var(--cyan)">sovereign stack?</span></div>
-    <p style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:1.25rem">13 years of crypto. 1 operator. Infinite agents.</p>
-    <button style="padding:.75rem 1.75rem;background:var(--pink);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" onclick="openCalendly()">Book on Calendly →</button>
-    <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:.6rem">calendly.com/ora_mi</div>
-  </div>
+  </section>
+
+  <!-- ─── CLOSING CTA ───────────────────────────────────────────── -->
+  <section class="section closing">
+    <div class="wrap">
+      <div class="prompt-line center">
+        <span>//</span>
+        <span class="cmd">./ready --build</span>
+      </div>
+      <div class="closing-headline">
+        Ready to build your <span>sovereign stack</span>?
+      </div>
+      <p class="closing-body">
+        13 years of crypto. 1 operator. Hands on the keyboard with you.
+        Pick the package above or book a 30-minute scoping call — no pitch.
+      </p>
+      <button class="cmd-btn solid closing-btn" onclick="openCalendly()">
+        <span class="prompt">//</span>book --on-calendly
+      </button>
+      <div style="margin-top:14px;font-size:11px;color:var(--mono-blue);letter-spacing:1px">
+        calendly.com/ora_mi
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <!-- ══ TOKEN ══ -->

@@ -1,5 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
 
+/* Phosphate display face — wordmark only (handoff §6b + operator decision 2026-05-17).
+   Everywhere else stays JetBrains Mono. */
+@font-face {
+    font-family: 'Phosphate';
+    src: url('fonts/PhosphateSolid.ttf') format('truetype');
+    font-weight: 400 900;
+    font-style: normal;
+    font-display: swap;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -232,12 +242,13 @@ nav#appNav {
 }
 
 .nav-brand-text {
-    color: #C8A84B;
-    font-size: 18px;
+    color: var(--gold-warm);
+    font-size: 20px;
     font-weight: 900;
-    font-family: 'Impact', 'Arial Black', sans-serif;
-    letter-spacing: .5px;
-    line-height: 1
+    font-family: var(--font-d);   /* Phosphate (display face) — wordmark only */
+    letter-spacing: 1.2px;
+    line-height: 1;
+    text-transform: uppercase;
 }
 
 .nav-brand-sub {
@@ -3172,8 +3183,9 @@ footer {
 .ts-landing .ls-footer-brand { display: flex; align-items: center; gap: 12px; }
 .ts-landing .ls-footer-brand img { width: 36px; height: 36px; border-radius: 50%; }
 .ts-landing .ls-footer-brand .mark {
-    font-family: var(--font-mono); font-weight: 700;
-    font-size: 13px; letter-spacing: 3px; color: var(--gold-warm);
+    font-family: var(--font-d);   /* Phosphate — wordmark */
+    font-weight: 700;
+    font-size: 22px; letter-spacing: 1.5px; color: var(--gold-warm);
     text-transform: uppercase;
 }
 .ts-landing .ls-footer-tag {
@@ -3343,8 +3355,9 @@ footer {
     padding: 3px 8px;
 }
 .ts-landing .shop-thumb-mark {
-    font-size: 22px; font-weight: 700;
-    color: var(--cream); letter-spacing: 5px;
+    font-family: var(--font-d);   /* Phosphate — wordmark */
+    font-size: 32px; font-weight: 700;
+    color: var(--cream); letter-spacing: 3px;
     text-transform: uppercase;
 }
 .ts-landing .shop-thumb-sub {

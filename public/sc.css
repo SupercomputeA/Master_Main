@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -5,60 +7,80 @@
 }
 
 :root {
-    --navy: #0A1628;
-    --navy2: #111827;
-    --navy3: #1a2235;
-    --cyan: #38BDF8;
-    --cyan2: #00b8db;
-    --gold: #C8A84B;
-    --gold2: #E8C97A;
-    --pink: #F472B6;
-    --bg: #0D1F3C;
-    --card: #0B1623;
-    --text: #E2E8F0;
-    --muted: #94A3B8;
-    --muted-dim: #64748B;
-    --border: #1E3A5F;
-    --nav-w: 220px;
-    --success: #4ade80;
-    --warning: #C8A84B;
-    --danger: #ef4444;
+    /* ─── TERMINAL DOSSIER PALETTE (Supercompute Design System v1, May 2026) ─── */
+    --site-bg:     #0a1330;
+    --gold-warm:   #C9A33A;
+    --gold-warm-2: #b8902c;
+    --cream:       #F4ECD8;
+    --mono-blue:   #6FA3E5;
+    --hud-yellow:  #E0BE3F;
 
-  --gold-dim:   rgba(200,168,75,0.12);
-  --gold-glow:  rgba(200,168,75,0.08);
-  --term-blue:  #1a3a6b;
-  --deep-navy:  #0a1e3d;
-  --darker:     #060f1e;
-  --eth-blue:   #627EEA;
-  --off-white:  #e8e4d8;
-  --mid-blue:   #4a7ab5;
-  --muted-blue: #2a5a9b;
-  --orb-pink:   #ff2d9b;
-  --sig-green:  #4CAF50;
-  --warm-white: #f9e8c0;
-  --rule:       rgba(42,90,155,0.4);
-  --surface-1:  #0d2040;
-  --surface-2:  #081830;
-  --font-d: 'Phosphate-Solid', 'Phosphate SC', Phosphate, Impact, 'Arial Black', sans-serif;
-  --font-m: 'Courier New', Courier, monospace;
+    /* ─── LEGACY NAMES → ALIASED to Terminal Dossier (240 var() refs survive) ─── */
+    --bg:    var(--site-bg);
+    --gold:  var(--gold-warm);
+    --text:  var(--cream);
+    --muted: var(--mono-blue);
 
-  --gold-dim:   rgba(200,168,75,0.12);
-  --gold-glow:  rgba(200,168,75,0.08);
-  --term-blue:  #1a3a6b;
-  --deep-navy:  #0a1e3d;
-  --darker:     #060f1e;
-  --eth-blue:   #627EEA;
-  --off-white:  #e8e4d8;
-  --mid-blue:   #4a7ab5;
-  --muted-blue: #2a5a9b;
-  --orb-pink:   #ff2d9b;
-  --sig-green:  #4CAF50;
-  --warm-white: #f9e8c0;
-  --rule:       rgba(42,90,155,0.4);
-  --surface-1:  #0d2040;
-  --surface-2:  #081830;
-  --font-d: 'Phosphate-Solid', 'Phosphate SC', Phosphate, Impact, 'Arial Black', sans-serif;
-  --font-m: 'Courier New', Courier, monospace;
+    /* ─── IDENTITY MOMENTS ONLY: logo gradient, AuthOverlay accent, school progress fill ─── */
+    --pink:   #F472B6;
+    --cyan:   #38BDF8;
+    --cyan2:  #00b8db;
+    --violet: #7c3aed;
+
+    /* ─── DETAILS (kept literal for backward compat) ─── */
+    --navy:       #0A1628;
+    --navy2:      #111827;
+    --navy3:      #1a2235;
+    --gold2:      #E8C97A;
+    --card:       #0B1623;
+    --muted-dim:  #64748B;
+    --border:     #1E3A5F;
+    --nav-w:      220px;
+    --topbar-h:   52px;
+    --success:    #4ade80;
+    --warning:    var(--gold-warm);
+    --danger:     #ef4444;
+
+    --gold-dim:   rgba(201,163,58,0.12);
+    --gold-glow:  rgba(201,163,58,0.08);
+    --term-blue:  #1a3a6b;
+    --deep-navy:  #0a1e3d;
+    --darker:     #060f1e;
+    --eth-blue:   #627EEA;
+    --off-white:  var(--cream);
+    --mid-blue:   var(--mono-blue);
+    --muted-blue: #2a5a9b;
+    --orb-pink:   #ff2d9b;
+    --sig-green:  #4CAF50;
+    --warm-white: #f9e8c0;
+    --rule:       rgba(42,90,155,0.4);
+    --surface-1:  #0d2040;
+    --surface-2:  #081830;
+
+    /* ─── ON-DARK ALPHAS (handoff §6) ─── */
+    --white-90: rgba(255,255,255,.90);
+    --white-70: rgba(255,255,255,.70);
+    --white-55: rgba(255,255,255,.55);
+    --white-35: rgba(255,255,255,.35);
+    --white-12: rgba(255,255,255,.12);
+    --white-08: rgba(255,255,255,.08);
+    --white-04: rgba(255,255,255,.04);
+
+    /* ─── 4px SPACING SCALE (handoff §6c) ─── */
+    --s-1: 4px;   --s-2: 8px;   --s-3: 12px;
+    --s-4: 16px;  --s-5: 20px;  --s-6: 24px;
+    --s-8: 32px;  --s-10: 40px; --s-12: 48px;
+
+    /* ─── MOTION (handoff §6f) ─── */
+    --t-fast:   .15s ease;
+    --t-base:   .20s ease;
+    --t-slow:   .60s ease;
+    --t-spring: 1.2s cubic-bezier(.34, 1.56, .64, 1);
+
+    /* ─── FONTS — body font swap deferred to Commit 2 (CRT shell) ─── */
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    --font-d:    'Phosphate-Solid', 'Phosphate SC', Phosphate, Impact, 'Arial Black', sans-serif;
+    --font-m:    'Courier New', Courier, monospace;
 }
 
 body {

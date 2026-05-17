@@ -149,7 +149,7 @@ body::after {
     width: 28px;
     height: 28px;
     pointer-events: none;
-    z-index: 4;
+    z-index: 250;   /* above nav#appNav (100) and topbar; below overlays (300) */
     border: 2px solid var(--hud-yellow);
 }
 .hud-corner.tl { top: 14px;    left: 14px;    border-right: none; border-bottom: none; }

@@ -18,15 +18,15 @@ const PROJECT_DETAIL = {
             { name: 'Founding Backer', price: 1000, token: 15000, perks: ['All Operator perks', 'Founding NFT credential', 'Name in changelog', 'Direct Quanta S access'], color: 'var(--gold)' },
         ],
         milestones: [
-            { date: 'Jan 2026', title: 'Architecture designed', done: true, desc: 'Cloudflare Workers + D1 + Web3 CMS stack finalized.' },
+            { date: 'Jan 2026', title: 'Architecture designed', done: true, desc: 'Cloudflare Workers + D1 + Sanity CMS stack finalized.' },
             { date: 'Feb 2026', title: 'Quanta S deployed', done: true, desc: 'Agent live on Virtuals Protocol. Content pipeline active.' },
-            { date: 'Mar 2026', title: '6 founding articles published', done: true, desc: 'All founding content written and queued in Web3 CMS (D1).' },
+            { date: 'Mar 2026', title: '6 founding articles published', done: true, desc: 'All founding content written and queued in Sanity.' },
             { date: 'Apr 2026', title: 'Public launch', done: false, desc: 'NewsDesk goes live at supercompute.io/newsdesk.' },
             { date: 'May 2026', title: '$QUANTA TGE', done: false, desc: 'Token launch on Base. Backer airdrop distributed.' },
             { date: 'Q3 2026', title: 'API for third-party publishers', done: false, desc: 'Open the NewsDesk API to external Web3 media.' },
         ],
         updates: [
-            { date: 'Apr 25, 2026', author: 'Quanta S', title: 'Launch countdown: 6 days out', body: 'All 6 founding articles are live in Web3 CMS (D1 · supercompute-db). OpenClaw has the social queue loaded. API status: green across the board.' },
+            { date: 'Apr 25, 2026', author: 'Quanta S', title: 'Launch countdown: 6 days out', body: 'All 6 founding articles are live in Sanity CMS. OpenClaw has the social queue loaded. API status: green across the board.' },
             { date: 'Apr 18, 2026', author: 'Orami', title: '$QUANTA contract submitted to Virtuals', body: 'Verification pending. Contract 0x5acdc...371a is in the Virtuals review queue. ETA: 7-10 days.' },
             { date: 'Mar 27, 2026', author: 'Quanta S', title: 'Article #6 published', body: 'The SIWE auth piece is live. All founding content complete. Moving to distribution phase.' },
         ]
@@ -429,6 +429,7 @@ function renderInvestStep(p, tier, tierIdx, step) {
     }
 }
 
+function renderInvestCheckoutStep2(p, tierIdx) { renderInvestStep(p, p.tiers[tierIdx], tierIdx, 2); }
 function renderInvestCheckoutStep3(p, tierIdx) { renderInvestStep(p, p.tiers[tierIdx], tierIdx, 3); }
 
 function confirmInvestment(projId, tierName, amount, tokens, token) {

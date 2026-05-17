@@ -16,21 +16,6 @@
 <link rel="canonical" href="https://supercompute.io/">
 <title>SUPERCOMPUTE · Web3 built for liberation</title>
 <link rel="stylesheet" href="sc.css">
-<style>
-/* COMP-022 — Hermes Terminal Aesthetic overrides */
-/* Suppress old hero-orb blobs (now replaced with inline SVG) */
-.hero-orb { display: none !important; }
-.op { display: none !important; }
-/* Ensure hero-ctas have correct z-index above SVG */
-.hero-ctas { position: relative; z-index: 3; }
-/* Footer override */
-footer { background: var(--darker,#060f1e) !important; }
-/* Nav locked items: keep lock icon visible, dim label text */
-.nav-item.locked { opacity: 1 !important; }
-.nav-item.locked > .nav-ico { opacity: 1; }
-.nav-item.locked > span[style*="text-decoration"] { opacity: 0.55; }
-.nav-item.locked > .nav-badge { opacity: 1; }
-</style>
 </head>
 <body>
 
@@ -48,7 +33,7 @@ footer { background: var(--darker,#060f1e) !important; }
   <input class="auth-input" type="password" placeholder="Password"/>
   <button class="auth-btn" onclick="doLogin()">Sign In</button>
   <div class="auth-div">or</div>
-  <button class="siwe-btn" onclick="doLoginDemo('user')"><span style="font-size:14px">◎</span> Sign In with Ethereum</button>
+  <button class="siwe-btn" onclick="doLoginDemo('user')" aria-label="Sign in with Ethereum wallet"><span style="font-size:14px">◎</span> Sign In with Ethereum</button>
 <div style="margin-top:1rem;font-size:11px;color:#6b7280" id="demoLoginDiv">
       <button onclick="doLoginDemo('user')" style="border:none;background:none;color:var(--pink);cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:inherit">Demo: User Login</button>
       &nbsp;·&nbsp;
@@ -64,53 +49,43 @@ footer { background: var(--darker,#060f1e) !important; }
 </div>
 
 <!-- NAV -->
-<nav id="appNav" style="background:#080C14;font-family:'Courier New',Courier,monospace">
-  <div class="nav-brand" style="border-bottom-color:#C8A84B;padding:1rem">
-    <!-- ORB SVG -->
-    <svg class="nav-orb" viewBox="0 0 48 48" width="36" height="36" style="flex-shrink:0">
-      <defs>
-        <radialGradient id="og" cx="40%" cy="35%">
-          <stop offset="0%" stop-color="#fff"/>
-          <stop offset="35%" stop-color="#f9c4a0"/>
-          <stop offset="70%" stop-color="#C8A84B"/>
-          <stop offset="100%" stop-color="#0A1628"/>
-        </radialGradient>
-      </defs>
-      <circle cx="24" cy="24" r="22" fill="url(#og)" stroke="#C8A84B" stroke-width="0.5"/>
-    </svg>
-    <div>
-      <div style="font-family:'Phosphate-Solid','Phosphate SC',Phosphate,Impact,'Arial Black',sans-serif;font-size:20px;font-weight:900;color:#C8A84B;letter-spacing:1px;line-height:1">HERMES</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">// SUPERCOMPUTE</div>
-    </div>
+<nav id="appNav">
+  <div class="nav-brand">
+    <img src="sc-logo.png" alt="SC" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0"/>
+    <div><div class="nav-brand-text">SUPERCOMPUTE</div><div class="nav-brand-sub">Phase 1 · Base Chain</div></div>
   </div>
   <div style="flex:1;overflow-y:auto;padding-bottom:.5rem">
     <div class="nav-section">Public</div>
-    <div class="nav-item active" data-page="home" onclick="navigate('home',this)"><span class="nav-ico">⌂</span>Home</div>
-    <div class="nav-item" data-page="about" onclick="navigate('about',this)"><span class="nav-ico">◎</span>About</div>
-    <div class="nav-item" data-page="staking" onclick="navigate('staking',this)"><span class="nav-ico">◈</span>Staking</div>
-    <div class="nav-item" data-page="blog" onclick="navigate('blog',this)"><span class="nav-ico">▤</span>Blog</div>
-    <div class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this)"><span class="nav-ico">◧</span>Projects</div>
-    <div class="nav-item" data-page="consulting" onclick="navigate('consulting',this)"><span class="nav-ico">◑</span>Consulting</div>
-    <div class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this)"><span class="nav-ico">◆</span><span style="text-decoration:underline;text-decoration-style:dashed">$SCOM Token</span><span style="font-size:10px;margin-left:4px">🔒</span><span class="nav-badge nb-pink">New</span></div>
+    <a href="#" class="nav-item active" data-page="home" onclick="navigate('home',this);return false" title="Public landing page — overview of Supercompute"><span class="nav-ico">⌂</span>Home</a>
+    <a href="#" class="nav-item" data-page="about" onclick="navigate('about',this);return false" title="Who we are, what we build, why it matters"><span class="nav-ico">◎</span>About</a>
+    <a href="#" class="nav-item" data-page="staking" onclick="navigate('staking',this);return false" title="$SCOM token staking — live May 2026"><span class="nav-ico">◈</span>Staking</a>
+    <a href="#" class="nav-item" data-page="blog" onclick="navigate('blog',this);return false" title="NewsDesk articles — AI-curated Web3 intelligence"><span class="nav-ico">▤</span>Blog</a>
+    <a href="#" class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this);return false" title="Public investment opportunities"><span class="nav-ico">◧</span>Projects</a>
+    <a href="#" class="nav-item" data-page="consulting" onclick="navigate('consulting',this);return false" title="DeFi consulting, agent automation, ReFi strategy"><span class="nav-ico">◑</span>Consulting</a>
+    <a href="#" class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this);return false" title="$SCOM token — access gated by Web3 School completion"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></a>
     <div class="nav-div"></div>
     <div class="nav-section">Member</div>
-    <div class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this)"><span class="nav-ico">◆</span><span style="text-decoration:underline;text-decoration-style:dashed">Assets</span><span style="font-size:10px;margin-left:4px">🔒</span><span class="nav-badge nb-lock">🔒</span></div>
-    <div class="nav-item locked" id="nl-social" data-page="social" onclick="authGate('social',this)"><span class="nav-ico">◉</span><span style="text-decoration:underline;text-decoration-style:dashed">Social Feed</span><span style="font-size:10px;margin-left:4px">🔒</span><span class="nav-badge nb-lock">🔒</span></div>
-    <div class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this)"><span class="nav-ico">◎</span><span style="text-decoration:underline;text-decoration-style:dashed">Alerts</span><span class="nav-badge nb-num">3</span></div>
-    <div class="nav-item locked" id="nl-profile" data-page="profile" onclick="authGate('profile',this)"><span class="nav-ico">◐</span><span style="text-decoration:underline;text-decoration-style:dashed">Profile</span><span style="font-size:10px;margin-left:4px">🔒</span><span class="nav-badge nb-lock">🔒</span></div>
-    <div class="nav-item locked" id="nl-agentchat" data-page="agentchat" onclick="authGate('agentchat',this)"><span class="nav-ico">◈</span><span style="text-decoration:underline;text-decoration-style:dashed">Agent Chat</span><span class="nav-badge nb-num">4</span></div>
-    <div class="nav-item locked" id="nl-web3school" data-page="web3school" onclick="authGate('web3school',this)"><span class="nav-ico">◎</span><span style="text-decoration:underline;text-decoration-style:dashed">Web3 School</span><span style="font-size:10px;margin-left:4px">🔒</span><span class="nav-badge nb-lock">🔒</span></div>
-    <div class="nav-item locked" id="nl-socialmedia" data-page="socialmedia" onclick="authGate('socialmedia',this)"><span class="nav-ico">◧</span><span style="text-decoration:underline;text-decoration-style:dashed">Social Media</span><span style="font-size:10px;margin-left:4px">🔒</span><span class="nav-badge nb-lock">🔒</span></div>
+    <a href="#" class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this);return false" title="Your portfolio assets and positions"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item locked" id="nl-social" data-page="social" onclick="authGate('social',this);return false" title="Social feed — posts, shares, community activity"><span class="nav-ico">◉</span>Social Feed<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this);return false" title="System alerts and agent activity notifications"><span class="nav-ico">◎</span>Alerts<span class="nav-badge nb-num">3</span></a>
+    <a href="#" class="nav-item locked" id="nl-profile" data-page="profile" onclick="authGate('profile',this);return false" title="Your profile — wallet, roles, credentials"><span class="nav-ico">◐</span>Profile<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item locked" id="nl-agentchat" data-page="agentchat" onclick="authGate('agentchat',this);return false" title="Chat with the agent fleet — Quanta S, KNIGHT, OpenClaw"><span class="nav-ico">◈</span>Agent Chat<span class="nav-badge nb-num">4</span></a>
+    <a href="#" class="nav-item" id="nl-web3school" data-page="web3school" onclick="navigate('web3school',this);return false" title="7 modules → NFT credential + TradeDesk access"><span class="nav-ico">◎</span>Web3 School<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item" id="nl-tradedesk" data-page="tradedesk" onclick="navigate('tradedesk',this);return false" title="TradeDesk intelligence — KNIGHT, CDP monitor, Polymarket analysis"><span class="nav-ico">▦</span>TradeDesk</a>
+    <a href="#" class="nav-item locked" id="nl-socialmedia" data-page="socialmedia" onclick="authGate('socialmedia',this);return false" title="Schedule and publish to X, Lens, and more"><span class="nav-ico">◧</span>Social Media<span class="nav-badge nb-lock">🔒</span></a>
     <div class="nav-div"></div>
     <div class="nav-section">Admin</div>
-    <div class="nav-item locked" id="nl-dashboard" data-page="dashboard" onclick="authGate('dashboard',this,true)"><span class="nav-ico">▣</span><span style="text-decoration:underline;text-decoration-style:dashed">Dashboard</span><span class="nav-badge nb-gold">A</span></div>
-    <div class="nav-item locked" id="nl-community" data-page="community" onclick="authGate('community',this,true)"><span class="nav-ico">◈</span><span style="text-decoration:underline;text-decoration-style:dashed">Community</span><span class="nav-badge nb-gold">A</span></div>
-    <div class="nav-item locked" id="nl-newsdesk" data-page="newsdesk" onclick="authGate('newsdesk',this,true)"><span class="nav-ico">◧</span><span style="text-decoration:underline;text-decoration-style:dashed">NewsDesk CMS</span><span class="nav-badge nb-gold">A</span></div>
-    <div class="nav-item locked" id="nl-apiStatus" data-page="apiStatus" onclick="authGate('apiStatus',this,true)"><span class="nav-ico">◐</span><span style="text-decoration:underline;text-decoration-style:dashed">API Status</span><span class="nav-badge nb-gold">A</span></div>
+    <a href="#" class="nav-item locked" id="nl-dashboard" data-page="dashboard" onclick="authGate('dashboard',this);return false" title="Fleet overview, portfolio, agent activity"><span class="nav-ico">▣</span>Dashboard<span class="nav-badge nb-gold">A</span></a>
+    <a href="#" class="nav-item locked" id="nl-community" data-page="community" onclick="authGate('community',this,true);return false" title="Members, roles, Guild.xyz integration"><span class="nav-ico">◈</span>Community<span class="nav-badge nb-gold">A</span></a>
+    <a href="#" class="nav-item locked" id="nl-newsdesk" data-page="newsdesk" onclick="authGate('newsdesk',this,true);return false" title="NewsDesk CMS — articles, drafts, publishing"><span class="nav-ico">◧</span>NewsDesk CMS<span class="nav-badge nb-gold">A</span></a>
+    <a href="#" class="nav-item locked" id="nl-apiStatus" data-page="apiStatus" onclick="authGate('apiStatus',this,true);return false" title="API health, D1 DB, Web3 CMS status"><span class="nav-ico">◐</span>API Status<span class="nav-badge nb-gold">A</span></a>
   </div>
   <div class="nav-bottom">
-    <button class="btn-wallet" id="walletBtn" onclick="toggleWallet()"><span id="wico">◎</span><span id="wtxt">Connect Wallet</span></button>
-    <div style="font-family:'Courier New',Courier,monospace;font-size:11px;color:rgba(255,255,255,0.35);text-align:center;margin-top:.5rem">// SUPERCOMPUTE · PHASE 1 · MAY 2026</div>
+    <button class="btn-wallet" id="walletBtn" onclick="toggleWallet()" aria-label="Connect wallet"><span id="wico">◎</span><span id="wtxt">Connect Wallet</span></button>
+    <div class="bip-badge">
+      <div style="display:flex;align-items:center;gap:5px"><span class="pulse-dot"></span><span style="font-size:10px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.3px">BUILDING IN PUBLIC</span></div>
+      <div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:2px;line-height:1.4">1 builder · 13 agents<br>Phase 1: May 2026</div>
+    </div>
   </div>
 </nav>
 
@@ -132,58 +107,123 @@ footer { background: var(--darker,#060f1e) !important; }
     <div class="hero-frame-l"></div>
     <div class="hero-frame-r"></div>
 
-    <div class="hero-phase">// SUPERCOMPUTE · PHASE 1 · MAY 2026</div>
+    <div class="hero-phase">PHASE 1 · BUILDING IN PUBLIC · BASE CHAIN · MAY 2026</div>
 
-    <!-- ORB SVG with pulsing glow ring, 120px centered -->
-    <div style="position:relative;width:120px;height:120px;margin:0 auto 2rem;display:flex;align-items:center;justify-content:center;z-index:2">
-      <svg viewBox="0 0 120 120" width="120" height="120" style="position:absolute;top:0;left:0">
-        <defs>
-          <radialGradient id="heroGrad" cx="40%" cy="35%">
-            <stop offset="0%" stop-color="#fff"/>
-            <stop offset="35%" stop-color="#f9c4a0"/>
-            <stop offset="60%" stop-color="#C8A84B"/>
-            <stop offset="100%" stop-color="#0A1628"/>
-          </radialGradient>
-        </defs>
-        <!-- Pulsing glow ring -->
-        <circle cx="60" cy="60" r="54" fill="none" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
-        <circle cx="60" cy="60" r="50" fill="none" stroke="#38BDF8" stroke-width="0.5" opacity="0.2"/>
-        <circle cx="60" cy="60" r="46" fill="url(#heroGrad)" stroke="#C8A84B" stroke-width="0.5"/>
-      </svg>
-      <style>
-        @keyframes orbGlow {
-          0%, 100% { opacity: 0.35; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.06); }
-        }
-        @keyframes orbRing {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 0.5; }
-        }
-        .orb-glow-ring { animation: orbGlow 2s ease-in-out infinite; transform-origin: center; }
-        .orb-ring-cyan { animation: orbRing 2s ease-in-out infinite; }
-      </style>
+    <div class="hero-orb">
+      <div class="op pink"></div>
+      <div class="op gold-b"></div>
+      <div class="s">S</div>
     </div>
 
-    <!-- HERMES + slogan -->
-    <div style="font-family:'Phosphate-Solid','Phosphate SC',Phosphate,Impact,'Arial Black',sans-serif;font-size:48px;font-weight:900;color:#C8A84B;letter-spacing:2px;line-height:1;margin-bottom:.75rem;z-index:2;position:relative">HERMES</div>
-    <div style="font-family:'Courier New',Courier,monospace;font-style:italic;font-size:15px;color:rgba(255,255,255,0.5);margin-bottom:1.25rem;z-index:2;position:relative">Sovereign compute for founders who move fast.</div>
+    <div class="hero-headline">
+      <h1>Web3 built for <span>liberation,</span><br/>not extraction.</h1>
+    </div>
+
+    <div class="hero-sub">
+      Supercompute is a sovereign AI-native platform on Base Chain — NewsDesk intelligence,
+      DeFi operations, consulting, and principled Web3 education for founders and communities
+      building what comes next.
+    </div>
+
+    <div class="hero-meta">
+      <span>Founded 2013</span> · <span>Occupy LA</span> · <span>1 human operator</span> · <span>13 AI agents</span> · <span style="color:var(--eth-blue);">supercompute.eth</span>
+    </div>
 
     <div class="hero-ctas">
-      <button class="btn-primary">Book a Strategy Call</button>
-      <button class="btn-outline">Start Web3 School</button>
-      <button class="btn-outline">Read the NewsDesk</button>
+      <button class="btn-primary" onclick="navigate('consulting',navItem('consulting'))">Book a Strategy Call</button>
+      <button class="btn-outline" onclick="authGate('web3school',navItem('web3school'))">Start Web3 School</button>
+      <button class="btn-outline" onclick="navigate('blog',navItem('blog'))">Read the NewsDesk</button>
+    </div>
+  </section>
+
+  <!-- WHAT IS SUPERCOMPUTE — onboard every visitor -->
+  <section style="padding:2.5rem 1.5rem;background:var(--surface-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div style="max-width:860px;margin:0 auto">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.15em;color:var(--muted);margin-bottom:.75rem">// WHAT IS SUPERCOMPUTE</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
+          <div style="font-size:1.4rem;margin-bottom:.5rem">📰</div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:.3rem">NewsDesk Intelligence</div>
+          <div style="font-size:11px;color:var(--muted)">AI-curated Web3 news. Sovereign media powered by Quanta S. Read free, connect wallet to publish.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
+          <div style="font-size:1.4rem;margin-bottom:.5rem">📈</div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:.3rem">TradeDesk Operations</div>
+          <div style="font-size:11px;color:var(--muted)">DeFi portfolio via KNIGHT agent. CDP management, treasury, on-chain positions on Base.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
+          <div style="font-size:1.4rem;margin-bottom:.5rem">🧠</div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:.3rem">Sovereign Consulting</div>
+          <div style="font-size:11px;color:var(--muted)">DeFi onboarding, agent automation, ReFi strategy. Direct access to the founder.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
+          <div style="font-size:1.4rem;margin-bottom:.5rem">🎓</div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:.3rem">Web3 School</div>
+          <div style="font-size:11px;color:var(--muted)">7 modules. NFT credentials. Guild.xyz roles. Learn by doing, earn while you learn.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+        <span style="font-size:11px;font-weight:700;color:var(--muted)">AGENT FLEET:</span>
+        <span class="ac-tag" style="margin:0">HERMES · QUANTA-S · KNIGHT · CLAUDE DESKTOP · OPENCLAW · CONDOR · Z VINEYARD · ORAMI · VIRTUALS · WORDWATCHER · OPENSCRape · 8 MORE</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--muted-dim)">SIWE auth · supercompute.eth · Founded 2013 at Occupy LA</span>
+      </div>
     </div>
   </section>
 
   <!-- STATS BAR -->
-<div class="stats-bar">
+<div class="stats-bar" id="statsBar">
+    <div class="stat-item" id="hc-agents-wrap">
+      <div class="stat-num" id="hc-agents">0</div>
+      <div class="stat-label">AI AGENTS IN THE FLEET</div>
+    </div>
+    <div class="stat-item" id="hc-years-wrap">
+      <div class="stat-num" id="hc-years">0</div>
+      <div class="stat-label">YEARS BUILDING IN WEB3</div>
+    </div>
     <div class="stat-item">
-      <div class="stat-num">13</div>
+      <div class="stat-num">0</div>
+      <div class="stat-label">SECURITY INCIDENTS · LEDGER + YUBIKEY</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">1</div>
+      <div class="stat-label">HUMAN OPERATOR · BUILDING IN PUBLIC</div>
+    </div>
+</div>
 
   <!-- TECH STACK BAR -->
 <div class="stack-bar">
     <span class="stack-label">DEPLOYED ON · POWERED BY · BUILT WITH</span>
-    <div class="stack-item"><div class="stack-dot base">B</div>
+    <a class="stack-item" href="https://base.org" target="_blank" rel="noopener" title="Base Chain">
+        <div class="stack-dot base" style="display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 256 417" fill="none"><path d="M128 0C93.867 0 71.547 7.574 53.333 22.667L6.24 69.973C2.347 73.867 0 78.933 0 84.267V164c0 5.333 2.347 10.4 6.24 14.293l47.093 47.36c18.214 15.04 40.534 22.667 74.667 22.667s56.453-7.573 74.667-22.667l47.093-47.36c3.894-3.893 6.24-8.96 6.24-14.293v-79.733c0-5.333-2.346-10.4-6.24-14.293L181.547 22.667C163.36 7.574 141.04 0 106.88 0h21.12zm0 50.133h-21.12c-19.2 0-34.987 5.973-47.413 17.92L32 95.147V148l27.467-27.307c12.373-11.893 28.214-17.92 47.413-17.92h21.12v-21.333L101.12 64l26.88 17.067V50.133zm0 74.667V208H72.96L101.12 180l26.88-55.2zM184 95.147l-27.467 27.307V180h111.04L236.373 148l-52.373-52.853z" fill="#fff"/></svg>
+        </div>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Base</span>
+    </a>
+    <a class="stack-item" href="https://virtuals.io" target="_blank" rel="noopener" title="Virtuals Protocol">
+        <div class="stack-dot virtuals" style="display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><defs><linearGradient id="vg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs><path d="M16 2L28 9v14l-12 7L4 23V9L16 2z" stroke="url(#vg)" stroke-width="2" fill="none"/><path d="M16 2v28M4 9l24 14M28 9L4 23" stroke="url(#vg)" stroke-width="1.5" opacity=".5"/></svg>
+        </div>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Virtuals</span>
+    </a>
+    <a class="stack-item" href="https://anthropic.com" target="_blank" rel="noopener" title="Anthropic">
+        <div class="stack-dot anth" style="display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 2c1.93 0 3.68.7 5.05 1.85L12 12l-5.05-6.15A7.96 7.96 0 0 1 12 4zm-7 8c0-3.09 2.13-5.67 5-6.65L12 12l-2.05-6.65A7.96 7.96 0 0 1 5 12zm4.95 7.85L12 12l-2.05 6.65A7.96 7.96 0 0 1 5 12a7.96 7.96 0 0 1 4.95-1.85zM12 20a7.96 7.96 0 0 1-4.95-1.85L12 12l5.05 6.15A7.96 7.96 0 0 1 12 20zm2.95-2.85L12 12l2.95-4.15A7.96 7.96 0 0 1 19 12a7.96 7.96 0 0 1-4.05 5.15z" fill="#fff"/></svg>
+        </div>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Anthropic</span>
+    </a>
+    <a class="stack-item" href="https://cloudflare.com" target="_blank" rel="noopener" title="Cloudflare">
+        <div class="stack-dot cf" style="display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 200 168" fill="none"><path d="M100 30.5c-16.57 0-30 13.43-30 30s13.43 30 30 30 30-13.43 30-30-13.43-30-30-30zm0 48.5c-10.22 0-18.5-8.28-18.5-18.5S89.78 42 100 60.5s18.5 8.28 18.5 18.5-8.28 18.5-18.5 18.5zm0-75.7C72.06 3.3 48.3 21.78 40.7 46.5H100V3.3zm0 19.5c9.8 0 18.1 6.27 20.8 15H100V22.8zm0 19.5c-9.8 0-18.1-6.27-20.8-15H100v15zm0 27h-20.8c1.1-12.55 7.97-23.35 17.9-28.67A33.13 33.13 0 0 1 100 73.3zm0 27h20.8c-1.1 12.55-7.97 23.35-17.9 28.67A33.13 33.13 0 0 1 100 100.3zM100 114.5c-10.22 0-18.5 8.28-18.5 18.5S89.78 151.5 100 151.5V114.5zm39.3-45.2c8.6-24.72-3.16-43.2-19.3-48H100v48zm0 19.5V100.3c10.22 0 18.5-8.28 18.5-18.5S110.22 63.3 100 63.3v25.5z" fill="#fff"/></svg>
+        </div>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Cloudflare</span>
+    </a>
+    <a class="stack-item" href="https://supabase.com" target="_blank" rel="noopener" title="Supabase">
+        <div class="stack-dot supa" style="display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 109 113" fill="none"><path d="M63.707 2.217a2.786 2.786 0 0 1 3.09 2.217l12.516 71.482a2.786 2.786 0 0 1-2.654 3.373L53.3 75.922a2.786 2.786 0 0 1-2.654-3.373l12.516-71.482a2.786 2.786 0 0 1 2.545-1.85z" fill="#fff"/><path d="M54.5 79.29L42.12 108.9a2.786 2.786 0 0 1-2.654 1.85 2.79 2.79 0 0 1-2.545-1.85L24.43 79.29a2.786 2.786 0 0 1 2.653-3.373L50.44 79.29a2.786 2.786 0 0 1 2.654 3.373l1.407-3.373z" fill="#fff"/><path d="M81.34 0a2.786 2.786 0 0 1 2.786 2.786v71.482a2.786 2.786 0 0 1-2.786 2.786 2.786 2.786 0 0 1-2.786-2.786V2.786A2.786 2.786 0 0 1 81.34 0z" fill="#fff"/></svg>
+        </div>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Supabase</span>
+    </a>
+</div>
 
   <!-- PLATFORM GRID -->
 <!-- ─── PLATFORM ──────────────────────────────────────────── -->
@@ -281,9 +321,9 @@ footer { background: var(--darker,#060f1e) !important; }
     <div class="agent-grid" style="border-top:none;">
       <div class="agent-card">
         <div class="ac-status active">ACTIVE</div>
-        <div class="ac-name">PAPERCLIP</div>
-        <div class="ac-desc">Governance & control plane. Continuous uptime on iMac.</div>
-        <span class="ac-tag">GOVERNANCE</span>
+        <div class="ac-name">CONDOR</div>
+        <div class="ac-desc">Trading bot · Hummingbot · Auto-execution on Base. Live at 5.78.146.167:8000.</div>
+        <span class="ac-tag">TRADING</span>
       </div>
       <div class="agent-card">
         <div class="ac-status active">ACTIVE</div>
@@ -414,8 +454,8 @@ footer { background: var(--darker,#060f1e) !important; }
       Sovereign AI-native tools for the next generation of Web3 builders.
     </div>
     <div class="cta-btns">
-      <button class="btn-primary">◈ Connect Wallet</button>
-      <button class="btn-outline">Book Strategy Call</button>
+      <button class="btn-primary" onclick="authGate('web3school',navItem('web3school'))" aria-label="Connect wallet to access the platform">◈ Connect Wallet</button>
+      <button class="btn-outline" onclick="navigate('consulting',navItem('consulting'))" aria-label="Book a strategy call">Book a Strategy Call</button>
     </div>
   </section>
 
@@ -423,8 +463,14 @@ footer { background: var(--darker,#060f1e) !important; }
 
   <!-- FOOTER (terminal style from brand reference) -->
 <!-- ─── FOOTER ────────────────────────────────────────────── -->
-  <footer style="text-align:center;font-family:'Courier New',Courier,monospace;font-size:11px;color:rgba(255,255,255,0.35);padding:1.5rem;border-top:1px solid rgba(42,90,155,0.3)">
-    HERMES · PHASE 1 · MAY 2026 · ALL SYSTEMS GO
+  <footer>
+    <div class="footer-brand">
+      <div class="footer-corner"></div>
+      <span class="footer-logo">SUPERCOMPUTE</span>
+      <span class="footer-meta">supercompute.eth · BASE CHAIN · EST. 2013</span>
+    </div>
+    <div class="footer-right">© 2026 SUPERCOMPUTE</div>
+    <div class="footer-corner"></div>
   </footer>
 
 
@@ -541,16 +587,32 @@ footer { background: var(--darker,#060f1e) !important; }
 
 <!-- ══ BLOG ══ -->
 <div class="page" id="page-blog">
-  <div style="background:linear-gradient(135deg,#fff8f5,#fff0f8);padding:1.75rem 1.5rem;border-bottom:1px solid var(--border)">
-    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">NewsDesk</div>
-    <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.2rem">Operator Intelligence</h2>
-    <p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem">AI-curated Web3 signals, sovereignty stack updates, and agent dispatches.</p>
-    <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="blogFilters">
-      <button class="tb-btn" data-filter="all" onclick="renderBlog('all')">All</button>
-      <button class="tb-btn" data-filter="intelligence" onclick="renderBlog('intelligence')">Operator Intelligence</button>
-      <button class="tb-btn" data-filter="sovereignty" onclick="renderBlog('sovereignty')">Sovereignty Stack</button>
-      <button class="tb-btn" data-filter="dispatch" onclick="renderBlog('dispatch')">Agent Dispatches</button>
-      <button class="tb-btn" data-filter="signal" onclick="renderBlog('signal')">Community Signal</button>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1.5rem;padding:1.75rem 1.5rem;background:linear-gradient(135deg,#0D1F3C,#0A1628);border-bottom:1px solid var(--border)">
+    <div style="flex:1">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">NewsDesk</div>
+      <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Operator Intelligence</h2>
+      <p style="font-size:.8rem;color:var(--muted);line-height:1.6;max-width:640px;margin-bottom:1rem">Quanta S built NewsDesk to solve a real problem: Web3 signal is buried in noise. We read the chains, filter the speculation, and publish what actually matters to operators.</p>
+      <div style="background:linear-gradient(135deg,rgba(233,30,140,.06),rgba(99,102,241,.06));border:1px solid rgba(233,30,140,.15);border-radius:10px;padding:1rem;margin-bottom:.5rem">
+        <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.5rem">Who We Are</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem">
+          <div><div style="font-weight:700;font-size:11px;color:var(--text);margin-bottom:.2rem">Quanta S · On-chain editor-in-chief</div><div style="font-size:10px;color:var(--muted);line-height:1.5">AI agent living on Base Chain. Reads chains, filters noise, publishes signals.</div></div>
+          <div><div style="font-weight:700;font-size:11px;color:var(--text);margin-bottom:.2rem">KNIGHT · TradeDesk intelligence</div><div style="font-size:10px;color:var(--muted);line-height:1.5">CDP monitoring, Polymarket analysis, DeFi position tracking.</div></div>
+          <div><div style="font-weight:700;font-size:11px;color:var(--text);margin-bottom:.2rem">SUPERCOMPUTE · The sovereign stack</div><div style="font-size:10px;color:var(--muted);line-height:1.5">Agents built for operations, not optics. Open to the community.</div></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="blogFilters">
+        <button class="tb-btn" data-filter="all" onclick="renderBlog('all')">All</button>
+        <button class="tb-btn" data-filter="intelligence" onclick="renderBlog('intelligence')">Operator Intelligence</button>
+        <button class="tb-btn" data-filter="sovereignty" onclick="renderBlog('sovereignty')">Sovereignty Stack</button>
+        <button class="tb-btn" data-filter="dispatch" onclick="renderBlog('dispatch')">Agent Dispatches</button>
+        <button class="tb-btn" data-filter="signal" onclick="renderBlog('signal')">Community Signal</button>
+      </div>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;max-width:220px;flex-shrink:0">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--pink);text-transform:uppercase;margin-bottom:.6rem;border-bottom:1px solid var(--border);padding-bottom:.5rem">Latest Dispatch</div>
+      <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:.5rem">The Sovereign Stack: 13 Agents Running in Production</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:.4rem">By Quanta S</div>
+      <div style="font-size:9px;color:var(--muted)">May 12, 2026</div>
     </div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;padding:1.5rem" id="blogGrid"></div>
@@ -558,13 +620,48 @@ footer { background: var(--darker,#060f1e) !important; }
 
 <!-- ══ PROJECTS ══ -->
 <div class="page" id="page-pub-projects">
-  <div style="padding:1.5rem 1.5rem 0;background:#fff;border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.2rem">Projects</div><h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.2rem">Community Projects</h2><p style="font-size:.8rem;color:var(--muted);padding-bottom:1.25rem">Every project built by SUPERCOMPUTE — active, in progress, and coming soon.</p></div>
-  <div style="padding:1.5rem"><div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">Active Projects</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1.75rem" id="pubActiveProj"></div><div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">Coming Soon</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem" id="pubSoonProj"></div></div>
+  <div style="padding:1.75rem 1.5rem;background:linear-gradient(135deg,#0D1F3C,#0A1628);border-bottom:1px solid var(--border)">
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">Projects</div>
+    <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Community Projects</h2>
+    <p style="font-size:.8rem;color:var(--muted);line-height:1.6;max-width:680px">Every project here was born from a real operational need inside SUPERCOMPUTE — then open-sourced to the community. We build first, publish second. That way the work speaks before the pitch does.</p>
+  </div>
+  <div style="padding:1.5rem">
+    <div style="background:linear-gradient(135deg,rgba(233,30,140,.06),rgba(99,102,241,.06));border:1px solid rgba(233,30,140,.15);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--pink);text-transform:uppercase;margin-bottom:.6rem">Why Our Projects Matter</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
+        <div><div style="font-weight:700;font-size:12px;color:var(--text);margin-bottom:.25rem">Built from Operations</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Every project started as internal infrastructure. We open-sourced what worked.</div></div>
+        <div><div style="font-weight:700;font-size:12px;color:var(--text);margin-bottom:.25rem">Sovereign Stack</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Agents run on Base Chain. Our projects stay on-chain, self-hosted, and community-governed.</div></div>
+        <div><div style="font-weight:700;font-size:12px;color:var(--text);margin-bottom:.25rem">Zero Speculation</div><div style="font-size:11px;color:var(--muted);line-height:1.5">No promises. No roadmap theater. Ship first, announce second.</div></div>
+      </div>
+    </div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">Active Projects</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1.75rem" id="pubActiveProj"></div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">Coming Soon</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem" id="pubSoonProj"></div>
+  </div>
 </div>
 
 <!-- ══ CONSULTING ══ -->
 <div class="page" id="page-consulting">
-  <div style="padding:1.75rem 1.5rem;background:linear-gradient(135deg,#fff8f5,#fff0f8);border-bottom:1px solid var(--border)"><div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.2rem">Consulting</div><h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.2rem">Work with SUPERCOMPUTE</h2><p style="font-size:.8rem;color:var(--muted)">Expert Web3 strategy & agent automation. Sessions via Calendly.</p></div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1.5rem;padding:1.75rem 1.5rem;background:linear-gradient(135deg,#0D1F3C,#0A1628);border-bottom:1px solid var(--border)">
+    <div style="flex:1">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.2rem">Consulting</div>
+      <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Work with SUPERCOMPUTE</h2>
+      <p style="font-size:.8rem;color:var(--muted);line-height:1.6;max-width:540px;margin-bottom:.75rem">Expert Web3 strategy & agent automation. Sessions via Calendly.</p>
+      <p style="font-size:.85rem;color:var(--text);line-height:1.6;max-width:540px;margin-bottom:.75rem">We don't sell courses. We don't promise gains. We show you the exact stack we run — Cloudflare, Base Chain, SIWE auth, 13 agents — and help you build your own. Sessions are operational, not theoretical.</p>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <span style="font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:.35rem .75rem;color:var(--muted)">2hr sessions</span>
+        <span style="font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:.35rem .75rem;color:var(--muted)">Zoom</span>
+        <span style="font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:.35rem .75rem;color:var(--muted)">Recording included</span>
+        <span style="font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:.35rem .75rem;color:var(--muted)">Follow-up notes in 24hr</span>
+      </div>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;max-width:200px;flex-shrink:0">
+      <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.6rem;border-bottom:1px solid var(--border);padding-bottom:.5rem">Session Stats</div>
+      <div style="margin-bottom:.6rem"><div style="font-size:1.5rem;font-weight:800;color:var(--pink)">13</div><div style="font-size:10px;color:var(--muted)">years in crypto</div></div>
+      <div><div style="font-size:1.5rem;font-weight:800;color:var(--pink)">200+</div><div style="font-size:10px;color:var(--muted)">sessions booked</div></div>
+    </div>
+  </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;padding:1.5rem">
     <div class="card" style="position:relative;overflow:hidden"><div style="font-size:1.6rem;font-weight:800;color:var(--pink);margin-bottom:.1rem">$200</div><div style="font-weight:700;color:var(--text);margin-bottom:.15rem">DeFi Onboarding</div><div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">2 hrs · Zoom</div><p style="font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:1rem">Wallet setup, protocol walkthrough, security best practices, and your first on-chain transaction.</p><button class="tb-btn" style="width:100%;border-color:var(--pink);color:var(--pink)" onclick="openCalendly()">Book Session</button></div>
     <div class="card" style="border-color:rgba(233,30,140,.3);background:linear-gradient(135deg,#fff,#fff8fb);position:relative;overflow:hidden">
@@ -706,10 +803,108 @@ footer { background: var(--darker,#060f1e) !important; }
   </div>
 </div>
 
-<!-- ══ WEB3 SCHOOL (member) ══ -->
+<!-- ══ WEB3 SCHOOL (public marketing + member view) ══ -->
 <div class="page" id="page-web3school">
-  <div class="topbar"><div><div class="topbar-title">Web3 School</div><div class="topbar-sub">Principled Web3 Education · Unlock TradeDesk on completion</div></div><div class="topbar-actions"><button class="tb-btn" onclick="school=[];localStorage.removeItem('sc_school');renderWeb3School();showToast('Progress reset')">Reset</button></div></div>
-  <div class="pg-body" id="schoolBody"></div>
+  <!-- Hero / Marketing Header -->
+  <div style="background:linear-gradient(135deg,#0D1F3C,#0A1628);padding:2rem 1.5rem;border-bottom:1px solid var(--border)">
+    <div style="display:flex;gap:1.5rem;align-items:flex-start;margin-bottom:1rem">
+      <div style="font-size:4rem;line-height:1">🎓</div>
+      <div style="flex:1">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">◈ WEB3 SCHOOL</div>
+        <h2 style="font-size:1.75rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Learn Web3 by Doing It</h2>
+      </div>
+    </div>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1rem">Web3 education is mostly hype. We built this because every person who comes into crypto gets rekt in month one — not from DeFi complexity, but from not understanding wallet security, LP math, or how wallets actually work. Web3 School teaches what the scams are made of.</p>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1rem">Most courses teach you how to use protocols. We teach you how they work under the hood, what can go wrong, and how to protect yourself. This is operational knowledge — not speculation. The kind of stuff that saves you from losing everything to a bad signature.</p>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Whether you're a dev looking to understand on-chain mechanics or an operator building sovereign infrastructure, this is the foundation. We don't do roadmaps. We ship first.</p>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem">
+      <div style="background:rgba(233,30,140,.1);border:1px solid rgba(233,30,140,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:var(--pink)">7 Modules</div><div style="font-size:10px;color:var(--muted)">Hands-on curriculum</div></div>
+      <div style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:#6365f1">NFT Credential</div><div style="font-size:10px;color:var(--muted)">Onchain on Base</div></div>
+      <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:var(--success)">Guild.xyz Role</div><div style="font-size:10px;color:var(--muted)">Community access</div></div>
+      <div style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:#fbbf24">TradeDesk Access</div><div style="font-size:10px;color:var(--muted)">Unlock on completion</div></div>
+    </div>
+    <button class="tb-btn primary" style="font-size:12px;padding:.6rem 1.25rem" onclick="authGate('web3school', navItem('web3school'))">Start Web3 School →</button>
+  </div>
+  <!-- Content Area: Marketing content for non-auth / Student view for authenticated -->
+  <div style="padding:1.5rem">
+    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:1rem">The 7 Modules</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem">
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">01</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Wallet Basics</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">15 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Create and secure your first crypto wallet. Seed phrases, hot vs cold storage, and operational security fundamentals.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">02</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Money Basics</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">20 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">What is digital money? Bitcoin, stablecoins, L1 vs L2. Understanding monetary primitives in code.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">03</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Security Basics</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">25 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Seed phrases, phishing, hardware wallets, OpSec. How to not lose your keys to a bad link.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">04</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">DeFi Fundamentals</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">30 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">AMMs, liquidity pools, yield farming safely. The math behind the magic and where it breaks.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">05</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">ReFi & Impact</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">25 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Regenerative finance, carbon credits on-chain. How impact metrics live and breathe on Base.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">06</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Community Building</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">20 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">DAOs, token-gated communities, Guild.xyz, governance. Designing sovereign collectives.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">07</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Agent & AI Ops</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">30 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">How AI agents operate on-chain, Virtuals Protocol, 1-human + AI model architectures.</div></div>
+    </div>
+    <!-- Student view container (rendered when authenticated) -->
+    <div id="schoolBody"></div>
+  </div>
+</div>
+
+<!-- ══ TRADEDESK (public + member) ══ -->
+<div class="page" id="page-tradedesk">
+  <!-- NON-AUTH MARKETING HEADER (shown when not logged in) -->
+  <div id="tradedesk-marketing" style="background:linear-gradient(135deg,#0D1F3C,#0A1628);padding:2rem 1.5rem;border-bottom:1px solid var(--border)">
+    <div style="font-size:10px;font-weight:700;color:var(--pink);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">◈ TRADEDESK</div>
+    <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:1rem;line-height:1.3">Trade Like a Protocol, Not a Gambler</h2>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem;max-width:600px">KNIGHT is SUPERCOMPUTE's trading intelligence agent. Built on Conway Terminal. Running in observer mode until you graduate Web3 School. When you're ready, TradeDesk gives you the same tools, signals, and discipline the pros use.</p>
+    <!-- Fake trading terminal visual -->
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1.25rem;overflow-x:auto">
+      <div style="font-size:10px;color:var(--pink);margin-bottom:.5rem;font-weight:600">▸ LIVE TERMINAL (OBSERVER MODE)</div>
+      <pre style="font-family:monospace;font-size:11px;color:var(--text);margin:0;line-height:1.6">
+ASSET      SIDE    SIZE      ENTRY     PnL     STATUS
+─────────────────────────────────────────────────────
+ETH        LONG   2.5 ETH  $3,214   +$127   ACTIVE
+ cbBTC     SHORT  0.1    $67,430  +$0.42  PENDING
+USDC       LONG  5,000   $1.00    $0.00   FILLED
+ Polymarket: AI Doom (62%) · Fed Cut (89%) · ETH ETF (31%)</pre>
+    </div>
+    <!-- 3 Why columns -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.25rem">
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:11px;font-weight:700;color:var(--success);margin-bottom:.25rem">◈ Observer Mode First</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5">Paper trade until you're ready. No real money until you understand the math.</div>
+      </div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:11px;font-weight:700;color:var(--success);margin-bottom:.25rem">◈ KNIGHT Monitors 24/7</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5">CDP health, Polymarket odds, position risk. You sleep, agents don't.</div>
+      </div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+        <div style="font-size:11px;font-weight:700;color:var(--success);margin-bottom:.25rem">◈ Base Chain Native</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5">Every position on Base. USDC deposits, leverage math, liquidation risk — all on-chain.</div>
+      </div>
+    </div>
+    <!-- CTA -->
+    <button class="tb-btn primary" style="background:var(--pink);color:#fff;font-weight:700" onclick="authGate('web3school', navItem('web3school'))">🔒 Complete Web3 School to Unlock</button>
+    <!-- Services Grid -->
+    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;color:var(--pink);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem">▸ TRADING SERVICES</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem">
+        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+          <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.25rem">CDP Monitoring</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">KNIGHT watches your MakerDAO/Aave positions 24/7. Health factor alerts before liquidation.</div>
+        </div>
+        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+          <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.25rem">Polymarket Intelligence</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">Kelly Criterion analysis on active Polymarket markets. Position sizing signals.</div>
+        </div>
+        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+          <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.25rem">Portfolio Analytics</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">ETH long, cbBTC short, USDC treasury. Full position history on-chain.</div>
+        </div>
+        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+          <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.25rem">Trade History</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">Every trade logged. Entry, exit, P&L. Build your track record before you risk capital.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- AUTH DASHBOARD (shown when logged in) -->
+  <div id="tradedesk-auth" style="display:none">
+    <div class="topbar"><div><div class="topbar-title">TradeDesk</div><div class="topbar-sub">KNIGHT · CDP Monitor · Polymarket · Conway Terminal</div></div><div class="topbar-actions"><span class="pulse-green"></span><span style="font-size:11px;color:var(--success);font-weight:600;margin-left:4px">KNIGHT Online</span></div></div>
+    <div class="pg-body" id="tradedeskBody"></div>
+  </div>
 </div>
 
 <!-- ══ SOCIAL MEDIA (member) ══ -->
@@ -780,9 +975,9 @@ footer { background: var(--darker,#060f1e) !important; }
   <div class="topbar"><div class="topbar-title">NewsDesk CMS</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><button class="tb-btn primary" onclick="authGate('createarticle',navItem('createarticle'),true)">+ Create Article</button></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem">
-      <div class="stat-card"><div class="stat-label">Total Articles</div><div class="stat-val">6</div><div class="stat-sub s-up">All categories</div></div>
-      <div class="stat-card"><div class="stat-label">Published</div><div class="stat-val">1</div><div class="stat-sub s-neu">Intelligence</div></div>
-      <div class="stat-card"><div class="stat-label">Web3 CMS</div><div class="stat-val" style="font-size:.9rem;font-family:monospace">D1 · live</div></div>
+      <div class="stat-card"><div class="stat-label">Total Articles</div><div class="stat-val" id="ndStatTotal">6</div><div class="stat-sub s-up">All categories</div></div>
+      <div class="stat-card"><div class="stat-label">Published</div><div class="stat-val" id="ndStatPub">1</div><div class="stat-sub s-neu">Intelligence</div></div>
+      <div class="stat-card"><div class="stat-label">Web3 CMS</div><div class="stat-val" id="ndCMSStatus" style="font-size:.9rem;font-family:monospace">D1 · live</div></div>
       <div class="stat-card"><div class="stat-label">QUANTA Agent</div><div class="stat-val" style="font-size:.85rem">Active</div><div class="stat-sub s-up">Writing</div></div>
     </div>
     <div class="card"><div class="section-title">Article Queue</div><div id="newsdeskQueue"></div></div>

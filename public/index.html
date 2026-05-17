@@ -27,7 +27,7 @@
 <div class="hud-corner br"></div>
 
 <!-- Build badge — auto-populated by npm run sync (see package.json) -->
-<div class="version-tag" id="versionTag">build · design-system @ 6af9622 · 20:00</div>
+<div class="version-tag" id="versionTag">build · design-system @ 31015e8 · 20:18</div>
 
 <!-- AUTH OVERLAY -->
 <div class="auth-overlay" id="authOverlay" style="display:none">
@@ -102,387 +102,302 @@
 <main id="appMain">
 
 <!-- ══ HOME ══ -->
-<div class="page active" id="page-home">
-  <!-- Price ticker removed per brief §4 ("Do not put a price ticker at the top of the home page"). -->
+<!-- ══ HOME ══ -->
+<div class="page active ts-landing" id="page-home">
 
-  <!-- HERO (terminal design from brand reference) -->
-<section class="hero scan">
-    <!-- Frame -->
-    <div class="hero-corners">
-      <div class="c tl"></div><div class="c tr"></div>
-      <div class="c bl"></div><div class="c br"></div>
-    </div>
-    <div class="hero-frame-t"></div>
-    <div class="hero-frame-b"></div>
-    <div class="hero-frame-l"></div>
-    <div class="hero-frame-r"></div>
-
-    <div class="hero-phase">PHASE 1 · BUILDING IN PUBLIC · BASE CHAIN · MAY 2026</div>
-
-    <div class="hero-orb">
-      <div class="op pink"></div>
-      <div class="op gold-b"></div>
-      <div class="s">S</div>
-    </div>
-
-    <div class="hero-headline">
-      <h1>Web3 built for <span>liberation,</span><br/>not extraction.</h1>
-    </div>
-
-    <div class="hero-sub">
-      Supercompute is a sovereign AI-native platform on Base Chain — NewsDesk intelligence,
-      DeFi operations, consulting, and principled Web3 education for founders and communities
-      building what comes next.
-    </div>
-
-    <div class="hero-meta">
-      <span>Founded 2013</span> · <span>Occupy LA</span> · <span>1 human operator</span> · <span>13 AI agents</span> · <span style="color:var(--eth-blue);">supercompute.eth</span>
-    </div>
-
-    <div class="hero-ctas">
-      <button class="btn-primary" onclick="navigate('consulting',navItem('consulting'))">Book a Strategy Call</button>
-      <button class="btn-outline" onclick="authGate('web3school',navItem('web3school'))">Start Web3 School</button>
-      <button class="btn-outline" onclick="navigate('blog',navItem('blog'))">Read the NewsDesk</button>
-    </div>
-  </section>
-
-  <!-- WHAT IS SUPERCOMPUTE — onboard every visitor -->
-  <section style="padding:2.5rem 1.5rem;background:var(--surface-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
-    <div style="max-width:860px;margin:0 auto">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.15em;color:var(--muted);margin-bottom:.75rem">// WHAT IS SUPERCOMPUTE</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem">
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
-          <div style="font-size:1.4rem;margin-bottom:.5rem">📰</div>
-          <div style="font-weight:700;font-size:13px;margin-bottom:.3rem">NewsDesk Intelligence</div>
-          <div style="font-size:11px;color:var(--muted)">AI-curated Web3 news. Sovereign media powered by Quanta S. Read free, connect wallet to publish.</div>
-        </div>
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
-          <div style="font-size:1.4rem;margin-bottom:.5rem">📈</div>
-          <div style="font-weight:700;font-size:13px;margin-bottom:.3rem">TradeDesk Operations</div>
-          <div style="font-size:11px;color:var(--muted)">DeFi portfolio via KNIGHT agent. CDP management, treasury, on-chain positions on Base.</div>
-        </div>
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
-          <div style="font-size:1.4rem;margin-bottom:.5rem">🧠</div>
-          <div style="font-weight:700;font-size:13px;margin-bottom:.3rem">Sovereign Consulting</div>
-          <div style="font-size:11px;color:var(--muted)">DeFi onboarding, agent automation, ReFi strategy. Direct access to the founder.</div>
-        </div>
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
-          <div style="font-size:1.4rem;margin-bottom:.5rem">🎓</div>
-          <div style="font-weight:700;font-size:13px;margin-bottom:.3rem">Web3 School</div>
-          <div style="font-size:11px;color:var(--muted)">7 modules. NFT credentials. Guild.xyz roles. Learn by doing, earn while you learn.</div>
-        </div>
+  <!-- ─── HERO — // whoami terminal block ─────────────────────────── -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">whoami</span>
+        <span class="caret"></span>
       </div>
-      <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
-        <span style="font-size:11px;font-weight:700;color:var(--muted)">AGENT FLEET:</span>
-        <span class="ac-tag" style="margin:0">HERMES · QUANTA-S · KNIGHT · CLAUDE DESKTOP · OPENCLAW · CONDOR · Z VINEYARD · ORAMI · VIRTUALS · WORDWATCHER · OPENSCRape · 8 MORE</span>
-        <span style="margin-left:auto;font-size:11px;color:var(--muted-dim)">SIWE auth · supercompute.eth · Founded 2013 at Occupy LA</span>
+
+      <div class="hero-output">
+        <span class="k">[ name ]</span>
+        <span class="v">Supercompute<em> — hands-on web3 operator</em></span>
+
+        <span class="k">[ since ]</span>
+        <span class="v">2013<em> · Occupy LA → Base L2</em></span>
+
+        <span class="k">[ stack ]</span>
+        <span class="v">Base · Virtuals · Cloudflare · Ledger</span>
+
+        <span class="k">[ status ]</span>
+        <span class="v">Booking strategy calls<em> · May 2026</em></span>
+      </div>
+
+      <p class="hero-body">
+        I work directly with founders launching projects on Base.
+        <strong>No anonymous team. No "platform".</strong>
+        One operator, hands on the keyboard — tokenomics, agents, OpSec,
+        treasury, community ops. Values in order. Pro expansion.
+      </p>
+
+      <div class="hero-ctas">
+        <button class="cmd-btn solid" onclick="navigate('consulting', navItem('consulting'))">
+          <span class="prompt">//</span>book --strategy-call
+        </button>
+        <button class="cmd-btn ghost" onclick="navigate('pub-projects', navItem('pub-projects'))">
+          <span class="prompt">//</span>ls ./work
+        </button>
       </div>
     </div>
   </section>
 
-  <!-- STATS BAR -->
-<div class="stats-bar" id="statsBar">
-    <div class="stat-item" id="hc-agents-wrap">
-      <div class="stat-num" id="hc-agents">0</div>
-      <div class="stat-label">AI AGENTS IN THE FLEET</div>
-    </div>
-    <div class="stat-item" id="hc-years-wrap">
-      <div class="stat-num" id="hc-years">0</div>
-      <div class="stat-label">YEARS BUILDING IN WEB3</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">0</div>
-      <div class="stat-label">SECURITY INCIDENTS · LEDGER + YUBIKEY</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">1</div>
-      <div class="stat-label">HUMAN OPERATOR · BUILDING IN PUBLIC</div>
-    </div>
-</div>
-
-  <!-- TECH STACK BAR -->
-<div class="stack-bar">
-    <span class="stack-label">DEPLOYED ON · POWERED BY · BUILT WITH</span>
-    <a class="stack-item" href="https://base.org" target="_blank" rel="noopener" title="Base Chain">
-        <div class="stack-dot base" style="display:flex;align-items:center;justify-content:center">
-            <svg width="14" height="14" viewBox="0 0 256 417" fill="none"><path d="M128 0C93.867 0 71.547 7.574 53.333 22.667L6.24 69.973C2.347 73.867 0 78.933 0 84.267V164c0 5.333 2.347 10.4 6.24 14.293l47.093 47.36c18.214 15.04 40.534 22.667 74.667 22.667s56.453-7.573 74.667-22.667l47.093-47.36c3.894-3.893 6.24-8.96 6.24-14.293v-79.733c0-5.333-2.346-10.4-6.24-14.293L181.547 22.667C163.36 7.574 141.04 0 106.88 0h21.12zm0 50.133h-21.12c-19.2 0-34.987 5.973-47.413 17.92L32 95.147V148l27.467-27.307c12.373-11.893 28.214-17.92 47.413-17.92h21.12v-21.333L101.12 64l26.88 17.067V50.133zm0 74.667V208H72.96L101.12 180l26.88-55.2zM184 95.147l-27.467 27.307V180h111.04L236.373 148l-52.373-52.853z" fill="#fff"/></svg>
-        </div>
-        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Base</span>
-    </a>
-    <a class="stack-item" href="https://virtuals.io" target="_blank" rel="noopener" title="Virtuals Protocol">
-        <div class="stack-dot virtuals" style="display:flex;align-items:center;justify-content:center">
-            <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><defs><linearGradient id="vg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs><path d="M16 2L28 9v14l-12 7L4 23V9L16 2z" stroke="url(#vg)" stroke-width="2" fill="none"/><path d="M16 2v28M4 9l24 14M28 9L4 23" stroke="url(#vg)" stroke-width="1.5" opacity=".5"/></svg>
-        </div>
-        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Virtuals</span>
-    </a>
-    <a class="stack-item" href="https://anthropic.com" target="_blank" rel="noopener" title="Anthropic">
-        <div class="stack-dot anth" style="display:flex;align-items:center;justify-content:center">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 2c1.93 0 3.68.7 5.05 1.85L12 12l-5.05-6.15A7.96 7.96 0 0 1 12 4zm-7 8c0-3.09 2.13-5.67 5-6.65L12 12l-2.05-6.65A7.96 7.96 0 0 1 5 12zm4.95 7.85L12 12l-2.05 6.65A7.96 7.96 0 0 1 5 12a7.96 7.96 0 0 1 4.95-1.85zM12 20a7.96 7.96 0 0 1-4.95-1.85L12 12l5.05 6.15A7.96 7.96 0 0 1 12 20zm2.95-2.85L12 12l2.95-4.15A7.96 7.96 0 0 1 19 12a7.96 7.96 0 0 1-4.05 5.15z" fill="#fff"/></svg>
-        </div>
-        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Anthropic</span>
-    </a>
-    <a class="stack-item" href="https://cloudflare.com" target="_blank" rel="noopener" title="Cloudflare">
-        <div class="stack-dot cf" style="display:flex;align-items:center;justify-content:center">
-            <svg width="14" height="14" viewBox="0 0 200 168" fill="none"><path d="M100 30.5c-16.57 0-30 13.43-30 30s13.43 30 30 30 30-13.43 30-30-13.43-30-30-30zm0 48.5c-10.22 0-18.5-8.28-18.5-18.5S89.78 42 100 60.5s18.5 8.28 18.5 18.5-8.28 18.5-18.5 18.5zm0-75.7C72.06 3.3 48.3 21.78 40.7 46.5H100V3.3zm0 19.5c9.8 0 18.1 6.27 20.8 15H100V22.8zm0 19.5c-9.8 0-18.1-6.27-20.8-15H100v15zm0 27h-20.8c1.1-12.55 7.97-23.35 17.9-28.67A33.13 33.13 0 0 1 100 73.3zm0 27h20.8c-1.1 12.55-7.97 23.35-17.9 28.67A33.13 33.13 0 0 1 100 100.3zM100 114.5c-10.22 0-18.5 8.28-18.5 18.5S89.78 151.5 100 151.5V114.5zm39.3-45.2c8.6-24.72-3.16-43.2-19.3-48H100v48zm0 19.5V100.3c10.22 0 18.5-8.28 18.5-18.5S110.22 63.3 100 63.3v25.5z" fill="#fff"/></svg>
-        </div>
-        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Cloudflare</span>
-    </a>
-    <a class="stack-item" href="https://supabase.com" target="_blank" rel="noopener" title="Supabase">
-        <div class="stack-dot supa" style="display:flex;align-items:center;justify-content:center">
-            <svg width="14" height="14" viewBox="0 0 109 113" fill="none"><path d="M63.707 2.217a2.786 2.786 0 0 1 3.09 2.217l12.516 71.482a2.786 2.786 0 0 1-2.654 3.373L53.3 75.922a2.786 2.786 0 0 1-2.654-3.373l12.516-71.482a2.786 2.786 0 0 1 2.545-1.85z" fill="#fff"/><path d="M54.5 79.29L42.12 108.9a2.786 2.786 0 0 1-2.654 1.85 2.79 2.79 0 0 1-2.545-1.85L24.43 79.29a2.786 2.786 0 0 1 2.653-3.373L50.44 79.29a2.786 2.786 0 0 1 2.654 3.373l1.407-3.373z" fill="#fff"/><path d="M81.34 0a2.786 2.786 0 0 1 2.786 2.786v71.482a2.786 2.786 0 0 1-2.786 2.786 2.786 2.786 0 0 1-2.786-2.786V2.786A2.786 2.786 0 0 1 81.34 0z" fill="#fff"/></svg>
-        </div>
-        <span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:rgba(232,228,216,.8)">Supabase</span>
-    </a>
-</div>
-
-  <!-- PLATFORM GRID -->
-<!-- ─── PLATFORM ──────────────────────────────────────────── -->
+  <!-- ─── SERVICES — // ./services --list ─────────────────────────── -->
   <section class="section">
-    <div class="section-meta">// WHAT WE BUILD</div>
-    <div class="section-title">SUPERCOMPUTE PLATFORM</div>
-    <div class="platform-grid">
-      <div class="platform-col">
-        <div class="platform-col-label">// newsdesk</div>
-        <div class="desk-card">
-          <span class="dc-icon">📰</span>
-          <div class="dc-name">NewsDesk</div>
-          <div class="dc-desc">AI-curated Web3 intelligence across 4 content pillars. Powered by Quanta S agent.</div>
-          <div class="dc-status live">LIVE</div>
-        </div>
-        <div class="desk-card">
-          <span class="dc-icon">📈</span>
-          <div class="dc-name">TradeDesk</div>
-          <div class="dc-desc">DeFi operations via KNIGHT agent. CDP management, treasury ops on Base.</div>
-          <div class="dc-status phase">PHASE 1</div>
-        </div>
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./services <span class="gold">--list</span></span>
       </div>
-      <div class="platform-col">
-        <div class="platform-col-label">// services</div>
-        <div class="desk-card">
-          <span class="dc-icon">🧠</span>
-          <div class="dc-name">Consulting</div>
-          <div class="dc-desc">DeFi onboarding, agent automation, ReFi strategy, and protocol deep dives.</div>
-          <div class="dc-status open">BOOKING OPEN</div>
+      <div class="sheet">
+        <div class="sheet-row">
+          <span class="num">01</span>
+          <div class="body">
+            <span class="name">defi_onboarding.sh</span>
+            <span class="desc">Wallet setup, hardware key, OpSec. From zero to self-custody in 90 minutes.</span>
+          </div>
+          <span class="price">200 USDC<span class="unit"> · 90 min</span></span>
         </div>
-        <div class="desk-card">
-          <span class="dc-icon">🎓</span>
-          <div class="dc-name">Web3 School</div>
-          <div class="dc-desc">7 modules. NFT credentials on Base. Guild.xyz roles. Principled education.</div>
-          <div class="dc-status beta">BETA MAY 2026</div>
+        <div class="sheet-row">
+          <span class="num">02</span>
+          <div class="body">
+            <span class="name">agent_buildout.sh</span>
+            <span class="desc">Build a Quanta-style autonomous agent for your protocol. Strategy + delivery.</span>
+          </div>
+          <span class="price">from 500 USDC</span>
         </div>
-      </div>
-      <div class="platform-col">
-        <div class="platform-col-label">// infrastructure</div>
-        <div class="desk-card">
-          <span class="dc-icon">◆</span>
-          <div class="dc-name">Agent Fleet</div>
-          <div class="dc-desc">13 specialized AI agents for research, trading, security, and community ops.</div>
-          <div class="dc-status live">13 ACTIVE</div>
+        <div class="sheet-row">
+          <span class="num">03</span>
+          <div class="body">
+            <span class="name">token_launch.sh</span>
+            <span class="desc">End-to-end playbook. Tokenomics, contracts on Base, post-launch ops.</span>
+          </div>
+          <span class="price">from 3,500 USDC</span>
         </div>
-        <div class="desk-card">
-          <span class="dc-icon">🔐</span>
-          <div class="dc-name">Sovereign Identity</div>
-          <div class="dc-desc">Wallet-based SIWE authentication. Zero-knowledge proofs. Your keys, your data.</div>
-          <div class="dc-status live">LIVE</div>
+        <div class="sheet-row">
+          <span class="num">04</span>
+          <div class="body">
+            <span class="name">refi_strategy.sh</span>
+            <span class="desc">Treasury, runway, regenerative tokenomics for impact-aligned protocols.</span>
+          </div>
+          <span class="price">400 USDC<span class="unit"> · 2 hr</span></span>
         </div>
       </div>
     </div>
   </section>
 
-  
-
-  <!-- AGENT FLEET -->
-<!-- ─── AGENT STACK ────────────────────────────────────────── -->
-  <section class="section" style="background:var(--surface-2);">
-    <div class="section-meta">// AGENT STACK</div>
-    <div class="section-title">13 AGENTS · ONE COMMAND</div>
-    <div class="agent-grid">
-      <div class="agent-card">
-        <div class="ac-status active">ACTIVE</div>
-        <div class="ac-name">HERMES</div>
-        <div class="ac-desc">Command & Control. Primary operator. Boot screen and design system namesake.</div>
-        <span class="ac-tag">C&C</span>
-      </div>
-      <div class="agent-card">
-        <div class="ac-status active">ACTIVE</div>
-        <div class="ac-name">QUANTA-S</div>
-        <div class="ac-desc">CEO agent. NewsDesk intelligence. On-chain editor-in-chief.</div>
-        <span class="ac-tag">INTELLIGENCE</span>
-      </div>
-      <div class="agent-card">
-        <div class="ac-status observer">OBSERVER</div>
-        <div class="ac-name">KNIGHT</div>
-        <div class="ac-desc">TradeDesk agent. CDP management, treasury, Polymarket ops.</div>
-        <span class="ac-tag">TRADEDESK</span>
-      </div>
-      <div class="agent-card">
-        <div class="ac-status command">COMMAND</div>
-        <div class="ac-name">CLAUDE DESKTOP</div>
-        <div class="ac-desc">Strategic command layer. Linear integration. Fleet coordination.</div>
-        <span class="ac-tag">COMMAND</span>
-      </div>
-      <div class="agent-card">
-        <div class="ac-status active">ACTIVE</div>
-        <div class="ac-name">OPENCLAW</div>
-        <div class="ac-desc">Browser automation. Social outreach, web tasks, infrastructure.</div>
-        <span class="ac-tag">INFRASTRUCTURE</span>
-      </div>
-    </div>
-    <div class="agent-grid" style="border-top:none;">
-      <div class="agent-card">
-        <div class="ac-status active">ACTIVE</div>
-        <div class="ac-name">CONDOR</div>
-        <div class="ac-desc">Trading bot · Hummingbot · Auto-execution on Base. Live at 5.78.146.167:8000.</div>
-        <span class="ac-tag">TRADING</span>
-      </div>
-      <div class="agent-card">
-        <div class="ac-status active">ACTIVE</div>
-        <div class="ac-name">Z VINEYARD</div>
-        <div class="ac-desc">Local MLX on M1 MBP. Default compute. deepseek-r1 via LM Studio.</div>
-        <span class="ac-tag">LOCAL LLM</span>
-      </div>
-      <div class="agent-card">
-        <div class="ac-status observer">OBSERVER</div>
-        <div class="ac-name">WORDWATCHER</div>
-        <div class="ac-desc">NFT governance agent. Aragon DAO. EAS attestations on Base.</div>
-        <span class="ac-tag">DAO</span>
-      </div>
-      <div class="agent-card">
-        <div class="ac-status command">COMMAND</div>
-        <div class="ac-name">SUBSCRIBE MONK</div>
-        <div class="ac-desc">BizDev agent. Community outreach and subscription management.</div>
-        <span class="ac-tag">BIZDEV</span>
-      </div>
-      <div class="agent-card">
-        <div class="ac-status active">ACTIVE</div>
-        <div class="ac-name">PROJECT HUNTER</div>
-        <div class="ac-desc">Web3 project discovery and intelligence. RFP monitoring.</div>
-        <span class="ac-tag">BIZDEV</span>
-      </div>
-    </div>
-  </section>
-
-  
-
-  <!-- CONSULTING -->
-<!-- ─── CONSULTING ────────────────────────────────────────── -->
+  <!-- ─── RECENT PROJECTS — // ./projects --recent | head -4 ──────── -->
   <section class="section">
-    <div class="section-meta">// SERVICES</div>
-    <div class="section-title">CONSULTING SERVICES</div>
-    <div class="consult-grid">
-      <div class="consult-card">
-        <div class="cc-price">$200</div>
-        <div class="cc-name">DeFi Onboarding</div>
-        <div class="cc-dur">2 HRS · ZOOM</div>
-        <div class="cc-desc">Wallet setup, Base chain onboarding, DeFi fundamentals, and your first yield position.</div>
-        <button class="btn-book">BOOK →</button>
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./projects <span class="gold">--recent</span> | head -4</span>
       </div>
-      <div class="consult-card">
-        <div class="cc-price">$450</div>
-        <div class="cc-name">Protocol Deep Dive</div>
-        <div class="cc-dur">4 HRS · ZOOM</div>
-        <div class="cc-desc">Smart contract review, tokenomics design, Base deployment, go-to-market strategy.</div>
-        <button class="btn-book">BOOK →</button>
-      </div>
-      <div class="consult-card">
-        <div class="cc-price">$350</div>
-        <div class="cc-name">ReFi Strategy Session</div>
-        <div class="cc-dur">3 HRS · ZOOM</div>
-        <div class="cc-desc">Regenerative finance strategy, impact measurement, and community token design.</div>
-        <button class="btn-book">BOOK →</button>
-      </div>
-      <div class="consult-card">
-        <div class="cc-price">$300</div>
-        <div class="cc-name">Agent Automation Consult</div>
-        <div class="cc-dur">2 HRS · ZOOM</div>
-        <div class="cc-desc">AI agent architecture, Hermes-style C&C systems, and agentic workflow design.</div>
-        <button class="btn-book">BOOK →</button>
-      </div>
-      <div class="consult-card" style="border-bottom:none;">
-        <div class="cc-price">$2,000</div>
-        <div class="cc-name">Agent Development</div>
-        <div class="cc-dur">CUSTOM · ENGAGEMENT</div>
-        <div class="cc-desc">Full agent development from spec to deployment. Includes ongoing maintenance and operator support.</div>
-        <button class="btn-inquire">Inquire →</button>
-      </div>
-      <div class="consult-card" style="border-bottom:none;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;">
-        <div style="font-size:9px;color:var(--mid-blue);letter-spacing:3px;text-align:center;">BOOK VIA CALENDLY</div>
-        <div style="font-size:10px;color:var(--muted-blue);text-align:center;line-height:1.8;">calendly.com/ora_mi</div>
-        <a href="https://calendly.com/ora_mi" target="_blank">
-          <button class="btn-book" style="margin-top:0;">OPEN CALENDAR →</button>
-        </a>
+      <div class="proj-grid">
+        <div class="proj-cell">
+          <div class="head"><span class="dot"></span>TOKEN · funded</div>
+          <div class="title">The Glyph Foundry</div>
+          <div class="meta"><strong>Token launch</strong> · <strong>52K USDC raised</strong> · <strong>684 backers</strong></div>
+          <a class="link" onclick="navigate('pub-projects', navItem('pub-projects'))">cat ./case-study →</a>
+        </div>
+        <div class="proj-cell">
+          <div class="head"><span class="dot"></span>AGENT · shipped</div>
+          <div class="title">KNIGHT Open-Source</div>
+          <div class="meta"><strong>Agent build-out</strong> · <strong>TradeDesk shipped May 2026</strong></div>
+          <a class="link" onclick="navigate('pub-projects', navItem('pub-projects'))">cat ./case-study →</a>
+        </div>
+        <div class="proj-cell">
+          <div class="head"><span class="dot idle"></span>TREASURY · ops</div>
+          <div class="title">Bracket Studio</div>
+          <div class="meta"><strong>DAO treasury</strong> · <strong>1.2M USDC under ops</strong> · <strong>0 incidents</strong></div>
+          <a class="link" onclick="navigate('pub-projects', navItem('pub-projects'))">cat ./case-study →</a>
+        </div>
+        <div class="proj-cell">
+          <div class="head"><span class="dot"></span>MIGRATION · shipped</div>
+          <div class="title">Spool Protocol</div>
+          <div class="meta"><strong>L1 → Base migration</strong> · <strong>48-hour cutover</strong></div>
+          <a class="link" onclick="navigate('pub-projects', navItem('pub-projects'))">cat ./case-study →</a>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ─── PROJECTS / DESKS ──────────────────────────────────── -->
-  <section class="section" style="background:var(--surface-2);">
-    <div class="section-meta">// PROJECTS</div>
-    <div class="section-title">SUPERCOMPUTE DESKS</div>
-    <div class="projects-grid">
-      <div class="project-card">
-        <div class="pc-name">NewsDesk</div>
-        <div class="pc-tokens">$QUANTA · VIRTUALS PROTOCOL</div>
-        <div class="pc-status live">LIVE</div>
+  <!-- ─── FOUNDER — // cat ./operator.md ──────────────────────────── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">cat ./operator.md</span>
       </div>
-      <div class="project-card">
-        <div class="pc-name">WordWatcher</div>
-        <div class="pc-tokens">$WORD · ARAGON DAO · EAS</div>
-        <div class="pc-status building">BUILDING</div>
-      </div>
-      <div class="project-card">
-        <div class="pc-name">$SCOM Token</div>
-        <div class="pc-tokens">$SCOM · BASE CHAIN</div>
-        <div class="pc-status launching">LAUNCHING MAY 2026</div>
-      </div>
-      <div class="project-card" style="border-bottom:none;">
-        <div class="pc-name">TradeDesk</div>
-        <div class="pc-tokens">TBD · HUMMINGBOT</div>
-        <div class="pc-status planned">PLANNED</div>
-      </div>
-      <div class="project-card" style="border-bottom:none;">
-        <div class="pc-name">Web3 School</div>
-        <div class="pc-tokens">ERC-1155 · GUILD.XYZ</div>
-        <div class="pc-status launching">LAUNCHING</div>
-      </div>
-      <div class="project-card" style="border-bottom:none;">
-        <div class="pc-name">Inference Subsidy</div>
-        <div class="pc-tokens">$ISP · FEEROUTER</div>
-        <div class="pc-status planned">PLANNED</div>
+      <div class="founder">
+        <div class="founder-photo"><span class="label">[ founder photo ]</span></div>
+        <div class="founder-meta">
+          <div class="role">Operator since 2013</div>
+          <div class="name">Hands-on, values in order, pro expansion.</div>
+          <p class="bio">
+            I started in 2013 — Occupy LA, early DeFi, the long winter.
+            Fourteen projects shipped since. I don't outsource the work that
+            matters; if you hire me, I'm the one on the keyboard. I help
+            founders launch tokens and agents on Base with OpSec that
+            actually holds.
+          </p>
+          <div class="principles">
+            <span class="principle">Hands-on</span>
+            <span class="principle">Values in order</span>
+            <span class="principle">Pro expansion</span>
+          </div>
+        </div>
+        <button class="cmd-btn ghost" onclick="navigate('about', navItem('about'))">
+          <span class="prompt">//</span>read --more
+        </button>
       </div>
     </div>
   </section>
 
-  <!-- ─── CTA SECTION ───────────────────────────────────────── -->
-  <section class="cta-section scan">
-    <div class="c tl"></div><div class="c tr"></div>
-    <div class="c bl"></div><div class="c br"></div>
-    <div class="cta-meta">// GET STARTED</div>
-    <div class="cta-title">READY TO <span>BUILD?</span></div>
-    <div class="cta-sub">
-      Connect your wallet to access the full Supercompute platform.
-      Sovereign AI-native tools for the next generation of Web3 builders.
-    </div>
-    <div class="cta-btns">
-      <button class="btn-primary" onclick="authGate('web3school',navItem('web3school'))" aria-label="Connect wallet to access the platform">◈ Connect Wallet</button>
-      <button class="btn-outline" onclick="navigate('consulting',navItem('consulting'))" aria-label="Book a strategy call">Book a Strategy Call</button>
+  <!-- ─── NEWSDESK FEED — // ./newsdesk --latest ──────────────────── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./newsdesk <span class="gold">--latest</span></span>
+      </div>
+      <div class="sheet">
+        <div class="feed-row">
+          <span class="cat">[ sovereignty ]</span>
+          <span class="title">SIWE Auth and the End of Password Logins</span>
+          <span class="meta">Apr 28 · 7 min</span>
+        </div>
+        <div class="feed-row">
+          <span class="cat">[ dispatch ]</span>
+          <span class="title">Phase 1 Dispatch — What Shipped This Week</span>
+          <span class="meta">Apr 22 · 4 min</span>
+        </div>
+        <div class="feed-row">
+          <span class="cat">[ intelligence ]</span>
+          <span class="title">The Cyborg Agency: 1 Human + 13 Agents</span>
+          <span class="meta">Apr 12 · 6 min</span>
+        </div>
+      </div>
+      <div style="margin-top:28px">
+        <button class="cmd-btn ghost" onclick="navigate('blog', navItem('blog'))">
+          <span class="prompt">//</span>subscribe --newsdesk
+        </button>
+      </div>
     </div>
   </section>
 
-  
-
-  <!-- FOOTER (terminal style from brand reference) -->
-<!-- ─── FOOTER ────────────────────────────────────────────── -->
-  <footer>
-    <div class="footer-brand">
-      <div class="footer-corner"></div>
-      <span class="footer-logo">SUPERCOMPUTE</span>
-      <span class="footer-meta">supercompute.eth · BASE CHAIN · EST. 2013</span>
+  <!-- ─── SCHOOL TEASER — // ./school --curriculum ────────────────── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./school <span class="gold">--curriculum</span></span>
+      </div>
+      <div class="sheet">
+        <div class="sheet-row">
+          <span class="num">01</span>
+          <div class="body">
+            <span class="name">wallets_and_self_custody.md</span>
+            <span class="desc">Hardware keys, seed phrases, recovery. 12 lessons.</span>
+          </div>
+          <span class="price"><span class="unit free">FREE</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">02</span>
+          <div class="body">
+            <span class="name">l1_vs_l2_base.md</span>
+            <span class="desc">Rollups, gas economics, sequencer trust.</span>
+          </div>
+          <span class="price"><span class="unit free">FREE</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">03</span>
+          <div class="body">
+            <span class="name">defi_primitives.md</span>
+            <span class="desc">AMMs, lending, CDPs.</span>
+          </div>
+          <span class="price">80 USDC</span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">04</span>
+          <div class="body">
+            <span class="name">opsec_hardware_keys.md</span>
+            <span class="desc">YubiKey, Ledger, multisig basics.</span>
+          </div>
+          <span class="price">80 USDC</span>
+        </div>
+      </div>
+      <div style="margin-top:28px">
+        <button class="cmd-btn ghost" onclick="authGate('web3school', navItem('web3school'))">
+          <span class="prompt">//</span>./school --enroll
+        </button>
+      </div>
     </div>
-    <div class="footer-right">© 2026 SUPERCOMPUTE</div>
-    <div class="footer-corner"></div>
+  </section>
+
+  <!-- ─── CLOSING CTA — // ./ready --book ─────────────────────────── -->
+  <section class="section closing">
+    <div class="wrap">
+      <div class="prompt-line center">
+        <span>//</span>
+        <span class="cmd">./ready --book</span>
+      </div>
+      <div class="closing-headline">
+        Thirty minutes. <span>No pitch.</span>
+      </div>
+      <p class="closing-body">
+        You bring a problem. I bring 13 years of crypto experience and a
+        notebook. If we're a fit, we work together. If not, you leave with
+        notes.
+      </p>
+      <button class="cmd-btn solid closing-btn" onclick="navigate('consulting', navItem('consulting'))">
+        <span class="prompt">//</span>book --strategy-call
+      </button>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER (Terminal Dossier 3-col) ─────────────────────────── -->
+  <footer class="ls-footer">
+    <div class="ls-footer-inner">
+      <div class="ls-footer-brand-block">
+        <div class="ls-footer-brand">
+          <img src="sc-logo.png" alt=""/>
+          <span class="mark">Supercompute.io</span>
+        </div>
+        <p class="ls-footer-tag">
+          One operator. Hands-on Web3 consulting on Base Chain since 2013.
+        </p>
+      </div>
+      <div class="ls-footer-col">
+        <h4>Practice</h4>
+        <a onclick="navigate('consulting', navItem('consulting'))">Consulting</a>
+        <a onclick="navigate('pub-projects', navItem('pub-projects'))">Recent work</a>
+        <a onclick="navigate('about', navItem('about'))">About</a>
+        <a onclick="navigate('consulting', navItem('consulting'))">Contact</a>
+      </div>
+      <div class="ls-footer-col">
+        <h4>Publishing</h4>
+        <a onclick="navigate('blog', navItem('blog'))">NewsDesk</a>
+        <a onclick="authGate('web3school', navItem('web3school'))">Web3 School</a>
+        <a onclick="navigate('token', navItem('token'))">$SCOM Token</a>
+      </div>
+      <div class="ls-footer-col">
+        <h4>Connect</h4>
+        <a href="https://x.com/supercompute_io" target="_blank" rel="noopener">X / Twitter</a>
+        <a href="https://warpcast.com/supercompute" target="_blank" rel="noopener">Farcaster</a>
+        <a>supercompute.eth</a>
+        <a onclick="navigate('consulting', navItem('consulting'))">Calendly</a>
+      </div>
+    </div>
+    <div class="ls-footer-bottom">
+      <span>© 2026 Supercompute · Phase 1 · Base Chain</span>
+      <span class="right">// uptime → 99.9% · since may 2026</span>
+    </div>
   </footer>
-
 
 </div>
 

@@ -1711,13 +1711,17 @@ tr:hover td {
 }
 
 .modal-body {
-    background: #fff;
+    /* Flat sheet over navy — Terminal Dossier §6d */
+    background: var(--site-bg);
+    border: 1px solid rgba(201, 163, 58, .30);
     border-radius: 0;
     width: 100%;
     max-width: 720px;
     box-shadow: 0 24px 80px rgba(0, 0, 0, .3);
     animation: fadeUp .3s ease;
-    margin: auto
+    margin: auto;
+    color: var(--cream);
+    font-family: var(--font-mono);
 }
 
 .modal-head {
@@ -1766,14 +1770,42 @@ tr:hover td {
 }
 
 .article-body blockquote {
-    border-left: 3px solid var(--gold);
+    /* Mono-blue tint + brass left bar — was pink, drifted off Terminal Dossier */
+    border-left: 3px solid var(--gold-warm);
     padding: .75rem 1rem;
-    background: rgba(233, 30, 140, .04);
-    border-radius: 0 8px 8px 0;
+    background: rgba(111, 163, 229, .06);
+    border-radius: 0;
     margin: .9rem 0;
     font-style: italic;
     font-size: 13px;
-    color: var(--muted)
+    color: var(--mono-blue);
+}
+
+/* Headings inside article body — keep mono, brass for h3 */
+.article-body h3 {
+    color: var(--cream);
+    letter-spacing: -.2px;
+}
+.article-body p,
+.article-body ul li {
+    color: var(--cream);
+    line-height: 1.85;
+}
+.article-body code,
+.article-body pre {
+    font-family: var(--font-mono);
+    background: rgba(244, 236, 216, .06);
+    color: var(--gold-warm);
+    padding: 1px 6px;
+    border-radius: 0;
+}
+.article-body a {
+    color: var(--gold-warm);
+    border-bottom: 1px solid rgba(201, 163, 58, .30);
+    text-decoration: none;
+}
+@media (hover: hover) and (pointer: fine) {
+    .article-body a:hover { border-bottom-color: var(--gold-warm); }
 }
 
 /* TOAST */

@@ -1,0 +1,32 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .row { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+  .logo-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .logo-card.dark { background: var(--navy); border-color: var(--white-08); }
+  .label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+  .label-light { color: var(--white-55); }
+  .lockup { display: flex; align-items: center; gap: 8px; }
+  .av { width: 34px; height: 34px; border-radius: 50%; background: var(--grad-brand); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #fff; }
+  .wm { font-weight: 900; letter-spacing: 1px; font-size: 14px; }
+</style></head>
+<body><div class="card-root">
+  <div class="row">
+    <div class="logo-card">
+      <img src="../assets/SupercomputeLogo.png" style="width:120px; height:120px;" alt="">
+      <div class="label">primary mark · 514px</div>
+    </div>
+    <div class="logo-card dark">
+      <img src="../assets/SupercomputeLogo.png" style="width:120px; height:120px;" alt="">
+      <div class="label label-light">on navy</div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div class="lockup"><div class="av">SC</div><div class="wm" style="color:var(--text);">SUPERCOMPUTE</div></div>
+      <div class="lockup" style="background:var(--navy); padding:10px 14px; border-radius:10px;"><div class="av">SC</div><div class="wm" style="color:#fff;">SUPERCOMPUTE</div></div>
+      <div class="label">SC avatar lockup · sidebar / footer</div>
+    </div>
+  </div>
+</div></body></html>

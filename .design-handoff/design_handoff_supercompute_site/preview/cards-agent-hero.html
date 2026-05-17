@@ -1,0 +1,39 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+  .card {
+    background: linear-gradient(135deg, rgba(233,30,140,.05), rgba(255,184,0,.05));
+    border: 1px solid rgba(233,30,140,.20); border-radius: 12px; padding: 1rem;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .card.dark {
+    background: linear-gradient(135deg, var(--navy), #1a0a2e);
+    border-color: rgba(255,255,255,.08); color: #fff;
+  }
+  .av-brand { width: 40px; height: 40px; border-radius: 10px; background: var(--grad-brand); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .av-agent { width: 40px; height: 40px; border-radius: 10px; background: var(--grad-agent); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0; }
+  .name { font-weight: 700; font-size: 13px; color: var(--text); }
+  .card.dark .name { color: #fff; }
+  .role { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .card.dark .role { color: var(--white-55); }
+  .meta { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+</style></head>
+<body><div class="card-root">
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="av-brand">✨</div>
+        <div><div class="name">Quanta S · NewsDesk</div><div class="role">Generating content · ND-006 in progress</div></div>
+      </div>
+      <div class="meta" style="margin-top:6px;">card · brand-tinted</div>
+    </div>
+    <div>
+      <div class="card dark">
+        <div class="av-agent">QS</div>
+        <div><div class="name">Quanta Sovereigna</div><div class="role">Virtuals Protocol · Base</div></div>
+      </div>
+      <div class="meta" style="margin-top:6px;">card · dark service variant</div>
+    </div>
+  </div>
+</div></body></html>

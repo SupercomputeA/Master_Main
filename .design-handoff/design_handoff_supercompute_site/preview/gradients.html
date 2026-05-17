@@ -1,0 +1,244 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  /* Signature gradients — Terminal Blue / CRT
+   * Phosphor glows over deep navy, scanlines baked in.
+   * No pink/violet/cyan smooth blends — the system reads
+   * as a 1986 amber-CRT readout, not a 2018 SaaS hero. */
+
+  body.dark {
+    background: var(--site-bg);
+    color: var(--cream);
+    font-family: var(--font-mono);
+    position: relative;
+  }
+  body.dark::before {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(0deg,  rgba(255,255,255,.030) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.030) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  body.dark::after {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg,
+      rgba(0,0,0,.18) 0, rgba(0,0,0,.18) 1px,
+      transparent 1px, transparent 3px);
+    mix-blend-mode: multiply; opacity: .55;
+  }
+  .card-root { position: relative; z-index: 2; padding: 24px 28px; }
+
+  .label {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--mono-blue); margin: 0 0 12px;
+  }
+  .label::before { content: '// '; color: var(--gold-warm); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .tile { display: flex; flex-direction: column; gap: 6px; }
+
+  /* All swatches share the CRT skeleton: deep navy base, scanlines on top.
+   * Variants layer a tinted radial phosphor in different positions/hues. */
+  .swatch {
+    position: relative; aspect-ratio: 1.6 / 1;
+    background: var(--site-bg);
+    border: 1px solid rgba(201,163,58,.30);
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.55);
+  }
+  /* Scanlines pinned on every swatch */
+  .swatch::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg,
+      rgba(0,0,0,.28) 0, rgba(0,0,0,.28) 1px,
+      transparent 1px, transparent 3px);
+    mix-blend-mode: multiply; opacity: .85;
+  }
+  /* HUD corner ticks on every swatch — frame the readout */
+  .swatch .tick {
+    position: absolute; width: 8px; height: 8px;
+    border: 1px solid rgba(201,163,58,.55);
+    pointer-events: none;
+  }
+  .swatch .tick.tl { top: 5px;    left: 5px;    border-right: none;  border-bottom: none; }
+  .swatch .tick.tr { top: 5px;    right: 5px;   border-left: none;   border-bottom: none; }
+  .swatch .tick.bl { bottom: 5px; left: 5px;    border-right: none;  border-top: none; }
+  .swatch .tick.br { bottom: 5px; right: 5px;   border-left: none;   border-top: none; }
+
+  /* ── Phosphor variants ─────────────────────────── */
+
+  /* 01 · Brass acquire — gold-warm radial, off-center */
+  .ph-brass {
+    background:
+      radial-gradient(circle at 32% 38%,
+        rgba(201,163,58,.55) 0%,
+        rgba(201,163,58,.18) 22%,
+        transparent 55%),
+      var(--site-bg);
+  }
+
+  /* 02 · Signal mono — mono-blue radial, opposite quadrant */
+  .ph-signal {
+    background:
+      radial-gradient(circle at 68% 62%,
+        rgba(111,163,229,.50) 0%,
+        rgba(111,163,229,.15) 28%,
+        transparent 60%),
+      var(--site-bg);
+  }
+
+  /* 03 · HUD bracket — hud-yellow tight phosphor, top-right beacon */
+  .ph-hud {
+    background:
+      radial-gradient(circle at 80% 22%,
+        rgba(224,190,63,.60) 0%,
+        rgba(224,190,63,.10) 18%,
+        transparent 48%),
+      radial-gradient(circle at 20% 90%,
+        rgba(201,163,58,.18) 0%, transparent 50%),
+      var(--site-bg);
+  }
+
+  /* 04 · Phosphor scan — horizontal sweep (progress / divider) */
+  .ph-scan {
+    aspect-ratio: 6 / 1;
+    background:
+      linear-gradient(90deg,
+        rgba(201,163,58,0)   0%,
+        rgba(201,163,58,.65) 35%,
+        rgba(224,190,63,.85) 50%,
+        rgba(111,163,229,.55) 70%,
+        rgba(111,163,229,0)  100%),
+      var(--site-bg);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.55), 0 0 12px rgba(201,163,58,.15);
+  }
+  .ph-scan::after { opacity: .65; }
+
+  /* 05 · Deep field — radial vignette for hero panels (no accent) */
+  .ph-vignette {
+    background:
+      radial-gradient(ellipse at center,
+        rgba(15,32,68,.95) 0%,
+        var(--site-bg)     60%,
+        #050a1c            100%);
+  }
+  .ph-vignette::after { opacity: 1; }
+
+  /* 06 · Scanline curtain — pure CRT texture, no phosphor */
+  .ph-curtain {
+    background: var(--site-bg);
+  }
+  .ph-curtain::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(0deg,  rgba(244,236,216,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(244,236,216,.06) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .ph-curtain::after { opacity: 1; }
+
+  .name {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+    color: var(--cream); letter-spacing: .3px;
+  }
+  .name .tok { color: var(--gold-warm); }
+  .desc {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--mono-blue); letter-spacing: .3px;
+  }
+
+  .caption {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--mono-blue); line-height: 1.7;
+    letter-spacing: .3px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(244,236,216,.10);
+  }
+  .caption code {
+    color: var(--gold-warm); background: rgba(201,163,58,.06);
+    border: 1px solid rgba(201,163,58,.25);
+    padding: 1px 6px;
+  }
+</style></head>
+<body class="dark"><div class="card-root">
+
+  <div class="label">phosphor &middot; accent fields</div>
+  <div class="grid">
+
+    <div class="tile">
+      <div class="swatch ph-brass">
+        <span class="tick tl"></span><span class="tick tr"></span>
+        <span class="tick bl"></span><span class="tick br"></span>
+      </div>
+      <div class="name"><span class="tok">brass_acquire</span></div>
+      <div class="desc">gold-warm phosphor &middot; primary signal lock</div>
+    </div>
+
+    <div class="tile">
+      <div class="swatch ph-signal">
+        <span class="tick tl"></span><span class="tick tr"></span>
+        <span class="tick bl"></span><span class="tick br"></span>
+      </div>
+      <div class="name"><span class="tok">signal_mono</span></div>
+      <div class="desc">mono-blue phosphor &middot; data stream</div>
+    </div>
+
+    <div class="tile">
+      <div class="swatch ph-hud">
+        <span class="tick tl"></span><span class="tick tr"></span>
+        <span class="tick bl"></span><span class="tick br"></span>
+      </div>
+      <div class="name"><span class="tok">hud_beacon</span></div>
+      <div class="desc">hud-yellow tight &middot; alert / live</div>
+    </div>
+
+  </div>
+
+  <div class="label">scans &middot; vignettes &middot; curtains</div>
+  <div class="grid" style="grid-template-columns: 2fr 1fr 1fr;">
+
+    <div class="tile" style="grid-column: 1 / 2;">
+      <div class="swatch ph-scan">
+        <span class="tick tl"></span><span class="tick tr"></span>
+        <span class="tick bl"></span><span class="tick br"></span>
+      </div>
+      <div class="name"><span class="tok">phosphor_scan</span> &middot; 90&deg;</div>
+      <div class="desc">brass &rarr; hud &rarr; mono-blue &middot; progress / divider</div>
+    </div>
+
+    <div class="tile">
+      <div class="swatch ph-vignette">
+        <span class="tick tl"></span><span class="tick tr"></span>
+        <span class="tick bl"></span><span class="tick br"></span>
+      </div>
+      <div class="name"><span class="tok">deep_field</span></div>
+      <div class="desc">center fade &middot; hero panel</div>
+    </div>
+
+    <div class="tile">
+      <div class="swatch ph-curtain">
+        <span class="tick tl"></span><span class="tick tr"></span>
+        <span class="tick bl"></span><span class="tick br"></span>
+      </div>
+      <div class="name"><span class="tok">crt_curtain</span></div>
+      <div class="desc">grid + scanlines &middot; no phosphor</div>
+    </div>
+
+  </div>
+
+  <div class="caption">
+    Six fields, one CRT. All swatches sit on <code>--site-bg</code> (deep navy)
+    with baked-in scanlines + HUD ticks. Accent phosphors are
+    <code>--gold-warm</code>, <code>--mono-blue</code>, <code>--hud-yellow</code> &mdash; never
+    pink/violet/cyan smooth blends. <code>phosphor_scan</code> is the only horizontal sweep
+    (used for prog-fill + section dividers). <code>deep_field</code> backs hero panels.
+    <code>crt_curtain</code> is the empty-state texture.
+  </div>
+
+</div></body></html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .input {
+    width: 100%; padding: .55rem .85rem;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-size: 12px; outline: none; background: #fafafa;
+    font-family: inherit; color: var(--text);
+  }
+  .input.focus { border-color: var(--pink); background: #fff; }
+  .label {
+    display: block; font-size: 10px; font-weight: 700;
+    color: var(--muted); text-transform: uppercase; letter-spacing: .7px;
+    margin-bottom: .3rem;
+  }
+  .auth {
+    width: 100%; padding: .7rem 1rem;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-size: 13px; outline: none;
+  }
+  .auth.focus { border-color: var(--pink); }
+  .meta { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-top: 6px; }
+</style></head>
+<body><div class="card-root">
+  <div class="grid">
+    <div>
+      <span class="label">Asset</span>
+      <input class="input" placeholder="ETH / CBBTC / USDC" />
+      <div class="meta">.form-input · default</div>
+    </div>
+    <div>
+      <span class="label">Entry Price</span>
+      <input class="input focus" value="1,920.00" />
+      <div class="meta">.form-input · :focus pink</div>
+    </div>
+  </div>
+  <div style="margin-top:14px;">
+    <input class="auth" placeholder="Email address" />
+    <div class="meta">.auth-input · 0.7rem 1rem · 1.5px border</div>
+  </div>
+</div></body></html>

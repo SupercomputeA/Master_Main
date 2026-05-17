@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Supercompute · Home wireframes v1</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink:    #1a1a1a;
+    --ink-2:  #4a4a4a;
+    --paper:  #fafaf6;
+    --line:   #c8c4b8;
+    --line-2: #e8e4d8;
+    --marker: #fde047;          /* highlighter yellow */
+    --pen:    #1d4ed8;          /* blue pen */
+    --red:    #dc2626;
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 13px;
+    padding: 32px 40px 80px;
+    background-image:
+      linear-gradient(0deg, rgba(0,0,0,.02) 1px, transparent 1px);
+    background-size: 100% 28px;
+  }
+  .doc { max-width: 1280px; margin: 0 auto; }
+
+  header {
+    border-bottom: 2px solid var(--ink); padding-bottom: 12px;
+    margin-bottom: 24px; display: flex; align-items: baseline; gap: 18px;
+  }
+  header .scribble {
+    font-family: 'Caveat', cursive; font-size: 36px;
+    color: var(--ink); font-weight: 700;
+  }
+  header .meta {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--ink-2); margin-left: auto;
+  }
+  header .tag {
+    background: var(--marker); padding: 2px 8px;
+    font-family: 'Caveat', cursive; font-size: 18px; font-weight: 700;
+  }
+
+  /* ── Tab bar ──────────────────────────────────────── */
+  .tabs {
+    display: flex; gap: 0; border-bottom: 2px solid var(--ink);
+    margin-bottom: 28px; flex-wrap: wrap;
+  }
+  .tab {
+    background: none; border: none; cursor: pointer;
+    padding: 12px 20px 14px;
+    font-family: 'Inter', sans-serif; font-weight: 600;
+    font-size: 13px; color: var(--ink-2);
+    border-bottom: 3px solid transparent; margin-bottom: -2px;
+    display: flex; align-items: center; gap: 10px;
+    transition: all .15s;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active {
+    color: var(--ink); border-bottom-color: var(--pen);
+  }
+  .tab .num {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--ink); color: var(--paper);
+    padding: 2px 6px; font-size: 10px; font-weight: 700;
+  }
+  .tab.active .num { background: var(--pen); }
+
+  /* ── Wireframe pane ──────────────────────────────── */
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  .pane-head { margin-bottom: 18px; display: flex; gap: 24px; align-items: flex-start; }
+  .pane-title {
+    font-family: 'Caveat', cursive; font-size: 32px;
+    font-weight: 700; line-height: 1.1;
+  }
+  .pane-tag {
+    background: var(--marker); padding: 0 6px;
+  }
+  .pane-meta {
+    margin-left: auto; max-width: 360px;
+    font-size: 12px; color: var(--ink-2); line-height: 1.6;
+  }
+  .pane-meta .label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--ink); font-weight: 700; margin-bottom: 4px;
+  }
+  .pane-bestfor {
+    display: inline-block; margin-top: 6px;
+    background: rgba(29,78,216,.10);
+    border: 1px dashed var(--pen);
+    padding: 4px 10px; font-size: 12px; color: var(--pen);
+  }
+
+  .canvas-row { display: grid; grid-template-columns: 1fr 280px; gap: 24px; }
+
+  .browser {
+    background: #fff; border: 2px solid var(--ink);
+    box-shadow: 6px 6px 0 var(--ink);
+    overflow: hidden;
+  }
+  .browser-chrome {
+    background: #f3f0e6; border-bottom: 2px solid var(--ink);
+    padding: 8px 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .dot-light { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); }
+  .browser-url {
+    background: #fff; border: 1px solid var(--ink); padding: 3px 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    flex: 1; max-width: 360px; margin: 0 12px;
+  }
+
+  .stage {
+    padding: 18px;
+    min-height: 720px;
+    display: flex; flex-direction: column; gap: 14px;
+    background: #fff;
+  }
+  .stage.dark {
+    background: #0a1330; color: #F4ECD8;
+    background-image:
+      linear-gradient(0deg,  rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  /* ── Wireframe atoms ─────────────────────────────── */
+  .nav-bar {
+    display: flex; align-items: center; gap: 18px;
+    padding: 12px 6px; border-bottom: 1px dashed var(--line);
+  }
+  .nav-bar.dark { border-bottom-color: rgba(255,255,255,.15); }
+  .logo-mark {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, #E91E8C, #FFB800);
+  }
+  .wm {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    letter-spacing: 2.5px; font-weight: 700;
+  }
+  .wm.gold { color: #C9A33A; }
+  .nav-links {
+    display: flex; gap: 14px; margin-left: 28px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  .nav-links.dark { color: #C9A33A; }
+  .cta-btn {
+    margin-left: auto;
+    padding: 8px 14px;
+    border: 1.5px solid var(--ink);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    background: var(--ink); color: #fff;
+  }
+  .cta-btn.gold { background: #C9A33A; color: #1a1303; border-color: #C9A33A; }
+  .cta-btn.outline { background: transparent; color: var(--ink); }
+  .cta-btn.dark-outline { background: transparent; color: #C9A33A; border-color: #C9A33A; }
+
+  .box {
+    border: 1.5px solid var(--ink);
+    padding: 16px 18px; background: #fff;
+  }
+  .box.dashed { border-style: dashed; border-color: var(--line); background: rgba(0,0,0,.02); }
+  .box.dark { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.15); color: #F4ECD8; }
+
+  .img-ph {
+    background: #e8e4d8; border: 1px dashed var(--line);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-2); font-family: 'Caveat', cursive; font-size: 22px;
+  }
+  .img-ph.dark { background: rgba(255,255,255,.05); color: rgba(255,255,255,.5); border-color: rgba(255,255,255,.2); }
+
+  .line { height: 1px; background: var(--ink); width: 60%; }
+  .line.short { width: 40%; }
+  .line.long { width: 90%; }
+  .line.dark { background: rgba(255,255,255,.4); }
+
+  .hed {
+    font-family: 'Inter', sans-serif; font-weight: 800;
+    font-size: 28px; line-height: 1.1; color: var(--ink);
+    text-transform: uppercase; letter-spacing: -.3px;
+  }
+  .hed.dark { color: #F4ECD8; }
+  .hed.huge { font-size: 38px; }
+  .hed .accent { color: var(--pen); }
+  .hed.dark .accent { color: #C9A33A; }
+  .sub {
+    font-size: 13px; color: var(--ink-2); line-height: 1.6;
+    max-width: 460px;
+  }
+  .sub.dark { color: rgba(255,255,255,.55); }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--ink-2);
+    margin-bottom: 4px;
+  }
+  .eyebrow.dark { color: #C9A33A; }
+
+  .row { display: flex; gap: 12px; align-items: stretch; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+
+  /* ── Annotations (margin notes) ──────────────────── */
+  .notes {
+    font-family: 'Caveat', cursive; font-size: 18px;
+    color: var(--ink); line-height: 1.3;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .note {
+    position: relative;
+    padding: 0 0 0 18px;
+    border-left: 2px solid var(--pen);
+  }
+  .note .arrow {
+    position: absolute; left: -8px; top: 6px;
+    width: 14px; height: 14px; background: var(--marker);
+    transform: rotate(45deg);
+  }
+  .note strong { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--pen); display: block; margin-bottom: 2px; }
+  .note em { font-style: italic; color: var(--red); font-family: 'Caveat', cursive; font-size: 18px; }
+
+  /* ── Footer ──────────────────────────────────────── */
+  .legend {
+    margin-top: 36px; padding: 18px 22px;
+    border: 1.5px dashed var(--ink);
+    background: rgba(253,224,71,.20);
+    display: flex; flex-wrap: wrap; gap: 18px 32px;
+    font-family: 'Caveat', cursive; font-size: 18px;
+  }
+  .legend .label { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink); }
+  .legend .sw {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .legend .swatch { width: 14px; height: 14px; border: 1.5px solid var(--ink); }
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <header>
+    <span class="scribble">Home — five directions <span class="tag">v1</span></span>
+    <span class="meta">Wireframes · low-fi · breadth over polish</span>
+  </header>
+
+  <!-- Tab bar -->
+  <div class="tabs">
+    <button class="tab active" data-pane="d1"><span class="num">01</span>Founder-first</button>
+    <button class="tab" data-pane="d2"><span class="num">02</span>Case-studies grid</button>
+    <button class="tab" data-pane="d3"><span class="num">03</span>Terminal dossier</button>
+    <button class="tab" data-pane="d4"><span class="num">04</span>Long scroll</button>
+    <button class="tab" data-pane="d5"><span class="num">05</span>Services menu</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!--  D1 · Founder-first                                  -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="pane active" id="d1">
+    <div class="pane-head">
+      <div class="pane-title">Founder is the product.<br>Photo + name <span class="pane-tag">above the fold.</span></div>
+      <div class="pane-meta">
+        <div class="label">Direction 01 · Founder-first</div>
+        Big square photo of the founder. Name and one-line positioning beside it.
+        Book CTA prominent. Services are a tight list below. Projects/School/NewsDesk
+        are evidence in the second screen.
+        <div class="pane-bestfor">Best for: trust through a real human</div>
+      </div>
+    </div>
+
+    <div class="canvas-row">
+      <div class="browser">
+        <div class="browser-chrome">
+          <span class="dot-light"></span><span class="dot-light"></span><span class="dot-light"></span>
+          <span class="browser-url">supercompute.io</span>
+        </div>
+        <div class="stage dark">
+
+          <div class="nav-bar dark">
+            <span class="logo-mark"></span>
+            <span class="wm gold">SUPERCOMPUTE</span>
+            <span class="nav-links dark"><span>Consulting</span><span>Projects</span><span>School</span><span>NewsDesk</span><span>About</span></span>
+            <span class="cta-btn dark-outline">Book a Call</span>
+          </div>
+
+          <div class="row" style="gap:32px; padding:24px 8px; align-items:center;">
+            <div class="img-ph dark" style="width:280px; height:340px; flex-shrink:0;">[ founder photo ]</div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:14px;">
+              <div class="eyebrow dark">Hands-on Web3 consulting · Since 2013</div>
+              <div class="hed dark huge">Web3 strategy<br>and execution,<br><span class="accent">done with you.</span></div>
+              <div class="sub dark">13 years in crypto. I work directly with founders launching projects on Base — tokenomics, agents, OpSec, treasury, community ops.</div>
+              <div class="row" style="gap:10px; margin-top:6px;">
+                <span class="cta-btn gold">Book a Strategy Call</span>
+                <span class="cta-btn dark-outline">See projects</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="box dark" style="display:flex; gap:18px; align-items:center; padding:14px 18px;">
+            <span class="eyebrow dark" style="margin:0;">Trusted by builders on</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#6FA3E5;">BASE · VIRTUALS · ANTHROPIC · COINBASE · ENS</span>
+          </div>
+
+          <div style="padding: 18px 8px 8px;">
+            <div class="eyebrow dark">Services</div>
+            <div class="grid-3" style="margin-top:8px;">
+              <div class="box dark"><strong style="font-size:13px;">DeFi Onboarding</strong><div class="sub dark" style="font-size:11px; margin-top:4px;">Wallet · key · OpSec. From $200.</div></div>
+              <div class="box dark"><strong style="font-size:13px;">Agent Build-out</strong><div class="sub dark" style="font-size:11px; margin-top:4px;">Strategy + delivery. From $500.</div></div>
+              <div class="box dark"><strong style="font-size:13px;">Token Launch</strong><div class="sub dark" style="font-size:11px; margin-top:4px;">End-to-end playbook. From $3.5K.</div></div>
+            </div>
+          </div>
+
+          <div style="padding: 18px 8px 0;">
+            <div class="eyebrow dark">Recent work</div>
+            <div class="grid-4" style="margin-top:8px;">
+              <div class="img-ph dark" style="height:80px;">project A</div>
+              <div class="img-ph dark" style="height:80px;">project B</div>
+              <div class="img-ph dark" style="height:80px;">project C</div>
+              <div class="img-ph dark" style="height:80px;">project D</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="notes">
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Hero photo</strong>
+          Square crop, eye-level. Replace "13 agents" framing — <em>you</em> are the brand.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Nav font</strong>
+          Bumped to 13–14px mono per your note. Was 11.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>CTA placement</strong>
+          Nav-right + hero. CRT effect lives in the background grid; buttons always above it.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Padding</strong>
+          24px stage gap, 32px hero gap, 18px between sections. Content breathes.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Funnel</strong>
+          Trust → Services → Proof.
+          <em>Token bumped off the homepage entirely.</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!--  D2 · Case-studies grid                              -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="pane" id="d2">
+    <div class="pane-head">
+      <div class="pane-title">The work <span class="pane-tag">is the pitch.</span><br>Hero is a 6-up grid of projects.</div>
+      <div class="pane-meta">
+        <div class="label">Direction 02 · Case-studies grid</div>
+        Skip the manifesto. Land on six projects with outcomes
+        (raised X, shipped Y, agents deployed Z). Founder is one tile,
+        not the headline. Calls feel like a natural next step after
+        seeing the receipts.
+        <div class="pane-bestfor">Best for: proof-driven sales</div>
+      </div>
+    </div>
+
+    <div class="canvas-row">
+      <div class="browser">
+        <div class="browser-chrome">
+          <span class="dot-light"></span><span class="dot-light"></span><span class="dot-light"></span>
+          <span class="browser-url">supercompute.io</span>
+        </div>
+        <div class="stage dark">
+
+          <div class="nav-bar dark">
+            <span class="logo-mark"></span>
+            <span class="wm gold">SUPERCOMPUTE</span>
+            <span class="nav-links dark"><span>Work</span><span>Services</span><span>School</span><span>NewsDesk</span><span>About</span></span>
+            <span class="cta-btn dark-outline">Book a Call</span>
+          </div>
+
+          <div style="padding: 24px 8px 16px; text-align:center;">
+            <div class="eyebrow dark" style="text-align:center;">Hands-on Web3 consulting</div>
+            <div class="hed dark huge" style="margin-top:8px;">Fourteen projects.<br>One <span class="accent">operator.</span></div>
+          </div>
+
+          <div class="grid-3" style="gap:14px;">
+            <div class="box dark" style="display:flex; flex-direction:column; gap:8px;">
+              <div class="img-ph dark" style="height:90px;">project 01</div>
+              <strong style="font-size:13px;">The Glyph Foundry</strong>
+              <div class="sub dark" style="font-size:11px;">Token launch · $52K raised · 684 backers</div>
+            </div>
+            <div class="box dark" style="display:flex; flex-direction:column; gap:8px;">
+              <div class="img-ph dark" style="height:90px;">project 02</div>
+              <strong style="font-size:13px;">KNIGHT Open-Source</strong>
+              <div class="sub dark" style="font-size:11px;">Agent build-out · TradeDesk shipped May 2026</div>
+            </div>
+            <div class="box dark" style="display:flex; flex-direction:column; gap:8px;">
+              <div class="img-ph dark" style="height:90px;">project 03</div>
+              <strong style="font-size:13px;">Bracket Studio</strong>
+              <div class="sub dark" style="font-size:11px;">DAO treasury · $1.2M ops · 0 incidents</div>
+            </div>
+            <div class="box dark" style="display:flex; flex-direction:column; gap:8px;">
+              <div class="img-ph dark" style="height:90px;">project 04</div>
+              <strong style="font-size:13px;">Spool Protocol</strong>
+              <div class="sub dark" style="font-size:11px;">Migration to Base · 48hr cutover</div>
+            </div>
+            <div class="box dark" style="display:flex; flex-direction:column; gap:8px;">
+              <div class="img-ph dark" style="height:90px;">project 05</div>
+              <strong style="font-size:13px;">Tessera Labs</strong>
+              <div class="sub dark" style="font-size:11px;">Agent OpSec audit · 14 wallets reviewed</div>
+            </div>
+            <div class="box dark" style="display:flex; flex-direction:column; gap:8px; border-style:dashed;">
+              <div class="img-ph dark" style="height:90px;">+ founder</div>
+              <strong style="font-size:13px; color:#C9A33A;">Your project next →</strong>
+              <div class="sub dark" style="font-size:11px;">Book a 30-min strategy call.</div>
+            </div>
+          </div>
+
+          <div class="box dark" style="margin-top:16px; padding:18px; display:flex; gap:20px; align-items:center;">
+            <div class="img-ph dark" style="width:64px; height:64px; border-radius:50%; flex-shrink:0;">photo</div>
+            <div style="flex:1;">
+              <strong style="font-size:14px;">Worked with the founder directly.</strong>
+              <div class="sub dark" style="font-size:12px; margin-top:4px;">13 years in crypto · Hands-on · Pro expansion</div>
+            </div>
+            <span class="cta-btn gold">Book a Call</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="notes">
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Proof first</strong>
+          The 6 tiles ARE the pitch. Outcomes (raised X, shipped Y) on every card.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Founder smaller</strong>
+          Not gone — just a strip near the bottom with one strong line + CTA.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>"Your project next"</strong>
+          The empty 6th tile invites the reader in.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Risk</strong>
+          <em>Needs 5+ real case studies you can show publicly. If you don't have them, D1 is safer.</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!--  D3 · Terminal dossier                               -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="pane" id="d3">
+    <div class="pane-head">
+      <div class="pane-title">The site <em><span class="pane-tag">is a terminal.</span></em><br>Mono everywhere. Commands as nav.</div>
+      <div class="pane-meta">
+        <div class="label">Direction 03 · Terminal dossier</div>
+        Doubles down on the CRT vibe. Home reads like
+        <code>~ whoami</code> output: the founder is a structured record, services are
+        <code>./services --list</code>, projects are <code>./projects --recent</code>.
+        Buttons sit above the scanline effect.
+        <div class="pane-bestfor">Best for: differentiation by aesthetic</div>
+      </div>
+    </div>
+
+    <div class="canvas-row">
+      <div class="browser">
+        <div class="browser-chrome">
+          <span class="dot-light"></span><span class="dot-light"></span><span class="dot-light"></span>
+          <span class="browser-url">supercompute.io</span>
+        </div>
+        <div class="stage dark" style="font-family:'JetBrains Mono', monospace;">
+
+          <div class="nav-bar dark">
+            <span class="logo-mark"></span>
+            <span class="wm gold">SUPERCOMPUTE.io</span>
+            <span class="nav-links dark" style="font-size:13px;"><span>~/services</span><span>~/work</span><span>~/school</span><span>~/news</span><span>~/about</span></span>
+            <span class="cta-btn dark-outline" style="font-size:12px;">$ book --call</span>
+          </div>
+
+          <div style="padding:24px 12px; display:flex; flex-direction:column; gap:14px;">
+            <div style="color:#6FA3E5; font-size:12px;">$ whoami</div>
+            <div class="hed dark huge" style="font-family:'JetBrains Mono', monospace; text-transform:none; line-height:1.05;">
+              <span style="color:#C9A33A;">[ founder ]</span> hands-on web3 operator<br>
+              <span style="color:#C9A33A;">[ since  ]</span> 2013 · occupy_la → base_l2<br>
+              <span style="color:#C9A33A;">[ stack  ]</span> base · virtuals · cloudflare · ledger
+            </div>
+            <div class="sub dark" style="font-family:'JetBrains Mono', monospace; font-size:12px; max-width:560px;">
+              I work directly with founders launching projects on Base.<br>
+              No anonymous team. No "platform". One operator, hands on the keyboard.
+            </div>
+            <div class="row" style="gap:10px; margin-top:8px;">
+              <span class="cta-btn gold" style="font-family:'JetBrains Mono', monospace;">$ book --strategy-call</span>
+              <span class="cta-btn dark-outline" style="font-family:'JetBrains Mono', monospace;">$ ls ./projects</span>
+            </div>
+          </div>
+
+          <div class="box dark" style="border-radius:0; padding:16px;">
+            <div style="color:#6FA3E5; font-size:11px; margin-bottom:8px;">$ ./services --list</div>
+            <div style="display:grid; grid-template-columns: 22px 1fr 80px; gap:8px 12px; font-size:12px; color:#F4ECD8;">
+              <span style="color:#C9A33A;">01</span><span>defi_onboarding.sh — wallet + key + opsec</span><span style="color:#C9A33A; text-align:right;">$200</span>
+              <span style="color:#C9A33A;">02</span><span>agent_buildout.sh — strategy + delivery</span><span style="color:#C9A33A; text-align:right;">$500</span>
+              <span style="color:#C9A33A;">03</span><span>token_launch.sh — end-to-end playbook</span><span style="color:#C9A33A; text-align:right;">$3,500</span>
+              <span style="color:#C9A33A;">04</span><span>refi_strategy.sh — treasury &amp; runway</span><span style="color:#C9A33A; text-align:right;">$400</span>
+            </div>
+          </div>
+
+          <div class="box dark" style="border-radius:0; padding:16px;">
+            <div style="color:#6FA3E5; font-size:11px; margin-bottom:8px;">$ ./projects --recent | head -4</div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11px; color:#F4ECD8;">
+              <span>› glyph_foundry · TOKEN · $52K · funded</span>
+              <span>› knight_oss · AGENT · shipped may26</span>
+              <span>› bracket_studio · DAO · 0 incidents</span>
+              <span>› spool_protocol · MIGRATION · 48h</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="notes">
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Everything is mono</strong>
+          Even the headline. Terminal aesthetic is non-negotiable here.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>CTA = command</strong>
+          <code>$ book --strategy-call</code> as a button. Diegetic UI.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Z-index</strong>
+          CRT scanline lives in <code>z-index:0</code>. All interactive elements at <code>z:2+</code>.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Risk</strong>
+          <em>Most committed direction. Hardest to back out of. Filters audience hard — only the people who get it will book.</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!--  D4 · Long scroll                                    -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="pane" id="d4">
+    <div class="pane-head">
+      <div class="pane-title">Single <span class="pane-tag">long scroll.</span><br>Narrative all the way down.</div>
+      <div class="pane-meta">
+        <div class="label">Direction 04 · Long scroll</div>
+        Six bands stacked: founder intro → services → projects →
+        newsletter → school → final CTA. No navigation away — every
+        section is the whole story. Like a long-form essay with embedded CTAs.
+        <div class="pane-bestfor">Best for: warming cold traffic</div>
+      </div>
+    </div>
+
+    <div class="canvas-row">
+      <div class="browser">
+        <div class="browser-chrome">
+          <span class="dot-light"></span><span class="dot-light"></span><span class="dot-light"></span>
+          <span class="browser-url">supercompute.io</span>
+        </div>
+        <div class="stage dark" style="gap:8px;">
+
+          <div class="nav-bar dark">
+            <span class="logo-mark"></span>
+            <span class="wm gold">SUPERCOMPUTE</span>
+            <span style="margin-left:auto; font-family:'JetBrains Mono', monospace; font-size:12px; color:rgba(255,255,255,.5);">scroll ↓</span>
+            <span class="cta-btn dark-outline">Book a Call</span>
+          </div>
+
+          <div style="padding:32px 12px; border-bottom: 1px dashed rgba(255,255,255,.15);">
+            <div class="eyebrow dark">§ 01 · who</div>
+            <div class="hed dark huge" style="margin-top:6px;">I'm an operator.<br>I do <span class="accent">hands-on Web3.</span></div>
+            <div class="sub dark" style="margin-top:10px;">Started in 2013. 14 projects shipped. One human, working with founders directly.</div>
+          </div>
+
+          <div style="padding:28px 12px; border-bottom: 1px dashed rgba(255,255,255,.15);">
+            <div class="eyebrow dark">§ 02 · services</div>
+            <div class="hed dark" style="margin-top:6px;">Four offerings,<br>priced clearly.</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+              <div class="box dark" style="padding:10px 12px; font-size:12px;">DeFi Onboarding · $200</div>
+              <div class="box dark" style="padding:10px 12px; font-size:12px;">Agent Build-out · $500</div>
+              <div class="box dark" style="padding:10px 12px; font-size:12px;">Token Launch · $3,500</div>
+              <div class="box dark" style="padding:10px 12px; font-size:12px;">ReFi Strategy · $400</div>
+            </div>
+          </div>
+
+          <div style="padding:28px 12px; border-bottom: 1px dashed rgba(255,255,255,.15);">
+            <div class="eyebrow dark">§ 03 · work</div>
+            <div class="hed dark" style="margin-top:6px;">Recent ships.</div>
+            <div class="grid-3" style="margin-top:12px; gap:8px;">
+              <div class="img-ph dark" style="height:60px;">project 01</div>
+              <div class="img-ph dark" style="height:60px;">project 02</div>
+              <div class="img-ph dark" style="height:60px;">project 03</div>
+            </div>
+          </div>
+
+          <div style="padding:28px 12px; border-bottom: 1px dashed rgba(255,255,255,.15);">
+            <div class="eyebrow dark">§ 04 · words</div>
+            <div class="hed dark" style="margin-top:6px;">NewsDesk.</div>
+            <div class="sub dark" style="margin-top:6px;">Weekly intelligence on Base, agents, and tokenomics. Free.</div>
+            <div class="box dark" style="margin-top:10px; padding:10px 12px; display:flex; gap:8px;">
+              <span style="flex:1; font-family:'JetBrains Mono', monospace; font-size:11px; opacity:.6;">your@email.com</span>
+              <span class="cta-btn gold" style="font-size:11px; padding:6px 12px;">Subscribe</span>
+            </div>
+          </div>
+
+          <div style="padding:28px 12px; border-bottom: 1px dashed rgba(255,255,255,.15);">
+            <div class="eyebrow dark">§ 05 · school</div>
+            <div class="hed dark" style="margin-top:6px;">Web3 School.</div>
+            <div class="sub dark" style="margin-top:6px;">7 modules. NFT credentials. Free.</div>
+          </div>
+
+          <div style="padding:32px 12px; text-align:center;">
+            <div class="hed dark huge">Ready?</div>
+            <div class="sub dark" style="margin:10px auto;">30 minutes. No pitch.</div>
+            <span class="cta-btn gold" style="font-size:13px;">Book a Strategy Call →</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="notes">
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Six bands</strong>
+          Each section is fully self-contained — visitor can stop anywhere and still get a "complete" feeling.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Book CTA repeats</strong>
+          Sticky in nav + final band. Two clean ways to convert.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Lowest commitment ramp</strong>
+          Subscribe is cheaper than booking. Captures cold visitors.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Risk</strong>
+          <em>Familiar pattern. Could feel like a SaaS landing page if not styled right.</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!--  D5 · Services menu                                  -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="pane" id="d5">
+    <div class="pane-head">
+      <div class="pane-title">It's a <span class="pane-tag">menu.</span><br>Services, priced, with a book button each.</div>
+      <div class="pane-meta">
+        <div class="label">Direction 05 · Services menu</div>
+        Borrowed from boutique consultancies. Hero is one line of
+        positioning; the rest of the page is four service cards with
+        clear scope, deliverables, and a per-card Book button.
+        Founder strip + work in the second screen.
+        <div class="pane-bestfor">Best for: visitors ready to buy</div>
+      </div>
+    </div>
+
+    <div class="canvas-row">
+      <div class="browser">
+        <div class="browser-chrome">
+          <span class="dot-light"></span><span class="dot-light"></span><span class="dot-light"></span>
+          <span class="browser-url">supercompute.io</span>
+        </div>
+        <div class="stage dark">
+
+          <div class="nav-bar dark">
+            <span class="logo-mark"></span>
+            <span class="wm gold">SUPERCOMPUTE</span>
+            <span class="nav-links dark"><span>Services</span><span>Work</span><span>School</span><span>NewsDesk</span><span>About</span></span>
+            <span class="cta-btn dark-outline">Book a Call</span>
+          </div>
+
+          <div style="padding: 20px 8px 12px;">
+            <div class="eyebrow dark">Hands-on Web3 consulting</div>
+            <div class="hed dark huge" style="margin-top:6px;">Pick a service.<br>I'll <span class="accent">work with you.</span></div>
+          </div>
+
+          <div class="grid-2" style="gap:14px;">
+            <div class="box dark" style="display:flex; flex-direction:column; gap:8px; padding:18px;">
+              <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <strong style="font-size:14px;">DeFi Onboarding</strong>
+                <span style="font-family:'JetBrains Mono', monospace; color:#C9A33A; font-size:14px;">$200 · 90 min</span>
+              </div>
+              <div class="sub dark" style="font-size:12px;">Wallet setup, hardware key, OpSec. From zero to self-custody.</div>
+              <div style="font-size:11px; color:rgba(255,255,255,.55);">› Wallet + key handoff &nbsp;› OpSec checklist &nbsp;› One follow-up</div>
+              <span class="cta-btn gold" style="font-size:11px; padding:6px 12px; align-self:flex-start; margin-top:4px;">Book →</span>
+            </div>
+            <div class="box dark" style="display:flex; flex-direction:column; gap:8px; padding:18px;">
+              <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <strong style="font-size:14px;">Agent Build-out</strong>
+                <span style="font-family:'JetBrains Mono', monospace; color:#C9A33A; font-size:14px;">From $500</span>
+              </div>
+              <div class="sub dark" style="font-size:12px;">Build a Quanta-style autonomous agent for your protocol.</div>
+              <div style="font-size:11px; color:rgba(255,255,255,.55);">› Strategy + handoff plan &nbsp;› Code stub &nbsp;› Deploy notes</div>
+              <span class="cta-btn gold" style="font-size:11px; padding:6px 12px; align-self:flex-start; margin-top:4px;">Book →</span>
+            </div>
+            <div class="box dark" style="display:flex; flex-direction:column; gap:8px; padding:18px;">
+              <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <strong style="font-size:14px;">Token Launch</strong>
+                <span style="font-family:'JetBrains Mono', monospace; color:#C9A33A; font-size:14px;">From $3,500</span>
+              </div>
+              <div class="sub dark" style="font-size:12px;">End-to-end playbook. Tokenomics, contracts on Base, post-launch ops.</div>
+              <div style="font-size:11px; color:rgba(255,255,255,.55);">› Tokenomics doc &nbsp;› Audit-ready contracts &nbsp;› Launch comms</div>
+              <span class="cta-btn gold" style="font-size:11px; padding:6px 12px; align-self:flex-start; margin-top:4px;">Book →</span>
+            </div>
+            <div class="box dark" style="display:flex; flex-direction:column; gap:8px; padding:18px;">
+              <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <strong style="font-size:14px;">ReFi Strategy</strong>
+                <span style="font-family:'JetBrains Mono', monospace; color:#C9A33A; font-size:14px;">$400 · 2 hr</span>
+              </div>
+              <div class="sub dark" style="font-size:12px;">Treasury, runway, regenerative tokenomics for impact protocols.</div>
+              <div style="font-size:11px; color:rgba(255,255,255,.55);">› Treasury model &nbsp;› Runway plan &nbsp;› Token recap</div>
+              <span class="cta-btn gold" style="font-size:11px; padding:6px 12px; align-self:flex-start; margin-top:4px;">Book →</span>
+            </div>
+          </div>
+
+          <div class="box dark" style="margin-top:14px; padding:16px; display:flex; gap:18px; align-items:center;">
+            <div class="img-ph dark" style="width:48px; height:48px; border-radius:50%; flex-shrink:0;">photo</div>
+            <div style="flex:1; font-size:12px; color:rgba(255,255,255,.8);">
+              <strong style="color:#F4ECD8;">Operator since 2013.</strong> 14 projects shipped. Hands-on, values in order, pro expansion.
+            </div>
+            <span class="cta-btn dark-outline" style="font-size:11px;">Read about →</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="notes">
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Per-card Book</strong>
+          Visitor who already knows what they want skips the call. Direct money.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Prices visible</strong>
+          Pre-qualifies. Filters out tire-kickers.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Founder strip last</strong>
+          Inverts D1: services first, person second.
+        </div>
+        <div class="note">
+          <div class="arrow"></div>
+          <strong>Risk</strong>
+          <em>Reads like an agency. Less aspirational. May undersell the depth of the operator's experience.</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Legend / next step ────────────────────────── -->
+  <div class="legend">
+    <span class="label">Legend</span>
+    <span class="sw"><span class="swatch" style="background:#fff;"></span> placeholder block</span>
+    <span class="sw"><span class="swatch" style="background:#e8e4d8;"></span> image slot</span>
+    <span class="sw"><span class="swatch" style="background:#fde047;"></span> highlight / sticky</span>
+    <span class="sw"><span class="swatch" style="background:#1d4ed8;"></span> annotation</span>
+    <span style="margin-left:auto; font-family:'Inter', sans-serif; font-size:12px; color:#1a1a1a;">
+      Reply with the number(s) you want to take forward (one or two), and I'll do hi-fi mockups + a working prototype.
+    </span>
+  </div>
+
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panes = document.querySelectorAll('.pane');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    const id = t.dataset.pane;
+    tabs.forEach(x => x.classList.toggle('active', x === t));
+    panes.forEach(p => p.classList.toggle('active', p.id === id));
+  }));
+</script>
+</body>
+</html>

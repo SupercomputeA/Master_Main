@@ -1407,9 +1407,247 @@
 </div>
 
 <!-- ══ TOKEN ══ -->
-<div class="page ts-page" id="page-token">
-  <div class="topbar"><div><div class="topbar-title">$SCOM Token</div><div class="topbar-sub">Supercompute Protocol Token · Base Chain</div></div><div class="topbar-actions"><span class="badge badge-pink">Pre-Launch · Q3 2026</span><button class="tb-btn" onclick="copyToClipboard('supercompute.eth')">Copy ENS</button></div></div>
-  <div class="pg-body" id="tokenPage"></div>
+<div class="page ts-page ts-landing" id="page-token">
+
+  <!-- ─── HERO BLOCK ─── -->
+  <section class="ts-hero-block">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./token <span class="gold">--info</span></span>
+        <span class="caret"></span>
+      </div>
+
+      <h1 class="ts-page-title">$<span class="accent">SCOM</span></h1>
+
+      <div class="ts-hero-grid">
+        <div>
+          <div class="ts-hero-body">
+            <p>The Supercompute protocol token. <strong>Governance, agent access, revenue share, and security bonding</strong> for the 13-agent fleet.</p>
+            <p>Fair launch on Base. No VC allocation. No pre-mine to the team. The token funds the operator's ability to keep shipping in public; holders shape what gets built next.</p>
+          </div>
+
+          <div class="ts-hero-meta">
+            <span class="k">[ ticker ]</span>
+            <span class="v">$SCOM<em> · ERC-20 on Base (8453)</em></span>
+
+            <span class="k">[ supply ]</span>
+            <span class="v">1,000,000,000<em> · fixed · no mint</em></span>
+
+            <span class="k">[ TGE ]</span>
+            <span class="v">Q3 2026<em> · pre-launch · audit pending</em></span>
+
+            <span class="k">[ ENS ]</span>
+            <span class="v">supercompute.eth<em> · contract pending</em></span>
+          </div>
+
+          <div class="ts-hero-ctas">
+            <button class="cmd-btn solid" onclick="copyToClipboard('supercompute.eth')">
+              <span class="prompt">//</span>copy --ens
+            </button>
+            <button class="cmd-btn ghost" onclick="navigate('staking', navItem('staking'))">
+              <span class="prompt">//</span>view --staking
+            </button>
+          </div>
+        </div>
+
+        <div class="ts-hero-image">
+          <div class="corner tl"></div>
+          <div class="corner tr"></div>
+          <div class="corner bl"></div>
+          <div class="corner br"></div>
+          <div class="label">[ ./token/contract · awaiting deploy ]</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STATS ROW (placeholders until D2 — Base RPC wiring) ─── -->
+  <section class="section" style="padding-top:48px">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./token <span class="gold">--stats</span></span>
+      </div>
+      <div class="fleet-stats">
+        <div class="fleet-stat">
+          <div class="fleet-stat-num">TBA</div>
+          <div class="fleet-stat-label">Price</div>
+        </div>
+        <div class="fleet-stat">
+          <div class="fleet-stat-num">1B</div>
+          <div class="fleet-stat-label">Total Supply</div>
+        </div>
+        <div class="fleet-stat">
+          <div class="fleet-stat-num">0</div>
+          <div class="fleet-stat-label">Holders</div>
+        </div>
+        <div class="fleet-stat">
+          <div class="fleet-stat-num">—</div>
+          <div class="fleet-stat-label">24h Volume</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ALLOCATION ─── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./allocation <span class="gold">--breakdown</span></span>
+      </div>
+      <div class="sheet">
+        <div class="sheet-row">
+          <span class="num">01</span>
+          <div class="body">
+            <span class="name">community.sh</span>
+            <span class="desc">Fair-launch liquidity, NewsDesk + School backers, public sale. <span style="color:var(--gold-warm);letter-spacing:-1px">██████████░░░░░░░░░░</span></span>
+          </div>
+          <span class="price">50%<span class="unit"> · 500M</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">02</span>
+          <div class="body">
+            <span class="name">treasury.sh</span>
+            <span class="desc">DAO-controlled. Funds future protocol upgrades + agent compute. <span style="color:var(--gold-warm);letter-spacing:-1px">█████░░░░░░░░░░░░░░░</span></span>
+          </div>
+          <span class="price">25%<span class="unit"> · 250M</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">03</span>
+          <div class="body">
+            <span class="name">operator.sh</span>
+            <span class="desc">Operator's vesting allocation. 4-year linear vest, 1-year cliff. <span style="color:var(--gold-warm);letter-spacing:-1px">███░░░░░░░░░░░░░░░░░</span></span>
+          </div>
+          <span class="price">15%<span class="unit"> · 150M · 4yr vest</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">04</span>
+          <div class="body">
+            <span class="name">agents.sh</span>
+            <span class="desc">Bonded to the 13-agent fleet — slashed for malicious behavior, returned otherwise. <span style="color:var(--gold-warm);letter-spacing:-1px">██░░░░░░░░░░░░░░░░░░</span></span>
+          </div>
+          <span class="price">10%<span class="unit"> · 100M · agent bonds</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── UTILITY ─── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./utility <span class="gold">--list</span></span>
+      </div>
+      <div class="proj-grid" style="grid-template-columns:1fr 1fr">
+        <div class="proj-cell">
+          <div class="head"><span class="dot"></span>01 · GOVERNANCE</div>
+          <div class="title">1 $SCOM = 1 vote</div>
+          <div class="meta">Vote on protocol upgrades, agent policies, treasury spending. Snapshot off-chain, on-chain execution.</div>
+        </div>
+        <div class="proj-cell">
+          <div class="head"><span class="dot"></span>02 · AGENT ACCESS</div>
+          <div class="title">Stake to unlock the fleet</div>
+          <div class="meta">Stake $SCOM to access premium agents — Quanta deep research, KNIGHT trading signals, agent-team workflows.</div>
+        </div>
+        <div class="proj-cell">
+          <div class="head"><span class="dot"></span>03 · REVENUE SHARE</div>
+          <div class="title">Platform fees flow to holders</div>
+          <div class="meta">Consulting deposits, school enrollments, marketplace fees — a share flows back to stakers as platform revenue.</div>
+        </div>
+        <div class="proj-cell">
+          <div class="head"><span class="dot idle"></span>04 · SECURITY BOND</div>
+          <div class="title">Agents post $SCOM as collateral</div>
+          <div class="meta">Each of the 13 agents bonds $SCOM. Slashed if they go off-policy. Returned otherwise. Skin in the game.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ROADMAP ─── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./roadmap <span class="gold">--quarterly</span></span>
+      </div>
+      <div class="sheet">
+        <div class="sheet-row">
+          <span class="num">Q2</span>
+          <div class="body">
+            <span class="name">design_and_audit.md</span>
+            <span class="desc">Tokenomics finalized · governance framework drafted · smart-contract audit in progress.</span>
+          </div>
+          <span class="price"><span class="unit" style="color:#4ADE80;font-weight:700">ACTIVE</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">Q3</span>
+          <div class="body">
+            <span class="name">tge_fair_launch.md</span>
+            <span class="desc">Fair launch on Uniswap v4 Base · liquidity bootstrap · DAO activation · airdrop to NewsDesk backers.</span>
+          </div>
+          <span class="price"><span class="unit" style="color:var(--gold-warm);font-weight:700">UPCOMING</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">Q4</span>
+          <div class="body">
+            <span class="name">staking_live.md</span>
+            <span class="desc">Staking contracts go live · agent-access gating · first revenue distribution to holders.</span>
+          </div>
+          <span class="price"><span class="unit">PLANNED</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">'27</span>
+          <div class="body">
+            <span class="name">cross_chain.md</span>
+            <span class="desc">Cross-chain bridges to Ethereum L1 + Solana via LayerZero. Treasury diversification.</span>
+          </div>
+          <span class="price"><span class="unit">PLANNED</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── DISCLAIMER ─── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./legal <span class="gold">--disclaimer</span></span>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(244,236,216,.10);padding:24px 32px;font-family:var(--font-mono);font-size:13px;line-height:1.85;color:var(--mono-blue)">
+        <strong style="color:var(--cream);font-weight:600">$SCOM is not a security, not financial advice, and not a promise of returns.</strong>
+        Token economics, vesting schedules, and roadmap items are <em style="color:var(--cream);font-style:normal">subject to change</em> based on audit findings, community governance votes, and regulatory clarity. The token funds the operator's ability to ship; participation is voluntary and at your own risk. <strong style="color:var(--cream);font-weight:600">DYOR. Do not stake what you can't afford to lose.</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CLOSING CTA ─── -->
+  <section class="section closing">
+    <div class="wrap">
+      <div class="prompt-line center">
+        <span>//</span>
+        <span class="cmd">./watch <span class="gold">--launch</span></span>
+      </div>
+      <div class="closing-headline">
+        <span>Pre-launch.</span> Subscribe for TGE notice.
+      </div>
+      <p class="closing-body">
+        Token Generation Event scheduled Q3 2026 pending audit. NewsDesk subscribers get the launch notice first; school graduates get an airdrop allocation.
+      </p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="cmd-btn solid closing-btn" onclick="navigate('blog', navItem('blog'))">
+          <span class="prompt">//</span>subscribe --newsdesk
+        </button>
+        <button class="cmd-btn ghost closing-btn" onclick="authGate('web3school', navItem('web3school'))">
+          <span class="prompt">//</span>./school --enroll
+        </button>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <!-- ══ ASSETS (member) ══ -->

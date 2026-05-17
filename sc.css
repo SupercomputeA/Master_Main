@@ -164,9 +164,33 @@ body::after {
     .hud-corner.tr, .hud-corner.br { right: 10px; }
 }
 
-/* ─── Z-INDEX FLOOR FOR OVERLAYS (must clear z:1 scanlines + z:4 HUD) ── */
+/* ─── Z-INDEX FLOOR FOR OVERLAYS (must clear z:1 scanlines + z:250 HUD) ── */
 .auth-overlay, .modal-overlay, .welcome-overlay,
 #articleModal, #commentsModal { z-index: 300; }
+
+/* ─── BUILD BADGE — populated by npm run sync ────────────────────────── */
+.version-tag {
+    position: fixed;
+    bottom: 14px;
+    right: 60px;            /* clears the br HUD bracket */
+    z-index: 260;           /* above HUD (250), below overlays (300) */
+    padding: 4px 10px;
+    background: rgba(10, 19, 48, .85);
+    color: var(--hud-yellow);
+    border: 1px solid var(--gold-warm);
+    border-radius: 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+@media (max-width: 600px) {
+    .version-tag { right: 50px; bottom: 10px; font-size: 9px; }
+}
 
 /* NAV */
 nav#appNav {

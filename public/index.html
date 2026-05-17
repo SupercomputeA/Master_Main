@@ -27,7 +27,7 @@
 <div class="hud-corner br"></div>
 
 <!-- Build badge — auto-populated by npm run sync (see package.json) -->
-<div class="version-tag" id="versionTag">build · design-system @ 1ebe8d8 · 21:40</div>
+<div class="version-tag" id="versionTag">build · design-system @ 572c2be · 21:49</div>
 
 <!-- AUTH OVERLAY -->
 <div class="auth-overlay" id="authOverlay" style="display:none">
@@ -71,6 +71,7 @@
     <a href="#" class="nav-item" data-page="staking" onclick="navigate('staking',this);return false" title="$SCOM token staking — live May 2026"><span class="nav-ico">◈</span>Staking</a>
     <a href="#" class="nav-item" data-page="blog" onclick="navigate('blog',this);return false" title="NewsDesk articles — AI-curated Web3 intelligence"><span class="nav-ico">▤</span>Blog</a>
     <a href="#" class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this);return false" title="Public investment opportunities"><span class="nav-ico">◧</span>Projects</a>
+    <a href="#" class="nav-item" data-page="agents" onclick="navigate('agents',this);return false" title="13-agent fleet — public roster, status, roles"><span class="nav-ico">◉</span>Agents<span class="nav-badge nb-pink">New</span></a>
     <a href="#" class="nav-item" data-page="consulting" onclick="navigate('consulting',this);return false" title="DeFi consulting, agent automation, ReFi strategy"><span class="nav-ico">◑</span>Consulting</a>
     <a href="#" class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this);return false" title="$SCOM token — access gated by Web3 School completion"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></a>
     <a href="#" class="nav-item" data-page="shop" onclick="navigate('shop',this);return false" title="Storefront — merch, classes, agent services (Shopify-backed)"><span class="nav-ico">▣</span>Shop<span class="nav-badge nb-pink">New</span></a>
@@ -402,6 +403,263 @@
 
 </div>
 <!-- ══ ABOUT ══ -->
+
+
+<!-- ══ AGENTS (Public Fleet) ══ -->
+<div class="page ts-page ts-landing" id="page-agents">
+
+  <!-- ─── HERO BLOCK ─── -->
+  <section class="ts-hero-block">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./agents <span class="gold">--fleet</span></span>
+        <span class="caret"></span>
+      </div>
+
+      <h1 class="ts-page-title">Agent <span class="accent">Fleet</span></h1>
+
+      <div class="ts-hero-grid">
+        <div>
+          <div class="ts-hero-body">
+            <p>One human operator. <strong>Thirteen autonomous agents.</strong> Each runs a specific lane — content, trading, automation, infrastructure, strategy — so the practice can ship at scale without losing the operator's hand on the keyboard.</p>
+            <p>Some are live on Base. Some run locally. Some are still in dev. None are anonymous.</p>
+          </div>
+
+          <div class="ts-hero-meta">
+            <span class="k">[ humans ]</span>
+            <span class="v">1<em> · the operator, hands on keyboard</em></span>
+
+            <span class="k">[ agents ]</span>
+            <span class="v">13<em> · 4 active · 2 observer · 4 dev · 3 queued</em></span>
+
+            <span class="k">[ chain ]</span>
+            <span class="v">Base L2<em> · on-chain identity via Virtuals Protocol</em></span>
+
+            <span class="k">[ doctrine ]</span>
+            <span class="v">Tools, not replacements<em> · the operator stays the author</em></span>
+          </div>
+
+          <div class="ts-hero-ctas">
+            <button class="cmd-btn solid" onclick="authGate('agentchat', navItem('agentchat'))">
+              <span class="prompt">//</span>talk --to-agent
+            </button>
+            <button class="cmd-btn ghost" onclick="navigate('consulting', navItem('consulting'))">
+              <span class="prompt">//</span>build --your-own
+            </button>
+          </div>
+        </div>
+
+        <div class="ts-hero-image">
+          <div class="corner tl"></div>
+          <div class="corner tr"></div>
+          <div class="corner bl"></div>
+          <div class="corner br"></div>
+          <div class="label">[ ./agents/fleet-portrait · awaiting asset ]</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STATUS COUNTS ─── -->
+  <section class="section" style="padding-top:48px">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./agents <span class="gold">--status</span></span>
+      </div>
+      <div class="fleet-stats">
+        <div class="fleet-stat">
+          <div class="fleet-stat-dot s-active"></div>
+          <div class="fleet-stat-num">4</div>
+          <div class="fleet-stat-label">Active</div>
+        </div>
+        <div class="fleet-stat">
+          <div class="fleet-stat-dot s-observer"></div>
+          <div class="fleet-stat-num">2</div>
+          <div class="fleet-stat-label">Observer</div>
+        </div>
+        <div class="fleet-stat">
+          <div class="fleet-stat-dot s-dev"></div>
+          <div class="fleet-stat-num">4</div>
+          <div class="fleet-stat-label">Dev</div>
+        </div>
+        <div class="fleet-stat">
+          <div class="fleet-stat-dot s-queued"></div>
+          <div class="fleet-stat-num">3</div>
+          <div class="fleet-stat-label">Queued</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FULL ROSTER ─── -->
+  <section class="section" style="padding-top:48px">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./agents <span class="gold">--list</span> | head -13</span>
+      </div>
+
+      <div class="sheet fleet-sheet">
+        <!-- 01 Hermes -->
+        <div class="sheet-row fleet-row">
+          <span class="num">01</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-active"></span>Hermes<span class="fleet-role">command · coordinator</span></div>
+            <span class="desc">Local fleet conductor inside Hermes Workspace. Routes work between agents, surfaces Kanban status, fans out to Quanta/Knight/OpenClaw as needed.</span>
+          </div>
+          <span class="fleet-meta">active<br><span class="last">last · just now</span></span>
+        </div>
+
+        <!-- 02 OpenClaw -->
+        <div class="sheet-row fleet-row">
+          <span class="num">02</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-active"></span>OpenClaw<span class="fleet-role">infrastructure · primary operator</span></div>
+            <span class="desc">Browser automation. Social posting (X, Lens, Farcaster), web research, Linear ticket updates, task execution. The one that types.</span>
+          </div>
+          <span class="fleet-meta">active<br><span class="last">last · 2 min ago</span></span>
+        </div>
+
+        <!-- 03 Quanta S -->
+        <div class="sheet-row fleet-row">
+          <span class="num">03</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-active"></span>Quanta S<span class="fleet-role">newsdesk · intelligence</span></div>
+            <span class="desc">Sovereign content agent. On-chain identity via Virtuals Protocol ($QUANTA). Drafts NewsDesk articles, monitors on-chain signals, cross-posts.</span>
+          </div>
+          <span class="fleet-meta">active<br><span class="last">last · 4 min ago</span></span>
+        </div>
+
+        <!-- 04 Claude Desktop -->
+        <div class="sheet-row fleet-row">
+          <span class="num">04</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-active"></span>Claude Desktop<span class="fleet-role">command · strategy</span></div>
+            <span class="desc">Strategic command layer. Connects Linear (MOLT project), synthesizes agent reports, advises on sprint priorities.</span>
+          </div>
+          <span class="fleet-meta">active<br><span class="last">last · 8 min ago</span></span>
+        </div>
+
+        <!-- 05 KNIGHT -->
+        <div class="sheet-row fleet-row">
+          <span class="num">05</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-observer"></span>KNIGHT<span class="fleet-role">tradedesk · analytics</span></div>
+            <span class="desc">Trading agent on Conway Terminal. Observer mode — monitors CDP positions, Polymarket opportunities, treasury. Portfolio: $8,214 · +2.68% P&amp;L.</span>
+          </div>
+          <span class="fleet-meta">observer<br><span class="last">last · 12 min ago</span></span>
+        </div>
+
+        <!-- 06 CONDOR -->
+        <div class="sheet-row fleet-row">
+          <span class="num">06</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-observer"></span>CONDOR<span class="fleet-role">devops · infrastructure config</span></div>
+            <span class="desc">Configuration agent. Tracks deploys, watches CI/CD pipeline, surfaces config drift. Currently watching SCOM-021 failure on main.</span>
+          </div>
+          <span class="fleet-meta">observer<br><span class="last">last · 22 min ago</span></span>
+        </div>
+
+        <!-- 07 designdesk -->
+        <div class="sheet-row fleet-row">
+          <span class="num">07</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-dev"></span>designdesk<span class="fleet-role">design · ux implementer</span></div>
+            <span class="desc">Local design agent in Hermes Workspace. Per-page UI passes and component drafts; engaged when a page reskin needs fresh context.</span>
+          </div>
+          <span class="fleet-meta">dev<br><span class="last">setup pending</span></span>
+        </div>
+
+        <!-- 08 operationsdesk -->
+        <div class="sheet-row fleet-row">
+          <span class="num">08</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-dev"></span>operationsdesk<span class="fleet-role">software · coding agent</span></div>
+            <span class="desc">Software engineering agent in Hermes Workspace. Refactors, bug fixes, integration work across the Master_Main repo.</span>
+          </div>
+          <span class="fleet-meta">dev<br><span class="last">setup pending</span></span>
+        </div>
+
+        <!-- 09 Infisical -->
+        <div class="sheet-row fleet-row">
+          <span class="num">09</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-dev"></span>Infisical<span class="fleet-role">secrets · credential vault</span></div>
+            <span class="desc">Credential watchdog. Holds Gateway wallet keys, Virtuals signer keys, Stripe keys. Rotates on schedule, alerts on access.</span>
+          </div>
+          <span class="fleet-meta">dev<br><span class="last">setup pending</span></span>
+        </div>
+
+        <!-- 10 Orami -->
+        <div class="sheet-row fleet-row">
+          <span class="num">10</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-dev"></span>Orami<span class="fleet-role">founder · creative direction</span></div>
+            <span class="desc">Human-side founder profile inside the agent fleet UI. Tracks creative direction inputs and mints decisions back into agent prompts.</span>
+          </div>
+          <span class="fleet-meta">dev<br><span class="last">last · 1 hr ago</span></span>
+        </div>
+
+        <!-- 11 WordWatcher -->
+        <div class="sheet-row fleet-row">
+          <span class="num">11</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-queued"></span>WordWatcher<span class="fleet-role">nlp · brand watchdog</span></div>
+            <span class="desc">Lexicon enforcement. Flags any "Cyborg Agency"/"platform"/forbidden-phrase usage across draft content before publish. Brand drift catcher.</span>
+          </div>
+          <span class="fleet-meta">queued<br><span class="last">not deployed</span></span>
+        </div>
+
+        <!-- 12 OpenScrape -->
+        <div class="sheet-row fleet-row">
+          <span class="num">12</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-queued"></span>OpenScrape<span class="fleet-role">data · web scraping</span></div>
+            <span class="desc">On-demand scraper for NewsDesk research. Pulls structured data from Web3-native sources (Dune, DefiLlama, Etherscan) on Quanta's request.</span>
+          </div>
+          <span class="fleet-meta">queued<br><span class="last">not deployed</span></span>
+        </div>
+
+        <!-- 13 Z Vineyard -->
+        <div class="sheet-row fleet-row">
+          <span class="num">13</span>
+          <div class="body">
+            <div class="fleet-name"><span class="dot s-queued"></span>Z Vineyard<span class="fleet-role">data · pattern intelligence</span></div>
+            <span class="desc">Long-context pattern matcher across NewsDesk archive + on-chain history. Surfaces recurring signals Quanta might miss in real-time.</span>
+          </div>
+          <span class="fleet-meta">queued<br><span class="last">not deployed</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CLOSING CTA ─── -->
+  <section class="section closing">
+    <div class="wrap">
+      <div class="prompt-line center">
+        <span>//</span>
+        <span class="cmd">./talk <span class="gold">--to-agent</span></span>
+      </div>
+      <div class="closing-headline">
+        Want to <span>talk to one</span>?
+      </div>
+      <p class="closing-body">
+        Agent Chat is gated behind Web3 School completion — finish the curriculum, then you can route a question to any active agent in the fleet. Or talk to the operator directly via Calendly.
+      </p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="cmd-btn solid closing-btn" onclick="authGate('agentchat', navItem('agentchat'))">
+          <span class="prompt">//</span>open --agent-chat
+        </button>
+        <button class="cmd-btn ghost closing-btn" onclick="navigate('consulting', navItem('consulting'))">
+          <span class="prompt">//</span>book --operator
+        </button>
+      </div>
+    </div>
+  </section>
+
+</div>
 
 <!-- ══ SHOP ══ -->
 <div class="page ts-page ts-landing" id="page-shop">

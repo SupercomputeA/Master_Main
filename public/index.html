@@ -27,7 +27,7 @@
 <div class="hud-corner br"></div>
 
 <!-- Build badge — auto-populated by npm run sync (see package.json) -->
-<div class="version-tag" id="versionTag">build · design-system @ d6add9c · 21:35</div>
+<div class="version-tag" id="versionTag">build · design-system @ 1ebe8d8 · 21:40</div>
 
 <!-- AUTH OVERLAY -->
 <div class="auth-overlay" id="authOverlay" style="display:none">
@@ -646,26 +646,80 @@
 </div>
 
 <!-- ══ PROJECTS ══ -->
-<div class="page ts-page" id="page-pub-projects">
-  <div style="padding:1.75rem 1.5rem;background:linear-gradient(135deg,#0D1F3C,#0A1628);border-bottom:1px solid var(--border)">
-    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">Projects</div>
-    <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Community Projects</h2>
-    <p style="font-size:.8rem;color:var(--muted);line-height:1.6;max-width:680px">Every project here was born from a real operational need inside SUPERCOMPUTE — then open-sourced to the community. We build first, publish second. That way the work speaks before the pitch does.</p>
-  </div>
-  <div style="padding:1.5rem">
-    <div style="background:linear-gradient(135deg,rgba(233,30,140,.06),rgba(99,102,241,.06));border:1px solid rgba(233,30,140,.15);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem">
-      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--pink);text-transform:uppercase;margin-bottom:.6rem">Why Our Projects Matter</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
-        <div><div style="font-weight:700;font-size:12px;color:var(--text);margin-bottom:.25rem">Built from Operations</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Every project started as internal infrastructure. We open-sourced what worked.</div></div>
-        <div><div style="font-weight:700;font-size:12px;color:var(--text);margin-bottom:.25rem">Sovereign Stack</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Agents run on Base Chain. Our projects stay on-chain, self-hosted, and community-governed.</div></div>
-        <div><div style="font-weight:700;font-size:12px;color:var(--text);margin-bottom:.25rem">Zero Speculation</div><div style="font-size:11px;color:var(--muted);line-height:1.5">No promises. No roadmap theater. Ship first, announce second.</div></div>
+<div class="page ts-page ts-landing" id="page-pub-projects">
+
+  <!-- ─── HERO BLOCK (universal page template) ─────────────────── -->
+  <section class="ts-hero-block">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./projects <span class="gold">--all</span></span>
+        <span class="caret"></span>
+      </div>
+
+      <h1 class="ts-page-title">Community <span class="accent">Projects</span></h1>
+
+      <div class="ts-hero-grid">
+        <div>
+          <div class="ts-hero-body">
+            <p>Every project here was born from a real operational need inside Supercompute — then open-sourced. <strong>We build first, publish second.</strong> The work speaks before the pitch does.</p>
+            <p>Each one started as internal infrastructure. We shipped, used it for months, then released what held up under real load.</p>
+          </div>
+
+          <div class="ts-hero-meta">
+            <span class="k">[ doctrine ]</span>
+            <span class="v">Built from operations<em> · open-sourced after it works</em></span>
+
+            <span class="k">[ stack ]</span>
+            <span class="v">Base Chain · on-chain · community-governed</span>
+
+            <span class="k">[ speculation ]</span>
+            <span class="v">Zero<em> · no roadmap theater, ship first</em></span>
+          </div>
+
+          <div class="ts-hero-ctas">
+            <button class="cmd-btn solid" onclick="navigate('consulting', navItem('consulting'))">
+              <span class="prompt">//</span>back --a-project
+            </button>
+            <button class="cmd-btn ghost" onclick="navigate('about', navItem('about'))">
+              <span class="prompt">//</span>cat ./doctrine.md
+            </button>
+          </div>
+        </div>
+
+        <div class="ts-hero-image">
+          <div class="corner tl"></div>
+          <div class="corner tr"></div>
+          <div class="corner bl"></div>
+          <div class="corner br"></div>
+          <div class="label">[ ./projects/cover · awaiting asset ]</div>
+        </div>
       </div>
     </div>
-    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">Active Projects</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1.75rem" id="pubActiveProj"></div>
-    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">Coming Soon</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem" id="pubSoonProj"></div>
-  </div>
+  </section>
+
+  <!-- ─── ACTIVE PROJECTS LIST (rendered by sc-flows.js) ──────── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./projects <span class="gold">--active</span></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:rgba(244,236,216,.10);border:1px solid rgba(244,236,216,.10)" id="pubActiveProj"></div>
+    </div>
+  </section>
+
+  <!-- ─── COMING SOON ─────────────────────────────────────────── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./projects <span class="gold">--queued</span></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:rgba(244,236,216,.10);border:1px solid rgba(244,236,216,.10)" id="pubSoonProj"></div>
+    </div>
+  </section>
+
 </div>
 
 <!-- ══ CONSULTING ══ -->

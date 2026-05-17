@@ -2685,6 +2685,129 @@ footer {
 }
 
 /* ════════════════════════════════════════════════════════════════════
+   PAGE HERO BLOCK — universal page template (Terminal Dossier)
+
+   Every page opens with:
+     1. prompt-line eyebrow            (// ./page-name --view)
+     2. .ts-page-title                 (LARGE mono display name)
+     3. .ts-hero-grid                  (2-col: content / image placeholder)
+
+   Scoped under .ts-page so it doesn't fight legacy pages until they
+   opt in to the template.
+   ════════════════════════════════════════════════════════════════════ */
+.ts-page .ts-hero-block {
+    padding: 64px 0 56px;
+    border-bottom: 1px solid rgba(244, 236, 216, .08);
+    position: relative;
+    z-index: 2;
+}
+.ts-page .ts-hero-block .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 72px;
+}
+.ts-page-title {
+    font-family: var(--font-mono);
+    font-size: clamp(40px, 6vw, 84px);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -.5px;
+    color: var(--cream);
+    margin: 18px 0 40px;
+    text-transform: uppercase;
+}
+.ts-page-title .accent { color: var(--gold-warm); }
+
+.ts-hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 56px;
+    align-items: start;
+}
+.ts-hero-grid .ts-hero-body {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    line-height: 1.85;
+    color: var(--mono-blue);
+    max-width: 540px;
+}
+.ts-hero-grid .ts-hero-body strong { color: var(--cream); font-weight: 600; }
+.ts-hero-grid .ts-hero-body p + p { margin-top: 18px; }
+
+.ts-hero-grid .ts-hero-meta {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 10px 24px;
+    margin-top: 28px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+}
+.ts-hero-grid .ts-hero-meta .k {
+    color: var(--gold-warm);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    padding-top: 2px;
+}
+.ts-hero-grid .ts-hero-meta .v { color: var(--cream); }
+.ts-hero-grid .ts-hero-meta .v em { font-style: normal; color: var(--mono-blue); }
+
+.ts-hero-grid .ts-hero-ctas {
+    display: flex; gap: 14px; flex-wrap: wrap; margin-top: 32px;
+}
+
+/* Image placeholder — striped diagonal over brass+navy gradient.
+   Replace .ts-hero-image's inner content with real <img> once assets exist. */
+.ts-hero-image {
+    aspect-ratio: 4 / 3;
+    background:
+        repeating-linear-gradient(
+            135deg,
+            rgba(244, 236, 216, .04) 0,
+            rgba(244, 236, 216, .04) 10px,
+            transparent 10px,
+            transparent 22px
+        ),
+        radial-gradient(circle at 30% 30%, rgba(201, 163, 58, .22), transparent 60%),
+        linear-gradient(135deg, #1a2235 0%, #0a1330 100%);
+    border: 1px solid rgba(201, 163, 58, .25);
+    position: relative;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 24px;
+    font-family: var(--font-mono);
+}
+.ts-hero-image .label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--mono-blue);
+    text-transform: uppercase;
+    opacity: .65;
+}
+.ts-hero-image .corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--hud-yellow);
+}
+.ts-hero-image .corner.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+.ts-hero-image .corner.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+.ts-hero-image .corner.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+.ts-hero-image .corner.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+@media (max-width: 980px) {
+    .ts-page .ts-hero-block { padding: 40px 0 36px; }
+    .ts-page .ts-hero-block .wrap { padding: 0 32px; }
+    .ts-page-title { font-size: clamp(32px, 9vw, 56px); margin: 12px 0 28px; }
+    .ts-hero-grid { grid-template-columns: 1fr; gap: 36px; }
+    .ts-hero-grid .ts-hero-meta { grid-template-columns: 1fr; gap: 4px 0; }
+    .ts-hero-grid .ts-hero-meta .k { padding-top: 14px; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
    PAGE SHELL — base class applied to every .page in the SPA
    Adds a 220ms mount animation when window.navigate() flips .active.
    Sits BELOW .ts-landing and any future content-variant classes.

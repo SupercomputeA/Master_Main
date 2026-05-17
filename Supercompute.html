@@ -73,6 +73,7 @@
     <a href="#" class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this);return false" title="Public investment opportunities"><span class="nav-ico">◧</span>Projects</a>
     <a href="#" class="nav-item" data-page="consulting" onclick="navigate('consulting',this);return false" title="DeFi consulting, agent automation, ReFi strategy"><span class="nav-ico">◑</span>Consulting</a>
     <a href="#" class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this);return false" title="$SCOM token — access gated by Web3 School completion"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></a>
+    <a href="#" class="nav-item" data-page="shop" onclick="navigate('shop',this);return false" title="Storefront — merch, classes, agent services (Shopify-backed)"><span class="nav-ico">▣</span>Shop<span class="nav-badge nb-pink">New</span></a>
     <div class="nav-div"></div>
     <div class="nav-section">Member</div>
     <a href="#" class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this);return false" title="Your portfolio assets and positions"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></a>
@@ -460,6 +461,166 @@
 </div>
 
 <!-- ══ ABOUT ══ -->
+
+<!-- ══ SHOP ══ -->
+<div class="page ts-landing" id="page-shop">
+
+  <!-- ─── SHOP HEADER ─────────────────────────────────────────── -->
+  <section class="hero" style="padding-bottom:64px">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./shop <span class="gold">--inventory</span></span>
+        <span class="caret"></span>
+      </div>
+
+      <div class="hero-output" style="grid-template-columns:160px 1fr">
+        <span class="k">[ store ]</span>
+        <span class="v">supercompute_storefront<em> — merch · classes · agent services</em></span>
+
+        <span class="k">[ backend ]</span>
+        <span class="v">Shopify<em> · checkout in USD or USDC</em></span>
+
+        <span class="k">[ fulfillment ]</span>
+        <span class="v">Virtuals agent<em> · order processing on Base</em></span>
+
+        <span class="k">[ status ]</span>
+        <span class="v">Soft launch<em> · May 2026 · 1 SKU live</em></span>
+      </div>
+
+      <p class="hero-body">
+        Direct-purchase goods. <strong>One SKU at first — the sweatshirt.</strong>
+        Class offerings ship next as on-chain credentials redeemable for live sessions.
+        The Virtuals agent picks orders up off Shopify and confirms fulfillment on Base.
+      </p>
+    </div>
+  </section>
+
+  <!-- ─── INVENTORY (proj-grid for visual goods, .sheet for digital) ─── -->
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./inventory <span class="gold">--merch</span></span>
+      </div>
+
+      <div class="proj-grid shop-grid">
+        <!-- Sweatshirt — primary SKU -->
+        <div class="proj-cell shop-cell">
+          <div class="shop-thumb sweatshirt-thumb">
+            <div class="shop-thumb-tag">▣ SCOM-001</div>
+            <div class="shop-thumb-mark">SUPERCOMPUTE</div>
+            <div class="shop-thumb-sub">// established 2013</div>
+          </div>
+          <div class="head"><span class="dot"></span>MERCH · in stock</div>
+          <div class="title">Supercompute Operator Sweatshirt</div>
+          <div class="meta">
+            <strong>Heavyweight 14oz cotton</strong> · <strong>Embroidered chest mark</strong> · <strong>Ships from US</strong>
+          </div>
+          <div class="shop-price-row">
+            <span class="shop-price">$72 USD<span class="unit"> · or 72 USDC</span></span>
+            <button
+              class="cmd-btn solid"
+              onclick="window.open('https://supercompute.myshopify.com/products/operator-sweatshirt', '_blank', 'noopener')"
+            >
+              <span class="prompt">//</span>buy --sweatshirt
+            </button>
+          </div>
+        </div>
+
+        <!-- Next SKU placeholder -->
+        <div class="proj-cell shop-cell shop-cell-placeholder">
+          <div class="shop-thumb shop-thumb-placeholder">
+            <div class="shop-thumb-tag">// coming next</div>
+          </div>
+          <div class="head"><span class="dot idle"></span>CLASS · drafting</div>
+          <div class="title">Web3 School — DeFi Primitives (live cohort)</div>
+          <div class="meta">
+            <strong>4-week live sessions</strong> · <strong>NFT credential on completion</strong> · <strong>Virtuals agent runs scheduling</strong>
+          </div>
+          <div class="shop-price-row">
+            <span class="shop-price">TBA</span>
+            <button class="cmd-btn ghost" onclick="navigate('blog', navItem('blog'))">
+              <span class="prompt">//</span>notify --me
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── HOW IT WORKS ────────────────────────────────────────── -->
+  <section class="section">
+    <div class="wrap">
+      <div class="prompt-line">
+        <span>//</span>
+        <span class="cmd">./checkout <span class="gold">--explain</span></span>
+      </div>
+
+      <div class="sheet">
+        <div class="sheet-row">
+          <span class="num">01</span>
+          <div class="body">
+            <span class="name">browse_inventory.sh</span>
+            <span class="desc">Tap any item, see specs, sizes, and ship-from. No login needed to look.</span>
+          </div>
+          <span class="price"><span class="unit">// public</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">02</span>
+          <div class="body">
+            <span class="name">checkout_shopify.sh</span>
+            <span class="desc">Click <code>// buy</code> → Shopify-hosted checkout. Pay in USD card or USDC on Base.</span>
+          </div>
+          <span class="price"><span class="unit">// off-site</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">03</span>
+          <div class="body">
+            <span class="name">agent_fulfillment.sh</span>
+            <span class="desc">Virtuals agent polls Shopify webhook, confirms order, schedules class slot or ships merch.</span>
+          </div>
+          <span class="price"><span class="unit">// auto</span></span>
+        </div>
+        <div class="sheet-row">
+          <span class="num">04</span>
+          <div class="body">
+            <span class="name">credential_drop.sh</span>
+            <span class="desc">For class purchases: NFT credential minted to your wallet on completion. Stays on-chain.</span>
+          </div>
+          <span class="price"><span class="unit">// on-chain</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── BACK TO HOME CTA ────────────────────────────────────── -->
+  <section class="section closing">
+    <div class="wrap">
+      <div class="prompt-line center">
+        <span>//</span>
+        <span class="cmd">./back --home</span>
+      </div>
+      <div class="closing-headline">
+        Storefront is <span>soft launch</span>.
+      </div>
+      <p class="closing-body">
+        First SKU live. Bigger inventory rolls out as the agent picks up scheduling
+        and credential minting. Want a class taught on a specific topic? Send a request.
+      </p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="cmd-btn solid closing-btn" onclick="navigate('home', navItem('home'))">
+          <span class="prompt">//</span>back --home
+        </button>
+        <button class="cmd-btn ghost closing-btn" onclick="navigate('consulting', navItem('consulting'))">
+          <span class="prompt">//</span>request --class
+        </button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
 <div class="page" id="page-about"><div id="aboutBody"></div></div>
 
 <!-- ══ STAKING ══ -->

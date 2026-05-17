@@ -1,0 +1,221 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  /* Terminal-Blue button preview — matches ui_kits/marketing
+   * and patterns/_chrome.css. Mono everywhere, brass + cream + mono-blue
+   * over deep navy with a faint CRT scanline behind. */
+  body.dark {
+    background: var(--site-bg);
+    color: var(--cream);
+    font-family: var(--font-mono);
+    position: relative;
+  }
+  /* Dot-grid + scanline behind everything */
+  body.dark::before {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(0deg,  rgba(255,255,255,.030) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.030) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  body.dark::after {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,.18) 0,
+      rgba(0,0,0,.18) 1px,
+      transparent 1px,
+      transparent 3px);
+    mix-blend-mode: multiply; opacity: .55;
+  }
+  .card-root { position: relative; z-index: 2; padding: 24px 28px; }
+
+  .row {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .row + .label { margin-top: 4px; }
+  .label {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--mono-blue); margin: 14px 0 8px;
+  }
+  .label::before { content: ''; }
+
+  /* ── Command button (matches _chrome.css .btn) ─────── */
+  .btn {
+    font-family: var(--font-mono); font-weight: 700;
+    font-size: 12px; letter-spacing: 1px; text-transform: lowercase;
+    padding: 10px 18px;
+    background: transparent;
+    border: 1px solid var(--gold-warm);
+    color: var(--gold-warm);
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: background .15s, color .15s, border-color .15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--gold-warm); color: #1a1303; }
+  .btn .prompt { color: var(--mono-blue); }
+  .btn:hover .prompt { color: rgba(26,19,3,.55); }
+
+  .btn.solid { background: var(--gold-warm); color: #1a1303; }
+  .btn.solid .prompt { color: rgba(26,19,3,.55); }
+  .btn.solid:hover { background: #e0b94a; }
+
+  .btn.outline {
+    border-color: rgba(244,236,216,.30); color: var(--cream);
+  }
+  .btn.outline:hover { border-color: var(--cream); background: rgba(244,236,216,.05); color: var(--cream); }
+
+  .btn.ghost {
+    border-color: transparent; color: var(--cream);
+    padding-left: 0; padding-right: 0;
+  }
+  .btn.ghost:hover { background: transparent; color: var(--gold-warm); }
+  .btn.ghost:hover .prompt { color: var(--gold-warm); }
+  .btn.ghost .ar { color: var(--gold-warm); transition: transform .15s; }
+  .btn.ghost:hover .ar { transform: translateX(2px); }
+
+  .btn.danger { border-color: rgba(220,38,38,.55); color: #fca5a5; }
+  .btn.danger:hover { background: rgba(220,38,38,.85); color: #fff; border-color: rgba(220,38,38,.85); }
+  .btn.danger .prompt { color: rgba(220,38,38,.65); }
+
+  .btn[disabled], .btn.is-disabled {
+    border-color: rgba(244,236,216,.15);
+    color: rgba(244,236,216,.30);
+    cursor: not-allowed;
+  }
+  .btn[disabled]:hover, .btn.is-disabled:hover {
+    background: transparent; color: rgba(244,236,216,.30);
+  }
+
+  /* ── Topbar button (smaller; matches ui_kits/app .tb-btn) ── */
+  .tb-btn {
+    font-family: var(--font-mono); font-weight: 700;
+    font-size: 12px; letter-spacing: .8px;
+    padding: 7px 12px;
+    background: transparent;
+    border: 1px solid rgba(244,236,216,.25);
+    color: var(--cream);
+    text-transform: lowercase;
+    transition: all .15s;
+    display: inline-flex; align-items: center; gap: 8px;
+    white-space: nowrap; cursor: pointer;
+  }
+  .tb-btn:hover { border-color: var(--gold-warm); color: var(--gold-warm); }
+  .tb-btn .prompt { color: var(--mono-blue); }
+  .tb-btn.primary {
+    background: var(--gold-warm); color: #1a1303; border-color: var(--gold-warm);
+  }
+  .tb-btn.primary .prompt { color: rgba(26,19,3,.55); }
+  .tb-btn.primary:hover { background: #e0b94a; }
+
+  /* ── Icon-only ─────────────────────────────────────── */
+  .tb-icon {
+    width: 32px; height: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(244,236,216,.25);
+    background: transparent; color: var(--cream);
+    font-family: var(--font-mono); font-size: 14px; cursor: pointer;
+    transition: all .15s;
+  }
+  .tb-icon:hover { border-color: var(--gold-warm); color: var(--gold-warm); }
+
+  /* ── Wallet pill ───────────────────────────────────── */
+  .btn-wallet {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 14px;
+    background: transparent;
+    border: 1px solid var(--gold-warm);
+    color: var(--gold-warm);
+    font-family: var(--font-mono); font-weight: 700;
+    font-size: 11px; letter-spacing: .8px;
+    cursor: pointer; transition: all .15s;
+  }
+  .btn-wallet:hover { background: var(--gold-warm); color: #1a1303; }
+  .btn-wallet .prompt { color: var(--mono-blue); }
+  .btn-wallet:hover .prompt { color: rgba(26,19,3,.55); }
+  .btn-wallet .addr { font-size: 10px; opacity: .9; }
+
+  /* ── Caption / size labels ─────────────────────────── */
+  .caption {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--mono-blue); margin-top: 18px;
+    letter-spacing: .3px; line-height: 1.7;
+  }
+  .caption code {
+    color: var(--gold-warm); background: rgba(201,163,58,.06);
+    border: 1px solid rgba(201,163,58,.25);
+    padding: 1px 6px;
+  }
+</style></head>
+<body class="dark"><div class="card-root">
+
+  <div class="label">primary &middot; solid brass</div>
+  <div class="row">
+    <button class="btn solid"><span class="prompt">//</span>book --strategy-call</button>
+    <button class="btn solid">publish</button>
+    <button class="btn solid">send</button>
+  </div>
+
+  <div class="label">outline &middot; brass border</div>
+  <div class="row">
+    <button class="btn">ls ./work</button>
+    <button class="btn">schedule</button>
+    <button class="btn">fact-check</button>
+  </div>
+
+  <div class="label">outline &middot; cream border (secondary)</div>
+  <div class="row">
+    <button class="btn outline">cancel</button>
+    <button class="btn outline">save draft</button>
+    <button class="btn outline">connect wallet</button>
+  </div>
+
+  <div class="label">ghost &middot; inline / link-style</div>
+  <div class="row">
+    <button class="btn ghost">read more <span class="ar">&rarr;</span></button>
+    <button class="btn ghost">add tag <span class="ar">+</span></button>
+  </div>
+
+  <div class="label">danger &middot; destructive</div>
+  <div class="row">
+    <button class="btn danger">delete article</button>
+    <button class="btn danger">disconnect</button>
+  </div>
+
+  <div class="label">disabled</div>
+  <div class="row">
+    <button class="btn is-disabled">publish</button>
+    <button class="btn solid is-disabled" style="background:rgba(244,236,216,.10); color:rgba(244,236,216,.35); border-color:transparent;">schedule</button>
+  </div>
+
+  <div class="label">topbar &middot; small (app shell)</div>
+  <div class="row">
+    <button class="tb-btn primary">new article</button>
+    <button class="tb-btn">filter</button>
+    <button class="tb-btn">export</button>
+    <button class="tb-icon">⌕</button>
+    <button class="tb-icon">⌘</button>
+  </div>
+
+  <div class="label">wallet pill &middot; SIWE-aware</div>
+  <div class="row">
+    <button class="btn-wallet">
+      <span>wallet</span> <span class="addr">0x4a…f2c</span>
+    </button>
+    <button class="btn-wallet" style="border-color:rgba(244,236,216,.25); color:var(--cream);">
+      connect wallet
+    </button>
+  </div>
+
+  <div class="caption">
+    Mono everywhere, sharp corners, hover flips fill. The <code>//</code>
+    prompt glyph is reserved for the single most
+    command-line-evocative action per surface (e.g. the hero CTA), not the
+    default. Sizes: <code>btn</code> 12/10/18 · <code>tb-btn</code> 12/7/12 ·
+    <code>tb-icon</code> 32×32
+  </div>
+
+</div></body></html>

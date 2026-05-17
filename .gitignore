@@ -35,5 +35,6 @@ npm-debug.log*
 # public/*.css
 !public/*.jsx
 
-# Design system handoff (local working copy)
-.design-handoff/
+# Design system handoff — committed as source of truth.
+# OPEN_DESIGN_BRIEF.md, chats/, design_handoff_supercompute_site/, etc.
+# Originally local-only; promoted to repo on 2026-05-16.

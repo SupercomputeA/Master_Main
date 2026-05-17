@@ -1,0 +1,51 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  body { background: #0a1330; color: #F4ECD8; padding: 8px 0; }
+  .card-root { padding: 28px 32px; }
+  .row { display: flex; align-items: baseline; gap: 22px; flex-wrap: wrap; margin-bottom: 18px; }
+  .row:last-child { margin-bottom: 0; }
+  .specimen {
+    font-family: 'Phosphate', Impact, sans-serif;
+    font-weight: 400; line-height: .95;
+    color: #F4ECD8; letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .specimen .gold { color: #C9A33A; }
+  .specimen .blue { color: #6FA3E5; }
+  .meta {
+    font-family: var(--font-mono); font-size: 10px;
+    color: #6FA3E5; margin-top: 8px; letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .scale-tag {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+    letter-spacing: 1.5px; color: #C9A33A;
+    padding: 2px 8px; border: 1px solid rgba(201,163,58,.45);
+    display: inline-block; margin-bottom: 6px;
+  }
+  hr { border: none; border-top: 1px dashed rgba(244,236,216,.12); margin: 14px 0; }
+</style></head>
+<body><div class="card-root">
+
+  <div>
+    <span class="scale-tag">D-XL · 96px</span>
+    <div class="specimen" style="font-size: 96px;">Web3, <span class="gold">done.</span></div>
+    <div class="meta">Hero display · Phosphate Solid · 96 / .95 / +1.5px</div>
+  </div>
+  <hr>
+
+  <div>
+    <span class="scale-tag">D-L · 64px</span>
+    <div class="specimen" style="font-size: 64px;">Hands-on <span class="gold">operator.</span></div>
+    <div class="meta">Section title · Phosphate Solid · 64 / 1.0 / +1.2px</div>
+  </div>
+  <hr>
+
+  <div>
+    <span class="scale-tag">D-M · 40px</span>
+    <div class="specimen" style="font-size: 40px;">// <span class="blue">whoami</span></div>
+    <div class="meta">Mid display · Phosphate Solid · 40 / 1.0 / +1px</div>
+  </div>
+
+</div></body></html>

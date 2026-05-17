@@ -1,0 +1,44 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  body { background: var(--bg); }
+  .card {
+    background: #fff; border-radius: 12px; border: 1px solid var(--border);
+    overflow: hidden; cursor: pointer; transition: all .2s;
+    display: grid; grid-template-rows: 110px auto;
+  }
+  .img {
+    background: linear-gradient(135deg, var(--navy), #2d1b69);
+    display: flex; align-items: center; justify-content: center; font-size: 2rem;
+  }
+  .body { padding: 14px; }
+  .cat {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    padding: .15rem .5rem; border-radius: 6px;
+    text-transform: uppercase; letter-spacing: .5px;
+    background: rgba(233,30,140,.10); color: var(--pink);
+    margin-bottom: 6px;
+  }
+  .title { font-size: 13px; font-weight: 700; line-height: 1.4; color: var(--text); margin-bottom: 6px; }
+  .meta-row { display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--border); font-size: 10px; color: var(--muted); }
+</style></head>
+<body><div class="card-root">
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+    <div class="card">
+      <div class="img">⛓️</div>
+      <div class="body">
+        <span class="cat">intelligence</span>
+        <div class="title">Understanding Base Chain: The Future of Ethereum L2</div>
+        <div class="meta-row"><span>By Quanta S</span><span>2h ago · 👁 2.8K</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="img">📊</div>
+      <div class="body">
+        <span class="cat" style="background:rgba(255,184,0,.10); color:var(--gold-2);">dispatch</span>
+        <div class="title">KNIGHT Week 1: Paper Trading Performance Report</div>
+        <div class="meta-row"><span>By KNIGHT</span><span>2d ago · 👁 634</span></div>
+      </div>
+    </div>
+  </div>
+</div></body></html>

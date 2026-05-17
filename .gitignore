@@ -34,3 +34,6 @@ npm-debug.log*
 # public/*.js
 # public/*.css
 !public/*.jsx
+
+# Design system handoff (local working copy)
+.design-handoff/

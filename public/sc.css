@@ -83,17 +83,90 @@
     --font-m:    'Courier New', Courier, monospace;
 }
 
+html {
+    height: 100%;
+    overflow: hidden;
+}
 body {
-    font-family: 'Inter', 'SF Pro Display', -apple-system, system-ui, sans-serif;
-    background: var(--bg);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='2'%3E%3Crect width='4' height='1' y='0' fill='rgba(255,255,255,0.02)'/%3E%3C/svg%3E");
+    font-family: var(--font-mono);
+    background: var(--site-bg);
     color: var(--text);
     min-height: 100vh;
+    height: 100%;
     overflow-x: hidden;
-    font-size: 16px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased
+    overflow-y: auto;
+    font-size: 14px;        /* handoff §6b body default */
+    line-height: 1.7;
+    letter-spacing: .3px;   /* handoff §6b "terminal feel" */
+    position: relative;
+    -webkit-font-smoothing: antialiased;
 }
+
+/* ─── CRT LAYERS (handoff §6g) ─────────────────────────────────────────
+   Three fixed full-viewport layers behind page content.
+   body::before — dot-grid (z:0)
+   body::after  — scanlines, mix-blend multiply (z:1)
+   .vignette    — radial darkening at edges (z:1)
+   All interactive UI lives at z-index 2+.                              */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 56px 56px;
+}
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        rgba(0,0,0,.18) 0,
+        rgba(0,0,0,.18) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    mix-blend-mode: multiply;
+    opacity: .55;
+}
+.vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,.35) 100%);
+}
+
+/* ─── HUD CORNER BRACKETS (handoff §6h) ────────────────────────────────
+   28×28 px, 2px brass-yellow, pinned to viewport corners.
+   Shrinks to 22 px below 900 px viewport.                              */
+.hud-corner {
+    position: fixed;
+    width: 28px;
+    height: 28px;
+    pointer-events: none;
+    z-index: 4;
+    border: 2px solid var(--hud-yellow);
+}
+.hud-corner.tl { top: 14px;    left: 14px;    border-right: none; border-bottom: none; }
+.hud-corner.tr { top: 14px;    right: 14px;   border-left:  none; border-bottom: none; }
+.hud-corner.bl { bottom: 14px; left: 14px;    border-right: none; border-top:    none; }
+.hud-corner.br { bottom: 14px; right: 14px;   border-left:  none; border-top:    none; }
+@media (max-width: 900px) {
+    .hud-corner { width: 22px; height: 22px; }
+    .hud-corner.tl, .hud-corner.tr { top: 10px; }
+    .hud-corner.bl, .hud-corner.br { bottom: 10px; }
+    .hud-corner.tl, .hud-corner.bl { left: 10px; }
+    .hud-corner.tr, .hud-corner.br { right: 10px; }
+}
+
+/* ─── Z-INDEX FLOOR FOR OVERLAYS (must clear z:1 scanlines + z:4 HUD) ── */
+.auth-overlay, .modal-overlay, .welcome-overlay,
+#articleModal, #commentsModal { z-index: 300; }
 
 /* NAV */
 nav#appNav {

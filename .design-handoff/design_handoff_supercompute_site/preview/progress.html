@@ -1,0 +1,33 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .stack { display: flex; flex-direction: column; gap: 10px; }
+  .track { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .fill { height: 100%; background: var(--grad-progress); border-radius: 3px; }
+  .row { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--muted); }
+  .pct { color: var(--text); font-weight: 700; min-width: 40px; text-align: right; }
+  .meta { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  .banner {
+    background: var(--grad-brand); border: none; color: #fff;
+    border-radius: 12px; padding: 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .banner-track { flex: 1; height: 6px; background: rgba(255,255,255,.3); border-radius: 3px; overflow: hidden; }
+  .banner-fill { height: 100%; background: #fff; border-radius: 3px; width: 50%; }
+</style></head>
+<body><div class="card-root">
+  <div class="stack">
+    <div class="row"><div class="track" style="flex:1;"><div class="fill" style="width:25%;"></div></div><div class="pct">25%</div></div>
+    <div class="row"><div class="track" style="flex:1;"><div class="fill" style="width:50%;"></div></div><div class="pct">50%</div></div>
+    <div class="row"><div class="track" style="flex:1;"><div class="fill" style="width:80%;"></div></div><div class="pct">80%</div></div>
+    <div class="meta">.prog-fill · pink → gold gradient · spring 1.2s</div>
+
+    <div class="banner" style="margin-top:6px;">
+      <div style="font-size:13px; font-weight:700;">🎓 Complete Web3 School to unlock TradeDesk</div>
+      <div class="banner-track"><div class="banner-fill"></div></div>
+      <div style="font-size:12px; opacity:.85;">50%</div>
+    </div>
+    <div class="meta">School banner · brand gradient · white track</div>
+  </div>
+</div></body></html>

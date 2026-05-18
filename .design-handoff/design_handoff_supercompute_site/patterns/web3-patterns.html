@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Supercompute · Web3 Patterns</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="_chrome.css">
+<style>
+  /* ── Wallet pill (sidebar bottom) ─────────────────── */
+  .wallet-pill {
+    width: 200px; padding: 10px 12px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.10);
+    color: rgba(255,255,255,.75);
+    border-radius: 9px; font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    font-family: inherit;
+  }
+  .wallet-pill:hover { border-color: rgba(0,212,255,.40); color: var(--cyan); }
+  .wallet-pill.connected {
+    background: rgba(0,212,255,.06);
+    border-color: rgba(0,212,255,.40);
+    color: var(--cyan);
+  }
+  .wallet-pill.wrong {
+    background: rgba(220,38,38,.08);
+    border-color: rgba(220,38,38,.35);
+    color: #fca5a5;
+  }
+  .wallet-pill .glyph { font-size: 12px; }
+  .wallet-pill .chain {
+    margin-left: auto; font-family: var(--font-mono);
+    font-size: 9px; padding: 2px 6px; border-radius: 4px;
+    background: rgba(0,212,255,.15); color: var(--cyan);
+  }
+  .wallet-pill.wrong .chain { background: rgba(220,38,38,.18); color: #fca5a5; }
+
+  /* ── Connect modal ───────────────────────────────── */
+  .connect-modal {
+    width: 360px; background: #fff; border-radius: 16px;
+    box-shadow: 0 24px 80px rgba(0,0,0,.20); overflow: hidden;
+  }
+  .connect-head {
+    padding: 20px 24px 12px; border-bottom: 1px solid var(--border);
+  }
+  .connect-title { font-size: 16px; font-weight: 800; color: var(--text); }
+  .connect-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .connect-body { padding: 16px 20px 20px; }
+  .wallet-opt {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;
+    background: #fff; cursor: pointer; transition: all .15s;
+    margin-bottom: 8px; font-family: inherit;
+  }
+  .wallet-opt:hover { border-color: var(--pink); background: rgba(233,30,140,.03); }
+  .wallet-opt .ico {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: #fff; font-weight: 800;
+  }
+  .wallet-opt .name { flex: 1; text-align: left; font-size: 13px; font-weight: 600; color: var(--text); }
+  .wallet-opt .meta { font-size: 10px; color: var(--muted); }
+
+  /* ── SIWE signing step ───────────────────────────── */
+  .siwe-card {
+    width: 340px; background: #fff; border-radius: 16px;
+    padding: 28px 24px; text-align: center;
+    box-shadow: 0 24px 80px rgba(0,0,0,.20);
+  }
+  .siwe-logo {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--pink), var(--gold));
+    margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 900; color: #fff;
+  }
+  .siwe-title { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  .siwe-sub { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+  .siwe-message {
+    background: #fafafa; border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; font-family: var(--font-mono); font-size: 11px;
+    color: var(--text); text-align: left; margin-bottom: 16px;
+    line-height: 1.7;
+  }
+  .siwe-message .label { color: var(--muted); }
+  .siwe-message .nonce { color: var(--pink); }
+  .siwe-btn {
+    width: 100%; padding: 12px; background: var(--navy); color: #fff;
+    border: none; border-radius: 10px; font-size: 13px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 8px; font-family: inherit;
+  }
+  .siwe-btn:hover { opacity: .9; }
+  .siwe-btn.success { background: var(--success); }
+  .siwe-cancel {
+    margin-top: 10px; background: none; border: none; color: var(--muted);
+    font-size: 11px; cursor: pointer; font-family: inherit;
+  }
+
+  /* ── Tx toast ─────────────────────────────────────── */
+  .toast {
+    background: var(--navy); color: #fff; border-radius: 10px;
+    padding: 12px 14px; font-size: 12px;
+    border-left: 3px solid var(--pink);
+    display: flex; align-items: flex-start; gap: 10px;
+    width: 320px;
+  }
+  .toast .icon {
+    width: 22px; height: 22px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0;
+  }
+  .toast .body { flex: 1; }
+  .toast .ttitle { font-weight: 700; color: #fff; }
+  .toast .tsub { color: rgba(255,255,255,.55); font-size: 11px; margin-top: 2px; }
+  .toast .link { color: var(--cyan); font-size: 11px; text-decoration: none; }
+  .toast.success { border-left-color: var(--success); }
+  .toast.success .icon { background: rgba(74,222,128,.18); color: #4ade80; }
+  .toast.pending { border-left-color: var(--gold); }
+  .toast.pending .icon { background: rgba(255,184,0,.18); color: var(--gold); }
+  .toast.error   { border-left-color: var(--danger); }
+  .toast.error .icon { background: rgba(220,38,38,.18); color: #fca5a5; }
+
+  /* ── Tx modal ────────────────────────────────────── */
+  .tx-modal {
+    width: 360px; background: #fff; border-radius: 16px;
+    padding: 24px; text-align: center;
+    box-shadow: 0 24px 80px rgba(0,0,0,.20);
+  }
+  .tx-icon-pending {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(255,184,0,.12); margin: 0 auto 14px;
+    display: flex; align-items: center; justify-content: center;
+    border: 3px solid transparent; border-top-color: var(--gold);
+    animation: spin 1s linear infinite;
+  }
+  .tx-icon-success {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(22,163,74,.12); margin: 0 auto 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; color: var(--success);
+  }
+  .tx-title { font-size: 16px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+  .tx-sub { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+  .tx-hash {
+    background: #fafafa; border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-family: var(--font-mono); font-size: 10px;
+    color: var(--muted); text-align: left; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tx-hash .label { color: var(--muted); }
+  .tx-hash .value { color: var(--text); font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; }
+  .tx-hash .copy { color: var(--pink); cursor: pointer; font-weight: 700; }
+
+  /* ── Balance pill ────────────────────────────────── */
+  .balance-bar {
+    background: var(--navy); border-radius: 12px; padding: 14px 18px;
+    color: #fff; display: flex; align-items: center; gap: 18px;
+    border: 1px solid rgba(255,255,255,.06); flex-wrap: wrap;
+  }
+  .bal-item { display: flex; flex-direction: column; }
+  .bal-label {
+    font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+    color: rgba(255,255,255,.45); font-weight: 700;
+  }
+  .bal-value { font-size: 17px; font-weight: 800; color: #fff; margin-top: 2px; }
+  .bal-value .unit { font-size: 11px; color: rgba(255,255,255,.45); font-weight: 600; margin-left: 4px; }
+  .bal-divider { width: 1px; height: 28px; background: rgba(255,255,255,.08); }
+  .bal-network { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,.6); }
+  .bal-network .chain-mark { width: 16px; height: 16px; border-radius: 50%; background: #0052FF; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 900; color: #fff; }
+
+  /* ── Staking card ────────────────────────────────── */
+  .stake-card {
+    background: #fff; border-radius: 14px; border: 1px solid var(--border);
+    padding: 22px; width: 360px;
+  }
+  .stake-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .stake-token {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 900; color: #fff;
+  }
+  .stake-name { font-size: 14px; font-weight: 800; color: var(--text); }
+  .stake-sub { font-size: 11px; color: var(--muted); }
+  .stake-apr {
+    margin-left: auto;
+    background: rgba(22,163,74,.10); color: var(--success);
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+  }
+  .stake-input {
+    background: #fafafa; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 14px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .stake-input.focus { border-color: var(--pink); background: #fff; }
+  .stake-input-field {
+    border: none; outline: none; background: none; flex: 1;
+    font-family: inherit; font-size: 22px; font-weight: 800; color: var(--text);
+    width: 100%;
+  }
+  .stake-token-pill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px; background: #fff; border: 1px solid var(--border);
+    border-radius: 20px; font-size: 11px; font-weight: 700;
+  }
+  .stake-mini-token {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink), var(--gold));
+  }
+  .stake-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); padding: 4px 2px; }
+  .stake-row .v { color: var(--text); font-weight: 600; }
+  .stake-btn {
+    width: 100%; padding: 13px; background: var(--pink); color: #fff;
+    border: none; border-radius: 10px; font-size: 13px; font-weight: 700;
+    cursor: pointer; margin-top: 14px; font-family: inherit;
+  }
+  .stake-btn:hover { background: var(--pink-2); }
+  .stake-btn.disabled { background: #f3f4f6; color: var(--muted); cursor: not-allowed; }
+
+  /* ── Project-back card ───────────────────────────── */
+  .project-card {
+    width: 340px; background: #fff; border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+  }
+  .project-cover {
+    height: 96px;
+    background: linear-gradient(135deg, var(--pink), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 22px; font-weight: 900;
+    letter-spacing: -.5px;
+  }
+  .project-body { padding: 16px 18px; }
+  .project-name { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .project-tag { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: .8px; text-transform: uppercase; margin-bottom: 12px; }
+  .project-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+  .project-stat { padding: 8px 10px; background: #fafafa; border-radius: 8px; }
+  .project-stat .l { font-size: 9px; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .project-stat .v { font-size: 14px; font-weight: 800; color: var(--text); margin-top: 2px; }
+  .project-progress { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+  .project-progress > div { height: 100%; background: linear-gradient(90deg, var(--pink), var(--gold)); border-radius: 3px; }
+  .project-progress-meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-bottom: 14px; }
+  .project-back-btn {
+    width: 100%; padding: 11px; background: var(--pink); color: #fff;
+    border: none; border-radius: 9px; font-size: 12px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <div class="page-eyebrow">Web3 patterns · spec sheet</div>
+  <h1 class="page-h1">Wallet, auth, transactions, staking, project-backing</h1>
+  <p class="page-sub">
+    Each tile is one state your agents need to ship. Copy the markup from any
+    tile and drop it into the SPA — the classes already match
+    <code>public/sc.css</code> where they overlap. Tiles labelled <em>NEW</em>
+    are not yet in the codebase.
+  </p>
+</div>
+
+<!-- ═══════════════ WALLET CONNECT STATES ═══════════════ -->
+<div class="section">
+  <div class="section-h">01 · Wallet</div>
+  <div class="section-sub">Sidebar wallet pill — all four states</div>
+  <div class="section-desc">
+    Lives at the bottom of <code>nav#appNav</code>. State is computed from the
+    wallet adapter; agents should branch on <code>connected ? wrongNetwork ? 'wrong' : 'connected' : busy ? 'connecting' : 'idle'</code>.
+  </div>
+  <div class="tile-row cols-4">
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">A</div><div class="tile-name">Idle</div><span class="tile-state">DISCONNECTED</span></div>
+      <div class="tile-stage dark">
+        <button class="wallet-pill"><span class="glyph">◎</span>Connect Wallet</button>
+      </div>
+      <div class="tile-foot><code>.btn-wallet</code> default. Click opens <strong>Connect modal</strong> (tile 02).</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">B</div><div class="tile-name">Connecting</div><span class="tile-state warn">PENDING</span></div>
+      <div class="tile-stage dark">
+        <button class="wallet-pill" disabled style="cursor:wait;">
+          <span class="spinner" style="border-color:rgba(255,255,255,.2); border-top-color:#fff;"></span>
+          Connecting…
+        </button>
+      </div>
+      <div class="tile-foot">Disable click. Spinner replaces the ◎ glyph. ~1–3s typical.</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">C</div><div class="tile-name">Connected</div><span class="tile-state ok">READY</span></div>
+      <div class="tile-stage dark">
+        <button class="wallet-pill connected">
+          <span class="glyph">◎</span>0x4a…f2c<span class="chain">BASE</span>
+        </button>
+      </div>
+      <div class="tile-foot">Truncate to <code>head6…tail4</code>. Cyan accent on connected. Right-rail chain pill.</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">D</div><div class="tile-name">Wrong network</div><span class="tile-state err">SWITCH</span></div>
+      <div class="tile-stage dark">
+        <button class="wallet-pill wrong">
+          <span class="glyph">⚠</span>Wrong network<span class="chain">ETH</span>
+        </button>
+      </div>
+      <div class="tile-foot">Click triggers <code>wallet_switchEthereumChain</code> to Base (8453).</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ CONNECT MODAL ═══════════════ -->
+<div class="section">
+  <div class="section-h">02 · Connect modal</div>
+  <div class="section-sub">Wallet picker — opens from the sidebar pill</div>
+  <div class="section-desc">
+    Three wallets at minimum (MetaMask, Coinbase, WalletConnect). Last-used
+    wallet pinned to top with a <code>★ recent</code> meta. WalletConnect
+    shows the QR sheet on click (not pictured — that's a separate sub-state).
+  </div>
+  <div class="tile-row cols-2">
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">A</div><div class="tile-name">Wallet picker</div><span class="tile-state pink">NEW</span></div>
+      <div class="tile-stage" style="background:rgba(10,14,26,.85);padding:32px;">
+        <div class="connect-modal">
+          <div class="connect-head">
+            <div class="connect-title">Connect a wallet</div>
+            <div class="connect-sub">Base · Chain 8453 · Read-only by default</div>
+          </div>
+          <div class="connect-body">
+            <button class="wallet-opt">
+              <div class="ico" style="background:#F6851B;">🦊</div>
+              <span class="name">MetaMask</span>
+              <span class="meta">★ recent</span>
+            </button>
+            <button class="wallet-opt">
+              <div class="ico" style="background:#0052FF;">CB</div>
+              <span class="name">Coinbase Wallet</span>
+              <span class="meta">popular</span>
+            </button>
+            <button class="wallet-opt">
+              <div class="ico" style="background:linear-gradient(135deg,#3b99fc,#1d6ee8);">WC</div>
+              <span class="name">WalletConnect</span>
+              <span class="meta">QR</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="tile-foot">Backdrop <code>rgba(10,14,26,.85)</code> + <code>backdrop-filter: blur(4px)</code>. Esc-to-close.</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">B</div><div class="tile-name">No wallet detected</div><span class="tile-state warn">EDGE</span></div>
+      <div class="tile-stage" style="background:rgba(10,14,26,.85);padding:32px;">
+        <div class="connect-modal">
+          <div class="connect-head">
+            <div class="connect-title">No wallet detected</div>
+            <div class="connect-sub">Install one to continue</div>
+          </div>
+          <div class="connect-body">
+            <button class="wallet-opt">
+              <div class="ico" style="background:#F6851B;">🦊</div>
+              <span class="name">Install MetaMask</span>
+              <span class="meta" style="color:var(--pink);">→</span>
+            </button>
+            <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+              Already have one? Refresh the page after installing.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tile-foot">Show when <code>window.ethereum</code> is missing. Link out to wallet's install page.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ SIWE FLOW ═══════════════ -->
+<div class="section">
+  <div class="section-h">03 · SIWE auth</div>
+  <div class="section-sub">Three-step "Sign In with Ethereum" sequence</div>
+  <div class="section-desc">
+    Fires after connect, before the app loads. The message must echo
+    <code>domain · uri · chainId · nonce · issuedAt</code>; the nonce comes from
+    <code>/api/auth/nonce</code>. Server verifies via <code>/api/auth/login</code>.
+  </div>
+  <div class="tile-row cols-3">
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">A</div><div class="tile-name">Idle · prompt</div><span class="tile-state">STEP 1</span></div>
+      <div class="tile-stage" style="background:rgba(10,14,26,.85);">
+        <div class="siwe-card">
+          <div class="siwe-logo">SC</div>
+          <div class="siwe-title">Verify your wallet</div>
+          <div class="siwe-sub">Sign a message to prove you own <code>0x4a…f2c</code>. No gas, no transaction.</div>
+          <div class="siwe-message">
+            <div><span class="label">domain:</span> supercompute.io</div>
+            <div><span class="label">chain:</span> Base · 8453</div>
+            <div><span class="label">nonce:</span> <span class="nonce">8f2c…a91d</span></div>
+            <div><span class="label">issued:</span> 2026-05-13T14:22Z</div>
+          </div>
+          <button class="siwe-btn"><span style="font-size:14px;">◎</span>Sign Message</button>
+          <button class="siwe-cancel">cancel</button>
+        </div>
+      </div>
+      <div class="tile-foot">Show the message before signing — users hate blind signatures.</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">B</div><div class="tile-name">Awaiting signature</div><span class="tile-state warn">STEP 2</span></div>
+      <div class="tile-stage" style="background:rgba(10,14,26,.85);">
+        <div class="siwe-card">
+          <div class="siwe-logo" style="opacity:.5;">SC</div>
+          <div class="siwe-title">Check your wallet</div>
+          <div class="siwe-sub">A signature request is open in your wallet. Approve to continue.</div>
+          <div class="siwe-message" style="background:rgba(255,184,0,.06); border-color:rgba(255,184,0,.25);">
+            <div style="display:flex;align-items:center;gap:8px;color:var(--warning);font-weight:600;">
+              <span class="spinner dark" style="border-top-color:var(--warning);"></span>
+              Waiting for signature…
+            </div>
+          </div>
+          <button class="siwe-btn" disabled style="opacity:.5;cursor:not-allowed;">
+            <span class="spinner"></span>Signing…
+          </button>
+          <button class="siwe-cancel">cancel</button>
+        </div>
+      </div>
+      <div class="tile-foot">Disable the button. Mirror MetaMask's "awaiting confirmation".</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">C</div><div class="tile-name">Verified</div><span class="tile-state ok">STEP 3</span></div>
+      <div class="tile-stage" style="background:rgba(10,14,26,.85);">
+        <div class="siwe-card">
+          <div class="siwe-logo">SC</div>
+          <div class="siwe-title">You're in.</div>
+          <div class="siwe-sub">Welcome back. Loading your member dashboard…</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--success);font-weight:700;margin-bottom:16px;">
+            ✓ Signed in as <code style="font-family:var(--font-mono);color:var(--text);background:#fafafa;padding:2px 6px;border-radius:4px;">0x4a…f2c</code>
+          </div>
+          <button class="siwe-btn success">Continue →</button>
+        </div>
+      </div>
+      <div class="tile-foot">Auto-dismiss after ~600ms. Cache the session token in <code>KV</code>.</div>
+    </div>
+
+  </div>
+
+  <div class="tile-row cols-2" style="margin-top:16px;">
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">D</div><div class="tile-name">User rejected</div><span class="tile-state err">REJECTED</span></div>
+      <div class="tile-stage" style="background:rgba(10,14,26,.85);">
+        <div class="siwe-card">
+          <div class="siwe-logo" style="background:linear-gradient(135deg, #6b7280, #374151);">SC</div>
+          <div class="siwe-title">Signature cancelled</div>
+          <div class="siwe-sub">You can try again or sign in with email instead.</div>
+          <div style="font-size:11px;color:var(--danger);background:rgba(220,38,38,.05);border:1px solid rgba(220,38,38,.18);padding:10px;border-radius:8px;margin-bottom:14px;font-family:var(--font-mono);">
+            ACTION_REJECTED · User rejected the request
+          </div>
+          <button class="siwe-btn">Try Again</button>
+          <button class="siwe-cancel">use email instead</button>
+        </div>
+      </div>
+      <div class="tile-foot">Catch <code>code 4001</code>. Don't auto-retry.</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">E</div><div class="tile-name">Server verify failed</div><span class="tile-state err">RETRY</span></div>
+      <div class="tile-stage" style="background:rgba(10,14,26,.85);">
+        <div class="siwe-card">
+          <div class="siwe-logo">SC</div>
+          <div class="siwe-title">Couldn't verify signature</div>
+          <div class="siwe-sub">Nonce may have expired. Generate a fresh one and try again.</div>
+          <div style="font-size:11px;color:var(--danger);background:rgba(220,38,38,.05);border:1px solid rgba(220,38,38,.18);padding:10px;border-radius:8px;margin-bottom:14px;font-family:var(--font-mono);">
+            401 · nonce_expired · request a new nonce
+          </div>
+          <button class="siwe-btn">Try Again</button>
+        </div>
+      </div>
+      <div class="tile-foot">Nonces in KV with 5-min TTL. Refresh nonce + restart from step A.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ TX LIFECYCLE ═══════════════ -->
+<div class="section">
+  <div class="section-h">04 · Transaction lifecycle</div>
+  <div class="section-sub">Toasts + modals for every on-chain action</div>
+  <div class="section-desc">
+    Pattern: open the action modal, user clicks Confirm, modal flips to a
+    "check your wallet" state, then to "pending" with a BaseScan link, then
+    "success" with the hash. Toasts for shorter actions like claim.
+  </div>
+
+  <div class="tile-row cols-3">
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">A</div><div class="tile-name">Toast · pending</div><span class="tile-state warn">PENDING</span></div>
+      <div class="tile-stage" style="background:#1a1f2e;">
+        <div class="toast pending">
+          <div class="icon"><span class="spinner" style="border-color:rgba(255,184,0,.3); border-top-color:var(--gold);"></span></div>
+          <div class="body">
+            <div class="ttitle">Stake submitted</div>
+            <div class="tsub">100 $SCOM · awaiting confirmation</div>
+            <a class="link" href="#">View on BaseScan ↗</a>
+          </div>
+        </div>
+      </div>
+      <div class="tile-foot">Sticky toast. Auto-promotes to success on confirmation.</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">B</div><div class="tile-name">Toast · success</div><span class="tile-state ok">CONFIRMED</span></div>
+      <div class="tile-stage" style="background:#1a1f2e;">
+        <div class="toast success">
+          <div class="icon">✓</div>
+          <div class="body">
+            <div class="ttitle">Stake confirmed</div>
+            <div class="tsub">100 $SCOM staked · 12.4% APR active</div>
+            <a class="link" href="#">View tx ↗</a>
+          </div>
+        </div>
+      </div>
+      <div class="tile-foot">Auto-dismiss after 6s. Click to reveal the hash.</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">C</div><div class="tile-name">Toast · error</div><span class="tile-state err">FAILED</span></div>
+      <div class="tile-stage" style="background:#1a1f2e;">
+        <div class="toast error">
+          <div class="icon">!</div>
+          <div class="body">
+            <div class="ttitle">Stake reverted</div>
+            <div class="tsub">Insufficient allowance · approve first</div>
+            <a class="link" href="#" style="color:#fca5a5;">Retry →</a>
+          </div>
+        </div>
+      </div>
+      <div class="tile-foot">Map common reverts to plain-English hints.</div>
+    </div>
+
+  </div>
+
+  <div class="tile-row cols-2" style="margin-top:16px;">
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">D</div><div class="tile-name">Modal · pending</div><span class="tile-state warn">PENDING</span></div>
+      <div class="tile-stage" style="background:rgba(10,14,26,.85);">
+        <div class="tx-modal">
+          <div class="tx-icon-pending"></div>
+          <div class="tx-title">Transaction submitted</div>
+          <div class="tx-sub">Backing The Glyph Foundry with 50 USDC. Usually confirms in under 2 seconds on Base.</div>
+          <div class="tx-hash">
+            <span class="label">tx:</span>
+            <span class="value">0x9a4c…71f3b8e2</span>
+            <span class="copy">copy</span>
+          </div>
+          <button class="btn btn-outline" style="width:100%;">View on BaseScan ↗</button>
+        </div>
+      </div>
+      <div class="tile-foot">Use for high-stakes flows: backing a project, claiming, deploying.</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">E</div><div class="tile-name">Modal · success</div><span class="tile-state ok">CONFIRMED</span></div>
+      <div class="tile-stage" style="background:rgba(10,14,26,.85);">
+        <div class="tx-modal">
+          <div class="tx-icon-success">✓</div>
+          <div class="tx-title">You're backing The Glyph Foundry</div>
+          <div class="tx-sub">50 USDC committed. You'll receive 50 GLYPH credit when the project launches.</div>
+          <div class="tx-hash">
+            <span class="label">tx:</span>
+            <span class="value">0x9a4c…71f3b8e2</span>
+            <span class="copy">copy</span>
+          </div>
+          <button class="btn btn-pink" style="width:100%;">Done</button>
+        </div>
+      </div>
+      <div class="tile-foot">Share-CTA optional. Persist to user history.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ BALANCE BAR ═══════════════ -->
+<div class="section">
+  <div class="section-h">05 · Balance bar</div>
+  <div class="section-sub">Sticks above the page body on member surfaces</div>
+  <div class="section-desc">
+    Live ETH + USDC + $SCOM + network indicator. Refresh every 15s via
+    <code>publicClient.getBalance</code>. Hide when disconnected.
+  </div>
+
+  <div class="tile-row" style="grid-template-columns: 1fr;">
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">A</div><div class="tile-name">Connected · Base</div><span class="tile-state ok">LIVE</span></div>
+      <div class="tile-stage">
+        <div class="balance-bar" style="width:100%;max-width:760px;">
+          <div class="bal-item">
+            <div class="bal-label">Address</div>
+            <div class="bal-value" style="font-family:var(--font-mono);font-size:13px;">0x4a…f2c</div>
+          </div>
+          <div class="bal-divider"></div>
+          <div class="bal-item">
+            <div class="bal-label">ETH</div>
+            <div class="bal-value">0.842<span class="unit">ETH</span></div>
+          </div>
+          <div class="bal-item">
+            <div class="bal-label">USDC</div>
+            <div class="bal-value">1,204.50<span class="unit">USDC</span></div>
+          </div>
+          <div class="bal-item">
+            <div class="bal-label">$SCOM</div>
+            <div class="bal-value" style="color:var(--gold);">8,420<span class="unit">SCOM</span></div>
+          </div>
+          <div class="bal-network">
+            <span class="pulse-green"></span>
+            <span class="chain-mark">B</span>
+            Base
+          </div>
+        </div>
+      </div>
+      <div class="tile-foot">Light-touch live indicator. Click an asset to open send/receive.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ STAKING ═══════════════ -->
+<div class="section">
+  <div class="section-h">06 · Staking</div>
+  <div class="section-sub">$SCOM stake / LP / claim card</div>
+  <div class="section-desc">
+    Input-driven card. Max button fills from the user's balance. APR live from
+    the contract. Disable Stake until amount &gt; 0 and ≤ balance.
+  </div>
+
+  <div class="tile-row cols-3">
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">A</div><div class="tile-name">Stake · idle</div><span class="tile-state">EMPTY</span></div>
+      <div class="tile-stage">
+        <div class="stake-card">
+          <div class="stake-head">
+            <div class="stake-token">SC</div>
+            <div>
+              <div class="stake-name">Stake $SCOM</div>
+              <div class="stake-sub">Single-sided · 30-day unlock</div>
+            </div>
+            <div class="stake-apr">12.4% APR</div>
+          </div>
+          <div class="stake-input">
+            <input class="stake-input-field" placeholder="0.0" />
+            <div class="stake-token-pill">
+              <span class="stake-mini-token"></span>$SCOM <span style="color:var(--muted);">▾</span>
+            </div>
+          </div>
+          <div class="stake-row"><span>Wallet balance</span><span class="v">8,420 $SCOM</span></div>
+          <div class="stake-row"><span>Already staked</span><span class="v">2,500 $SCOM</span></div>
+          <button class="stake-btn disabled">Enter an amount</button>
+        </div>
+      </div>
+      <div class="tile-foot">Default state. CTA disabled until amount is valid.</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">B</div><div class="tile-name">Stake · valid</div><span class="tile-state pink">READY</span></div>
+      <div class="tile-stage">
+        <div class="stake-card">
+          <div class="stake-head">
+            <div class="stake-token">SC</div>
+            <div>
+              <div class="stake-name">Stake $SCOM</div>
+              <div class="stake-sub">Single-sided · 30-day unlock</div>
+            </div>
+            <div class="stake-apr">12.4% APR</div>
+          </div>
+          <div class="stake-input focus">
+            <input class="stake-input-field" value="1,000" />
+            <div class="stake-token-pill">
+              <span class="stake-mini-token"></span>$SCOM <span style="color:var(--muted);">▾</span>
+            </div>
+          </div>
+          <div class="stake-row"><span>Wallet balance</span><span class="v">8,420 $SCOM</span></div>
+          <div class="stake-row"><span>Projected (12 mo)</span><span class="v" style="color:var(--success);">+124 $SCOM</span></div>
+          <button class="stake-btn">Stake 1,000 $SCOM</button>
+        </div>
+      </div>
+      <div class="tile-foot">Pink-focus border on input. CTA enables and shows the amount.</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">C</div><div class="tile-name">Approve first</div><span class="tile-state warn">APPROVE</span></div>
+      <div class="tile-stage">
+        <div class="stake-card">
+          <div class="stake-head">
+            <div class="stake-token">SC</div>
+            <div>
+              <div class="stake-name">Stake $SCOM</div>
+              <div class="stake-sub">First-time staker</div>
+            </div>
+            <div class="stake-apr">12.4% APR</div>
+          </div>
+          <div class="stake-input focus">
+            <input class="stake-input-field" value="1,000" />
+            <div class="stake-token-pill">
+              <span class="stake-mini-token"></span>$SCOM
+            </div>
+          </div>
+          <div style="background:rgba(255,184,0,.06); border:1px solid rgba(255,184,0,.25); border-radius:8px; padding:10px 12px; font-size:11px; color:var(--warning); margin-bottom:8px; line-height:1.5;">
+            <strong>Step 1 of 2:</strong> Approve the staking contract to move your $SCOM. One-time gas fee.
+          </div>
+          <button class="stake-btn" style="background:var(--gold); color:#1a1303;">1. Approve $SCOM</button>
+        </div>
+      </div>
+      <div class="tile-foot">Show on first stake. After approval the CTA flips to "Stake".</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ PROJECT-BACK ═══════════════ -->
+<div class="section">
+  <div class="section-h">07 · Back a builder</div>
+  <div class="section-sub">Project launch card — back, track, claim</div>
+  <div class="section-desc">
+    Three card states for the projects rail. All-or-nothing target + soft-cap.
+    Action surface lives in the project detail page; cards here are the
+    landing-grid version.
+  </div>
+
+  <div class="tile-row cols-3">
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">A</div><div class="tile-name">Open · accepting backs</div><span class="tile-state pink">LIVE</span></div>
+      <div class="tile-stage">
+        <div class="project-card">
+          <div class="project-cover">⌬</div>
+          <div class="project-body">
+            <div class="project-name">The Glyph Foundry</div>
+            <div class="project-tag">$GLYPH · agentic typeface launch</div>
+            <div class="project-stats">
+              <div class="project-stat"><div class="l">Raised</div><div class="v">24.2K</div></div>
+              <div class="project-stat"><div class="l">Backers</div><div class="v">312</div></div>
+            </div>
+            <div class="project-progress"><div style="width:64%;"></div></div>
+            <div class="project-progress-meta"><span>64% of 38K goal</span><span>8 days left</span></div>
+            <button class="project-back-btn">Back this project →</button>
+          </div>
+        </div>
+      </div>
+      <div class="tile-foot">Default open state. Backers + raised refresh on confirmation.</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">B</div><div class="tile-name">Funded</div><span class="tile-state ok">FUNDED</span></div>
+      <div class="tile-stage">
+        <div class="project-card">
+          <div class="project-cover" style="background:linear-gradient(135deg, var(--success), #0e7c39);">✓</div>
+          <div class="project-body">
+            <div class="project-name">KNIGHT Open-Source</div>
+            <div class="project-tag">$KNIGHT · TradeDesk agent</div>
+            <div class="project-stats">
+              <div class="project-stat"><div class="l">Raised</div><div class="v">52.6K</div></div>
+              <div class="project-stat"><div class="l">Backers</div><div class="v">684</div></div>
+            </div>
+            <div class="project-progress"><div style="width:100%; background:var(--success);"></div></div>
+            <div class="project-progress-meta"><span style="color:var(--success); font-weight:700;">132% funded</span><span>Closed May 3</span></div>
+            <button class="project-back-btn" style="background:transparent; color:var(--success); border:1.5px solid rgba(22,163,74,.4);">Track delivery →</button>
+          </div>
+        </div>
+      </div>
+      <div class="tile-foot">Green theming once goal hits. CTA flips to "Track delivery".</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head"><div class="tile-num">C</div><div class="tile-name">Claim available</div><span class="tile-state warn">CLAIM</span></div>
+      <div class="tile-stage">
+        <div class="project-card">
+          <div class="project-cover" style="background:linear-gradient(135deg, var(--gold), #c98700);">//</div>
+          <div class="project-body">
+            <div class="project-name">KNIGHT Open-Source</div>
+            <div class="project-tag">$KNIGHT · delivery complete</div>
+            <div class="project-stats">
+              <div class="project-stat"><div class="l">Your back</div><div class="v">50 USDC</div></div>
+              <div class="project-stat"><div class="l">Claimable</div><div class="v" style="color:var(--gold);">5,000</div></div>
+            </div>
+            <div style="font-size:10px; color:var(--muted); letter-spacing:.5px; text-transform:uppercase; font-weight:700; margin-bottom:10px;">$KNIGHT credit · vested</div>
+            <button class="project-back-btn" style="background:var(--gold); color:#1a1303;">Claim 5,000 $KNIGHT</button>
+          </div>
+        </div>
+      </div>
+      <div class="tile-foot">Surface in user inventory + project card when wallet matches.</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section">
+  <div style="font-size:11px; color:var(--muted); padding:16px 0; border-top:1px dashed var(--border); font-family:var(--font-mono);">
+    /* End of sheet — covers 7 surfaces × 22 states. Pair with cms-patterns.html for content workflows. */
+  </div>
+</div>
+
+</body>
+</html>

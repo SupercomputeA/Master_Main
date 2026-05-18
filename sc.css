@@ -1734,19 +1734,13 @@ tr:hover td {
 }
 
 .modal-content {
-    padding: 1.5rem
-}
-
-.article-body h3 {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--text);
-    margin: 1.25rem 0 .5rem
+    padding: 1.5rem;
+    color: #1a1a2e;
 }
 
 .article-body p {
-    font-size: 13px;
-    color: var(--text);
+    font-size: 14px;
+    color: #1a1a2e;
     line-height: 1.8;
     margin-bottom: .9rem;
     text-wrap: pretty

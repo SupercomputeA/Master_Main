@@ -164,16 +164,47 @@ function navigate(page, el) {
     const pg = document.getElementById('page-' + page);
     if (pg) pg.classList.add('active');
     if (el) el.classList.add('active');
+    // Update URL hash so direct links and back-button work
+    history.pushState({ page }, '', '#' + page);
     window.scrollTo(0, 0);
     if (page === 'blog') renderBlog(currentBlogFilter);
     if (page === 'pub-projects') renderPubProjects();
     if (page === 'dashboard') renderDash(activeDashTab);
     if (page === 'token') renderToken();
-    if (page === 'web3school') renderWeb3School();
+    if (page === 'web3school' && authState.loggedIn) renderWeb3School();
     if (page === 'socialmedia') renderSocialMedia(activeSocialTab);
     if (page === 'about') renderAbout();
     if (page === 'staking') initTicker();
+    // TradeDesk: show marketing for non-auth, show dashboard for auth
+    if (page === 'tradedesk') {
+        const marketing = document.getElementById('tradedesk-marketing');
+        const auth = document.getElementById('tradedesk-auth');
+        if (authState.loggedIn) {
+            marketing.style.display = 'none';
+            auth.style.display = 'block';
+            renderTradeDesk();
+        } else {
+            auth.style.display = 'none';
+            if (marketing) marketing.style.display = 'block';
+        }
+    }
 }
+
+// Restore page from URL hash on load and back/forward navigation
+function initRouter() {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+        const el = document.querySelector(`.nav-item[data-page="${hash}"]`);
+        if (el) navigate(hash, el);
+    }
+}
+window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+        const el = document.querySelector(`.nav-item[data-page="${hash}"]`);
+        if (el) navigate(hash, el);
+    }
+});
 
 function authGate(page, el, adminOnly) {
     if (!authState.loggedIn) { showToast('🔒 Sign in to access this'); document.getElementById('authOverlay').style.display = 'flex'; return; }
@@ -204,6 +235,87 @@ function doLoginDemo(role) {
     const prd = document.getElementById('profileRoleDisplay');
     if (prd) prd.innerHTML = `<span class="role-chip">${role === 'admin' ? '⭐ Founder / Admin' : '◎ Member'}</span>`;
 }
+/* ━━━ WELCOME GUIDE — first-time member onboarding ━━━ */
+const WELCOME_KEY = 'scom_welcomed_v1';
+const WELCOME_STEPS = [
+  {
+    title: 'Welcome to SUPERCOMPUTE',
+    sub: '13 sovereign AI agents. One platform. Here\'s how to get started.',
+    items: [
+      { ico: '⌂', name: 'Public pages', desc: 'Read the NewsDesk, explore projects, book consulting' },
+      { ico: '🔐', name: 'Member access', desc: 'Connect wallet → unlock Alerts, Profile, Web3 School' },
+      { ico: '🎓', name: 'Web3 School', desc: '7 modules → NFT credential + TradeDesk access' },
+      { ico: '📰', name: 'NewsDesk CMS', desc: 'Create and publish articles (admin only)' },
+      { ico: '📈', name: 'TradeDesk', desc: 'DeFi portfolio via KNIGHT agent (Phase 1)' },
+      { ico: '🛡', name: 'Agent Chat', desc: 'Quanta S, KNIGHT, OpenClaw — chat with any agent' },
+    ]
+  },
+  {
+    title: 'Navigate the Agent Fleet',
+    sub: 'Each agent is purpose-built. Hover any nav item to see what it does.',
+    items: [
+      { ico: '🧠', name: 'HERMES', desc: 'Your chief of staff. C&C layer. Handles scheduling, SMS, iMessage' },
+      { ico: '📰', name: 'QUANTA-S', desc: 'CEO agent. NewsDesk editor-in-chief. Research intelligence' },
+      { ico: '📈', name: 'KNIGHT', desc: 'TradeDesk. CDP management, treasury ops, on-chain execution' },
+      { ico: '🔧', name: 'OPENCLAW', desc: 'Browser automation, web scraping, social outreach' },
+      { ico: '🤖', name: 'CONDOR', desc: 'Hummingbot trading bot. Auto-execution on Base' },
+      { ico: '🗂', name: 'ORAMI / VIRTUALS', desc: 'ACP revenue agents — Virtuals Protocol agent monetization' },
+    ]
+  },
+  {
+    title: 'Start Here',
+    sub: 'Three things most members do first. Pick your path.',
+    items: [
+      { ico: '📰', name: 'Read NewsDesk', desc: 'AI-curated Web3 intelligence. No login required.' },
+      { ico: '🎓', name: 'Start Web3 School', desc: '7 free modules. Earn NFT credential. Unlocks $SCOM token.' },
+      { ico: '🧠', name: 'Book a Strategy Call', desc: 'DeFi setup, agent automation, or ReFi planning.' },
+      { ico: '📈', name: 'Try Agent Chat', desc: 'Ask Quanta S anything. KNIGHT for on-chain questions.' },
+    ]
+  }
+];
+
+function showWelcomeGuide() {
+  if (localStorage.getItem(WELCOME_KEY)) return;
+  let step = 0;
+  const overlay = document.createElement('div');
+  overlay.className = 'welcome-overlay';
+  document.body.appendChild(overlay);
+
+  function renderStep() {
+    const s = WELCOME_STEPS[step];
+    const pips = WELCOME_STEPS.map((_, i) =>
+      `<div class="welcome-step-pip ${i < step ? 'done' : ''} ${i === step ? 'active' : ''}"></div>`
+    ).join('');
+    const grid = s.items.map(item =>
+      `<div class="welcome-flow-item">
+        <div class="wfi-ico">${item.ico}</div>
+        <div class="wfi-name">${item.name}</div>
+        <div class="wfi-desc">${item.desc}</div>
+      </div>`
+    ).join('');
+    overlay.innerHTML = `
+      <div class="welcome-card">
+        <div class="welcome-step-bar">${pips}</div>
+        <div class="welcome-step-title">${s.title}</div>
+        <div class="welcome-step-sub">${s.sub}</div>
+        <div class="welcome-flow-grid">${grid}</div>
+        <div class="welcome-nav">
+          ${step > 0 ? '<button class="welcome-nav-btn ghost" onclick="welcomePrev()">← Back</button>' : '<button class="welcome-nav-btn ghost" onclick="welcomeSkip()">Skip tour</button>'}
+          ${step < WELCOME_STEPS.length - 1
+            ? `<button class="welcome-nav-btn primary" onclick="welcomeNext()">Next →</button>`
+            : `<button class="welcome-nav-btn primary" onclick="welcomeDone()">Start exploring →</button>`
+          }
+        </div>
+      </div>`;
+  }
+
+  window.welcomeNext = () => { step++; renderStep(); };
+  window.welcomePrev = () => { step--; renderStep(); };
+  window.welcomeSkip = () => { localStorage.setItem(WELCOME_KEY, '1'); document.body.removeChild(overlay); };
+  window.welcomeDone = () => { localStorage.setItem(WELCOME_KEY, '1'); document.body.removeChild(overlay); };
+  renderStep();
+}
+
 function updateAuthUI(role) {
     ['assets', 'social', 'commerce', 'alerts', 'profile', 'agentchat', 'web3school', 'socialmedia', 'token'].forEach(id => {
         const el = document.getElementById('nl-' + id);
@@ -217,6 +329,10 @@ function updateAuthUI(role) {
     }
     const pwallet = document.getElementById('profileWallet');
     if (pwallet && walletConnected) pwallet.textContent = '0x7f3a...d4e2';
+    /* Trigger welcome guide on first successful login */
+    if (!localStorage.getItem(WELCOME_KEY)) {
+        setTimeout(showWelcomeGuide, 600);
+    }
 }
 
 /* ━━━ WALLET ━━━ */
@@ -291,8 +407,45 @@ function openArticle(id) {
         ${a.live ? '<span class="badge badge-live" style="margin-left:auto">Published</span>' : '<span class="badge badge-progress" style="margin-left:auto">Draft</span>'}
       </div>
       <div class="article-body">${a.content}</div>
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">Discussion</div>
+        <div id="articleComments"></div>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;align-items:flex-start">
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">YO</div>
+          <div style="flex:1"><textarea id="commentInput" placeholder="Add to the signal..." style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.6rem;font-size:12px;color:var(--text);font-family:inherit;resize:none;min-height:60px;outline:none" rows="2"></textarea></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:.4rem"><button class="tb-btn primary" style="font-size:11px;padding:.3rem .8rem" onclick="postComment('${a.id}')">Post comment</button></div>
+        <div id="commentStatus" style="font-size:11px;color:var(--muted);margin-top:.3rem;display:none"></div>
+      </div>
     </div>`;
+    renderComments(a.id);
     document.getElementById('articleModal').style.display = 'flex';
+}
+
+function renderComments(articleId) {
+    const comments = JSON.parse(localStorage.getItem('sc_comments') || '{}')[articleId] || [];
+    const el = document.getElementById('articleComments');
+    if (!el) return;
+    if (comments.length === 0) {
+        el.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:.5rem 0">No comments yet. Start the discussion.</div>';
+        return;
+    }
+    el.innerHTML = comments.map(c => `<div style="margin-bottom:.85rem;padding:.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border)"><div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem"><div style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--pink));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff">${(c.author || 'AN').slice(0,2).toUpperCase()}</div><div style="font-weight:600;font-size:11px;color:var(--text)">${c.author || 'Anonymous'}</div><div style="font-size:10px;color:var(--muted);margin-left:auto">${c.date || ''}</div></div><div style="font-size:12px;color:var(--text);line-height:1.5">${c.text}</div></div>`).join('');
+}
+
+function postComment(articleId) {
+    const input = document.getElementById('commentInput');
+    const status = document.getElementById('commentStatus');
+    const text = input.value.trim();
+    if (!text) { status.textContent = 'Comment cannot be empty.'; status.style.color = 'var(--pink)'; status.style.display = 'block'; return; }
+    const all = JSON.parse(localStorage.getItem('sc_comments') || '{}');
+    if (!all[articleId]) all[articleId] = [];
+    all[articleId].push({ author: 'You', text, date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) });
+    localStorage.setItem('sc_comments', JSON.stringify(all));
+    input.value = '';
+    status.textContent = 'Comment posted.'; status.style.color = 'var(--success)'; status.style.display = 'block';
+    setTimeout(() => { status.style.display = 'none'; }, 2500);
+    renderComments(articleId);
 }
 function closeArticle() { document.getElementById('articleModal').style.display = 'none'; }
 
@@ -560,7 +713,7 @@ const DASH_CONTENT = {
     settings: `<div class="card" style="max-width:580px"><div class="section-title">General Settings</div><div class="form-group"><label class="form-label">Platform Name</label><input class="form-input" value="QUANTA"/></div><div class="form-group"><label class="form-label">Domain</label><input class="form-input" value="supercompute.io"/></div><div class="form-group"><label class="form-label">ENS</label><input class="form-input" value="supercompute.eth"/></div><div class="form-group"><label class="form-label">Chain</label><select class="form-select"><option>Base (Mainnet)</option><option>Base Sepolia</option></select></div><div class="form-group"><label class="form-label">Phase</label><select class="form-select"><option>Phase 1 — Building in Public</option><option>Phase 2 — Launch</option></select></div><div style="padding-top:.75rem;border-top:1px solid var(--border)"><button class="tb-btn primary" onclick="showToast('✓ Settings saved')">Save Settings</button></div></div>`,
     secrets: `<div class="card"><div class="section-title">Environment Secrets (Cloudflare)</div>${[['CMS_API_KEY', '••••••••••••••••••••••••'], ['VIRTUALS_API_KEY', '••••••••••••••••'], ['LINEAR_API_KEY', 'lin_api_••••••••••••'], ['CALENDLY_TOKEN', '••••••••••••••••'], ['JWT_SECRET', '••••••••••••••••••••••••'], ['QUANTA_API_KEY', 'sk-••••••••••••••••••'], ['KNIGHT_API_KEY', 'sk-••••••••••••••••••']].map(([k, h]) => `<div style="display:flex;align-items:center;gap:.75rem;padding:.65rem;background:var(--bg);border-radius:6px;margin-bottom:.4rem"><span style="font-family:monospace;font-size:11px;font-weight:700;color:var(--text);min-width:180px">${k}</span><span style="font-family:monospace;font-size:11px;color:var(--muted);flex:1">${h}</span><button class="tb-btn" style="font-size:10px;padding:.15rem .5rem" onclick="showToast('Reveal requires re-auth')">Reveal</button><button class="tb-btn" style="font-size:10px;padding:.15rem .5rem" onclick="showToast('Secret updated')">Edit</button></div>`).join('')}</div>`,
     domains: `<div class="card"><div class="section-title">Custom Domains</div>${[['supercompute.io', 'Active', 'CF Workers'], ['supercompute.eth', 'Active', 'ENS'], ['newsdesk.supercompute.io', 'Pending', 'Sub-domain']].map(([d, s, t]) => `<div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-bottom:.4rem"><span style="font-weight:600;font-size:12px;flex:1;font-family:monospace">${d}</span><span class="badge ${s === 'Active' ? 'badge-live' : 'badge-progress'}">${s}</span><span style="font-size:10px;color:var(--muted)">${t}</span></div>`).join('')}<button class="tb-btn" style="margin-top:.75rem" onclick="showToast('Add domain flow')">+ Add Domain</button></div>`,
-    integrations: `<div class="card"><div class="section-title">Third-Party Integrations</div>${[{ n: 'Linear (MOLT)', s: 'Connected', i: '◧', d: 'MCP active — Claude Desktop + agent ops' }, { n: 'Web3 CMS (D1)', s: 'Connected', i: '◈', d: 'D1 · supercompute-db · Articles + Projects' }, { n: 'Calendly', s: 'Connected', i: '◑', d: 'calendly.com/ora_mi · 4 services live' }, { n: 'Virtuals Protocol', s: 'Pending', i: '◉', d: '$QUANTA pending verification' }, { n: 'Guild.xyz', s: 'Pending', i: '◎', d: '7 roles defined · NFT gating pending' }, { n: 'Farcaster', s: 'Planned', i: '◐', d: 'OpenClaw connection queued' }].map(i => `<div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-bottom:.4rem"><span style="font-size:1.2rem;width:28px;text-align:center">${i.i}</span><div style="flex:1"><div style="font-weight:700;font-size:12px;color:var(--text)">${i.n}</div><div style="font-size:10px;color:var(--muted)">${i.d}</div></div><span class="badge ${i.s === 'Connected' ? 'badge-live' : i.s === 'Pending' ? 'badge-progress' : 'badge-soon'}">${i.s}</span></div>`).join('')}</div>`,
+    integrations: `<div class="card"><div class="section-title">Third-Party Integrations</div>${[{ n: 'Linear (MOLT)', s: 'Connected', i: '◧', d: 'MCP active — Claude Desktop + agent ops' }, { n: 'Web3 CMS', s: 'Connected', i: '◈', d: 'D1 Database · supercompute-db · Articles + Projects' }, { n: 'Calendly', s: 'Connected', i: '◑', d: 'calendly.com/ora_mi · 4 services live' }, { n: 'Virtuals Protocol', s: 'Pending', i: '◉', d: '$QUANTA pending verification' }, { n: 'Guild.xyz', s: 'Pending', i: '◎', d: '7 roles defined · NFT gating pending' }, { n: 'Farcaster', s: 'Planned', i: '◐', d: 'OpenClaw connection queued' }].map(i => `<div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-bottom:.4rem"><span style="font-size:1.2rem;width:28px;text-align:center">${i.i}</span><div style="flex:1"><div style="font-weight:700;font-size:12px;color:var(--text)">${i.n}</div><div style="font-size:10px;color:var(--muted)">${i.d}</div></div><span class="badge ${i.s === 'Connected' ? 'badge-live' : i.s === 'Pending' ? 'badge-progress' : 'badge-soon'}">${i.s}</span></div>`).join('')}</div>`,
     security: `<div class="card" style="max-width:580px"><div class="section-title">Security Configuration</div>${[{ l: 'SIWE Authentication', s: 'Auth layer', st: 'Active', n: 'MOL-240 ✓' }, { l: 'JWT Auth (API)', s: 'Worker-side validation', st: 'In Progress', n: 'MOL-94 open' }, { l: 'RBAC', s: 'Role-based access control', st: 'In Progress', n: 'MOL-95 open' }, { l: 'AuthContext Security Fix', s: 'isAuthenticated hardcoded — Sprint 1', st: 'Flagged', n: 'Priority fix' }, { l: 'Cloudflare WAF', s: 'Web Application Firewall', st: 'Active', n: 'Default rules' }, { l: 'YubiKey 2FA', s: 'Hardware key on admin accounts', st: 'Active', n: 'Since 2023' }, { l: 'Ledger Cold Storage', s: 'Treasury assets offline', st: 'Active', n: '$0 hot wallet' }].map(s => `<div style="padding:.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;gap:.75rem;margin-bottom:.4rem"><div style="flex:1"><div style="font-weight:700;font-size:12px;color:var(--text)">${s.l}</div><div style="font-size:10px;color:var(--muted)">${s.s}</div></div><span class="badge ${s.st === 'Active' ? 'badge-live' : s.st === 'Flagged' ? 'badge-soon' : 'badge-progress'}">${s.st}</span><span style="font-size:10px;color:var(--muted);min-width:90px;text-align:right">${s.n}</span></div>`).join('')}</div>`,
     social: `<div class="card"><div class="section-title">Social Content Queue (OpenClaw)</div><table><thead><tr><th>Title</th><th>Platform</th><th>Scheduled</th><th>Agent</th><th>Status</th></tr></thead><tbody>
     <tr><td>NewsDesk Launch Announcement</td><td>X + Lens</td><td>Apr 1, 2026</td><td>OpenClaw</td><td><span class="badge badge-progress">Queued</span></td></tr>
@@ -570,13 +723,85 @@ const DASH_CONTENT = {
   </tbody></table></div>`
 };
 
+const DASH_CONTENT_PUBLIC = {
+    overview: `<div style="padding:.75rem 1.25rem;background:rgba(233,30,140,.06);border:1px solid rgba(233,30,140,.2);border-radius:10px;margin-bottom:1.25rem;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:.5rem"><span style="font-size:14px">🔒</span><span>Sign in to access your portfolio, agent controls, and admin tools.</span></div>
+  <div class="grid4 mb-6">${[['Community Members', '21', 'Growing', 'up'], ['Active Agents', '13', 'All systems go', 'up'], ['Projects Live', '5', 'Staking + offerings', 'up'], ['Phase', 'May 2026', 'Launch target', 'neu']].map(([l, v, s, sv]) => `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-val">${v}</div><div class="stat-sub s-${sv}">${s}</div></div>`).join('')}</div>
+  <div class="card mb-4"><div class="section-title">Available Token Offerings</div>
+    <div style="display:flex;flex-direction:column;gap:.5rem">
+      <div class="asset-row"><div class="asset-ico" style="background:linear-gradient(135deg,var(--pink),var(--gold))">SC</div><div style="flex:1"><div style="font-weight:700;font-size:13px">$SCOM</div><div style="font-size:11px;color:var(--muted)">Supercompute Protocol Token · Base Chain</div></div><div style="text-align:right"><div style="font-weight:700;font-size:13px">Pre-Launch</div><div style="font-size:11px;color:var(--muted)">Q3 2026 · staking opens May 2026</div></div></div>
+      <div class="asset-row"><div class="asset-ico" style="background:linear-gradient(135deg,#6366f1,var(--cyan2))">QT</div><div style="flex:1"><div style="font-weight:700;font-size:13px">$QUANTA</div><div style="font-size:11px;color:var(--muted)">NewsDesk Intelligence · Virtuals Protocol</div></div><div style="text-align:right"><div style="font-weight:700;font-size:13px">Pending</div><div style="font-size:11px;color:var(--muted)">Virtuals verification in progress</div></div></div>
+      <div class="asset-row"><div class="asset-ico" style="background:linear-gradient(135deg,var(--gold),#f97316)">VB</div><div style="flex:1"><div style="font-weight:700;font-size:13px">$VERB</div><div style="font-size:11px;color:var(--muted)">WordWatcher · Base Chain</div></div><div style="text-align:right"><div style="font-weight:700;font-size:13px">Pre-Launch</div><div style="font-size:11px;color:var(--muted)">NFT mint at launch</div></div></div>
+    </div>
+  </div>
+  <div class="card mb-4"><div class="section-title">Platform Offerings</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem">
+      ${[{ t: 'Sovereign Consulting', d: 'DeFi ops, agent automation, ReFi strategy from $300/session', c: 'var(--gold)', l: 'From $300' }, { t: 'Web3 School', d: '7 modules → NFT credential + TradeDesk access', c: 'var(--cyan2)', l: 'Free beta' }, { t: 'NewsDesk', d: 'AI-curated Web3 intelligence, 6 articles live', c: 'var(--pink)', l: 'Public' }, { t: 'TradeDesk (KNIGHT)', d: 'CDP monitoring, Polymarket analysis, observer mode', c: '#6366f1', l: 'Web3 School unlock' }].map(o => `<div style="background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--border)"><div style="font-weight:700;font-size:12px;color:${o.c};margin-bottom:.3rem">${o.t}</div><div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:.5rem">${o.d}</div><div style="font-size:10px;font-weight:600;color:${o.c}">${o.l}</div></div>`).join('')}
+    </div>
+  </div>
+  <div class="card"><div class="section-title">Agent Fleet Preview</div>
+    ${[{ n: 'OpenClaw', r: 'Browser automation · social scheduling · web research', s: 'Active', c: '#3b82f6' }, { n: 'Quanta S', r: 'NewsDesk · intelligence · Base Chain monitoring', s: 'Active', c: 'var(--gold)' }, { n: 'KNIGHT', r: 'TradeDesk · CDP observer · Polymarket analysis', s: 'Observer', c: 'var(--cyan2)' }, { n: 'Claude Desktop', r: 'Strategic command · Linear MCP · agent coordination', s: 'Command', c: '#6366f1' }].map(a => `<div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-bottom:.4rem;font-size:12px"><span style="width:8px;height:8px;border-radius:50%;background:${a.s === 'Active' ? '#4ade80' : a.s === 'Observer' ? 'var(--gold)' : '#6366f1'};flex-shrink:0"></span><div style="flex:1"><div style="font-weight:700;font-size:12px;color:var(--text)">${a.n}</div><div style="font-size:10px;color:var(--muted)">${a.r}</div></div><span style="font-size:10px;color:var(--muted)">${a.s}</span></div>`).join('')}
+  </div>`,
+};
+
+/* ━━━ TRADEDESK DASHBOARD ━━━ */
+function renderTradeDesk() {
+    const el = document.getElementById('tradedeskBody');
+    if (!el) return;
+    el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem">
+        <div class="stat-card"><div class="stat-label">Portfolio Value</div><div class="stat-val">$8,214</div><div class="stat-sub s-up">+12.4% all-time</div></div>
+        <div class="stat-card"><div class="stat-label">Day P&L</div><div class="stat-val" style="color:var(--success)">+$127</div><div class="stat-sub s-up">+1.5% today</div></div>
+        <div class="stat-card"><div class="stat-label">Open Positions</div><div class="stat-val">3</div><div class="stat-sub">2 active · 1 pending</div></div>
+        <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-val">67%</div><div class="stat-sub s-up">+5% vs last week</div></div>
+    </div>
+    <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1.25rem">
+        <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.75rem">▸ OPEN POSITIONS</div>
+        <table style="width:100%;font-size:11px;border-collapse:collapse">
+            <thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:.5rem;color:var(--muted)">Asset</th><th style="text-align:left;padding:.5rem;color:var(--muted)">Side</th><th style="text-align:left;padding:.5rem;color:var(--muted)">Size</th><th style="text-align:left;padding:.5rem;color:var(--muted)">Entry</th><th style="text-align:left;padding:.5rem;color:var(--muted)">Current</th><th style="text-align:left;padding:.5rem;color:var(--muted)">PnL</th><th style="text-align:left;padding:.5rem;color:var(--muted)">Status</th></tr></thead>
+            <tbody>
+                <tr><td style="padding:.5rem;color:var(--text)">ETH</td><td style="padding:.5rem;color:var(--success)">LONG</td><td style="padding:.5rem;color:var(--text)">2.5 ETH</td><td style="padding:.5rem;color:var(--muted)">$3,214</td><td style="padding:.5rem;color:var(--text)">$3,286</td><td style="padding:.5rem;color:var(--success)">+$180</td><td style="padding:.5rem"><span style="background:rgba(34,197,94,.2);color:var(--success);padding:2px 6px;border-radius:4px;font-size:10px">ACTIVE</span></td></tr>
+                <tr><td style="padding:.5rem;color:var(--text)">cbBTC</td><td style="padding:.5rem;color:var(--danger)">SHORT</td><td style="padding:.5rem;color:var(--text)">0.1</td><td style="padding:.5rem;color:var(--muted)">$67,430</td><td style="padding:.5rem;color:var(--text)">$67,110</td><td style="padding:.5rem;color:var(--success)">+$32</td><td style="padding:.5rem"><span style="background:rgba(34,197,94,.2);color:var(--success);padding:2px 6px;border-radius:4px;font-size:10px">ACTIVE</span></td></tr>
+                <tr><td style="padding:.5rem;color:var(--text)">USDC</td><td style="padding:.5rem;color:var(--success)">LONG</td><td style="padding:.5rem;color:var(--text)">5,000</td><td style="padding:.5rem;color:var(--muted)">$1.00</td><td style="padding:.5rem;color:var(--text)">$1.00</td><td style="padding:.5rem;color:var(--muted)">$0.00</td><td style="padding:.5rem"><span style="background:rgba(251,191,36,.2);color:#fbbf24;padding:2px 6px;border-radius:4px;font-size:10px">PENDING</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.25rem">
+        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+            <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.75rem">▸ POLYMARKET INTELLIGENCE</div>
+            <div style="display:flex;flex-direction:column;gap:.5rem">
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--text)">AI Doom Scenario</span><span style="font-size:11px;color:var(--pink);font-weight:700">62%</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--text)">Fed Rate Cut (Q2)</span><span style="font-size:11px;color:var(--success);font-weight:700">89%</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--text)">ETH ETF Approval</span><span style="font-size:11px;color:var(--danger);font-weight:700">31%</span></div>
+            </div>
+        </div>
+        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem">
+            <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.75rem">▸ CDP MONITOR</div>
+            <div style="display:flex;flex-direction:column;gap:.5rem">
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--muted)">Health Factor</span><span style="font-size:11px;color:var(--success);font-weight:700">2.45</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--muted)">Collateral Ratio</span><span style="font-size:11px;color:var(--text);font-weight:700">185%</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--muted)">Liquidation Price</span><span style="font-size:11px;color:var(--danger);font-weight:700">$1,892</span></div>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
 function renderDash(tab) {
+    const isAdmin = authState.loggedIn && authState.role === 'admin';
+    // Non-admins see public dashboard — overview only
+    if (!isAdmin && tab !== 'overview') { tab = 'overview'; }
     activeDashTab = tab;
     document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
     const activeEl = document.querySelector(`.dash-tab[data-tab="${tab}"]`);
     if (activeEl) activeEl.classList.add('active');
     const el = document.getElementById('dashBody');
-    if (el) el.innerHTML = DASH_CONTENT[tab] || `<div style="color:var(--muted);text-align:center;padding:3rem;font-size:.85rem">Panel coming soon.</div>`;
+    if (!el) return;
+    // Show public content for non-admins, admin content for admins
+    if (!isAdmin && DASH_CONTENT_PUBLIC[tab]) {
+        el.innerHTML = DASH_CONTENT_PUBLIC[tab];
+    } else {
+        el.innerHTML = DASH_CONTENT[tab] || `<div style="color:var(--muted);text-align:center;padding:3rem;font-size:.85rem">Panel coming soon.</div>`;
+    }
 }
 
 /* ━━━ AGENT CHAT ━━━ */
@@ -675,12 +900,38 @@ function updateYield() {
 }
 
 /* ━━━ BLOG NEWSDESK (admin) ━━━ */
-function renderNewsDeskCMS() {
+async function renderNewsDeskCMS() {
     const el = document.getElementById('newsdeskQueue');
-    if (!el || el.children.length > 0) return;
+    if (!el) return;
     const catStyle = { intelligence: 'background:rgba(233,30,140,.1);color:var(--gold)', sovereignty: 'background:rgba(0,212,255,.1);color:var(--cyan2)', dispatch: 'background:rgba(255,184,0,.1);color:var(--gold2)', signal: 'background:rgba(99,102,241,.1);color:#6366f1' };
-    el.innerHTML = ARTICLES.map(a => `<div class="article-row" onclick="authGate('createarticle',navItem('createarticle'),true)">
-    <span class="article-cat" style="${catStyle[a.cat]}">${a.cat.slice(0, 4)}</span>
+
+    // Try D1 API first; fall back to local mock data
+    let articles = ARTICLES;
+    try {
+        const res = await fetch('/api/articles?action=list', { credentials: 'include' });
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data.articles) && data.articles.length > 0) {
+                articles = data.articles.map(a => ({
+                    id: a.id, cat: a.category || 'intelligence', icon: '◎',
+                    title: a.title, date: a.published_at ? new Date(a.published_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'Unpublished',
+                    author: a.author || 'Quanta S', live: a.status === 'published'
+                }));
+                // Update stat cards with live counts
+                const published = articles.filter(a => a.live).length;
+                const elTotal = document.getElementById('ndStatTotal');
+                const elPub = document.getElementById('ndStatPub');
+                if (elTotal) elTotal.textContent = articles.length;
+                if (elPub) elPub.textContent = published;
+                const elCMS = document.getElementById('ndCMSStatus');
+                if (elCMS) { elCMS.textContent = 'D1 · live'; elCMS.style.color = 'var(--success)'; }
+            }
+        }
+    } catch (_) { /* API unavailable — use mock data */ }
+
+    if (el.children.length > 0 && articles === ARTICLES) return;
+    el.innerHTML = articles.map(a => `<div class="article-row" onclick="authGate('createarticle',navItem('createarticle'),true)">
+    <span class="article-cat" style="${catStyle[a.cat] || ''}">${a.cat.slice(0, 4)}</span>
     <div style="flex:1"><div style="font-weight:600;font-size:12px;color:var(--text)">${a.icon} ${a.title}</div><div style="font-size:10px;color:var(--muted);margin-top:.1rem">${a.date} · ${a.author}</div></div>
     <span class="badge ${a.live ? 'badge-live' : 'badge-progress'}">${a.live ? 'Published' : 'Draft'}</span>
     <button class="tb-btn" style="font-size:10px;padding:.2rem .6rem" onclick="event.stopPropagation();navigate('createarticle',navItem('createarticle'))">Edit</button>
@@ -703,14 +954,15 @@ function animCount(el, target, dur) {
 
 /* ━━━ INIT ━━━ */
 window.addEventListener('DOMContentLoaded', () => {
+    initRouter(); // Handle direct links and back-button via URL hash
     initTicker();
     renderBlog('all');
     renderPubProjects();
     renderDash('overview');
-    // Counters
-    const cObs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) { animCount(document.getElementById('hc-agents'), 13, 1200); animCount(document.getElementById('hc-years'), 13, 1000); cObs.disconnect(); } }); }, { threshold: .3 });
-    const hc = document.getElementById('hc-agents');
-    if (hc) { const parent = hc.closest('[style*="grid"]'); if (parent) cObs.observe(parent); }
+    // Counters — trigger when stats bar scrolls into view
+    const cObs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) { animCount(document.getElementById('hc-agents'), 13, 1200); animCount(document.getElementById('hc-years'), 13, 1000); cObs.disconnect(); } }); }, { threshold: .2 });
+    const sb = document.getElementById('statsBar');
+    if (sb) cObs.observe(sb);
     // Scroll reveal
     const rObs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); rObs.unobserve(e.target); } }); }, { threshold: .08 });
     document.querySelectorAll('.reveal').forEach(el => rObs.observe(el));

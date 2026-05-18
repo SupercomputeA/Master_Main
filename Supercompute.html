@@ -17,7 +17,7 @@
 <title>SUPERCOMPUTE · Web3 built for liberation</title>
 <link rel="stylesheet" href="sc.css">
 </head>
-<body>
+<body class="auth-anon">
 
 <!-- ─── CRT vignette + HUD corner brackets (Terminal Dossier identity, handoff §6g/§6h) ─── -->
 <div class="vignette"></div>
@@ -65,32 +65,45 @@
     <div><div class="nav-brand-text">SUPERCOMPUTE</div><div class="nav-brand-sub">Phase 1 · Base Chain</div></div>
   </div>
   <div style="flex:1;overflow-y:auto;padding-bottom:.5rem">
-    <div class="nav-section">Public</div>
-    <a href="#" class="nav-item active" data-page="home" onclick="navigate('home',this);return false" title="Public landing page — overview of Supercompute"><span class="nav-ico">⌂</span>Home</a>
-    <a href="#" class="nav-item" data-page="about" onclick="navigate('about',this);return false" title="Who we are, what we build, why it matters"><span class="nav-ico">◎</span>About</a>
-    <a href="#" class="nav-item" data-page="staking" onclick="navigate('staking',this);return false" title="$SCOM token staking — live May 2026"><span class="nav-ico">◈</span>Staking</a>
-    <a href="#" class="nav-item" data-page="blog" onclick="navigate('blog',this);return false" title="NewsDesk articles — AI-curated Web3 intelligence"><span class="nav-ico">▤</span>Blog</a>
-    <a href="#" class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this);return false" title="Public investment opportunities"><span class="nav-ico">◧</span>Projects</a>
-    <a href="#" class="nav-item" data-page="agents" onclick="navigate('agents',this);return false" title="13-agent fleet — public roster, status, roles"><span class="nav-ico">◉</span>Agents<span class="nav-badge nb-pink">New</span></a>
-    <a href="#" class="nav-item" data-page="consulting" onclick="navigate('consulting',this);return false" title="DeFi consulting, agent automation, ReFi strategy"><span class="nav-ico">◑</span>Consulting</a>
-    <a href="#" class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this);return false" title="$SCOM token — access gated by Web3 School completion"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></a>
-    <a href="#" class="nav-item" data-page="shop" onclick="navigate('shop',this);return false" title="Storefront — merch, classes, agent services (Shopify-backed)"><span class="nav-ico">▣</span>Shop<span class="nav-badge nb-pink">New</span></a>
-    <div class="nav-div"></div>
-    <div class="nav-section">Member</div>
-    <a href="#" class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this);return false" title="Your portfolio assets and positions"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></a>
-    <a href="#" class="nav-item locked" id="nl-social" data-page="social" onclick="authGate('social',this);return false" title="Social feed — posts, shares, community activity"><span class="nav-ico">◉</span>Social Feed<span class="nav-badge nb-lock">🔒</span></a>
-    <a href="#" class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this);return false" title="System alerts and agent activity notifications"><span class="nav-ico">◎</span>Alerts<span class="nav-badge nb-num">3</span></a>
-    <a href="#" class="nav-item locked" id="nl-profile" data-page="profile" onclick="authGate('profile',this);return false" title="Your profile — wallet, roles, credentials"><span class="nav-ico">◐</span>Profile<span class="nav-badge nb-lock">🔒</span></a>
-    <a href="#" class="nav-item locked" id="nl-agentchat" data-page="agentchat" onclick="authGate('agentchat',this);return false" title="Chat with the agent fleet — Quanta S, KNIGHT, OpenClaw"><span class="nav-ico">◈</span>Agent Chat<span class="nav-badge nb-num">4</span></a>
-    <a href="#" class="nav-item" id="nl-web3school" data-page="web3school" onclick="navigate('web3school',this);return false" title="7 modules → NFT credential + TradeDesk access"><span class="nav-ico">◎</span>Web3 School<span class="nav-badge nb-lock">🔒</span></a>
-    <a href="#" class="nav-item" id="nl-tradedesk" data-page="tradedesk" onclick="navigate('tradedesk',this);return false" title="TradeDesk intelligence — KNIGHT, CDP monitor, Polymarket analysis"><span class="nav-ico">▦</span>TradeDesk</a>
-    <a href="#" class="nav-item locked" id="nl-socialmedia" data-page="socialmedia" onclick="authGate('socialmedia',this);return false" title="Schedule and publish to X, Lens, and more"><span class="nav-ico">◧</span>Social Media<span class="nav-badge nb-lock">🔒</span></a>
-    <div class="nav-div"></div>
-    <div class="nav-section">Admin</div>
-    <a href="#" class="nav-item locked" id="nl-dashboard" data-page="dashboard" onclick="authGate('dashboard',this);return false" title="Fleet overview, portfolio, agent activity"><span class="nav-ico">▣</span>Dashboard<span class="nav-badge nb-gold">A</span></a>
-    <a href="#" class="nav-item locked" id="nl-community" data-page="community" onclick="authGate('community',this,true);return false" title="Members, roles, Guild.xyz integration"><span class="nav-ico">◈</span>Community<span class="nav-badge nb-gold">A</span></a>
-    <a href="#" class="nav-item locked" id="nl-newsdesk" data-page="newsdesk" onclick="authGate('newsdesk',this,true);return false" title="NewsDesk CMS — articles, drafts, publishing"><span class="nav-ico">◧</span>NewsDesk CMS<span class="nav-badge nb-gold">A</span></a>
-    <a href="#" class="nav-item locked" id="nl-apiStatus" data-page="apiStatus" onclick="authGate('apiStatus',this,true);return false" title="API health, D1 DB, Web3 CMS status"><span class="nav-ico">◐</span>API Status<span class="nav-badge nb-gold">A</span></a>
+
+    <!-- PUBLIC — visible to everyone -->
+    <div class="nav-group" data-section="public">
+      <div class="nav-section">Public</div>
+      <a href="#" class="nav-item active" data-page="home" onclick="navigate('home',this);return false" title="Public landing page — overview of Supercompute"><span class="nav-ico">⌂</span>Home</a>
+      <a href="#" class="nav-item" data-page="about" onclick="navigate('about',this);return false" title="Who we are, what we build, why it matters"><span class="nav-ico">◎</span>About</a>
+      <a href="#" class="nav-item" data-page="staking" onclick="navigate('staking',this);return false" title="$SCOM token staking — live May 2026"><span class="nav-ico">◈</span>Staking</a>
+      <a href="#" class="nav-item" data-page="blog" onclick="navigate('blog',this);return false" title="NewsDesk articles — AI-curated Web3 intelligence"><span class="nav-ico">▤</span>Blog</a>
+      <a href="#" class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this);return false" title="Public investment opportunities"><span class="nav-ico">◧</span>Projects</a>
+      <a href="#" class="nav-item" data-page="agents" onclick="navigate('agents',this);return false" title="13-agent fleet — public roster, status, roles"><span class="nav-ico">◉</span>Agents<span class="nav-badge nb-pink">New</span></a>
+      <a href="#" class="nav-item" data-page="consulting" onclick="navigate('consulting',this);return false" title="DeFi consulting, agent automation, ReFi strategy"><span class="nav-ico">◑</span>Consulting</a>
+      <a href="#" class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this);return false" title="$SCOM token — access gated by Web3 School completion"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></a>
+      <a href="#" class="nav-item" data-page="shop" onclick="navigate('shop',this);return false" title="Storefront — merch, classes, agent services (Shopify-backed)"><span class="nav-ico">▣</span>Shop<span class="nav-badge nb-pink">New</span></a>
+    </div>
+
+    <!-- MEMBER — hidden when body.auth-anon; visible to auth-user + auth-admin -->
+    <div class="nav-group" data-section="member">
+      <div class="nav-div"></div>
+      <div class="nav-section">Member</div>
+      <a href="#" class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this);return false" title="Your portfolio assets and positions"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></a>
+      <a href="#" class="nav-item locked" id="nl-social" data-page="social" onclick="authGate('social',this);return false" title="Social feed — posts, shares, community activity"><span class="nav-ico">◉</span>Social Feed<span class="nav-badge nb-lock">🔒</span></a>
+      <a href="#" class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this);return false" title="System alerts and agent activity notifications"><span class="nav-ico">◎</span>Alerts<span class="nav-badge nb-num">3</span></a>
+      <a href="#" class="nav-item locked" id="nl-profile" data-page="profile" onclick="authGate('profile',this);return false" title="Your profile — wallet, roles, credentials"><span class="nav-ico">◐</span>Profile<span class="nav-badge nb-lock">🔒</span></a>
+      <a href="#" class="nav-item locked" id="nl-agentchat" data-page="agentchat" onclick="authGate('agentchat',this);return false" title="Chat with the agent fleet — Quanta S, KNIGHT, OpenClaw"><span class="nav-ico">◈</span>Agent Chat<span class="nav-badge nb-num">4</span></a>
+      <a href="#" class="nav-item" id="nl-web3school" data-page="web3school" onclick="navigate('web3school',this);return false" title="7 modules → NFT credential + TradeDesk access"><span class="nav-ico">◎</span>Web3 School<span class="nav-badge nb-lock">🔒</span></a>
+      <a href="#" class="nav-item" id="nl-tradedesk" data-page="tradedesk" onclick="navigate('tradedesk',this);return false" title="TradeDesk intelligence — KNIGHT, CDP monitor, Polymarket analysis"><span class="nav-ico">▦</span>TradeDesk</a>
+      <a href="#" class="nav-item locked" id="nl-socialmedia" data-page="socialmedia" onclick="authGate('socialmedia',this);return false" title="Schedule and publish to X, Lens, and more"><span class="nav-ico">◧</span>Social Media<span class="nav-badge nb-lock">🔒</span></a>
+    </div>
+
+    <!-- ADMIN — hidden unless body.auth-admin -->
+    <div class="nav-group" data-section="admin">
+      <div class="nav-div"></div>
+      <div class="nav-section">Admin</div>
+      <a href="#" class="nav-item locked" id="nl-dashboard" data-page="dashboard" onclick="authGate('dashboard',this);return false" title="Fleet overview, portfolio, agent activity"><span class="nav-ico">▣</span>Dashboard<span class="nav-badge nb-gold">A</span></a>
+      <a href="#" class="nav-item locked" id="nl-community" data-page="community" onclick="authGate('community',this,true);return false" title="Members, roles, Guild.xyz integration"><span class="nav-ico">◈</span>Community<span class="nav-badge nb-gold">A</span></a>
+      <a href="#" class="nav-item locked" id="nl-newsdesk" data-page="newsdesk" onclick="authGate('newsdesk',this,true);return false" title="NewsDesk CMS — articles, drafts, publishing"><span class="nav-ico">◧</span>NewsDesk CMS<span class="nav-badge nb-gold">A</span></a>
+      <a href="#" class="nav-item locked" id="nl-apiStatus" data-page="apiStatus" onclick="authGate('apiStatus',this,true);return false" title="API health, D1 DB, Web3 CMS status"><span class="nav-ico">◐</span>API Status<span class="nav-badge nb-gold">A</span></a>
+    </div>
+
   </div>
   <div class="nav-bottom">
     <button class="btn-wallet" id="walletBtn" onclick="toggleWallet()" aria-label="Connect wallet"><span id="wico">◎</span><span id="wtxt">Connect Wallet</span></button>

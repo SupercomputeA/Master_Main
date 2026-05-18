@@ -4,9 +4,9 @@
   "description": "QUANTA - Sovereign Compute Platform on Base Chain",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler pages dev public",
     "deploy": "npm run sync && wrangler pages deploy public --project-name=supercompute --commit-dirty=true",
-    "sync": "cp Supercompute.html public/index.html && cp sc.css public/sc.css && cp sc-app.jsx public/sc-app.jsx && cp sc-shared.jsx public/sc-shared.jsx && cp sc-landing.jsx public/sc-landing.jsx && cp sc-flows.js public/sc-flows.js && cp sc-logic.js public/sc-logic.js && cp tweaks-panel.jsx public/tweaks-panel.jsx && echo 'Synced 8 files to public/'",
+    "sync": "cp Supercompute.html public/index.html && cp sc.css public/sc.css && cp sc-flows.js public/sc-flows.js && cp sc-logic.js public/sc-logic.js && echo 'Synced 4 files to public/'",
     "db:create": "wrangler d1 create supercompute",
     "db:push": "wrangler d1 execute supercompute --local --file=./schema.sql",
     "db:push:prod": "wrangler d1 execute supercompute --file=./schema.sql --env production",

@@ -200,9 +200,35 @@ function doLoginDemo(role) {
     authState = { loggedIn: true, role };
     document.getElementById('authOverlay').style.display = 'none';
     updateAuthUI(role);
+    setBodyAuthClass(role);
     showToast(role === 'admin' ? '✓ Signed in as Admin (Orami)' : '✓ Signed in as Member');
     const prd = document.getElementById('profileRoleDisplay');
     if (prd) prd.innerHTML = `<span class="role-chip">${role === 'admin' ? '⭐ Founder / Admin' : '◎ Member'}</span>`;
+}
+
+function doLogout() {
+    authState = { loggedIn: false, role: null };
+    setBodyAuthClass(null);
+    // Re-lock all items so they hide again on next anon view
+    ['assets','social','alerts','profile','agentchat','socialmedia',
+     'dashboard','community','newsdesk','apiStatus','blog-compose','blog-drafts','token'].forEach(id => {
+        const el = document.getElementById('nl-' + id);
+        if (el) el.classList.add('locked');
+    });
+    // Send the user to home so they're not staring at an auth-gated page
+    if (typeof navigate === 'function') {
+        const homeNav = document.querySelector('[data-page="home"]');
+        navigate('home', homeNav);
+    }
+    if (window.showToast) showToast('// signed out');
+}
+
+function setBodyAuthClass(role) {
+    const b = document.body;
+    b.classList.remove('auth-anon', 'auth-user', 'auth-admin');
+    if (role === 'admin') b.classList.add('auth-admin');
+    else if (role) b.classList.add('auth-user');
+    else b.classList.add('auth-anon');
 }
 function updateAuthUI(role) {
     ['assets', 'social', 'commerce', 'alerts', 'profile', 'agentchat', 'web3school', 'socialmedia', 'token'].forEach(id => {

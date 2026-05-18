@@ -202,6 +202,25 @@ body::after {
     .version-tag { right: 50px; bottom: 10px; font-size: 9px; }
 }
 
+/* ─── AUTH-DRIVEN NAV VISIBILITY ────────────────────────────────────
+   Body carries auth-anon / auth-user / auth-admin (set by sc-logic.js
+   doLoginDemo / doLogout). Nav groups + individual .nav-item.locked
+   are hidden when the current auth class doesn't grant access.
+   ──────────────────────────────────────────────────────────────────── */
+
+/* Default (anon): hide MEMBER + ADMIN sections entirely */
+body.auth-anon .nav-group[data-section="member"],
+body.auth-anon .nav-group[data-section="admin"] { display: none; }
+
+/* Member: ADMIN hidden, MEMBER visible */
+body.auth-user .nav-group[data-section="admin"] { display: none; }
+
+/* Within whichever sections are visible, hide ITEMS still marked .locked.
+   doLoginDemo() removes .locked from items the role can access, so what
+   remains marked is genuinely above the current role's access. */
+body.auth-anon .nav-item.locked,
+body.auth-user .nav-item.locked { display: none; }
+
 /* NAV */
 nav#appNav {
     width: var(--nav-w);

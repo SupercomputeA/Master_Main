@@ -714,7 +714,53 @@ function renderNewsDeskCMS() {
 }
 
 /* ━━━ UTILS ━━━ */
-function openCalendly() { window.open('https://calendly.com/ora_mi', '_blank'); }
+function openCalendly() {
+    // Phase C1 — inline iframe embed (replaces popup; popup-blocker-safe + on-brand)
+    if (document.getElementById('calendlyModal')) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'calendlyModal';
+    overlay.className = 'cal-overlay';
+    overlay.onclick = (e) => { if (e.target === overlay) closeCalendly(); };
+    overlay.innerHTML = `
+        <div class="cal-shell">
+            <div class="cal-head">
+                <span class="cal-prompt">// book --strategy-call</span>
+                <button class="cal-close" onclick="closeCalendly()" aria-label="Close">×</button>
+            </div>
+            <iframe class="cal-frame"
+                    src="https://calendly.com/ora_mi?hide_event_type_details=0&hide_gdpr_banner=1&background_color=0a1330&text_color=F4ECD8&primary_color=C9A33A"
+                    title="Book a strategy call with Supercompute"
+                    loading="lazy"></iframe>
+        </div>`;
+    document.body.appendChild(overlay);
+    // Fire analytics event so the booking funnel is measurable (Phase C DoD)
+    try {
+        if (window.dataLayer) window.dataLayer.push({ event: 'book_call_opened' });
+        if (window.gtag)      window.gtag('event', 'book_call_opened');
+        console.log('[analytics] book_call_opened · ' + new Date().toISOString());
+    } catch (e) {}
+    // Listen for Calendly's postMessage 'event_scheduled' so we can fire
+    // book_call_confirmed (the actual conversion). Calendly's official
+    // event is 'calendly.event_scheduled' — we accept any prefix match.
+    if (!window.__cal_listener) {
+        window.addEventListener('message', (m) => {
+            const ev = m && m.data && m.data.event;
+            if (typeof ev === 'string' && ev.indexOf('calendly.event_scheduled') === 0) {
+                try {
+                    if (window.dataLayer) window.dataLayer.push({ event: 'book_call_confirmed' });
+                    if (window.gtag)      window.gtag('event', 'book_call_confirmed', { value: 1 });
+                    console.log('[analytics] book_call_confirmed · ' + new Date().toISOString());
+                } catch (e) {}
+                showToast('// call booked · calendar invite sent');
+            }
+        });
+        window.__cal_listener = true;
+    }
+}
+function closeCalendly() {
+    const m = document.getElementById('calendlyModal');
+    if (m) m.remove();
+}
 function copyToClipboard(text) { navigator.clipboard.writeText(text); showToast('✓ Copied to clipboard'); }
 function showToast(msg) {
     const t = document.getElementById('toast');

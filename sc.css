@@ -2778,6 +2778,64 @@ footer {
     border: 1px solid var(--border)
 }
 
+/* ─── COMPACT PAGE HEADER — app surfaces (Member + Admin) ──────────
+   Smaller variant of .ts-hero-block for dense functional pages.
+   No image placeholder, no display-size title. Replaces legacy
+   .topbar across member/admin views.
+   ──────────────────────────────────────────────────────────────────── */
+.ts-page-header {
+    padding: 32px 32px 28px;
+    border-bottom: 1px solid rgba(244, 236, 216, .10);
+    background: transparent;
+    position: relative;
+    z-index: 2;
+}
+.ts-page-header .prompt-line {
+    margin-bottom: 12px;
+    font-family: var(--font-mono); font-size: 12px;
+    color: var(--mono-blue); letter-spacing: .5px;
+    display: flex; align-items: center; gap: 10px;
+}
+.ts-page-header .prompt-line .cmd { color: var(--cream); font-weight: 500; }
+.ts-page-header .prompt-line .cmd .gold { color: var(--gold-warm); }
+.ts-page-header .ph-row {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 24px; flex-wrap: wrap;
+}
+.ts-page-header h2 {
+    font-family: var(--font-mono);
+    font-size: 28px; font-weight: 600;
+    color: var(--cream); letter-spacing: -.3px;
+    line-height: 1.15;
+    margin: 0 0 6px;
+}
+.ts-page-header .ph-sub {
+    font-family: var(--font-mono); font-size: 12px;
+    color: var(--mono-blue); letter-spacing: .3px;
+}
+.ts-page-header .ph-actions {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-left: auto;
+}
+.ts-page-header .ph-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--hud-yellow);
+    border: 1px solid rgba(224, 190, 63, .35);
+    letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700;
+}
+.ts-page-header .ph-badge.green { color: #4ADE80; border-color: rgba(74, 222, 128, .35); }
+.ts-page-header .ph-badge.live::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; box-shadow: 0 0 6px currentColor;
+}
+
+@media (max-width: 980px) {
+    .ts-page-header { padding: 24px 20px 20px; }
+    .ts-page-header h2 { font-size: 22px; }
+}
+
 /* ════════════════════════════════════════════════════════════════════
    PAGE HERO BLOCK — universal page template (Terminal Dossier)
 

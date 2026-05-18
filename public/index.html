@@ -1782,7 +1782,18 @@
 
 <!-- ══ ASSETS (member) ══ -->
 <div class="page ts-page" id="page-assets">
-  <div class="topbar"><div class="topbar-title">Assets</div><div class="topbar-actions"><button class="tb-btn primary">+ Add Asset</button></div></div>
+  <header class="ts-page-header">
+    <div class="prompt-line"><span>//</span><span class="cmd">./assets <span class="gold">--portfolio</span></span></div>
+    <div class="ph-row">
+      <div>
+        <h2>Assets</h2>
+        <div class="ph-sub">Portfolio · staking · NFTs · wallet connection</div>
+      </div>
+      <div class="ph-actions">
+        <button class="cmd-btn ghost" onclick="showToast('+ add asset flow coming soon')"><span class="prompt">//</span>add --asset</button>
+      </div>
+    </div>
+  </header>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1.25rem">
       <div class="stat-card"><div class="stat-label">Portfolio Value</div><div class="stat-val">$0.00</div><div class="stat-sub s-neu">Awaiting launch</div></div>
@@ -1807,7 +1818,18 @@
 
 <!-- ══ SOCIAL FEED (member) ══ -->
 <div class="page ts-page" id="page-social">
-  <div class="topbar"><div class="topbar-title">Social Feed</div><div class="topbar-actions"><button class="tb-btn primary" onclick="showToast('OpenClaw queuing post...')">+ New Post</button></div></div>
+  <header class="ts-page-header">
+    <div class="prompt-line"><span>//</span><span class="cmd">./social <span class="gold">--feed</span></span></div>
+    <div class="ph-row">
+      <div>
+        <h2>Social Feed</h2>
+        <div class="ph-sub">X · Lens · Farcaster · OpenClaw queue</div>
+      </div>
+      <div class="ph-actions">
+        <button class="cmd-btn solid" onclick="showToast('OpenClaw queuing post...')"><span class="prompt">//</span>new --post</button>
+      </div>
+    </div>
+  </header>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.25rem">
       <div class="stat-card"><div class="stat-label">X Followers</div><div class="stat-val">156</div><div class="stat-sub s-up">@supercomputeco</div></div>
@@ -1832,7 +1854,18 @@
 
 <!-- ══ ALERTS (member) ══ -->
 <div class="page ts-page" id="page-alerts">
-  <div class="topbar"><div class="topbar-title">Alerts <span style="font-size:11px;background:rgba(233,30,140,.1);color:var(--pink);padding:.15rem .5rem;border-radius:10px;margin-left:.4rem;font-weight:700">3</span></div><div class="topbar-actions"><button class="tb-btn" onclick="showToast('All alerts marked as read')">Mark all read</button></div></div>
+  <header class="ts-page-header">
+    <div class="prompt-line"><span>//</span><span class="cmd">./alerts <span class="gold">--unread</span></span></div>
+    <div class="ph-row">
+      <div>
+        <h2>Alerts <span class="ph-badge">3 unread</span></h2>
+        <div class="ph-sub">System + agent activity notifications</div>
+      </div>
+      <div class="ph-actions">
+        <button class="cmd-btn ghost" onclick="showToast('All alerts marked as read')"><span class="prompt">//</span>mark --all-read</button>
+      </div>
+    </div>
+  </header>
   <div class="pg-body">
     <div class="alert-item"><div class="alert-ico" style="background:rgba(74,222,128,.1);color:#16a34a">✓</div><div class="alert-content"><h4>NewsDesk Draft Published</h4><p>6 founding articles saved to Web3 CMS (D1 · supercompute-db)</p></div><div class="alert-time">2h ago</div></div>
     <div class="alert-item"><div class="alert-ico" style="background:rgba(233,30,140,.1);color:var(--pink)">◉</div><div class="alert-content"><h4>OpenClaw: X post scheduled</h4><p>NewsDesk launch announcement queued for Apr 25, 2026</p></div><div class="alert-time">5h ago</div></div>
@@ -1844,7 +1877,18 @@
 
 <!-- ══ PROFILE (member) ══ -->
 <div class="page ts-page" id="page-profile">
-  <div class="topbar"><div class="topbar-title">Profile</div><div class="topbar-actions"><button class="tb-btn primary" onclick="showToast('✓ Profile saved')">Save Changes</button></div></div>
+  <header class="ts-page-header">
+    <div class="prompt-line"><span>//</span><span class="cmd">./profile <span class="gold">--edit</span></span></div>
+    <div class="ph-row">
+      <div>
+        <h2>Profile</h2>
+        <div class="ph-sub">Identity · wallet · handles · credentials</div>
+      </div>
+      <div class="ph-actions">
+        <button class="cmd-btn solid" onclick="showToast('✓ Profile saved')"><span class="prompt">//</span>save --changes</button>
+      </div>
+    </div>
+  </header>
   <div class="pg-body" style="max-width:680px">
     <div class="card" style="margin-bottom:1rem;text-align:center;padding:2rem">
       <div class="profile-avatar-lg">O</div>
@@ -1901,50 +1945,61 @@
 
 <!-- ══ WEB3 SCHOOL (public marketing + member view) ══ -->
 <div class="page ts-page" id="page-web3school">
-  <!-- Hero / Marketing Header -->
-  <div style="background:linear-gradient(135deg,#0D1F3C,#0A1628);padding:2rem 1.5rem;border-bottom:1px solid var(--border)">
-    <div style="display:flex;gap:1.5rem;align-items:flex-start;margin-bottom:1rem">
-      <div style="font-size:4rem;line-height:1">🎓</div>
-      <div style="flex:1">
-        <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">◈ WEB3 SCHOOL</div>
-        <h2 style="font-size:1.75rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Learn Web3 by Doing It</h2>
+  <header class="ts-page-header">
+    <div class="prompt-line"><span>//</span><span class="cmd">./school <span class="gold">--curriculum</span></span></div>
+    <div class="ph-row">
+      <div>
+        <h2>Web3 School</h2>
+        <div class="ph-sub">7 modules · NFT credential · Guild.xyz role · TradeDesk unlock</div>
+      </div>
+      <div class="ph-actions">
+        <button class="cmd-btn solid" onclick="authGate('web3school', navItem('web3school'))"><span class="prompt">//</span>start --course</button>
       </div>
     </div>
-    <p style="font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1rem">Web3 education is mostly hype. We built this because every person who comes into crypto gets rekt in month one — not from DeFi complexity, but from not understanding wallet security, LP math, or how wallets actually work. Web3 School teaches what the scams are made of.</p>
-    <p style="font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1rem">Most courses teach you how to use protocols. We teach you how they work under the hood, what can go wrong, and how to protect yourself. This is operational knowledge — not speculation. The kind of stuff that saves you from losing everything to a bad signature.</p>
-    <p style="font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Whether you're a dev looking to understand on-chain mechanics or an operator building sovereign infrastructure, this is the foundation. We don't do roadmaps. We ship first.</p>
-    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem">
-      <div style="background:rgba(233,30,140,.1);border:1px solid rgba(233,30,140,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:var(--pink)">7 Modules</div><div style="font-size:10px;color:var(--muted)">Hands-on curriculum</div></div>
-      <div style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:#6365f1">NFT Credential</div><div style="font-size:10px;color:var(--muted)">Onchain on Base</div></div>
-      <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:var(--success)">Guild.xyz Role</div><div style="font-size:10px;color:var(--muted)">Community access</div></div>
-      <div style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:#fbbf24">TradeDesk Access</div><div style="font-size:10px;color:var(--muted)">Unlock on completion</div></div>
-    </div>
-    <button class="tb-btn primary" style="font-size:12px;padding:.6rem 1.25rem" onclick="authGate('web3school', navItem('web3school'))">Start Web3 School →</button>
+  </header>
+
+  <div style="padding:24px 32px;max-width:860px;font-family:var(--font-mono);font-size:14px;line-height:1.85;color:var(--mono-blue)">
+    <p style="margin-bottom:14px">Web3 education is mostly hype. We built this because every person who comes into crypto gets rekt in month one — not from DeFi complexity, but from not understanding wallet security, LP math, or how wallets actually work. <strong style="color:var(--cream);font-weight:600">Web3 School teaches what the scams are made of.</strong></p>
+    <p style="margin-bottom:14px">Most courses teach you how to use protocols. We teach you how they work under the hood, what can go wrong, and how to protect yourself. <strong style="color:var(--cream);font-weight:600">Operational knowledge — not speculation.</strong></p>
+    <p>We don't do roadmaps. We ship first.</p>
   </div>
-  <!-- Content Area: Marketing content for non-auth / Student view for authenticated -->
-  <div style="padding:1.5rem">
-    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:1rem">The 7 Modules</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem">
-      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">01</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Wallet Basics</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">15 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Create and secure your first crypto wallet. Seed phrases, hot vs cold storage, and operational security fundamentals.</div></div>
-      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">02</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Money Basics</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">20 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">What is digital money? Bitcoin, stablecoins, L1 vs L2. Understanding monetary primitives in code.</div></div>
-      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">03</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Security Basics</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">25 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Seed phrases, phishing, hardware wallets, OpSec. How to not lose your keys to a bad link.</div></div>
-      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">04</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">DeFi Fundamentals</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">30 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">AMMs, liquidity pools, yield farming safely. The math behind the magic and where it breaks.</div></div>
-      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">05</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">ReFi & Impact</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">25 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Regenerative finance, carbon credits on-chain. How impact metrics live and breathe on Base.</div></div>
-      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">06</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Community Building</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">20 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">DAOs, token-gated communities, Guild.xyz, governance. Designing sovereign collectives.</div></div>
-      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">07</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Agent & AI Ops</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">30 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">How AI agents operate on-chain, Virtuals Protocol, 1-human + AI model architectures.</div></div>
+  <section class="section ts-landing" style="padding:24px 32px;border:none">
+    <div style="max-width:none">
+      <div class="prompt-line"><span>//</span><span class="cmd">./modules <span class="gold">--list</span></span></div>
+      <div class="sheet">
+        <div class="sheet-row"><span class="num">01</span><div class="body"><span class="name">wallet_basics.md</span><span class="desc">Create and secure your first crypto wallet. Seed phrases, hot vs cold storage, OpSec fundamentals.</span></div><span class="price"><span class="unit">15 min · FREE</span></span></div>
+        <div class="sheet-row"><span class="num">02</span><div class="body"><span class="name">money_basics.md</span><span class="desc">What is digital money? Bitcoin, stablecoins, L1 vs L2. Monetary primitives in code.</span></div><span class="price"><span class="unit">20 min · FREE</span></span></div>
+        <div class="sheet-row"><span class="num">03</span><div class="body"><span class="name">security_basics.md</span><span class="desc">Seed phrases, phishing, hardware wallets, OpSec. How to not lose your keys to a bad link.</span></div><span class="price"><span class="unit">25 min · FREE</span></span></div>
+        <div class="sheet-row"><span class="num">04</span><div class="body"><span class="name">defi_fundamentals.md</span><span class="desc">AMMs, liquidity pools, yield farming. The math and where it breaks.</span></div><span class="price">80 USDC<span class="unit"> · 30 min</span></span></div>
+        <div class="sheet-row"><span class="num">05</span><div class="body"><span class="name">refi_impact.md</span><span class="desc">Regenerative finance, carbon credits on-chain. Impact metrics on Base.</span></div><span class="price">80 USDC<span class="unit"> · 25 min</span></span></div>
+        <div class="sheet-row"><span class="num">06</span><div class="body"><span class="name">community_building.md</span><span class="desc">DAOs, token-gated communities, Guild.xyz, governance. Sovereign collectives.</span></div><span class="price">80 USDC<span class="unit"> · 20 min</span></span></div>
+        <div class="sheet-row"><span class="num">07</span><div class="body"><span class="name">agent_ai_ops.md</span><span class="desc">AI agents on-chain, Virtuals Protocol, 1-human + AI architectures.</span></div><span class="price">120 USDC<span class="unit"> · 30 min</span></span></div>
+      </div>
     </div>
     <!-- Student view container (rendered when authenticated) -->
-    <div id="schoolBody"></div>
-  </div>
+    <div id="schoolBody" style="margin-top:32px"></div>
+  </section>
 </div>
 
 <!-- ══ TRADEDESK (public + member) ══ -->
 <div class="page ts-page" id="page-tradedesk">
-  <!-- NON-AUTH MARKETING HEADER (shown when not logged in) -->
-  <div id="tradedesk-marketing" style="background:linear-gradient(135deg,#0D1F3C,#0A1628);padding:2rem 1.5rem;border-bottom:1px solid var(--border)">
-    <div style="font-size:10px;font-weight:700;color:var(--pink);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">◈ TRADEDESK</div>
-    <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:1rem;line-height:1.3">Trade Like a Protocol, Not a Gambler</h2>
-    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem;max-width:600px">KNIGHT is SUPERCOMPUTE's trading intelligence agent. Built on Conway Terminal. Running in observer mode until you graduate Web3 School. When you're ready, TradeDesk gives you the same tools, signals, and discipline the pros use.</p>
+  <header class="ts-page-header">
+    <div class="prompt-line"><span>//</span><span class="cmd">./tradedesk <span class="gold">--observer</span></span></div>
+    <div class="ph-row">
+      <div>
+        <h2>TradeDesk</h2>
+        <div class="ph-sub">KNIGHT · Conway Terminal · CDP monitor · Polymarket · observer mode</div>
+      </div>
+      <div class="ph-actions">
+        <span class="ph-badge green live">KNIGHT Online</span>
+        <button class="cmd-btn solid" onclick="authGate('web3school', navItem('web3school'))"><span class="prompt">//</span>graduate --school</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- NON-AUTH MARKETING (shown when not logged in) -->
+  <div id="tradedesk-marketing" style="padding:24px 32px">
+    <div style="font-family:var(--font-mono);font-size:14px;line-height:1.85;color:var(--mono-blue);max-width:680px;margin-bottom:24px">KNIGHT is Supercompute's trading intelligence agent. Built on Conway Terminal. Running in observer mode until you graduate Web3 School. When you're ready, TradeDesk gives you the same tools, signals, and discipline the pros use.</div>
     <!-- Fake trading terminal visual -->
     <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1.25rem;overflow-x:auto">
       <div style="font-size:10px;color:var(--pink);margin-bottom:.5rem;font-weight:600">▸ LIVE TERMINAL (OBSERVER MODE)</div>
@@ -1996,16 +2051,27 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
       </div>
     </div>
   </div>
-  <!-- AUTH DASHBOARD (shown when logged in) -->
+  <!-- AUTH DASHBOARD (shown when logged in; tradedeskBody rendered by sc-flows.js) -->
   <div id="tradedesk-auth" style="display:none">
-    <div class="topbar"><div><div class="topbar-title">TradeDesk</div><div class="topbar-sub">KNIGHT · CDP Monitor · Polymarket · Conway Terminal</div></div><div class="topbar-actions"><span class="pulse-green"></span><span style="font-size:11px;color:var(--success);font-weight:600;margin-left:4px">KNIGHT Online</span></div></div>
     <div class="pg-body" id="tradedeskBody"></div>
   </div>
 </div>
 
 <!-- ══ SOCIAL MEDIA (member) ══ -->
 <div class="page ts-page" id="page-socialmedia">
-  <div class="topbar"><div><div class="topbar-title">Social Media</div><div class="topbar-sub">Content Publishing · Powered by Quanta S</div></div><div class="topbar-actions"><span class="pulse-green"></span><span style="font-size:11px;color:var(--success);font-weight:600;margin-left:4px">Quanta S Online</span><button class="tb-btn primary" onclick="showToast('New post flow → compose')">+ New Post</button></div></div>
+  <header class="ts-page-header">
+    <div class="prompt-line"><span>//</span><span class="cmd">./socialmedia <span class="gold">--publish</span></span></div>
+    <div class="ph-row">
+      <div>
+        <h2>Social Media</h2>
+        <div class="ph-sub">Content publishing · powered by Quanta S</div>
+      </div>
+      <div class="ph-actions">
+        <span class="ph-badge green live">Quanta S Online</span>
+        <button class="cmd-btn solid" onclick="showToast('New post flow → compose')"><span class="prompt">//</span>new --post</button>
+      </div>
+    </div>
+  </header>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem">
       <div class="card" style="display:flex;align-items:center;gap:.75rem"><div style="width:38px;height:38px;border-radius:10px;background:#000;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0">𝕏</div><div><div style="font-weight:600;font-size:12px;color:var(--text)">@supercomputeco</div><div style="font-size:11px;color:var(--muted)">156 followers</div></div></div>

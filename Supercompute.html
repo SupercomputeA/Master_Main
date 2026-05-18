@@ -2089,7 +2089,18 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 
 <!-- ══ DASHBOARD (admin) ══ -->
 <div class="page ts-page" id="page-dashboard">
-  <div class="topbar"><div class="topbar-breadcrumb" style="font-size:11px;color:var(--muted)">Admin</div><div class="topbar-title" style="margin-left:.4rem">Dashboard</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span></div></div>
+  <header class="ts-page-header">
+    <div class="prompt-line"><span>//</span><span class="cmd">./admin/dashboard <span class="gold">--overview</span></span></div>
+    <div class="ph-row">
+      <div>
+        <h2>Dashboard</h2>
+        <div class="ph-sub">Fleet overview · portfolio · agents · stack health</div>
+      </div>
+      <div class="ph-actions">
+        <span class="ph-badge">ADMIN</span>
+      </div>
+    </div>
+  </header>
   <div class="dash-tabs">
     <div class="dash-tab active" data-tab="overview"  onclick="renderDash('overview')">Overview</div>
     <div class="dash-tab" data-tab="users"       onclick="renderDash('users')">Users</div>
@@ -2111,7 +2122,19 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 
 <!-- ══ COMMUNITY (admin) ══ -->
 <div class="page ts-page" id="page-community">
-  <div class="topbar"><div class="topbar-title">Community Management</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><button class="tb-btn primary" onclick="showToast('Invite sent via OpenClaw')">+ Invite Member</button></div></div>
+  <header class="ts-page-header">
+    <div class="prompt-line"><span>//</span><span class="cmd">./admin/community <span class="gold">--members</span></span></div>
+    <div class="ph-row">
+      <div>
+        <h2>Community</h2>
+        <div class="ph-sub">Members · Guild.xyz roles · NFT credentials</div>
+      </div>
+      <div class="ph-actions">
+        <span class="ph-badge">ADMIN</span>
+        <button class="cmd-btn solid" onclick="showToast('Invite sent via OpenClaw')"><span class="prompt">//</span>invite --member</button>
+      </div>
+    </div>
+  </header>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.25rem">
       <div class="stat-card"><div class="stat-label">Total Members</div><div class="stat-val">21</div><div class="stat-sub s-up">+3 this week</div></div>
@@ -2134,7 +2157,19 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 
 <!-- ══ NEWSDESK CMS (admin) ══ -->
 <div class="page ts-page" id="page-newsdesk">
-  <div class="topbar"><div class="topbar-title">NewsDesk CMS</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><button class="tb-btn primary" onclick="authGate('createarticle',navItem('createarticle'),true)">+ Create Article</button></div></div>
+  <header class="ts-page-header">
+    <div class="prompt-line"><span>//</span><span class="cmd">./admin/newsdesk <span class="gold">--cms</span></span></div>
+    <div class="ph-row">
+      <div>
+        <h2>NewsDesk CMS</h2>
+        <div class="ph-sub">Articles · drafts · publishing · Quanta S assist</div>
+      </div>
+      <div class="ph-actions">
+        <span class="ph-badge">ADMIN</span>
+        <button class="cmd-btn solid" onclick="authGate('createarticle',navItem('createarticle'),true)"><span class="prompt">//</span>new --article</button>
+      </div>
+    </div>
+  </header>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem">
       <div class="stat-card"><div class="stat-label">Total Articles</div><div class="stat-val" id="ndStatTotal">6</div><div class="stat-sub s-up">All categories</div></div>
@@ -2180,7 +2215,19 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 
 <!-- ══ API STATUS (admin) ══ -->
 <div class="page ts-page" id="page-apiStatus">
-  <div class="topbar"><div class="topbar-title">API Status</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><span class="badge badge-live">All Systems Operational</span></div></div>
+  <header class="ts-page-header">
+    <div class="prompt-line"><span>//</span><span class="cmd">./admin/api <span class="gold">--health</span></span></div>
+    <div class="ph-row">
+      <div>
+        <h2>API Status</h2>
+        <div class="ph-sub">Cloudflare · D1 · R2 · Web3 CMS · Virtuals · Linear MCP</div>
+      </div>
+      <div class="ph-actions">
+        <span class="ph-badge">ADMIN</span>
+        <span class="ph-badge green live">All Systems Operational</span>
+      </div>
+    </div>
+  </header>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem">
       <div class="stat-card"><div class="stat-label">Uptime (30d)</div><div class="stat-val">99.9<span style="font-size:.9rem">%</span></div><div class="stat-sub s-up">Cloudflare</div></div>

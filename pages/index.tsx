@@ -1,5 +1,4 @@
-import Head from "next/head"
-import Sidebar from "../components/Sidebar"
+import Layout from "../components/Layout"
 import Hero from "../components/Hero"
 import About from "../components/About"
 import Services from "../components/Services"
@@ -12,25 +11,16 @@ import Footer from "../components/Footer"
 
 export default function Home() {
   return (
-    <>
-      <Head>
-        <title>SUPERCOMPUTE · Web3 built for liberation</title>
-        <meta name="description" content="One operator, hands-on Web3 consulting on Base Chain since 2013. Sovereign infrastructure, 13 agents." />
-      </Head>
-
-      <Sidebar />
-
-      <main className="main">
-        <Hero />
-        <About />
-        <Services />
-        <Projects />
-        <AgentFleet />
-        <NewsDesk />
-        <School />
-        <Staking />
-        <Footer />
-      </main>
-    </>
+    <Layout>
+      <Hero />
+      <About />
+      <Services />
+      <Projects />
+      <AgentFleet />
+      <NewsDesk />
+      <School />
+      <Staking />
+      <Footer />
+    </Layout>
   )
 }

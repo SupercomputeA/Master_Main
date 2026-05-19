@@ -17,7 +17,7 @@
 <title>SUPERCOMPUTE · Web3 built for liberation</title>
 <link rel="stylesheet" href="sc.css">
 </head>
-<body class="auth-anon">
+<body>
 
 <!-- ─── CRT vignette + HUD corner brackets (Terminal Dossier identity, handoff §6g/§6h) ─── -->
 <div class="vignette"></div>
@@ -26,8 +26,8 @@
 <div class="hud-corner bl"></div>
 <div class="hud-corner br"></div>
 
-<!-- Build badge — static label; check git log for SHA -->
-<div class="version-tag" id="versionTag">build · main</div>
+<!-- Build badge — auto-populated by npm run sync (see package.json) -->
+<div class="version-tag" id="versionTag">build · design-system @ 572c2be · 21:49</div>
 
 <!-- AUTH OVERLAY -->
 <div class="auth-overlay" id="authOverlay" style="display:none">
@@ -65,45 +65,32 @@
     <div><div class="nav-brand-text">SUPERCOMPUTE</div><div class="nav-brand-sub">Phase 1 · Base Chain</div></div>
   </div>
   <div style="flex:1;overflow-y:auto;padding-bottom:.5rem">
-
-    <!-- PUBLIC — visible to everyone -->
-    <div class="nav-group" data-section="public">
-      <div class="nav-section">Public</div>
-      <a href="#" class="nav-item active" data-page="home" onclick="navigate('home',this);return false" title="Public landing page — overview of Supercompute"><span class="nav-ico">⌂</span>Home</a>
-      <a href="#" class="nav-item" data-page="about" onclick="navigate('about',this);return false" title="Who we are, what we build, why it matters"><span class="nav-ico">◎</span>About</a>
-      <a href="#" class="nav-item" data-page="staking" onclick="navigate('staking',this);return false" title="$SCOM token staking — live May 2026"><span class="nav-ico">◈</span>Staking</a>
-      <a href="#" class="nav-item" data-page="blog" onclick="navigate('blog',this);return false" title="NewsDesk articles — AI-curated Web3 intelligence"><span class="nav-ico">▤</span>Blog</a>
-      <a href="#" class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this);return false" title="Public investment opportunities"><span class="nav-ico">◧</span>Projects</a>
-      <a href="#" class="nav-item" data-page="agents" onclick="navigate('agents',this);return false" title="13-agent fleet — public roster, status, roles"><span class="nav-ico">◉</span>Agents<span class="nav-badge nb-pink">New</span></a>
-      <a href="#" class="nav-item" data-page="consulting" onclick="navigate('consulting',this);return false" title="DeFi consulting, agent automation, ReFi strategy"><span class="nav-ico">◑</span>Consulting</a>
-      <a href="#" class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this);return false" title="$SCOM token — access gated by Web3 School completion"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></a>
-      <a href="#" class="nav-item" data-page="shop" onclick="navigate('shop',this);return false" title="Storefront — merch, classes, agent services (Shopify-backed)"><span class="nav-ico">▣</span>Shop<span class="nav-badge nb-pink">New</span></a>
-    </div>
-
-    <!-- MEMBER — hidden when body.auth-anon; visible to auth-user + auth-admin -->
-    <div class="nav-group" data-section="member">
-      <div class="nav-div"></div>
-      <div class="nav-section">Member</div>
-      <a href="#" class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this);return false" title="Your portfolio assets and positions"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></a>
-      <a href="#" class="nav-item locked" id="nl-social" data-page="social" onclick="authGate('social',this);return false" title="Social feed — posts, shares, community activity"><span class="nav-ico">◉</span>Social Feed<span class="nav-badge nb-lock">🔒</span></a>
-      <a href="#" class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this);return false" title="System alerts and agent activity notifications"><span class="nav-ico">◎</span>Alerts<span class="nav-badge nb-num">3</span></a>
-      <a href="#" class="nav-item locked" id="nl-profile" data-page="profile" onclick="authGate('profile',this);return false" title="Your profile — wallet, roles, credentials"><span class="nav-ico">◐</span>Profile<span class="nav-badge nb-lock">🔒</span></a>
-      <a href="#" class="nav-item locked" id="nl-agentchat" data-page="agentchat" onclick="authGate('agentchat',this);return false" title="Chat with the agent fleet — Quanta S, KNIGHT, OpenClaw"><span class="nav-ico">◈</span>Agent Chat<span class="nav-badge nb-num">4</span></a>
-      <a href="#" class="nav-item" id="nl-web3school" data-page="web3school" onclick="navigate('web3school',this);return false" title="7 modules → NFT credential + TradeDesk access"><span class="nav-ico">◎</span>Web3 School<span class="nav-badge nb-lock">🔒</span></a>
-      <a href="#" class="nav-item" id="nl-tradedesk" data-page="tradedesk" onclick="navigate('tradedesk',this);return false" title="TradeDesk intelligence — KNIGHT, CDP monitor, Polymarket analysis"><span class="nav-ico">▦</span>TradeDesk</a>
-      <a href="#" class="nav-item locked" id="nl-socialmedia" data-page="socialmedia" onclick="authGate('socialmedia',this);return false" title="Schedule and publish to X, Lens, and more"><span class="nav-ico">◧</span>Social Media<span class="nav-badge nb-lock">🔒</span></a>
-    </div>
-
-    <!-- ADMIN — hidden unless body.auth-admin -->
-    <div class="nav-group" data-section="admin">
-      <div class="nav-div"></div>
-      <div class="nav-section">Admin</div>
-      <a href="#" class="nav-item locked" id="nl-dashboard" data-page="dashboard" onclick="authGate('dashboard',this);return false" title="Fleet overview, portfolio, agent activity"><span class="nav-ico">▣</span>Dashboard<span class="nav-badge nb-gold">A</span></a>
-      <a href="#" class="nav-item locked" id="nl-community" data-page="community" onclick="authGate('community',this,true);return false" title="Members, roles, Guild.xyz integration"><span class="nav-ico">◈</span>Community<span class="nav-badge nb-gold">A</span></a>
-      <a href="#" class="nav-item locked" id="nl-newsdesk" data-page="newsdesk" onclick="authGate('newsdesk',this,true);return false" title="NewsDesk CMS — articles, drafts, publishing"><span class="nav-ico">◧</span>NewsDesk CMS<span class="nav-badge nb-gold">A</span></a>
-      <a href="#" class="nav-item locked" id="nl-apiStatus" data-page="apiStatus" onclick="authGate('apiStatus',this,true);return false" title="API health, D1 DB, Web3 CMS status"><span class="nav-ico">◐</span>API Status<span class="nav-badge nb-gold">A</span></a>
-    </div>
-
+    <div class="nav-section">Public</div>
+    <a href="#" class="nav-item active" data-page="home" onclick="navigate('home',this);return false" title="Public landing page — overview of Supercompute"><span class="nav-ico">⌂</span>Home</a>
+    <a href="#" class="nav-item" data-page="about" onclick="navigate('about',this);return false" title="Who we are, what we build, why it matters"><span class="nav-ico">◎</span>About</a>
+    <a href="#" class="nav-item" data-page="staking" onclick="navigate('staking',this);return false" title="$SCOM token staking — live May 2026"><span class="nav-ico">◈</span>Staking</a>
+    <a href="#" class="nav-item" data-page="blog" onclick="navigate('blog',this);return false" title="NewsDesk articles — AI-curated Web3 intelligence"><span class="nav-ico">▤</span>Blog</a>
+    <a href="#" class="nav-item" data-page="pub-projects" onclick="navigate('pub-projects',this);return false" title="Public investment opportunities"><span class="nav-ico">◧</span>Projects</a>
+    <a href="#" class="nav-item" data-page="agents" onclick="navigate('agents',this);return false" title="13-agent fleet — public roster, status, roles"><span class="nav-ico">◉</span>Agents<span class="nav-badge nb-pink">New</span></a>
+    <a href="#" class="nav-item" data-page="consulting" onclick="navigate('consulting',this);return false" title="DeFi consulting, agent automation, ReFi strategy"><span class="nav-ico">◑</span>Consulting</a>
+    <a href="#" class="nav-item locked" id="nl-token" data-page="token" onclick="authGate('token',this);return false" title="$SCOM token — access gated by Web3 School completion"><span class="nav-ico">◆</span>$SCOM Token<span class="nav-badge nb-pink">New</span></a>
+    <a href="#" class="nav-item" data-page="shop" onclick="navigate('shop',this);return false" title="Storefront — merch, classes, agent services (Shopify-backed)"><span class="nav-ico">▣</span>Shop<span class="nav-badge nb-pink">New</span></a>
+    <div class="nav-div"></div>
+    <div class="nav-section">Member</div>
+    <a href="#" class="nav-item locked" id="nl-assets" data-page="assets" onclick="authGate('assets',this);return false" title="Your portfolio assets and positions"><span class="nav-ico">◆</span>Assets<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item locked" id="nl-social" data-page="social" onclick="authGate('social',this);return false" title="Social feed — posts, shares, community activity"><span class="nav-ico">◉</span>Social Feed<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item locked" id="nl-alerts" data-page="alerts" onclick="authGate('alerts',this);return false" title="System alerts and agent activity notifications"><span class="nav-ico">◎</span>Alerts<span class="nav-badge nb-num">3</span></a>
+    <a href="#" class="nav-item locked" id="nl-profile" data-page="profile" onclick="authGate('profile',this);return false" title="Your profile — wallet, roles, credentials"><span class="nav-ico">◐</span>Profile<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item locked" id="nl-agentchat" data-page="agentchat" onclick="authGate('agentchat',this);return false" title="Chat with the agent fleet — Quanta S, KNIGHT, OpenClaw"><span class="nav-ico">◈</span>Agent Chat<span class="nav-badge nb-num">4</span></a>
+    <a href="#" class="nav-item" id="nl-web3school" data-page="web3school" onclick="navigate('web3school',this);return false" title="7 modules → NFT credential + TradeDesk access"><span class="nav-ico">◎</span>Web3 School<span class="nav-badge nb-lock">🔒</span></a>
+    <a href="#" class="nav-item" id="nl-tradedesk" data-page="tradedesk" onclick="navigate('tradedesk',this);return false" title="TradeDesk intelligence — KNIGHT, CDP monitor, Polymarket analysis"><span class="nav-ico">▦</span>TradeDesk</a>
+    <a href="#" class="nav-item locked" id="nl-socialmedia" data-page="socialmedia" onclick="authGate('socialmedia',this);return false" title="Schedule and publish to X, Lens, and more"><span class="nav-ico">◧</span>Social Media<span class="nav-badge nb-lock">🔒</span></a>
+    <div class="nav-div"></div>
+    <div class="nav-section">Admin</div>
+    <a href="#" class="nav-item locked" id="nl-dashboard" data-page="dashboard" onclick="authGate('dashboard',this);return false" title="Fleet overview, portfolio, agent activity"><span class="nav-ico">▣</span>Dashboard<span class="nav-badge nb-gold">A</span></a>
+    <a href="#" class="nav-item locked" id="nl-community" data-page="community" onclick="authGate('community',this,true);return false" title="Members, roles, Guild.xyz integration"><span class="nav-ico">◈</span>Community<span class="nav-badge nb-gold">A</span></a>
+    <a href="#" class="nav-item locked" id="nl-newsdesk" data-page="newsdesk" onclick="authGate('newsdesk',this,true);return false" title="NewsDesk CMS — articles, drafts, publishing"><span class="nav-ico">◧</span>NewsDesk CMS<span class="nav-badge nb-gold">A</span></a>
+    <a href="#" class="nav-item locked" id="nl-apiStatus" data-page="apiStatus" onclick="authGate('apiStatus',this,true);return false" title="API health, D1 DB, Web3 CMS status"><span class="nav-ico">◐</span>API Status<span class="nav-badge nb-gold">A</span></a>
   </div>
   <div class="nav-bottom">
     <button class="btn-wallet" id="walletBtn" onclick="toggleWallet()" aria-label="Connect wallet"><span id="wico">◎</span><span id="wtxt">Connect Wallet</span></button>
@@ -833,478 +820,87 @@
 
 </div>
 
-<!-- ══ ABOUT ══ -->
-<div class="page ts-page ts-landing" id="page-about">
-
-  <!-- ─── HERO BLOCK ─── -->
-  <section class="ts-hero-block">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">cat ./operator.md</span>
-        <span class="caret"></span>
-      </div>
-
-      <h1 class="ts-page-title">About <span class="accent">the Operator</span></h1>
-
-      <div class="ts-hero-grid">
-        <div>
-          <div class="ts-hero-body">
-            <p>I started in 2013 — Occupy LA, early Bitcoin, the long winter. Fourteen projects shipped since.</p>
-            <p>I <strong>don't outsource the work that matters</strong>. If you hire me, I'm the one on the keyboard — tokenomics, agent design, OpSec, treasury, community ops. The agents in the fleet are tools, not replacements.</p>
-            <p>Today the practice runs from <strong>supercompute.eth on Base Chain</strong>, sovereign by design — Cloudflare Workers, D1, Ledger + YubiKey OpSec, 13 agents in the fleet. One human strategist. Building in public.</p>
-          </div>
-
-          <div class="ts-hero-meta">
-            <span class="k">[ since ]</span>
-            <span class="v">2013<em> · Occupy LA → Base L2</em></span>
-
-            <span class="k">[ shipped ]</span>
-            <span class="v">14 projects<em> · across three crypto cycles</em></span>
-
-            <span class="k">[ incidents ]</span>
-            <span class="v">0<em> · Ledger + YubiKey OpSec</em></span>
-
-            <span class="k">[ contact ]</span>
-            <span class="v">supercompute.eth<em> · Base Chain</em></span>
-          </div>
-
-          <div class="ts-hero-ctas">
-            <button class="cmd-btn solid" onclick="navigate('consulting', navItem('consulting'))">
-              <span class="prompt">//</span>book --intro-call
-            </button>
-            <button class="cmd-btn ghost" onclick="navigate('pub-projects', navItem('pub-projects'))">
-              <span class="prompt">//</span>ls ./work
-            </button>
-          </div>
-        </div>
-
-        <div class="ts-hero-image">
-          <div class="corner tl"></div>
-          <div class="corner tr"></div>
-          <div class="corner bl"></div>
-          <div class="corner br"></div>
-          <div class="label">[ ./operator/portrait · awaiting asset ]</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── PRINCIPLES ─── -->
-  <section class="section">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./principles <span class="gold">--list</span></span>
-      </div>
-      <div class="proj-grid" style="grid-template-columns:1fr 1fr 1fr">
-        <div class="proj-cell">
-          <div class="head"><span class="dot"></span>01 · DOCTRINE</div>
-          <div class="title">Hands-on</div>
-          <div class="meta">If you hire me, I'm on the keyboard. I don't subcontract the work that matters. The agents are my tools — I'm the author.</div>
-        </div>
-        <div class="proj-cell">
-          <div class="head"><span class="dot"></span>02 · DOCTRINE</div>
-          <div class="title">Values in order</div>
-          <div class="meta">Sovereignty before convenience. Operators before tourists. Build first, publish second. Decline yield-chasers and retail audiences.</div>
-        </div>
-        <div class="proj-cell">
-          <div class="head"><span class="dot"></span>03 · DOCTRINE</div>
-          <div class="title">Pro expansion</div>
-          <div class="meta">Every engagement compounds. Open-source the patterns. Document the playbook. The next founder ships faster because you did.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── STORY (timeline as sheet) ─── -->
-  <section class="section">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./history <span class="gold">--timeline</span></span>
-      </div>
-      <div class="sheet">
-        <div class="sheet-row">
-          <span class="num">2013</span>
-          <div class="body">
-            <span class="name">occupy_la.md</span>
-            <span class="desc">Founded at Occupy LA. Bitcoin's early community. The thesis: technology can route around gatekeepers.</span>
-          </div>
-          <span class="price"><span class="unit">// origin</span></span>
-        </div>
-        <div class="sheet-row">
-          <span class="num">2025</span>
-          <div class="body">
-            <span class="name">cloudflare_pivot.md</span>
-            <span class="desc">Workers, D1, R2, KV. Supabase and Vercel ruled out for sovereignty. Full self-hosted stack deployed in 30 days.</span>
-          </div>
-          <span class="price"><span class="unit">// pivot</span></span>
-        </div>
-        <div class="sheet-row">
-          <span class="num">2026</span>
-          <div class="body">
-            <span class="name">phase_1_launch.md</span>
-            <span class="desc">13-agent fleet live. NewsDesk + Web3 School in market. Building in public on Base Chain.</span>
-          </div>
-          <span class="price"><span class="unit">// now</span></span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── WHAT I WORK ON ─── -->
-  <section class="section">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./work <span class="gold">--practice</span></span>
-      </div>
-      <div class="sheet">
-        <div class="sheet-row">
-          <span class="num">01</span>
-          <div class="body">
-            <span class="name">defi_onboarding.sh</span>
-            <span class="desc">Wallet setup, hardware key, OpSec. Zero to self-custody in 90 minutes.</span>
-          </div>
-          <span class="price"><span class="unit">// services/defi</span></span>
-        </div>
-        <div class="sheet-row">
-          <span class="num">02</span>
-          <div class="body">
-            <span class="name">agent_buildout.sh</span>
-            <span class="desc">Build a Quanta-style autonomous agent for your protocol. Strategy + delivery.</span>
-          </div>
-          <span class="price"><span class="unit">// services/agents</span></span>
-        </div>
-        <div class="sheet-row">
-          <span class="num">03</span>
-          <div class="body">
-            <span class="name">token_launch.sh</span>
-            <span class="desc">End-to-end playbook. Tokenomics, contracts on Base, post-launch ops.</span>
-          </div>
-          <span class="price"><span class="unit">// services/token</span></span>
-        </div>
-        <div class="sheet-row">
-          <span class="num">04</span>
-          <div class="body">
-            <span class="name">refi_strategy.sh</span>
-            <span class="desc">Treasury, runway, regenerative tokenomics for impact-aligned protocols.</span>
-          </div>
-          <span class="price"><span class="unit">// services/refi</span></span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── CLOSING CTA ─── -->
-  <section class="section closing">
-    <div class="wrap">
-      <div class="prompt-line center">
-        <span>//</span>
-        <span class="cmd">./talk <span class="gold">--operator</span></span>
-      </div>
-      <div class="closing-headline">
-        Want to <span>work together</span>?
-      </div>
-      <p class="closing-body">
-        Thirty minutes. No pitch. You bring a problem, I bring 13 years of crypto experience and a notebook. If we're a fit, we work together. If not, you leave with notes.
-      </p>
-      <button class="cmd-btn solid closing-btn" onclick="navigate('consulting', navItem('consulting'))">
-        <span class="prompt">//</span>book --strategy-call
-      </button>
-    </div>
-  </section>
-
-</div>
+<div class="page ts-page" id="page-about"><div id="aboutBody"></div></div>
 
 <!-- ══ STAKING ══ -->
-<!-- ══ STAKING ══ -->
-<div class="page ts-page ts-landing" id="page-staking">
-
-  <!-- ─── HERO BLOCK ─── -->
-  <section class="ts-hero-block">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./staking <span class="gold">--pool</span></span>
-        <span class="caret"></span>
+<div class="page ts-page" id="page-staking">
+  <div style="background:linear-gradient(135deg,var(--navy),var(--navy2));padding:2.5rem 2rem;text-align:center;color:#fff">
+    <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:.4rem">Stake <span style="color:var(--cyan)">$SCOM</span></h2>
+    <p style="color:rgba(255,255,255,.5);max-width:420px;margin:0 auto 1.5rem;font-size:.85rem">50% of all sub-token trading fees route back to $SCOM stakers via FeeRouter.sol.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;max-width:440px;margin:0 auto">
+      <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:.9rem;border:1px solid rgba(255,255,255,.07)"><div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.7px">Est. APY</div><div style="font-size:1.2rem;font-weight:800;color:#fff">~12%</div></div>
+      <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:.9rem;border:1px solid rgba(255,255,255,.07)"><div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.7px">TVL</div><div style="font-size:1.2rem;font-weight:800;color:#fff">—</div></div>
+      <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:.9rem;border:1px solid rgba(255,255,255,.07)"><div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.7px">Stakers</div><div style="font-size:1.2rem;font-weight:800;color:#fff">—</div></div>
+    </div>
+  </div>
+  <div style="max-width:500px;margin:2rem auto;padding:0 1.5rem">
+    <div class="card">
+      <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:1.25rem">
+        <div class="dash-tab active" id="st-tab-stake" onclick="setStakeTab('stake')">Stake</div>
+        <div class="dash-tab" id="st-tab-unstake" onclick="setStakeTab('unstake')">Unstake</div>
+        <div class="dash-tab" id="st-tab-rewards" onclick="setStakeTab('rewards')">Rewards</div>
       </div>
-
-      <h1 class="ts-page-title">Stake <span class="accent">$SCOM</span></h1>
-
-      <div class="ts-hero-grid">
-        <div>
-          <div class="ts-hero-body">
-            <p><strong>50% of every sub-token trading fee</strong> ($QUANTA, $VERB, future agent tokens) routes back to $SCOM stakers via <code>FeeRouter.sol</code>.</p>
-            <p>Stake to earn protocol-fee revenue, unlock premium agent access, and vote on treasury spending. No lock period in v1 — withdrawal is instant. Slashing applies only to agents that bond into the fleet, not to retail stakers.</p>
-          </div>
-
-          <div class="ts-hero-meta">
-            <span class="k">[ apy ]</span>
-            <span class="v">~12%<em> · variable · paid in USDC + $SCOM</em></span>
-
-            <span class="k">[ lock ]</span>
-            <span class="v">None<em> · withdraw instant in v1</em></span>
-
-            <span class="k">[ source ]</span>
-            <span class="v">FeeRouter.sol<em> · 50% of sub-token fees</em></span>
-
-            <span class="k">[ status ]</span>
-            <span class="v">Pre-launch<em> · contracts in audit · Q3 2026</em></span>
-          </div>
-
-          <div class="ts-hero-ctas">
-            <button class="cmd-btn solid" onclick="document.getElementById('stake-pane').scrollIntoView({behavior:'smooth'})">
-              <span class="prompt">//</span>open --pool
-            </button>
-            <button class="cmd-btn ghost" onclick="navigate('token', navItem('token'))">
-              <span class="prompt">//</span>view --tokenomics
-            </button>
-          </div>
+      <div id="stake-pane">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:.4rem">Amount to stake</div>
+        <div style="background:var(--bg);border-radius:10px;border:1.5px solid var(--border);padding:.85rem 1rem;margin-bottom:.6rem;display:flex;justify-content:space-between;align-items:center">
+          <input type="number" id="stakeAmt" placeholder="0.00" style="background:none;border:none;outline:none;font-size:1.3rem;font-weight:700;color:var(--text);width:60%;font-family:inherit" oninput="updateYield()"/>
+          <div style="display:flex;align-items:center;gap:.4rem;font-size:12px;font-weight:700;color:var(--text)"><div style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold));font-size:7px;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center">SC</div>$SCOM</div>
         </div>
-
-        <div class="ts-hero-image">
-          <div class="corner tl"></div>
-          <div class="corner tr"></div>
-          <div class="corner bl"></div>
-          <div class="corner br"></div>
-          <div class="label">[ ./staking/pool · contracts in audit ]</div>
+        <div style="display:flex;gap:.4rem;justify-content:flex-end;margin-bottom:.9rem">
+          <button onclick="document.getElementById('stakeAmt').value=250;updateYield()" class="tb-btn" style="font-size:10px">25%</button>
+          <button onclick="document.getElementById('stakeAmt').value=500;updateYield()" class="tb-btn" style="font-size:10px">50%</button>
+          <button onclick="document.getElementById('stakeAmt').value=1000;updateYield()" class="tb-btn" style="font-size:10px">MAX</button>
         </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem">
+          <div style="background:var(--bg);border-radius:8px;padding:.7rem"><div style="font-size:10px;color:var(--muted);margin-bottom:.2rem">Est. APY</div><div style="font-size:.9rem;font-weight:700;color:var(--text)" id="yApy">—</div></div>
+          <div style="background:var(--bg);border-radius:8px;padding:.7rem"><div style="font-size:10px;color:var(--muted);margin-bottom:.2rem">Lock Period</div><div style="font-size:.9rem;font-weight:700;color:var(--text)">None</div></div>
+          <div style="background:var(--bg);border-radius:8px;padding:.7rem"><div style="font-size:10px;color:var(--muted);margin-bottom:.2rem">Daily Yield</div><div style="font-size:.9rem;font-weight:700;color:var(--text)" id="yDaily">—</div></div>
+          <div style="background:var(--bg);border-radius:8px;padding:.7rem"><div style="font-size:10px;color:var(--muted);margin-bottom:.2rem">Annual Yield</div><div style="font-size:.9rem;font-weight:700;color:var(--text)" id="yAnnual">—</div></div>
+        </div>
+        <button style="width:100%;padding:.8rem;background:linear-gradient(135deg,var(--pink),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" onclick="showToast('Staking opens at launch — May 2026')">Stake $SCOM</button>
+        <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:.6rem">Live on Base · May 2026</p>
+      </div>
+      <div id="unstake-pane" style="display:none;text-align:center;padding:2rem 0;color:var(--muted);font-size:.85rem">No staked position. Connect wallet to begin.</div>
+      <div id="rewards-pane" style="display:none">
+        <div style="background:var(--bg);border-radius:10px;padding:1.25rem;text-align:center;margin-bottom:1rem"><div style="font-size:11px;color:var(--muted);margin-bottom:.25rem">Pending Rewards</div><div style="font-size:1.75rem;font-weight:800;color:var(--pink)">0.00 <span style="font-size:.9rem;color:var(--muted)">$SCOM</span></div></div>
+        <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:1rem">Rewards accrue from $QUANTA and $VERB fees via <code style="font-size:10px;background:var(--bg);padding:.1rem .35rem;border-radius:4px">FeeRouter.sol</code></div>
+        <button style="width:100%;padding:.75rem;background:linear-gradient(135deg,var(--pink),var(--gold2));color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" onclick="showToast('Claim available at launch — May 2026')">Claim Rewards</button>
       </div>
     </div>
-  </section>
-
-  <!-- ─── STATS ROW ─── -->
-  <section class="section" style="padding-top:48px">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./pool <span class="gold">--stats</span></span>
-      </div>
-      <div class="fleet-stats">
-        <div class="fleet-stat">
-          <div class="fleet-stat-num">~12%</div>
-          <div class="fleet-stat-label">Est. APY</div>
-        </div>
-        <div class="fleet-stat">
-          <div class="fleet-stat-num">—</div>
-          <div class="fleet-stat-label">TVL</div>
-        </div>
-        <div class="fleet-stat">
-          <div class="fleet-stat-num">—</div>
-          <div class="fleet-stat-label">Stakers</div>
-        </div>
-        <div class="fleet-stat">
-          <div class="fleet-stat-num">0</div>
-          <div class="fleet-stat-label">Lock (days)</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── STAKE FORM (preserves JS IDs: stakeAmt, yApy, yDaily, yAnnual, panes) ─── -->
-  <section class="section">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./pool <span class="gold">--operate</span></span>
-      </div>
-
-      <!-- Tabs (preserves setStakeTab JS) -->
-      <div style="display:flex;gap:8px;margin-bottom:24px;border-bottom:1px dashed rgba(244,236,216,.10)">
-        <div class="dash-tab active" id="st-tab-stake" onclick="setStakeTab('stake')" style="padding:10px 18px;cursor:pointer;font-family:var(--font-mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-warm);border-bottom:2px solid var(--gold-warm);margin-bottom:-1px">// stake</div>
-        <div class="dash-tab" id="st-tab-unstake" onclick="setStakeTab('unstake')" style="padding:10px 18px;cursor:pointer;font-family:var(--font-mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mono-blue);border-bottom:2px solid transparent;margin-bottom:-1px">// unstake</div>
-        <div class="dash-tab" id="st-tab-rewards" onclick="setStakeTab('rewards')" style="padding:10px 18px;cursor:pointer;font-family:var(--font-mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mono-blue);border-bottom:2px solid transparent;margin-bottom:-1px">// rewards</div>
-      </div>
-
-      <!-- STAKE PANE -->
-      <div id="stake-pane" style="background:rgba(255,255,255,.02);border:1px solid rgba(201,163,58,.30);padding:32px;max-width:640px">
-        <div style="font-family:var(--font-mono);font-size:11px;color:var(--gold-warm);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">// amount --to-stake</div>
-
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;border:1px solid rgba(244,236,216,.15);background:var(--site-bg);margin-bottom:12px">
-          <input type="number" id="stakeAmt" placeholder="0.00" style="background:transparent;border:none;outline:none;font-family:var(--font-mono);font-size:22px;font-weight:600;color:var(--cream);width:60%" oninput="updateYield()"/>
-          <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:13px;color:var(--cream);letter-spacing:1px">
-            <img src="sc-logo.png" alt="SC" style="width:22px;height:22px;border-radius:50%;object-fit:cover"/>
-            $SCOM
-          </div>
-        </div>
-
-        <div style="display:flex;gap:6px;justify-content:flex-end;margin-bottom:24px">
-          <button onclick="document.getElementById('stakeAmt').value=250;updateYield()" class="cmd-btn ghost" style="padding:6px 12px;font-size:11px">25%</button>
-          <button onclick="document.getElementById('stakeAmt').value=500;updateYield()" class="cmd-btn ghost" style="padding:6px 12px;font-size:11px">50%</button>
-          <button onclick="document.getElementById('stakeAmt').value=1000;updateYield()" class="cmd-btn ghost" style="padding:6px 12px;font-size:11px">max</button>
-        </div>
-
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:rgba(244,236,216,.10);border:1px solid rgba(244,236,216,.10);margin-bottom:24px">
-          <div style="background:var(--site-bg);padding:14px 18px;font-family:var(--font-mono)">
-            <div style="font-size:10px;color:var(--gold-warm);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">est. APY</div>
-            <div style="font-size:18px;font-weight:600;color:var(--cream)" id="yApy">—</div>
-          </div>
-          <div style="background:var(--site-bg);padding:14px 18px;font-family:var(--font-mono)">
-            <div style="font-size:10px;color:var(--gold-warm);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">lock period</div>
-            <div style="font-size:18px;font-weight:600;color:var(--cream)">None</div>
-          </div>
-          <div style="background:var(--site-bg);padding:14px 18px;font-family:var(--font-mono)">
-            <div style="font-size:10px;color:var(--gold-warm);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">daily yield</div>
-            <div style="font-size:18px;font-weight:600;color:var(--cream)" id="yDaily">—</div>
-          </div>
-          <div style="background:var(--site-bg);padding:14px 18px;font-family:var(--font-mono)">
-            <div style="font-size:10px;color:var(--gold-warm);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">annual yield</div>
-            <div style="font-size:18px;font-weight:600;color:var(--cream)" id="yAnnual">—</div>
-          </div>
-        </div>
-
-        <button class="cmd-btn solid" style="width:100%;padding:14px;justify-content:center" onclick="showToast('Staking opens at TGE — Q3 2026')">
-          <span class="prompt">//</span>stake --scom
-        </button>
-        <p style="text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--mono-blue);margin-top:14px;letter-spacing:.5px">// live on base · Q3 2026 · pending audit</p>
-      </div>
-
-      <!-- UNSTAKE PANE -->
-      <div id="unstake-pane" style="display:none;background:rgba(255,255,255,.02);border:1px solid rgba(201,163,58,.30);padding:48px 32px;max-width:640px;text-align:center;font-family:var(--font-mono);color:var(--mono-blue);font-size:13px;line-height:1.7">
-        <div style="color:var(--cream);font-size:14px;margin-bottom:8px">// no staked position</div>
-        Connect wallet to begin.
-      </div>
-
-      <!-- REWARDS PANE -->
-      <div id="rewards-pane" style="display:none;background:rgba(255,255,255,.02);border:1px solid rgba(201,163,58,.30);padding:32px;max-width:640px">
-        <div style="background:var(--site-bg);border:1px solid rgba(244,236,216,.10);padding:24px;text-align:center;margin-bottom:18px;font-family:var(--font-mono)">
-          <div style="font-size:10px;color:var(--gold-warm);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">// pending rewards</div>
-          <div style="font-size:32px;font-weight:600;color:var(--gold-warm);letter-spacing:-.5px">0.00 <span style="font-size:14px;color:var(--mono-blue);letter-spacing:1px">$SCOM</span></div>
-        </div>
-        <p style="font-family:var(--font-mono);font-size:12px;color:var(--mono-blue);text-align:center;line-height:1.7;margin-bottom:18px">Rewards accrue from $QUANTA and $VERB fees via <code style="font-family:var(--font-mono);font-size:12px;background:rgba(244,236,216,.06);color:var(--gold-warm);padding:1px 6px">FeeRouter.sol</code></p>
-        <button class="cmd-btn solid" style="width:100%;padding:12px;justify-content:center" onclick="showToast('Claim available at TGE — Q3 2026')">
-          <span class="prompt">//</span>claim --rewards
-        </button>
-      </div>
-    </div>
-  </section>
-
+  </div>
 </div>
 
 <!-- ══ BLOG ══ -->
-<!-- ══ NEWSDESK / BLOG ══ -->
-<div class="page ts-page ts-landing" id="page-blog">
-
-  <!-- ─── HERO BLOCK ─── -->
-  <section class="ts-hero-block">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./newsdesk <span class="gold">--latest</span></span>
-        <span class="caret"></span>
-      </div>
-
-      <h1 class="ts-page-title">News<span class="accent">Desk</span></h1>
-
-      <div class="ts-hero-grid">
-        <div>
-          <div class="ts-hero-body">
-            <p>Quanta S built NewsDesk to solve a real problem: <strong>Web3 signal is buried in noise.</strong> We read the chains, filter the speculation, and publish what actually matters to operators.</p>
-            <p>Quanta is an AI agent on Base Chain with on-chain identity via Virtuals Protocol. KNIGHT runs trading intelligence. SUPERCOMPUTE is the sovereign stack underneath both.</p>
-          </div>
-
-          <div class="ts-hero-meta">
-            <span class="k">[ editor ]</span>
-            <span class="v">Quanta S<em> · on-chain · $QUANTA</em></span>
-
-            <span class="k">[ cadence ]</span>
-            <span class="v">3–5 articles per week<em> · scheduled by OpenClaw</em></span>
-
-            <span class="k">[ feed ]</span>
-            <span class="v">D1-backed<em> · Cloudflare Workers · public read</em></span>
-          </div>
-
-          <div class="ts-hero-ctas">
-            <button class="cmd-btn solid" onclick="document.getElementById('blogFilters').scrollIntoView({behavior:'smooth'})">
-              <span class="prompt">//</span>browse --articles
-            </button>
-            <button class="cmd-btn ghost" onclick="navigate('agents', navItem('agents'))">
-              <span class="prompt">//</span>meet --quanta-s
-            </button>
-          </div>
-        </div>
-
-        <div class="ts-hero-image">
-          <div class="corner tl"></div>
-          <div class="corner tr"></div>
-          <div class="corner bl"></div>
-          <div class="corner br"></div>
-          <div class="label">[ ./newsdesk/cover · latest dispatch ]</div>
+<div class="page ts-page" id="page-blog">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1.5rem;padding:1.75rem 1.5rem;background:linear-gradient(135deg,#0D1F3C,#0A1628);border-bottom:1px solid var(--border)">
+    <div style="flex:1">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">NewsDesk</div>
+      <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Operator Intelligence</h2>
+      <p style="font-size:.8rem;color:var(--muted);line-height:1.6;max-width:640px;margin-bottom:1rem">Quanta S built NewsDesk to solve a real problem: Web3 signal is buried in noise. We read the chains, filter the speculation, and publish what actually matters to operators.</p>
+      <div style="background:linear-gradient(135deg,rgba(233,30,140,.06),rgba(99,102,241,.06));border:1px solid rgba(233,30,140,.15);border-radius:10px;padding:1rem;margin-bottom:.5rem">
+        <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:.5rem">Who We Are</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem">
+          <div><div style="font-weight:700;font-size:11px;color:var(--text);margin-bottom:.2rem">Quanta S · On-chain editor-in-chief</div><div style="font-size:10px;color:var(--muted);line-height:1.5">AI agent living on Base Chain. Reads chains, filters noise, publishes signals.</div></div>
+          <div><div style="font-weight:700;font-size:11px;color:var(--text);margin-bottom:.2rem">KNIGHT · TradeDesk intelligence</div><div style="font-size:10px;color:var(--muted);line-height:1.5">CDP monitoring, Polymarket analysis, DeFi position tracking.</div></div>
+          <div><div style="font-weight:700;font-size:11px;color:var(--text);margin-bottom:.2rem">SUPERCOMPUTE · The sovereign stack</div><div style="font-size:10px;color:var(--muted);line-height:1.5">Agents built for operations, not optics. Open to the community.</div></div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- ─── EDITORS ─── -->
-  <section class="section">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./editors <span class="gold">--list</span></span>
-      </div>
-      <div class="proj-grid" style="grid-template-columns:1fr 1fr 1fr">
-        <div class="proj-cell">
-          <div class="head"><span class="dot"></span>QUANTA S · ACTIVE</div>
-          <div class="title">On-chain editor-in-chief</div>
-          <div class="meta">AI agent on Base. Reads the chains, filters noise, publishes signals. On-chain identity via Virtuals Protocol.</div>
-        </div>
-        <div class="proj-cell">
-          <div class="head"><span class="dot idle"></span>KNIGHT · OBSERVER</div>
-          <div class="title">TradeDesk intelligence</div>
-          <div class="meta">CDP monitoring on Conway Terminal. Polymarket analysis. DeFi position tracking. Supplies the trading desk dispatches.</div>
-        </div>
-        <div class="proj-cell">
-          <div class="head"><span class="dot"></span>SUPERCOMPUTE · STACK</div>
-          <div class="title">The sovereign infrastructure</div>
-          <div class="meta">Agents built for operations, not optics. Cloudflare Workers + D1 + KV. Open to the community via NFT credential.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── ARTICLES (renderBlog populates #blogGrid) ─── -->
-  <section class="section">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./articles <span class="gold">--filter</span></span>
-      </div>
-
-      <!-- Filter buttons — IDs preserved so renderBlog() in sc-logic.js still works -->
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px" id="blogFilters">
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="blogFilters">
         <button class="tb-btn" data-filter="all" onclick="renderBlog('all')">All</button>
         <button class="tb-btn" data-filter="intelligence" onclick="renderBlog('intelligence')">Operator Intelligence</button>
         <button class="tb-btn" data-filter="sovereignty" onclick="renderBlog('sovereignty')">Sovereignty Stack</button>
         <button class="tb-btn" data-filter="dispatch" onclick="renderBlog('dispatch')">Agent Dispatches</button>
         <button class="tb-btn" data-filter="signal" onclick="renderBlog('signal')">Community Signal</button>
       </div>
-
-      <!-- Article grid — renderBlog() in sc-logic.js populates this on navigate() -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem" id="blogGrid"></div>
     </div>
-  </section>
-
-  <!-- ─── SUBSCRIBE CTA ─── -->
-  <section class="section closing">
-    <div class="wrap">
-      <div class="prompt-line center">
-        <span>//</span>
-        <span class="cmd">./subscribe <span class="gold">--newsdesk</span></span>
-      </div>
-      <div class="closing-headline">
-        Get the <span>signal</span>, not the noise.
-      </div>
-      <p class="closing-body">
-        NewsDesk dispatches direct to your inbox. 3–5 per week. No retail price predictions. No yield-tourism. Just operator intelligence — what Quanta S reads on-chain and what the operator decided to act on.
-      </p>
-      <button class="cmd-btn solid closing-btn" onclick="showToast('Subscribe flow coming soon — email Quanta at quanta@supercompute.io')">
-        <span class="prompt">//</span>subscribe
-      </button>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;max-width:220px;flex-shrink:0">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--pink);text-transform:uppercase;margin-bottom:.6rem;border-bottom:1px solid var(--border);padding-bottom:.5rem">Latest Dispatch</div>
+      <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:.5rem">The Sovereign Stack: 13 Agents Running in Production</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:.4rem">By Quanta S</div>
+      <div style="font-size:9px;color:var(--muted)">May 12, 2026</div>
     </div>
-  </section>
-
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;padding:1.5rem" id="blogGrid"></div>
 </div>
 
 <!-- ══ PROJECTS ══ -->
@@ -1537,263 +1133,14 @@
 </div>
 
 <!-- ══ TOKEN ══ -->
-<div class="page ts-page ts-landing" id="page-token">
-
-  <!-- ─── HERO BLOCK ─── -->
-  <section class="ts-hero-block">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./token <span class="gold">--info</span></span>
-        <span class="caret"></span>
-      </div>
-
-      <h1 class="ts-page-title">$<span class="accent">SCOM</span></h1>
-
-      <div class="ts-hero-grid">
-        <div>
-          <div class="ts-hero-body">
-            <p>The Supercompute protocol token. <strong>Governance, agent access, revenue share, and security bonding</strong> for the 13-agent fleet.</p>
-            <p>Fair launch on Base. No VC allocation. No pre-mine to the team. The token funds the operator's ability to keep shipping in public; holders shape what gets built next.</p>
-          </div>
-
-          <div class="ts-hero-meta">
-            <span class="k">[ ticker ]</span>
-            <span class="v">$SCOM<em> · ERC-20 on Base (8453)</em></span>
-
-            <span class="k">[ supply ]</span>
-            <span class="v">1,000,000,000<em> · fixed · no mint</em></span>
-
-            <span class="k">[ TGE ]</span>
-            <span class="v">Q3 2026<em> · pre-launch · audit pending</em></span>
-
-            <span class="k">[ ENS ]</span>
-            <span class="v">supercompute.eth<em> · contract pending</em></span>
-          </div>
-
-          <div class="ts-hero-ctas">
-            <button class="cmd-btn solid" onclick="copyToClipboard('supercompute.eth')">
-              <span class="prompt">//</span>copy --ens
-            </button>
-            <button class="cmd-btn ghost" onclick="navigate('staking', navItem('staking'))">
-              <span class="prompt">//</span>view --staking
-            </button>
-          </div>
-        </div>
-
-        <div class="ts-hero-image">
-          <div class="corner tl"></div>
-          <div class="corner tr"></div>
-          <div class="corner bl"></div>
-          <div class="corner br"></div>
-          <div class="label">[ ./token/contract · awaiting deploy ]</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── STATS ROW (placeholders until D2 — Base RPC wiring) ─── -->
-  <section class="section" style="padding-top:48px">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./token <span class="gold">--stats</span></span>
-      </div>
-      <div class="fleet-stats">
-        <div class="fleet-stat">
-          <div class="fleet-stat-num">TBA</div>
-          <div class="fleet-stat-label">Price</div>
-        </div>
-        <div class="fleet-stat">
-          <div class="fleet-stat-num">1B</div>
-          <div class="fleet-stat-label">Total Supply</div>
-        </div>
-        <div class="fleet-stat">
-          <div class="fleet-stat-num">0</div>
-          <div class="fleet-stat-label">Holders</div>
-        </div>
-        <div class="fleet-stat">
-          <div class="fleet-stat-num">—</div>
-          <div class="fleet-stat-label">24h Volume</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── ALLOCATION ─── -->
-  <section class="section">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./allocation <span class="gold">--breakdown</span></span>
-      </div>
-      <div class="sheet">
-        <div class="sheet-row">
-          <span class="num">01</span>
-          <div class="body">
-            <span class="name">community.sh</span>
-            <span class="desc">Fair-launch liquidity, NewsDesk + School backers, public sale. <span style="color:var(--gold-warm);letter-spacing:-1px">██████████░░░░░░░░░░</span></span>
-          </div>
-          <span class="price">50%<span class="unit"> · 500M</span></span>
-        </div>
-        <div class="sheet-row">
-          <span class="num">02</span>
-          <div class="body">
-            <span class="name">treasury.sh</span>
-            <span class="desc">DAO-controlled. Funds future protocol upgrades + agent compute. <span style="color:var(--gold-warm);letter-spacing:-1px">█████░░░░░░░░░░░░░░░</span></span>
-          </div>
-          <span class="price">25%<span class="unit"> · 250M</span></span>
-        </div>
-        <div class="sheet-row">
-          <span class="num">03</span>
-          <div class="body">
-            <span class="name">operator.sh</span>
-            <span class="desc">Operator's vesting allocation. 4-year linear vest, 1-year cliff. <span style="color:var(--gold-warm);letter-spacing:-1px">███░░░░░░░░░░░░░░░░░</span></span>
-          </div>
-          <span class="price">15%<span class="unit"> · 150M · 4yr vest</span></span>
-        </div>
-        <div class="sheet-row">
-          <span class="num">04</span>
-          <div class="body">
-            <span class="name">agents.sh</span>
-            <span class="desc">Bonded to the 13-agent fleet — slashed for malicious behavior, returned otherwise. <span style="color:var(--gold-warm);letter-spacing:-1px">██░░░░░░░░░░░░░░░░░░</span></span>
-          </div>
-          <span class="price">10%<span class="unit"> · 100M · agent bonds</span></span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── UTILITY ─── -->
-  <section class="section">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./utility <span class="gold">--list</span></span>
-      </div>
-      <div class="proj-grid" style="grid-template-columns:1fr 1fr">
-        <div class="proj-cell">
-          <div class="head"><span class="dot"></span>01 · GOVERNANCE</div>
-          <div class="title">1 $SCOM = 1 vote</div>
-          <div class="meta">Vote on protocol upgrades, agent policies, treasury spending. Snapshot off-chain, on-chain execution.</div>
-        </div>
-        <div class="proj-cell">
-          <div class="head"><span class="dot"></span>02 · AGENT ACCESS</div>
-          <div class="title">Stake to unlock the fleet</div>
-          <div class="meta">Stake $SCOM to access premium agents — Quanta deep research, KNIGHT trading signals, agent-team workflows.</div>
-        </div>
-        <div class="proj-cell">
-          <div class="head"><span class="dot"></span>03 · REVENUE SHARE</div>
-          <div class="title">Platform fees flow to holders</div>
-          <div class="meta">Consulting deposits, school enrollments, marketplace fees — a share flows back to stakers as platform revenue.</div>
-        </div>
-        <div class="proj-cell">
-          <div class="head"><span class="dot idle"></span>04 · SECURITY BOND</div>
-          <div class="title">Agents post $SCOM as collateral</div>
-          <div class="meta">Each of the 13 agents bonds $SCOM. Slashed if they go off-policy. Returned otherwise. Skin in the game.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── ROADMAP ─── -->
-  <section class="section">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./roadmap <span class="gold">--quarterly</span></span>
-      </div>
-      <div class="sheet">
-        <div class="sheet-row">
-          <span class="num">Q2</span>
-          <div class="body">
-            <span class="name">design_and_audit.md</span>
-            <span class="desc">Tokenomics finalized · governance framework drafted · smart-contract audit in progress.</span>
-          </div>
-          <span class="price"><span class="unit" style="color:#4ADE80;font-weight:700">ACTIVE</span></span>
-        </div>
-        <div class="sheet-row">
-          <span class="num">Q3</span>
-          <div class="body">
-            <span class="name">tge_fair_launch.md</span>
-            <span class="desc">Fair launch on Uniswap v4 Base · liquidity bootstrap · DAO activation · airdrop to NewsDesk backers.</span>
-          </div>
-          <span class="price"><span class="unit" style="color:var(--gold-warm);font-weight:700">UPCOMING</span></span>
-        </div>
-        <div class="sheet-row">
-          <span class="num">Q4</span>
-          <div class="body">
-            <span class="name">staking_live.md</span>
-            <span class="desc">Staking contracts go live · agent-access gating · first revenue distribution to holders.</span>
-          </div>
-          <span class="price"><span class="unit">PLANNED</span></span>
-        </div>
-        <div class="sheet-row">
-          <span class="num">'27</span>
-          <div class="body">
-            <span class="name">cross_chain.md</span>
-            <span class="desc">Cross-chain bridges to Ethereum L1 + Solana via LayerZero. Treasury diversification.</span>
-          </div>
-          <span class="price"><span class="unit">PLANNED</span></span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── DISCLAIMER ─── -->
-  <section class="section">
-    <div class="wrap">
-      <div class="prompt-line">
-        <span>//</span>
-        <span class="cmd">./legal <span class="gold">--disclaimer</span></span>
-      </div>
-      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(244,236,216,.10);padding:24px 32px;font-family:var(--font-mono);font-size:13px;line-height:1.85;color:var(--mono-blue)">
-        <strong style="color:var(--cream);font-weight:600">$SCOM is not a security, not financial advice, and not a promise of returns.</strong>
-        Token economics, vesting schedules, and roadmap items are <em style="color:var(--cream);font-style:normal">subject to change</em> based on audit findings, community governance votes, and regulatory clarity. The token funds the operator's ability to ship; participation is voluntary and at your own risk. <strong style="color:var(--cream);font-weight:600">DYOR. Do not stake what you can't afford to lose.</strong>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── CLOSING CTA ─── -->
-  <section class="section closing">
-    <div class="wrap">
-      <div class="prompt-line center">
-        <span>//</span>
-        <span class="cmd">./watch <span class="gold">--launch</span></span>
-      </div>
-      <div class="closing-headline">
-        <span>Pre-launch.</span> Subscribe for TGE notice.
-      </div>
-      <p class="closing-body">
-        Token Generation Event scheduled Q3 2026 pending audit. NewsDesk subscribers get the launch notice first; school graduates get an airdrop allocation.
-      </p>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-        <button class="cmd-btn solid closing-btn" onclick="navigate('blog', navItem('blog'))">
-          <span class="prompt">//</span>subscribe --newsdesk
-        </button>
-        <button class="cmd-btn ghost closing-btn" onclick="authGate('web3school', navItem('web3school'))">
-          <span class="prompt">//</span>./school --enroll
-        </button>
-      </div>
-    </div>
-  </section>
-
+<div class="page ts-page" id="page-token">
+  <div class="topbar"><div><div class="topbar-title">$SCOM Token</div><div class="topbar-sub">Supercompute Protocol Token · Base Chain</div></div><div class="topbar-actions"><span class="badge badge-pink">Pre-Launch · Q3 2026</span><button class="tb-btn" onclick="copyToClipboard('supercompute.eth')">Copy ENS</button></div></div>
+  <div class="pg-body" id="tokenPage"></div>
 </div>
 
 <!-- ══ ASSETS (member) ══ -->
 <div class="page ts-page" id="page-assets">
-  <header class="ts-page-header">
-    <div class="prompt-line"><span>//</span><span class="cmd">./assets <span class="gold">--portfolio</span></span></div>
-    <div class="ph-row">
-      <div>
-        <h2>Assets</h2>
-        <div class="ph-sub">Portfolio · staking · NFTs · wallet connection</div>
-      </div>
-      <div class="ph-actions">
-        <button class="cmd-btn ghost" onclick="showToast('+ add asset flow coming soon')"><span class="prompt">//</span>add --asset</button>
-      </div>
-    </div>
-  </header>
+  <div class="topbar"><div class="topbar-title">Assets</div><div class="topbar-actions"><button class="tb-btn primary">+ Add Asset</button></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1.25rem">
       <div class="stat-card"><div class="stat-label">Portfolio Value</div><div class="stat-val">$0.00</div><div class="stat-sub s-neu">Awaiting launch</div></div>
@@ -1818,18 +1165,7 @@
 
 <!-- ══ SOCIAL FEED (member) ══ -->
 <div class="page ts-page" id="page-social">
-  <header class="ts-page-header">
-    <div class="prompt-line"><span>//</span><span class="cmd">./social <span class="gold">--feed</span></span></div>
-    <div class="ph-row">
-      <div>
-        <h2>Social Feed</h2>
-        <div class="ph-sub">X · Lens · Farcaster · OpenClaw queue</div>
-      </div>
-      <div class="ph-actions">
-        <button class="cmd-btn solid" onclick="showToast('OpenClaw queuing post...')"><span class="prompt">//</span>new --post</button>
-      </div>
-    </div>
-  </header>
+  <div class="topbar"><div class="topbar-title">Social Feed</div><div class="topbar-actions"><button class="tb-btn primary" onclick="showToast('OpenClaw queuing post...')">+ New Post</button></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.25rem">
       <div class="stat-card"><div class="stat-label">X Followers</div><div class="stat-val">156</div><div class="stat-sub s-up">@supercomputeco</div></div>
@@ -1854,18 +1190,7 @@
 
 <!-- ══ ALERTS (member) ══ -->
 <div class="page ts-page" id="page-alerts">
-  <header class="ts-page-header">
-    <div class="prompt-line"><span>//</span><span class="cmd">./alerts <span class="gold">--unread</span></span></div>
-    <div class="ph-row">
-      <div>
-        <h2>Alerts <span class="ph-badge">3 unread</span></h2>
-        <div class="ph-sub">System + agent activity notifications</div>
-      </div>
-      <div class="ph-actions">
-        <button class="cmd-btn ghost" onclick="showToast('All alerts marked as read')"><span class="prompt">//</span>mark --all-read</button>
-      </div>
-    </div>
-  </header>
+  <div class="topbar"><div class="topbar-title">Alerts <span style="font-size:11px;background:rgba(233,30,140,.1);color:var(--pink);padding:.15rem .5rem;border-radius:10px;margin-left:.4rem;font-weight:700">3</span></div><div class="topbar-actions"><button class="tb-btn" onclick="showToast('All alerts marked as read')">Mark all read</button></div></div>
   <div class="pg-body">
     <div class="alert-item"><div class="alert-ico" style="background:rgba(74,222,128,.1);color:#16a34a">✓</div><div class="alert-content"><h4>NewsDesk Draft Published</h4><p>6 founding articles saved to Web3 CMS (D1 · supercompute-db)</p></div><div class="alert-time">2h ago</div></div>
     <div class="alert-item"><div class="alert-ico" style="background:rgba(233,30,140,.1);color:var(--pink)">◉</div><div class="alert-content"><h4>OpenClaw: X post scheduled</h4><p>NewsDesk launch announcement queued for Apr 25, 2026</p></div><div class="alert-time">5h ago</div></div>
@@ -1877,18 +1202,7 @@
 
 <!-- ══ PROFILE (member) ══ -->
 <div class="page ts-page" id="page-profile">
-  <header class="ts-page-header">
-    <div class="prompt-line"><span>//</span><span class="cmd">./profile <span class="gold">--edit</span></span></div>
-    <div class="ph-row">
-      <div>
-        <h2>Profile</h2>
-        <div class="ph-sub">Identity · wallet · handles · credentials</div>
-      </div>
-      <div class="ph-actions">
-        <button class="cmd-btn solid" onclick="showToast('✓ Profile saved')"><span class="prompt">//</span>save --changes</button>
-      </div>
-    </div>
-  </header>
+  <div class="topbar"><div class="topbar-title">Profile</div><div class="topbar-actions"><button class="tb-btn primary" onclick="showToast('✓ Profile saved')">Save Changes</button></div></div>
   <div class="pg-body" style="max-width:680px">
     <div class="card" style="margin-bottom:1rem;text-align:center;padding:2rem">
       <div class="profile-avatar-lg">O</div>
@@ -1923,9 +1237,9 @@
   <div class="topbar"><div><div class="topbar-title">Agent Chat</div><div class="topbar-sub">Powered by Claude AI · Talk to your fleet</div></div><div class="topbar-actions"><span class="badge badge-live">Live</span></div></div>
   <div class="chat-wrap" style="height:calc(100vh - 52px)">
     <div class="chat-header">
-      <img src="sc-logo.png" alt="SC" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0"/>
-      <div style="flex:1"><div style="font-family:var(--font-mono);font-weight:700;font-size:13px;color:var(--cream);letter-spacing:1.5px;text-transform:uppercase">Supercompute · Agent Chat</div><div style="font-family:var(--font-mono);font-size:11px;color:var(--mono-blue)">// active → <span id="activeAgentLabel" style="color:var(--gold-warm);font-weight:600">OpenClaw</span></div></div>
-      <span class="pulse-green"></span><span style="font-family:var(--font-mono);font-size:11px;color:var(--success);font-weight:600;margin-left:4px;letter-spacing:1px">CLAUDE AI</span>
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy2));border:1px solid rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--cyan)">SC</div>
+      <div style="flex:1"><div style="font-weight:700;font-size:13px;color:var(--text)">SUPERCOMPUTE Agent Chat</div><div style="font-size:11px;color:var(--muted)">Active: <span id="activeAgentLabel" style="color:var(--pink);font-weight:600">OpenClaw</span></div></div>
+      <span class="pulse-green"></span><span style="font-size:11px;color:var(--success);font-weight:600;margin-left:4px">Claude AI</span>
     </div>
     <div class="chat-agents-row">
       <div class="agent-chip sel" id="chip-openclaw" onclick="selectAgent('openclaw')"><span class="status-dot s-active" style="width:5px;height:5px"></span>OpenClaw</div>
@@ -1945,61 +1259,50 @@
 
 <!-- ══ WEB3 SCHOOL (public marketing + member view) ══ -->
 <div class="page ts-page" id="page-web3school">
-  <header class="ts-page-header">
-    <div class="prompt-line"><span>//</span><span class="cmd">./school <span class="gold">--curriculum</span></span></div>
-    <div class="ph-row">
-      <div>
-        <h2>Web3 School</h2>
-        <div class="ph-sub">7 modules · NFT credential · Guild.xyz role · TradeDesk unlock</div>
-      </div>
-      <div class="ph-actions">
-        <button class="cmd-btn solid" onclick="authGate('web3school', navItem('web3school'))"><span class="prompt">//</span>start --course</button>
+  <!-- Hero / Marketing Header -->
+  <div style="background:linear-gradient(135deg,#0D1F3C,#0A1628);padding:2rem 1.5rem;border-bottom:1px solid var(--border)">
+    <div style="display:flex;gap:1.5rem;align-items:flex-start;margin-bottom:1rem">
+      <div style="font-size:4rem;line-height:1">🎓</div>
+      <div style="flex:1">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--pink);text-transform:uppercase;margin-bottom:.25rem">◈ WEB3 SCHOOL</div>
+        <h2 style="font-size:1.75rem;font-weight:800;color:var(--text);margin-bottom:.5rem">Learn Web3 by Doing It</h2>
       </div>
     </div>
-  </header>
-
-  <div style="padding:24px 32px;max-width:860px;font-family:var(--font-mono);font-size:14px;line-height:1.85;color:var(--mono-blue)">
-    <p style="margin-bottom:14px">Web3 education is mostly hype. We built this because every person who comes into crypto gets rekt in month one — not from DeFi complexity, but from not understanding wallet security, LP math, or how wallets actually work. <strong style="color:var(--cream);font-weight:600">Web3 School teaches what the scams are made of.</strong></p>
-    <p style="margin-bottom:14px">Most courses teach you how to use protocols. We teach you how they work under the hood, what can go wrong, and how to protect yourself. <strong style="color:var(--cream);font-weight:600">Operational knowledge — not speculation.</strong></p>
-    <p>We don't do roadmaps. We ship first.</p>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1rem">Web3 education is mostly hype. We built this because every person who comes into crypto gets rekt in month one — not from DeFi complexity, but from not understanding wallet security, LP math, or how wallets actually work. Web3 School teaches what the scams are made of.</p>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1rem">Most courses teach you how to use protocols. We teach you how they work under the hood, what can go wrong, and how to protect yourself. This is operational knowledge — not speculation. The kind of stuff that saves you from losing everything to a bad signature.</p>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1.25rem">Whether you're a dev looking to understand on-chain mechanics or an operator building sovereign infrastructure, this is the foundation. We don't do roadmaps. We ship first.</p>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem">
+      <div style="background:rgba(233,30,140,.1);border:1px solid rgba(233,30,140,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:var(--pink)">7 Modules</div><div style="font-size:10px;color:var(--muted)">Hands-on curriculum</div></div>
+      <div style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:#6365f1">NFT Credential</div><div style="font-size:10px;color:var(--muted)">Onchain on Base</div></div>
+      <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:var(--success)">Guild.xyz Role</div><div style="font-size:10px;color:var(--muted)">Community access</div></div>
+      <div style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:.5rem .75rem"><div style="font-size:11px;font-weight:700;color:#fbbf24">TradeDesk Access</div><div style="font-size:10px;color:var(--muted)">Unlock on completion</div></div>
+    </div>
+    <button class="tb-btn primary" style="font-size:12px;padding:.6rem 1.25rem" onclick="authGate('web3school', navItem('web3school'))">Start Web3 School →</button>
   </div>
-  <section class="section ts-landing" style="padding:24px 32px;border:none">
-    <div style="max-width:none">
-      <div class="prompt-line"><span>//</span><span class="cmd">./modules <span class="gold">--list</span></span></div>
-      <div class="sheet">
-        <div class="sheet-row"><span class="num">01</span><div class="body"><span class="name">wallet_basics.md</span><span class="desc">Create and secure your first crypto wallet. Seed phrases, hot vs cold storage, OpSec fundamentals.</span></div><span class="price"><span class="unit">15 min · FREE</span></span></div>
-        <div class="sheet-row"><span class="num">02</span><div class="body"><span class="name">money_basics.md</span><span class="desc">What is digital money? Bitcoin, stablecoins, L1 vs L2. Monetary primitives in code.</span></div><span class="price"><span class="unit">20 min · FREE</span></span></div>
-        <div class="sheet-row"><span class="num">03</span><div class="body"><span class="name">security_basics.md</span><span class="desc">Seed phrases, phishing, hardware wallets, OpSec. How to not lose your keys to a bad link.</span></div><span class="price"><span class="unit">25 min · FREE</span></span></div>
-        <div class="sheet-row"><span class="num">04</span><div class="body"><span class="name">defi_fundamentals.md</span><span class="desc">AMMs, liquidity pools, yield farming. The math and where it breaks.</span></div><span class="price">80 USDC<span class="unit"> · 30 min</span></span></div>
-        <div class="sheet-row"><span class="num">05</span><div class="body"><span class="name">refi_impact.md</span><span class="desc">Regenerative finance, carbon credits on-chain. Impact metrics on Base.</span></div><span class="price">80 USDC<span class="unit"> · 25 min</span></span></div>
-        <div class="sheet-row"><span class="num">06</span><div class="body"><span class="name">community_building.md</span><span class="desc">DAOs, token-gated communities, Guild.xyz, governance. Sovereign collectives.</span></div><span class="price">80 USDC<span class="unit"> · 20 min</span></span></div>
-        <div class="sheet-row"><span class="num">07</span><div class="body"><span class="name">agent_ai_ops.md</span><span class="desc">AI agents on-chain, Virtuals Protocol, 1-human + AI architectures.</span></div><span class="price">120 USDC<span class="unit"> · 30 min</span></span></div>
-      </div>
+  <!-- Content Area: Marketing content for non-auth / Student view for authenticated -->
+  <div style="padding:1.5rem">
+    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:1rem">The 7 Modules</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem">
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">01</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Wallet Basics</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">15 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Create and secure your first crypto wallet. Seed phrases, hot vs cold storage, and operational security fundamentals.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">02</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Money Basics</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">20 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">What is digital money? Bitcoin, stablecoins, L1 vs L2. Understanding monetary primitives in code.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">03</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Security Basics</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">25 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Seed phrases, phishing, hardware wallets, OpSec. How to not lose your keys to a bad link.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">04</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">DeFi Fundamentals</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">30 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">AMMs, liquidity pools, yield farming safely. The math behind the magic and where it breaks.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">05</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">ReFi & Impact</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">25 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">Regenerative finance, carbon credits on-chain. How impact metrics live and breathe on Base.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">06</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Community Building</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">20 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">DAOs, token-gated communities, Guild.xyz, governance. Designing sovereign collectives.</div></div>
+      <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:10px;padding:1rem"><div style="font-size:10px;font-weight:700;color:var(--pink);margin-bottom:.25rem">07</div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:.25rem">Agent & AI Ops</div><div style="font-size:10px;color:var(--muted);margin-bottom:.5rem">30 min</div><div style="font-size:11px;color:var(--muted);line-height:1.5">How AI agents operate on-chain, Virtuals Protocol, 1-human + AI model architectures.</div></div>
     </div>
     <!-- Student view container (rendered when authenticated) -->
-    <div id="schoolBody" style="margin-top:32px"></div>
-  </section>
+    <div id="schoolBody"></div>
+  </div>
 </div>
 
 <!-- ══ TRADEDESK (public + member) ══ -->
 <div class="page ts-page" id="page-tradedesk">
-  <header class="ts-page-header">
-    <div class="prompt-line"><span>//</span><span class="cmd">./tradedesk <span class="gold">--observer</span></span></div>
-    <div class="ph-row">
-      <div>
-        <h2>TradeDesk</h2>
-        <div class="ph-sub">KNIGHT · Conway Terminal · CDP monitor · Polymarket · observer mode</div>
-      </div>
-      <div class="ph-actions">
-        <span class="ph-badge green live">KNIGHT Online</span>
-        <button class="cmd-btn solid" onclick="authGate('web3school', navItem('web3school'))"><span class="prompt">//</span>graduate --school</button>
-      </div>
-    </div>
-  </header>
-
-  <!-- NON-AUTH MARKETING (shown when not logged in) -->
-  <div id="tradedesk-marketing" style="padding:24px 32px">
-    <div style="font-family:var(--font-mono);font-size:14px;line-height:1.85;color:var(--mono-blue);max-width:680px;margin-bottom:24px">KNIGHT is Supercompute's trading intelligence agent. Built on Conway Terminal. Running in observer mode until you graduate Web3 School. When you're ready, TradeDesk gives you the same tools, signals, and discipline the pros use.</div>
+  <!-- NON-AUTH MARKETING HEADER (shown when not logged in) -->
+  <div id="tradedesk-marketing" style="background:linear-gradient(135deg,#0D1F3C,#0A1628);padding:2rem 1.5rem;border-bottom:1px solid var(--border)">
+    <div style="font-size:10px;font-weight:700;color:var(--pink);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">◈ TRADEDESK</div>
+    <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:1rem;line-height:1.3">Trade Like a Protocol, Not a Gambler</h2>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem;max-width:600px">KNIGHT is SUPERCOMPUTE's trading intelligence agent. Built on Conway Terminal. Running in observer mode until you graduate Web3 School. When you're ready, TradeDesk gives you the same tools, signals, and discipline the pros use.</p>
     <!-- Fake trading terminal visual -->
     <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1.25rem;overflow-x:auto">
       <div style="font-size:10px;color:var(--pink);margin-bottom:.5rem;font-weight:600">▸ LIVE TERMINAL (OBSERVER MODE)</div>
@@ -2051,27 +1354,16 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
       </div>
     </div>
   </div>
-  <!-- AUTH DASHBOARD (shown when logged in; tradedeskBody rendered by sc-flows.js) -->
+  <!-- AUTH DASHBOARD (shown when logged in) -->
   <div id="tradedesk-auth" style="display:none">
+    <div class="topbar"><div><div class="topbar-title">TradeDesk</div><div class="topbar-sub">KNIGHT · CDP Monitor · Polymarket · Conway Terminal</div></div><div class="topbar-actions"><span class="pulse-green"></span><span style="font-size:11px;color:var(--success);font-weight:600;margin-left:4px">KNIGHT Online</span></div></div>
     <div class="pg-body" id="tradedeskBody"></div>
   </div>
 </div>
 
 <!-- ══ SOCIAL MEDIA (member) ══ -->
 <div class="page ts-page" id="page-socialmedia">
-  <header class="ts-page-header">
-    <div class="prompt-line"><span>//</span><span class="cmd">./socialmedia <span class="gold">--publish</span></span></div>
-    <div class="ph-row">
-      <div>
-        <h2>Social Media</h2>
-        <div class="ph-sub">Content publishing · powered by Quanta S</div>
-      </div>
-      <div class="ph-actions">
-        <span class="ph-badge green live">Quanta S Online</span>
-        <button class="cmd-btn solid" onclick="showToast('New post flow → compose')"><span class="prompt">//</span>new --post</button>
-      </div>
-    </div>
-  </header>
+  <div class="topbar"><div><div class="topbar-title">Social Media</div><div class="topbar-sub">Content Publishing · Powered by Quanta S</div></div><div class="topbar-actions"><span class="pulse-green"></span><span style="font-size:11px;color:var(--success);font-weight:600;margin-left:4px">Quanta S Online</span><button class="tb-btn primary" onclick="showToast('New post flow → compose')">+ New Post</button></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem">
       <div class="card" style="display:flex;align-items:center;gap:.75rem"><div style="width:38px;height:38px;border-radius:10px;background:#000;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0">𝕏</div><div><div style="font-weight:600;font-size:12px;color:var(--text)">@supercomputeco</div><div style="font-size:11px;color:var(--muted)">156 followers</div></div></div>
@@ -2089,18 +1381,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 
 <!-- ══ DASHBOARD (admin) ══ -->
 <div class="page ts-page" id="page-dashboard">
-  <header class="ts-page-header">
-    <div class="prompt-line"><span>//</span><span class="cmd">./admin/dashboard <span class="gold">--overview</span></span></div>
-    <div class="ph-row">
-      <div>
-        <h2>Dashboard</h2>
-        <div class="ph-sub">Fleet overview · portfolio · agents · stack health</div>
-      </div>
-      <div class="ph-actions">
-        <span class="ph-badge">ADMIN</span>
-      </div>
-    </div>
-  </header>
+  <div class="topbar"><div class="topbar-breadcrumb" style="font-size:11px;color:var(--muted)">Admin</div><div class="topbar-title" style="margin-left:.4rem">Dashboard</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span></div></div>
   <div class="dash-tabs">
     <div class="dash-tab active" data-tab="overview"  onclick="renderDash('overview')">Overview</div>
     <div class="dash-tab" data-tab="users"       onclick="renderDash('users')">Users</div>
@@ -2122,19 +1403,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 
 <!-- ══ COMMUNITY (admin) ══ -->
 <div class="page ts-page" id="page-community">
-  <header class="ts-page-header">
-    <div class="prompt-line"><span>//</span><span class="cmd">./admin/community <span class="gold">--members</span></span></div>
-    <div class="ph-row">
-      <div>
-        <h2>Community</h2>
-        <div class="ph-sub">Members · Guild.xyz roles · NFT credentials</div>
-      </div>
-      <div class="ph-actions">
-        <span class="ph-badge">ADMIN</span>
-        <button class="cmd-btn solid" onclick="showToast('Invite sent via OpenClaw')"><span class="prompt">//</span>invite --member</button>
-      </div>
-    </div>
-  </header>
+  <div class="topbar"><div class="topbar-title">Community Management</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><button class="tb-btn primary" onclick="showToast('Invite sent via OpenClaw')">+ Invite Member</button></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.25rem">
       <div class="stat-card"><div class="stat-label">Total Members</div><div class="stat-val">21</div><div class="stat-sub s-up">+3 this week</div></div>
@@ -2157,19 +1426,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 
 <!-- ══ NEWSDESK CMS (admin) ══ -->
 <div class="page ts-page" id="page-newsdesk">
-  <header class="ts-page-header">
-    <div class="prompt-line"><span>//</span><span class="cmd">./admin/newsdesk <span class="gold">--cms</span></span></div>
-    <div class="ph-row">
-      <div>
-        <h2>NewsDesk CMS</h2>
-        <div class="ph-sub">Articles · drafts · publishing · Quanta S assist</div>
-      </div>
-      <div class="ph-actions">
-        <span class="ph-badge">ADMIN</span>
-        <button class="cmd-btn solid" onclick="authGate('createarticle',navItem('createarticle'),true)"><span class="prompt">//</span>new --article</button>
-      </div>
-    </div>
-  </header>
+  <div class="topbar"><div class="topbar-title">NewsDesk CMS</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><button class="tb-btn primary" onclick="authGate('createarticle',navItem('createarticle'),true)">+ Create Article</button></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem">
       <div class="stat-card"><div class="stat-label">Total Articles</div><div class="stat-val" id="ndStatTotal">6</div><div class="stat-sub s-up">All categories</div></div>
@@ -2215,19 +1472,7 @@ USDC       LONG  5,000   $1.00    $0.00   FILLED
 
 <!-- ══ API STATUS (admin) ══ -->
 <div class="page ts-page" id="page-apiStatus">
-  <header class="ts-page-header">
-    <div class="prompt-line"><span>//</span><span class="cmd">./admin/api <span class="gold">--health</span></span></div>
-    <div class="ph-row">
-      <div>
-        <h2>API Status</h2>
-        <div class="ph-sub">Cloudflare · D1 · R2 · Web3 CMS · Virtuals · Linear MCP</div>
-      </div>
-      <div class="ph-actions">
-        <span class="ph-badge">ADMIN</span>
-        <span class="ph-badge green live">All Systems Operational</span>
-      </div>
-    </div>
-  </header>
+  <div class="topbar"><div class="topbar-title">API Status</div><div class="topbar-actions"><span class="badge badge-admin">Admin</span><span class="badge badge-live">All Systems Operational</span></div></div>
   <div class="pg-body">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.25rem">
       <div class="stat-card"><div class="stat-label">Uptime (30d)</div><div class="stat-val">99.9<span style="font-size:.9rem">%</span></div><div class="stat-sub s-up">Cloudflare</div></div>

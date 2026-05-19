@@ -1,5 +1,39 @@
 fragment PostParts on Post {
   __typename
   title
+  category
+  author
+  date
   body
+}
+
+fragment ServiceParts on Service {
+  __typename
+  title
+  description
+  price
+  duration
+}
+
+fragment ProjectParts on Project {
+  __typename
+  title
+  type
+  detail
+  status
+}
+
+fragment AgentParts on Agent {
+  __typename
+  title
+  role
+  status
+  description
+}
+
+fragment SchoolModuleParts on SchoolModule {
+  __typename
+  title
+  duration
+  free
 }

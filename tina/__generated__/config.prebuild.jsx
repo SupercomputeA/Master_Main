@@ -18,7 +18,7 @@ var config_default = defineConfig({
     collections: [
       {
         name: "post",
-        label: "Blog Posts",
+        label: "NewsDesk Articles",
         path: "content/posts",
         format: "md",
         fields: [
@@ -30,11 +30,74 @@ var config_default = defineConfig({
             required: true
           },
           {
+            type: "string",
+            name: "category",
+            label: "Category",
+            options: ["Sovereignty", "Dispatch", "Intelligence", "Community Signal"]
+          },
+          {
+            type: "string",
+            name: "author",
+            label: "Author"
+          },
+          {
+            type: "datetime",
+            name: "date",
+            label: "Date"
+          },
+          {
             type: "rich-text",
             name: "body",
             label: "Body",
             isBody: true
           }
+        ]
+      },
+      {
+        name: "service",
+        label: "Services",
+        path: "content/services",
+        format: "json",
+        fields: [
+          { type: "string", name: "title", label: "Title", isTitle: true, required: true },
+          { type: "string", name: "description", label: "Description", ui: { component: "textarea" } },
+          { type: "string", name: "price", label: "Price" },
+          { type: "string", name: "duration", label: "Duration" }
+        ]
+      },
+      {
+        name: "project",
+        label: "Projects",
+        path: "content/projects",
+        format: "json",
+        fields: [
+          { type: "string", name: "title", label: "Title", isTitle: true, required: true },
+          { type: "string", name: "type", label: "Type" },
+          { type: "string", name: "detail", label: "Detail", ui: { component: "textarea" } },
+          { type: "string", name: "status", label: "Status" }
+        ]
+      },
+      {
+        name: "agent",
+        label: "Agents",
+        path: "content/agents",
+        format: "json",
+        fields: [
+          { type: "string", name: "title", label: "Name", isTitle: true, required: true },
+          { type: "string", name: "role", label: "Role" },
+          { type: "string", name: "status", label: "Status", options: ["online", "observer", "dev", "queued"] },
+          { type: "string", name: "description", label: "Description", ui: { component: "textarea" } }
+        ]
+      },
+      {
+        name: "schoolModule",
+        label: "School Modules",
+        path: "content/school",
+        format: "json",
+        fields: [
+          { type: "string", name: "title", label: "Title", isTitle: true, required: true },
+          { type: "string", name: "duration", label: "Duration" },
+          { type: "boolean", name: "free", label: "Free" }
         ]
       }
     ]

@@ -56,10 +56,22 @@ type Query {
   document(collection: String, relativePath: String): DocumentNode!
   post(relativePath: String): Post!
   postConnection(before: String, after: String, first: Float, last: Float, sort: String, filter: PostFilter): PostConnection!
+  service(relativePath: String): Service!
+  serviceConnection(before: String, after: String, first: Float, last: Float, sort: String, filter: ServiceFilter): ServiceConnection!
+  project(relativePath: String): Project!
+  projectConnection(before: String, after: String, first: Float, last: Float, sort: String, filter: ProjectFilter): ProjectConnection!
+  agent(relativePath: String): Agent!
+  agentConnection(before: String, after: String, first: Float, last: Float, sort: String, filter: AgentFilter): AgentConnection!
+  schoolModule(relativePath: String): SchoolModule!
+  schoolModuleConnection(before: String, after: String, first: Float, last: Float, sort: String, filter: SchoolModuleFilter): SchoolModuleConnection!
 }
 
 input DocumentFilter {
   post: PostFilter
+  service: ServiceFilter
+  project: ProjectFilter
+  agent: AgentFilter
+  schoolModule: SchoolModuleFilter
 }
 
 type DocumentConnectionEdges {
@@ -85,10 +97,13 @@ type Collection {
   documents(before: String, after: String, first: Float, last: Float, sort: String, filter: DocumentFilter, folder: String): DocumentConnection!
 }
 
-union DocumentNode = Post | Folder
+union DocumentNode = Post | Service | Project | Agent | SchoolModule | Folder
 
 type Post implements Node & Document {
   title: String!
+  category: String
+  author: String
+  date: String
   body: JSON
   id: ID!
   _sys: SystemInfo!
@@ -102,6 +117,14 @@ input StringFilter {
   in: [String]
 }
 
+input DatetimeFilter {
+  after: String
+  before: String
+  eq: String
+  exists: Boolean
+  in: [String]
+}
+
 input RichTextFilter {
   startsWith: String
   eq: String
@@ -110,6 +133,9 @@ input RichTextFilter {
 
 input PostFilter {
   title: StringFilter
+  category: StringFilter
+  author: StringFilter
+  date: DatetimeFilter
   body: RichTextFilter
 }
 
@@ -124,6 +150,121 @@ type PostConnection implements Connection {
   edges: [PostConnectionEdges]
 }
 
+type Service implements Node & Document {
+  title: String!
+  description: String
+  price: String
+  duration: String
+  id: ID!
+  _sys: SystemInfo!
+  _values: JSON!
+}
+
+input ServiceFilter {
+  title: StringFilter
+  description: StringFilter
+  price: StringFilter
+  duration: StringFilter
+}
+
+type ServiceConnectionEdges {
+  cursor: String!
+  node: Service
+}
+
+type ServiceConnection implements Connection {
+  pageInfo: PageInfo!
+  totalCount: Float!
+  edges: [ServiceConnectionEdges]
+}
+
+type Project implements Node & Document {
+  title: String!
+  type: String
+  detail: String
+  status: String
+  id: ID!
+  _sys: SystemInfo!
+  _values: JSON!
+}
+
+input ProjectFilter {
+  title: StringFilter
+  type: StringFilter
+  detail: StringFilter
+  status: StringFilter
+}
+
+type ProjectConnectionEdges {
+  cursor: String!
+  node: Project
+}
+
+type ProjectConnection implements Connection {
+  pageInfo: PageInfo!
+  totalCount: Float!
+  edges: [ProjectConnectionEdges]
+}
+
+type Agent implements Node & Document {
+  title: String!
+  role: String
+  status: String
+  description: String
+  id: ID!
+  _sys: SystemInfo!
+  _values: JSON!
+}
+
+input AgentFilter {
+  title: StringFilter
+  role: StringFilter
+  status: StringFilter
+  description: StringFilter
+}
+
+type AgentConnectionEdges {
+  cursor: String!
+  node: Agent
+}
+
+type AgentConnection implements Connection {
+  pageInfo: PageInfo!
+  totalCount: Float!
+  edges: [AgentConnectionEdges]
+}
+
+type SchoolModule implements Node & Document {
+  title: String!
+  duration: String
+  free: Boolean
+  id: ID!
+  _sys: SystemInfo!
+  _values: JSON!
+}
+
+input BooleanFilter {
+  eq: Boolean
+  exists: Boolean
+}
+
+input SchoolModuleFilter {
+  title: StringFilter
+  duration: StringFilter
+  free: BooleanFilter
+}
+
+type SchoolModuleConnectionEdges {
+  cursor: String!
+  node: SchoolModule
+}
+
+type SchoolModuleConnection implements Connection {
+  pageInfo: PageInfo!
+  totalCount: Float!
+  edges: [SchoolModuleConnectionEdges]
+}
+
 type Mutation {
   addPendingDocument(collection: String!, relativePath: String!, template: String): DocumentNode!
   updateDocument(collection: String, relativePath: String!, params: DocumentUpdateMutation!): DocumentNode!
@@ -132,20 +273,66 @@ type Mutation {
   createFolder(collection: String, relativePath: String!): DocumentNode!
   updatePost(relativePath: String!, params: PostMutation!): Post!
   createPost(relativePath: String!, params: PostMutation!): Post!
+  updateService(relativePath: String!, params: ServiceMutation!): Service!
+  createService(relativePath: String!, params: ServiceMutation!): Service!
+  updateProject(relativePath: String!, params: ProjectMutation!): Project!
+  createProject(relativePath: String!, params: ProjectMutation!): Project!
+  updateAgent(relativePath: String!, params: AgentMutation!): Agent!
+  createAgent(relativePath: String!, params: AgentMutation!): Agent!
+  updateSchoolModule(relativePath: String!, params: SchoolModuleMutation!): SchoolModule!
+  createSchoolModule(relativePath: String!, params: SchoolModuleMutation!): SchoolModule!
 }
 
 input DocumentUpdateMutation {
   post: PostMutation
+  service: ServiceMutation
+  project: ProjectMutation
+  agent: AgentMutation
+  schoolModule: SchoolModuleMutation
   relativePath: String
 }
 
 input DocumentMutation {
   post: PostMutation
+  service: ServiceMutation
+  project: ProjectMutation
+  agent: AgentMutation
+  schoolModule: SchoolModuleMutation
 }
 
 input PostMutation {
   title: String
+  category: String
+  author: String
+  date: String
   body: JSON
+}
+
+input ServiceMutation {
+  title: String
+  description: String
+  price: String
+  duration: String
+}
+
+input ProjectMutation {
+  title: String
+  type: String
+  detail: String
+  status: String
+}
+
+input AgentMutation {
+  title: String
+  role: String
+  status: String
+  description: String
+}
+
+input SchoolModuleMutation {
+  title: String
+  duration: String
+  free: Boolean
 }
 
 schema {

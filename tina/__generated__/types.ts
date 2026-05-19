@@ -84,6 +84,14 @@ export type Query = {
   document: DocumentNode;
   post: Post;
   postConnection: PostConnection;
+  service: Service;
+  serviceConnection: ServiceConnection;
+  project: Project;
+  projectConnection: ProjectConnection;
+  agent: Agent;
+  agentConnection: AgentConnection;
+  schoolModule: SchoolModule;
+  schoolModuleConnection: SchoolModuleConnection;
 };
 
 
@@ -122,8 +130,72 @@ export type QueryPostConnectionArgs = {
   filter?: InputMaybe<PostFilter>;
 };
 
+
+export type QueryServiceArgs = {
+  relativePath?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryServiceConnectionArgs = {
+  before?: InputMaybe<Scalars['String']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Float']['input']>;
+  last?: InputMaybe<Scalars['Float']['input']>;
+  sort?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<ServiceFilter>;
+};
+
+
+export type QueryProjectArgs = {
+  relativePath?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryProjectConnectionArgs = {
+  before?: InputMaybe<Scalars['String']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Float']['input']>;
+  last?: InputMaybe<Scalars['Float']['input']>;
+  sort?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<ProjectFilter>;
+};
+
+
+export type QueryAgentArgs = {
+  relativePath?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryAgentConnectionArgs = {
+  before?: InputMaybe<Scalars['String']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Float']['input']>;
+  last?: InputMaybe<Scalars['Float']['input']>;
+  sort?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<AgentFilter>;
+};
+
+
+export type QuerySchoolModuleArgs = {
+  relativePath?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QuerySchoolModuleConnectionArgs = {
+  before?: InputMaybe<Scalars['String']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Float']['input']>;
+  last?: InputMaybe<Scalars['Float']['input']>;
+  sort?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<SchoolModuleFilter>;
+};
+
 export type DocumentFilter = {
   post?: InputMaybe<PostFilter>;
+  service?: InputMaybe<ServiceFilter>;
+  project?: InputMaybe<ProjectFilter>;
+  agent?: InputMaybe<AgentFilter>;
+  schoolModule?: InputMaybe<SchoolModuleFilter>;
 };
 
 export type DocumentConnectionEdges = {
@@ -163,11 +235,14 @@ export type CollectionDocumentsArgs = {
   folder?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type DocumentNode = Post | Folder;
+export type DocumentNode = Post | Service | Project | Agent | SchoolModule | Folder;
 
 export type Post = Node & Document & {
   __typename?: 'Post';
   title: Scalars['String']['output'];
+  category?: Maybe<Scalars['String']['output']>;
+  author?: Maybe<Scalars['String']['output']>;
+  date?: Maybe<Scalars['String']['output']>;
   body?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
   _sys: SystemInfo;
@@ -181,6 +256,14 @@ export type StringFilter = {
   in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
+export type DatetimeFilter = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  eq?: InputMaybe<Scalars['String']['input']>;
+  exists?: InputMaybe<Scalars['Boolean']['input']>;
+  in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
 export type RichTextFilter = {
   startsWith?: InputMaybe<Scalars['String']['input']>;
   eq?: InputMaybe<Scalars['String']['input']>;
@@ -189,6 +272,9 @@ export type RichTextFilter = {
 
 export type PostFilter = {
   title?: InputMaybe<StringFilter>;
+  category?: InputMaybe<StringFilter>;
+  author?: InputMaybe<StringFilter>;
+  date?: InputMaybe<DatetimeFilter>;
   body?: InputMaybe<RichTextFilter>;
 };
 
@@ -205,6 +291,133 @@ export type PostConnection = Connection & {
   edges?: Maybe<Array<Maybe<PostConnectionEdges>>>;
 };
 
+export type Service = Node & Document & {
+  __typename?: 'Service';
+  title: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  price?: Maybe<Scalars['String']['output']>;
+  duration?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  _sys: SystemInfo;
+  _values: Scalars['JSON']['output'];
+};
+
+export type ServiceFilter = {
+  title?: InputMaybe<StringFilter>;
+  description?: InputMaybe<StringFilter>;
+  price?: InputMaybe<StringFilter>;
+  duration?: InputMaybe<StringFilter>;
+};
+
+export type ServiceConnectionEdges = {
+  __typename?: 'ServiceConnectionEdges';
+  cursor: Scalars['String']['output'];
+  node?: Maybe<Service>;
+};
+
+export type ServiceConnection = Connection & {
+  __typename?: 'ServiceConnection';
+  pageInfo: PageInfo;
+  totalCount: Scalars['Float']['output'];
+  edges?: Maybe<Array<Maybe<ServiceConnectionEdges>>>;
+};
+
+export type Project = Node & Document & {
+  __typename?: 'Project';
+  title: Scalars['String']['output'];
+  type?: Maybe<Scalars['String']['output']>;
+  detail?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  _sys: SystemInfo;
+  _values: Scalars['JSON']['output'];
+};
+
+export type ProjectFilter = {
+  title?: InputMaybe<StringFilter>;
+  type?: InputMaybe<StringFilter>;
+  detail?: InputMaybe<StringFilter>;
+  status?: InputMaybe<StringFilter>;
+};
+
+export type ProjectConnectionEdges = {
+  __typename?: 'ProjectConnectionEdges';
+  cursor: Scalars['String']['output'];
+  node?: Maybe<Project>;
+};
+
+export type ProjectConnection = Connection & {
+  __typename?: 'ProjectConnection';
+  pageInfo: PageInfo;
+  totalCount: Scalars['Float']['output'];
+  edges?: Maybe<Array<Maybe<ProjectConnectionEdges>>>;
+};
+
+export type Agent = Node & Document & {
+  __typename?: 'Agent';
+  title: Scalars['String']['output'];
+  role?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  _sys: SystemInfo;
+  _values: Scalars['JSON']['output'];
+};
+
+export type AgentFilter = {
+  title?: InputMaybe<StringFilter>;
+  role?: InputMaybe<StringFilter>;
+  status?: InputMaybe<StringFilter>;
+  description?: InputMaybe<StringFilter>;
+};
+
+export type AgentConnectionEdges = {
+  __typename?: 'AgentConnectionEdges';
+  cursor: Scalars['String']['output'];
+  node?: Maybe<Agent>;
+};
+
+export type AgentConnection = Connection & {
+  __typename?: 'AgentConnection';
+  pageInfo: PageInfo;
+  totalCount: Scalars['Float']['output'];
+  edges?: Maybe<Array<Maybe<AgentConnectionEdges>>>;
+};
+
+export type SchoolModule = Node & Document & {
+  __typename?: 'SchoolModule';
+  title: Scalars['String']['output'];
+  duration?: Maybe<Scalars['String']['output']>;
+  free?: Maybe<Scalars['Boolean']['output']>;
+  id: Scalars['ID']['output'];
+  _sys: SystemInfo;
+  _values: Scalars['JSON']['output'];
+};
+
+export type BooleanFilter = {
+  eq?: InputMaybe<Scalars['Boolean']['input']>;
+  exists?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type SchoolModuleFilter = {
+  title?: InputMaybe<StringFilter>;
+  duration?: InputMaybe<StringFilter>;
+  free?: InputMaybe<BooleanFilter>;
+};
+
+export type SchoolModuleConnectionEdges = {
+  __typename?: 'SchoolModuleConnectionEdges';
+  cursor: Scalars['String']['output'];
+  node?: Maybe<SchoolModule>;
+};
+
+export type SchoolModuleConnection = Connection & {
+  __typename?: 'SchoolModuleConnection';
+  pageInfo: PageInfo;
+  totalCount: Scalars['Float']['output'];
+  edges?: Maybe<Array<Maybe<SchoolModuleConnectionEdges>>>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addPendingDocument: DocumentNode;
@@ -214,6 +427,14 @@ export type Mutation = {
   createFolder: DocumentNode;
   updatePost: Post;
   createPost: Post;
+  updateService: Service;
+  createService: Service;
+  updateProject: Project;
+  createProject: Project;
+  updateAgent: Agent;
+  createAgent: Agent;
+  updateSchoolModule: SchoolModule;
+  createSchoolModule: SchoolModule;
 };
 
 
@@ -261,28 +482,122 @@ export type MutationCreatePostArgs = {
   params: PostMutation;
 };
 
+
+export type MutationUpdateServiceArgs = {
+  relativePath: Scalars['String']['input'];
+  params: ServiceMutation;
+};
+
+
+export type MutationCreateServiceArgs = {
+  relativePath: Scalars['String']['input'];
+  params: ServiceMutation;
+};
+
+
+export type MutationUpdateProjectArgs = {
+  relativePath: Scalars['String']['input'];
+  params: ProjectMutation;
+};
+
+
+export type MutationCreateProjectArgs = {
+  relativePath: Scalars['String']['input'];
+  params: ProjectMutation;
+};
+
+
+export type MutationUpdateAgentArgs = {
+  relativePath: Scalars['String']['input'];
+  params: AgentMutation;
+};
+
+
+export type MutationCreateAgentArgs = {
+  relativePath: Scalars['String']['input'];
+  params: AgentMutation;
+};
+
+
+export type MutationUpdateSchoolModuleArgs = {
+  relativePath: Scalars['String']['input'];
+  params: SchoolModuleMutation;
+};
+
+
+export type MutationCreateSchoolModuleArgs = {
+  relativePath: Scalars['String']['input'];
+  params: SchoolModuleMutation;
+};
+
 export type DocumentUpdateMutation = {
   post?: InputMaybe<PostMutation>;
+  service?: InputMaybe<ServiceMutation>;
+  project?: InputMaybe<ProjectMutation>;
+  agent?: InputMaybe<AgentMutation>;
+  schoolModule?: InputMaybe<SchoolModuleMutation>;
   relativePath?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type DocumentMutation = {
   post?: InputMaybe<PostMutation>;
+  service?: InputMaybe<ServiceMutation>;
+  project?: InputMaybe<ProjectMutation>;
+  agent?: InputMaybe<AgentMutation>;
+  schoolModule?: InputMaybe<SchoolModuleMutation>;
 };
 
 export type PostMutation = {
   title?: InputMaybe<Scalars['String']['input']>;
+  category?: InputMaybe<Scalars['String']['input']>;
+  author?: InputMaybe<Scalars['String']['input']>;
+  date?: InputMaybe<Scalars['String']['input']>;
   body?: InputMaybe<Scalars['JSON']['input']>;
 };
 
-export type PostPartsFragment = { __typename: 'Post', title: string, body?: any | null };
+export type ServiceMutation = {
+  title?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  price?: InputMaybe<Scalars['String']['input']>;
+  duration?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ProjectMutation = {
+  title?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+  detail?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type AgentMutation = {
+  title?: InputMaybe<Scalars['String']['input']>;
+  role?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SchoolModuleMutation = {
+  title?: InputMaybe<Scalars['String']['input']>;
+  duration?: InputMaybe<Scalars['String']['input']>;
+  free?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type PostPartsFragment = { __typename: 'Post', title: string, category?: string | null, author?: string | null, date?: string | null, body?: any | null };
+
+export type ServicePartsFragment = { __typename: 'Service', title: string, description?: string | null, price?: string | null, duration?: string | null };
+
+export type ProjectPartsFragment = { __typename: 'Project', title: string, type?: string | null, detail?: string | null, status?: string | null };
+
+export type AgentPartsFragment = { __typename: 'Agent', title: string, role?: string | null, status?: string | null, description?: string | null };
+
+export type SchoolModulePartsFragment = { __typename: 'SchoolModule', title: string, duration?: string | null, free?: boolean | null };
 
 export type PostQueryVariables = Exact<{
   relativePath: Scalars['String']['input'];
 }>;
 
 
-export type PostQuery = { __typename?: 'Query', post: { __typename: 'Post', id: string, title: string, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+export type PostQuery = { __typename?: 'Query', post: { __typename: 'Post', id: string, title: string, category?: string | null, author?: string | null, date?: string | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
 
 export type PostConnectionQueryVariables = Exact<{
   before?: InputMaybe<Scalars['String']['input']>;
@@ -294,13 +609,127 @@ export type PostConnectionQueryVariables = Exact<{
 }>;
 
 
-export type PostConnectionQuery = { __typename?: 'Query', postConnection: { __typename?: 'PostConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PostConnectionEdges', cursor: string, node?: { __typename: 'Post', id: string, title: string, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+export type PostConnectionQuery = { __typename?: 'Query', postConnection: { __typename?: 'PostConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PostConnectionEdges', cursor: string, node?: { __typename: 'Post', id: string, title: string, category?: string | null, author?: string | null, date?: string | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+
+export type ServiceQueryVariables = Exact<{
+  relativePath: Scalars['String']['input'];
+}>;
+
+
+export type ServiceQuery = { __typename?: 'Query', service: { __typename: 'Service', id: string, title: string, description?: string | null, price?: string | null, duration?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+
+export type ServiceConnectionQueryVariables = Exact<{
+  before?: InputMaybe<Scalars['String']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Float']['input']>;
+  last?: InputMaybe<Scalars['Float']['input']>;
+  sort?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<ServiceFilter>;
+}>;
+
+
+export type ServiceConnectionQuery = { __typename?: 'Query', serviceConnection: { __typename?: 'ServiceConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'ServiceConnectionEdges', cursor: string, node?: { __typename: 'Service', id: string, title: string, description?: string | null, price?: string | null, duration?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+
+export type ProjectQueryVariables = Exact<{
+  relativePath: Scalars['String']['input'];
+}>;
+
+
+export type ProjectQuery = { __typename?: 'Query', project: { __typename: 'Project', id: string, title: string, type?: string | null, detail?: string | null, status?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+
+export type ProjectConnectionQueryVariables = Exact<{
+  before?: InputMaybe<Scalars['String']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Float']['input']>;
+  last?: InputMaybe<Scalars['Float']['input']>;
+  sort?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<ProjectFilter>;
+}>;
+
+
+export type ProjectConnectionQuery = { __typename?: 'Query', projectConnection: { __typename?: 'ProjectConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'ProjectConnectionEdges', cursor: string, node?: { __typename: 'Project', id: string, title: string, type?: string | null, detail?: string | null, status?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+
+export type AgentQueryVariables = Exact<{
+  relativePath: Scalars['String']['input'];
+}>;
+
+
+export type AgentQuery = { __typename?: 'Query', agent: { __typename: 'Agent', id: string, title: string, role?: string | null, status?: string | null, description?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+
+export type AgentConnectionQueryVariables = Exact<{
+  before?: InputMaybe<Scalars['String']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Float']['input']>;
+  last?: InputMaybe<Scalars['Float']['input']>;
+  sort?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<AgentFilter>;
+}>;
+
+
+export type AgentConnectionQuery = { __typename?: 'Query', agentConnection: { __typename?: 'AgentConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'AgentConnectionEdges', cursor: string, node?: { __typename: 'Agent', id: string, title: string, role?: string | null, status?: string | null, description?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+
+export type SchoolModuleQueryVariables = Exact<{
+  relativePath: Scalars['String']['input'];
+}>;
+
+
+export type SchoolModuleQuery = { __typename?: 'Query', schoolModule: { __typename: 'SchoolModule', id: string, title: string, duration?: string | null, free?: boolean | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+
+export type SchoolModuleConnectionQueryVariables = Exact<{
+  before?: InputMaybe<Scalars['String']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Float']['input']>;
+  last?: InputMaybe<Scalars['Float']['input']>;
+  sort?: InputMaybe<Scalars['String']['input']>;
+  filter?: InputMaybe<SchoolModuleFilter>;
+}>;
+
+
+export type SchoolModuleConnectionQuery = { __typename?: 'Query', schoolModuleConnection: { __typename?: 'SchoolModuleConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'SchoolModuleConnectionEdges', cursor: string, node?: { __typename: 'SchoolModule', id: string, title: string, duration?: string | null, free?: boolean | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
 
 export const PostPartsFragmentDoc = gql`
     fragment PostParts on Post {
   __typename
   title
+  category
+  author
+  date
   body
+}
+    `;
+export const ServicePartsFragmentDoc = gql`
+    fragment ServiceParts on Service {
+  __typename
+  title
+  description
+  price
+  duration
+}
+    `;
+export const ProjectPartsFragmentDoc = gql`
+    fragment ProjectParts on Project {
+  __typename
+  title
+  type
+  detail
+  status
+}
+    `;
+export const AgentPartsFragmentDoc = gql`
+    fragment AgentParts on Agent {
+  __typename
+  title
+  role
+  status
+  description
+}
+    `;
+export const SchoolModulePartsFragmentDoc = gql`
+    fragment SchoolModuleParts on SchoolModule {
+  __typename
+  title
+  duration
+  free
 }
     `;
 export const PostDocument = gql`
@@ -360,6 +789,234 @@ export const PostConnectionDocument = gql`
   }
 }
     ${PostPartsFragmentDoc}`;
+export const ServiceDocument = gql`
+    query service($relativePath: String!) {
+  service(relativePath: $relativePath) {
+    ... on Document {
+      _sys {
+        filename
+        basename
+        hasReferences
+        breadcrumbs
+        path
+        relativePath
+        extension
+      }
+      id
+    }
+    ...ServiceParts
+  }
+}
+    ${ServicePartsFragmentDoc}`;
+export const ServiceConnectionDocument = gql`
+    query serviceConnection($before: String, $after: String, $first: Float, $last: Float, $sort: String, $filter: ServiceFilter) {
+  serviceConnection(
+    before: $before
+    after: $after
+    first: $first
+    last: $last
+    sort: $sort
+    filter: $filter
+  ) {
+    pageInfo {
+      hasPreviousPage
+      hasNextPage
+      startCursor
+      endCursor
+    }
+    totalCount
+    edges {
+      cursor
+      node {
+        ... on Document {
+          _sys {
+            filename
+            basename
+            hasReferences
+            breadcrumbs
+            path
+            relativePath
+            extension
+          }
+          id
+        }
+        ...ServiceParts
+      }
+    }
+  }
+}
+    ${ServicePartsFragmentDoc}`;
+export const ProjectDocument = gql`
+    query project($relativePath: String!) {
+  project(relativePath: $relativePath) {
+    ... on Document {
+      _sys {
+        filename
+        basename
+        hasReferences
+        breadcrumbs
+        path
+        relativePath
+        extension
+      }
+      id
+    }
+    ...ProjectParts
+  }
+}
+    ${ProjectPartsFragmentDoc}`;
+export const ProjectConnectionDocument = gql`
+    query projectConnection($before: String, $after: String, $first: Float, $last: Float, $sort: String, $filter: ProjectFilter) {
+  projectConnection(
+    before: $before
+    after: $after
+    first: $first
+    last: $last
+    sort: $sort
+    filter: $filter
+  ) {
+    pageInfo {
+      hasPreviousPage
+      hasNextPage
+      startCursor
+      endCursor
+    }
+    totalCount
+    edges {
+      cursor
+      node {
+        ... on Document {
+          _sys {
+            filename
+            basename
+            hasReferences
+            breadcrumbs
+            path
+            relativePath
+            extension
+          }
+          id
+        }
+        ...ProjectParts
+      }
+    }
+  }
+}
+    ${ProjectPartsFragmentDoc}`;
+export const AgentDocument = gql`
+    query agent($relativePath: String!) {
+  agent(relativePath: $relativePath) {
+    ... on Document {
+      _sys {
+        filename
+        basename
+        hasReferences
+        breadcrumbs
+        path
+        relativePath
+        extension
+      }
+      id
+    }
+    ...AgentParts
+  }
+}
+    ${AgentPartsFragmentDoc}`;
+export const AgentConnectionDocument = gql`
+    query agentConnection($before: String, $after: String, $first: Float, $last: Float, $sort: String, $filter: AgentFilter) {
+  agentConnection(
+    before: $before
+    after: $after
+    first: $first
+    last: $last
+    sort: $sort
+    filter: $filter
+  ) {
+    pageInfo {
+      hasPreviousPage
+      hasNextPage
+      startCursor
+      endCursor
+    }
+    totalCount
+    edges {
+      cursor
+      node {
+        ... on Document {
+          _sys {
+            filename
+            basename
+            hasReferences
+            breadcrumbs
+            path
+            relativePath
+            extension
+          }
+          id
+        }
+        ...AgentParts
+      }
+    }
+  }
+}
+    ${AgentPartsFragmentDoc}`;
+export const SchoolModuleDocument = gql`
+    query schoolModule($relativePath: String!) {
+  schoolModule(relativePath: $relativePath) {
+    ... on Document {
+      _sys {
+        filename
+        basename
+        hasReferences
+        breadcrumbs
+        path
+        relativePath
+        extension
+      }
+      id
+    }
+    ...SchoolModuleParts
+  }
+}
+    ${SchoolModulePartsFragmentDoc}`;
+export const SchoolModuleConnectionDocument = gql`
+    query schoolModuleConnection($before: String, $after: String, $first: Float, $last: Float, $sort: String, $filter: SchoolModuleFilter) {
+  schoolModuleConnection(
+    before: $before
+    after: $after
+    first: $first
+    last: $last
+    sort: $sort
+    filter: $filter
+  ) {
+    pageInfo {
+      hasPreviousPage
+      hasNextPage
+      startCursor
+      endCursor
+    }
+    totalCount
+    edges {
+      cursor
+      node {
+        ... on Document {
+          _sys {
+            filename
+            basename
+            hasReferences
+            breadcrumbs
+            path
+            relativePath
+            extension
+          }
+          id
+        }
+        ...SchoolModuleParts
+      }
+    }
+  }
+}
+    ${SchoolModulePartsFragmentDoc}`;
 export type Requester<C= {}> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R>
   export function getSdk<C>(requester: Requester<C>) {
     return {
@@ -368,6 +1025,30 @@ export type Requester<C= {}> = <R, V>(doc: DocumentNode, vars?: V, options?: C) 
       },
     postConnection(variables?: PostConnectionQueryVariables, options?: C): Promise<{data: PostConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: PostConnectionQueryVariables, query: string}> {
         return requester<{data: PostConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: PostConnectionQueryVariables, query: string}, PostConnectionQueryVariables>(PostConnectionDocument, variables, options);
+      },
+    service(variables: ServiceQueryVariables, options?: C): Promise<{data: ServiceQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: ServiceQueryVariables, query: string}> {
+        return requester<{data: ServiceQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: ServiceQueryVariables, query: string}, ServiceQueryVariables>(ServiceDocument, variables, options);
+      },
+    serviceConnection(variables?: ServiceConnectionQueryVariables, options?: C): Promise<{data: ServiceConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: ServiceConnectionQueryVariables, query: string}> {
+        return requester<{data: ServiceConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: ServiceConnectionQueryVariables, query: string}, ServiceConnectionQueryVariables>(ServiceConnectionDocument, variables, options);
+      },
+    project(variables: ProjectQueryVariables, options?: C): Promise<{data: ProjectQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: ProjectQueryVariables, query: string}> {
+        return requester<{data: ProjectQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: ProjectQueryVariables, query: string}, ProjectQueryVariables>(ProjectDocument, variables, options);
+      },
+    projectConnection(variables?: ProjectConnectionQueryVariables, options?: C): Promise<{data: ProjectConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: ProjectConnectionQueryVariables, query: string}> {
+        return requester<{data: ProjectConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: ProjectConnectionQueryVariables, query: string}, ProjectConnectionQueryVariables>(ProjectConnectionDocument, variables, options);
+      },
+    agent(variables: AgentQueryVariables, options?: C): Promise<{data: AgentQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: AgentQueryVariables, query: string}> {
+        return requester<{data: AgentQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: AgentQueryVariables, query: string}, AgentQueryVariables>(AgentDocument, variables, options);
+      },
+    agentConnection(variables?: AgentConnectionQueryVariables, options?: C): Promise<{data: AgentConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: AgentConnectionQueryVariables, query: string}> {
+        return requester<{data: AgentConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: AgentConnectionQueryVariables, query: string}, AgentConnectionQueryVariables>(AgentConnectionDocument, variables, options);
+      },
+    schoolModule(variables: SchoolModuleQueryVariables, options?: C): Promise<{data: SchoolModuleQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: SchoolModuleQueryVariables, query: string}> {
+        return requester<{data: SchoolModuleQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: SchoolModuleQueryVariables, query: string}, SchoolModuleQueryVariables>(SchoolModuleDocument, variables, options);
+      },
+    schoolModuleConnection(variables?: SchoolModuleConnectionQueryVariables, options?: C): Promise<{data: SchoolModuleConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: SchoolModuleConnectionQueryVariables, query: string}> {
+        return requester<{data: SchoolModuleConnectionQuery, errors?: { message: string, locations: { line: number, column: number }[], path: string[] }[], variables: SchoolModuleConnectionQueryVariables, query: string}, SchoolModuleConnectionQueryVariables>(SchoolModuleConnectionDocument, variables, options);
       }
     };
   }

@@ -9,7 +9,45 @@ export const PostPartsFragmentDoc = gql`
     fragment PostParts on Post {
   __typename
   title
+  category
+  author
+  date
   body
+}
+    `;
+export const ServicePartsFragmentDoc = gql`
+    fragment ServiceParts on Service {
+  __typename
+  title
+  description
+  price
+  duration
+}
+    `;
+export const ProjectPartsFragmentDoc = gql`
+    fragment ProjectParts on Project {
+  __typename
+  title
+  type
+  detail
+  status
+}
+    `;
+export const AgentPartsFragmentDoc = gql`
+    fragment AgentParts on Agent {
+  __typename
+  title
+  role
+  status
+  description
+}
+    `;
+export const SchoolModulePartsFragmentDoc = gql`
+    fragment SchoolModuleParts on SchoolModule {
+  __typename
+  title
+  duration
+  free
 }
     `;
 export const PostDocument = gql`
@@ -69,6 +107,234 @@ export const PostConnectionDocument = gql`
   }
 }
     ${PostPartsFragmentDoc}`;
+export const ServiceDocument = gql`
+    query service($relativePath: String!) {
+  service(relativePath: $relativePath) {
+    ... on Document {
+      _sys {
+        filename
+        basename
+        hasReferences
+        breadcrumbs
+        path
+        relativePath
+        extension
+      }
+      id
+    }
+    ...ServiceParts
+  }
+}
+    ${ServicePartsFragmentDoc}`;
+export const ServiceConnectionDocument = gql`
+    query serviceConnection($before: String, $after: String, $first: Float, $last: Float, $sort: String, $filter: ServiceFilter) {
+  serviceConnection(
+    before: $before
+    after: $after
+    first: $first
+    last: $last
+    sort: $sort
+    filter: $filter
+  ) {
+    pageInfo {
+      hasPreviousPage
+      hasNextPage
+      startCursor
+      endCursor
+    }
+    totalCount
+    edges {
+      cursor
+      node {
+        ... on Document {
+          _sys {
+            filename
+            basename
+            hasReferences
+            breadcrumbs
+            path
+            relativePath
+            extension
+          }
+          id
+        }
+        ...ServiceParts
+      }
+    }
+  }
+}
+    ${ServicePartsFragmentDoc}`;
+export const ProjectDocument = gql`
+    query project($relativePath: String!) {
+  project(relativePath: $relativePath) {
+    ... on Document {
+      _sys {
+        filename
+        basename
+        hasReferences
+        breadcrumbs
+        path
+        relativePath
+        extension
+      }
+      id
+    }
+    ...ProjectParts
+  }
+}
+    ${ProjectPartsFragmentDoc}`;
+export const ProjectConnectionDocument = gql`
+    query projectConnection($before: String, $after: String, $first: Float, $last: Float, $sort: String, $filter: ProjectFilter) {
+  projectConnection(
+    before: $before
+    after: $after
+    first: $first
+    last: $last
+    sort: $sort
+    filter: $filter
+  ) {
+    pageInfo {
+      hasPreviousPage
+      hasNextPage
+      startCursor
+      endCursor
+    }
+    totalCount
+    edges {
+      cursor
+      node {
+        ... on Document {
+          _sys {
+            filename
+            basename
+            hasReferences
+            breadcrumbs
+            path
+            relativePath
+            extension
+          }
+          id
+        }
+        ...ProjectParts
+      }
+    }
+  }
+}
+    ${ProjectPartsFragmentDoc}`;
+export const AgentDocument = gql`
+    query agent($relativePath: String!) {
+  agent(relativePath: $relativePath) {
+    ... on Document {
+      _sys {
+        filename
+        basename
+        hasReferences
+        breadcrumbs
+        path
+        relativePath
+        extension
+      }
+      id
+    }
+    ...AgentParts
+  }
+}
+    ${AgentPartsFragmentDoc}`;
+export const AgentConnectionDocument = gql`
+    query agentConnection($before: String, $after: String, $first: Float, $last: Float, $sort: String, $filter: AgentFilter) {
+  agentConnection(
+    before: $before
+    after: $after
+    first: $first
+    last: $last
+    sort: $sort
+    filter: $filter
+  ) {
+    pageInfo {
+      hasPreviousPage
+      hasNextPage
+      startCursor
+      endCursor
+    }
+    totalCount
+    edges {
+      cursor
+      node {
+        ... on Document {
+          _sys {
+            filename
+            basename
+            hasReferences
+            breadcrumbs
+            path
+            relativePath
+            extension
+          }
+          id
+        }
+        ...AgentParts
+      }
+    }
+  }
+}
+    ${AgentPartsFragmentDoc}`;
+export const SchoolModuleDocument = gql`
+    query schoolModule($relativePath: String!) {
+  schoolModule(relativePath: $relativePath) {
+    ... on Document {
+      _sys {
+        filename
+        basename
+        hasReferences
+        breadcrumbs
+        path
+        relativePath
+        extension
+      }
+      id
+    }
+    ...SchoolModuleParts
+  }
+}
+    ${SchoolModulePartsFragmentDoc}`;
+export const SchoolModuleConnectionDocument = gql`
+    query schoolModuleConnection($before: String, $after: String, $first: Float, $last: Float, $sort: String, $filter: SchoolModuleFilter) {
+  schoolModuleConnection(
+    before: $before
+    after: $after
+    first: $first
+    last: $last
+    sort: $sort
+    filter: $filter
+  ) {
+    pageInfo {
+      hasPreviousPage
+      hasNextPage
+      startCursor
+      endCursor
+    }
+    totalCount
+    edges {
+      cursor
+      node {
+        ... on Document {
+          _sys {
+            filename
+            basename
+            hasReferences
+            breadcrumbs
+            path
+            relativePath
+            extension
+          }
+          id
+        }
+        ...SchoolModuleParts
+      }
+    }
+  }
+}
+    ${SchoolModulePartsFragmentDoc}`;
 export function getSdk(requester) {
   return {
     post(variables, options) {
@@ -76,6 +342,30 @@ export function getSdk(requester) {
     },
     postConnection(variables, options) {
       return requester(PostConnectionDocument, variables, options);
+    },
+    service(variables, options) {
+      return requester(ServiceDocument, variables, options);
+    },
+    serviceConnection(variables, options) {
+      return requester(ServiceConnectionDocument, variables, options);
+    },
+    project(variables, options) {
+      return requester(ProjectDocument, variables, options);
+    },
+    projectConnection(variables, options) {
+      return requester(ProjectConnectionDocument, variables, options);
+    },
+    agent(variables, options) {
+      return requester(AgentDocument, variables, options);
+    },
+    agentConnection(variables, options) {
+      return requester(AgentConnectionDocument, variables, options);
+    },
+    schoolModule(variables, options) {
+      return requester(SchoolModuleDocument, variables, options);
+    },
+    schoolModuleConnection(variables, options) {
+      return requester(SchoolModuleConnectionDocument, variables, options);
     }
   };
 }

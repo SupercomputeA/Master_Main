@@ -34,3 +34,5 @@ npm-debug.log*
 # public/*.js
 # public/*.css
 !public/*.jsx
+.next/
+out/

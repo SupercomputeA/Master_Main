@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { useState } from "react"
+import ConnectWallet from "./ConnectWallet"
 
 type Role = "public" | "member" | "admin"
 
@@ -79,7 +80,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        <a href="#" className="btn-connect">// Connect</a>
+        <ConnectWallet />
       </div>
     </aside>
   )

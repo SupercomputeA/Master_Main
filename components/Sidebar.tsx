@@ -1,15 +1,18 @@
 import Link from "next/link"
 import { useState } from "react"
 import ConnectWallet from "./ConnectWallet"
+import { useAuth } from "../lib/auth"
 
 type Role = "public" | "member" | "admin"
 
 const navByRole: Record<Role, { href: string; label: string }[]> = {
   public: [
     { href: "/", label: "Home" },
+    { href: "/about", label: "About" },
     { href: "/storefront", label: "StoreFront" },
     { href: "/consulting", label: "Consulting" },
     { href: "/school", label: "School" },
+    { href: "/press", label: "Press" },
     { href: "/social", label: "Social" },
   ],
   member: [
@@ -17,22 +20,19 @@ const navByRole: Record<Role, { href: string; label: string }[]> = {
     { href: "/staking", label: "Staking" },
     { href: "/publishing", label: "Publishing" },
     { href: "/token", label: "Token" },
+    { href: "/account", label: "Profile" },
   ],
   admin: [
     { href: "/dashboard", label: "Dashboard" },
+    { href: "/agent", label: "Agent" },
     { href: "/newsdesk", label: "NewsDesk" },
     { href: "/tradedesk", label: "TradeDesk" },
     { href: "/fleet", label: "Agent Fleet" },
   ],
 }
 
-const roles: { key: Role; label: string }[] = [
-  { key: "public", label: "Public" },
-  { key: "member", label: "Member" },
-  { key: "admin", label: "Admin" },
-]
-
 export default function Sidebar() {
+  const { isAdmin } = useAuth()
   const [role, setRole] = useState<Role>("public")
 
   return (
@@ -46,26 +46,59 @@ export default function Sidebar() {
       </div>
 
       <div style={{ display: "flex", gap: 0, borderBottom: "1px solid var(--border)", padding: "8px 12px" }}>
-        {roles.map((r) => (
+        <button
+          onClick={() => setRole("public")}
+          style={{
+            flex: 1,
+            fontFamily: "var(--font-mono)",
+            fontSize: 9,
+            letterSpacing: "0.1rem",
+            textTransform: "uppercase",
+            background: role === "public" ? "var(--accent)" : "transparent",
+            color: role === "public" ? "var(--bg)" : "var(--muted)",
+            border: "1px solid var(--border)",
+            padding: "6px 8px",
+            cursor: "pointer",
+          }}
+        >
+          Public
+        </button>
+        <button
+          onClick={() => setRole("member")}
+          style={{
+            flex: 1,
+            fontFamily: "var(--font-mono)",
+            fontSize: 9,
+            letterSpacing: "0.1rem",
+            textTransform: "uppercase",
+            background: role === "member" ? "var(--accent)" : "transparent",
+            color: role === "member" ? "var(--bg)" : "var(--muted)",
+            border: "1px solid var(--border)",
+            padding: "6px 8px",
+            cursor: "pointer",
+          }}
+        >
+          Member
+        </button>
+        {isAdmin && (
           <button
-            key={r.key}
-            onClick={() => setRole(r.key)}
+            onClick={() => setRole("admin")}
             style={{
               flex: 1,
               fontFamily: "var(--font-mono)",
               fontSize: 9,
               letterSpacing: "0.1rem",
               textTransform: "uppercase",
-              background: role === r.key ? "var(--accent)" : "transparent",
-              color: role === r.key ? "var(--bg)" : "var(--muted)",
+              background: role === "admin" ? "var(--accent)" : "transparent",
+              color: role === "admin" ? "var(--bg)" : "var(--muted)",
               border: "1px solid var(--border)",
               padding: "6px 8px",
               cursor: "pointer",
             }}
           >
-            {r.label}
+            Admin
           </button>
-        ))}
+        )}
       </div>
 
       <nav className="sidebar-nav">

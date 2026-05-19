@@ -1,74 +1,13 @@
 "use client"
 
-import { useConnect, useAccount, useDisconnect, useSignMessage } from "wagmi"
-import { injected } from "wagmi/connectors"
 import { useEffect, useState } from "react"
-import { getNonce, getMessage, login, logout as apiLogout } from "../lib/siwe"
+import { useAuth } from "../lib/auth"
 
 export default function ConnectWallet() {
-  const { address, isConnected } = useAccount()
-  const { connect } = useConnect()
-  const { disconnect } = useDisconnect()
-  const { signMessageAsync } = useSignMessage()
+  const { profile, devMode, authing, connect, disconnect, loginAs } = useAuth()
   const [mounted, setMounted] = useState(false)
-  const [session, setSession] = useState<string | null>(null)
-  const [profile, setProfile] = useState<{ name: string; role: string } | null>(null)
-  const [authing, setAuthing] = useState(false)
 
   useEffect(() => setMounted(true), [])
-
-  useEffect(() => {
-    const s = localStorage.getItem("session")
-    if (s) {
-      setSession(s)
-      ;(async () => {
-        try {
-          const r = await fetch(`/api/auth/profile`, { headers: { Authorization: `Bearer ${s}` } })
-          const d = await r.json() as { user?: { name: string; role: string } }
-          if (d.user) setProfile(d.user)
-        } catch { localStorage.removeItem("session") }
-      })()
-    }
-  }, [])
-
-  async function handleConnect() {
-    connect({ connector: injected() })
-  }
-
-  useEffect(() => {
-    if (isConnected && address && !session) {
-      signIn(address)
-    }
-  }, [isConnected, address])
-
-  async function signIn(addr: string) {
-    setAuthing(true)
-    try {
-      const nonce = await getNonce()
-      const message = await getMessage(addr, nonce)
-      const signature = await signMessageAsync({ message })
-      const result = await login(addr, signature, nonce)
-      if (result.session) {
-        setSession(result.session)
-        localStorage.setItem("session", result.session)
-        if (result.user) setProfile(result.user)
-      }
-    } catch (e) {
-      console.error("SIWE auth failed", e)
-      disconnect()
-    }
-    setAuthing(false)
-  }
-
-  async function handleDisconnect() {
-    if (session) {
-      await apiLogout(session)
-      localStorage.removeItem("session")
-    }
-    setSession(null)
-    setProfile(null)
-    disconnect()
-  }
 
   if (!mounted) {
     return <div className="btn-connect" style={{ opacity: 0.4 }}>// Connect</div>
@@ -78,9 +17,14 @@ export default function ConnectWallet() {
     return <div className="btn-connect" style={{ opacity: 0.5 }}>// Signing...</div>
   }
 
-  if (session && profile) {
+  if (profile) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {devMode && (
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "#888", textAlign: "center", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            Dev Mode
+          </div>
+        )}
         <div style={{
           fontFamily: "var(--font-mono)",
           fontSize: 10,
@@ -95,7 +39,7 @@ export default function ConnectWallet() {
           {profile.name}
         </div>
         <button
-          onClick={handleDisconnect}
+          onClick={disconnect}
           className="btn-connect"
           style={{ background: "transparent", color: "var(--muted)", borderColor: "var(--border)" }}
         >
@@ -106,8 +50,17 @@ export default function ConnectWallet() {
   }
 
   return (
-    <button onClick={handleConnect} className="btn-connect">
-      // Connect
-    </button>
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <button onClick={connect} className="btn-connect">
+        // Connect
+      </button>
+      <button
+        onClick={() => loginAs("Dev Admin", "admin")}
+        className="btn-connect"
+        style={{ fontSize: 9, padding: "4px 10px", background: "transparent", color: "#666", borderColor: "#333" }}
+      >
+        :: Dev Admin
+      </button>
+    </div>
   )
 }

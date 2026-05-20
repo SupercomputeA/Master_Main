@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .row { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .row:last-child { margin-bottom: 0; }
+  .label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); width: 70px; flex-shrink: 0; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot-active { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,.5); }
+  .dot-idle   { background: #FFB800; box-shadow: 0 0 6px rgba(255,184,0,.4); }
+  .dot-dev    { background: #60a5fa; }
+  .pulse-pink { width: 6px; height: 6px; border-radius: 50%; background: var(--pink); display: inline-block; animation: blink 1.5s infinite; }
+  .pulse-green { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; display: inline-block; animation: blink 1.5s infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+  .text { font-size: 11px; font-weight: 600; }
+  .text.green { color: var(--success); }
+  .text.gold  { color: var(--warning); }
+  .text.pink  { color: var(--pink); }
+</style></head>
+<body><div class="card-root">
+  <div class="row"><span class="label">active</span><span class="dot dot-active"></span><span class="text green">KNIGHT online · monitoring positions</span></div>
+  <div class="row"><span class="label">idle</span><span class="dot dot-idle"></span><span class="text gold">Observer · paper trading</span></div>
+  <div class="row"><span class="label">dev</span><span class="dot dot-dev"></span><span class="text" style="color:#3b82f6;">Claude Desktop · Command</span></div>
+  <div class="row"><span class="label">pulse · pink</span><span class="pulse-pink"></span><span class="text pink">BUILDING IN PUBLIC</span></div>
+  <div class="row"><span class="label">pulse · grn</span><span class="pulse-green"></span><span class="text green">Quanta S Online</span></div>
+</div></body></html>

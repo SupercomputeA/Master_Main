@@ -1,0 +1,75 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .stack { display: grid; gap: 10px; }
+  .row-sem { display: grid; grid-template-columns: 96px 1fr 220px; align-items: center; gap: 14px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+  .chip { display: flex; align-items: center; justify-content: center; height: 38px; border-radius: 8px; color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .6px; }
+  .meta-name { font-size: 12px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
+  .meta-hex  { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+  .meta-use  { font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+  .demo { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .badge { font-size: 9px; padding: 3px 9px; border-radius: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .bar { width: 56px; height: 4px; border-radius: 2px; }
+</style></head>
+<body><div class="card-root">
+  <div class="stack">
+
+    <div class="row-sem">
+      <div class="chip" style="background: var(--success);">SUCCESS</div>
+      <div>
+        <div class="meta-name">Success · Live</div>
+        <div class="meta-hex">#16A34A · rgba(22,163,74,.10) tint</div>
+        <div class="meta-use">Confirmation, "Live", booking open, completed modules.</div>
+      </div>
+      <div class="demo">
+        <span class="badge" style="background: rgba(22,163,74,.10); color: var(--success); border:1px solid rgba(22,163,74,.2);">Live</span>
+        <span class="dot" style="background:#4ADE80; box-shadow:0 0 6px rgba(74,222,128,.5);"></span>
+        <span class="bar" style="background: var(--success);"></span>
+      </div>
+    </div>
+
+    <div class="row-sem">
+      <div class="chip" style="background: var(--warning);">WARNING</div>
+      <div>
+        <div class="meta-name">Warning · In progress</div>
+        <div class="meta-hex">#B45309 · rgba(234,179,8,.10) tint</div>
+        <div class="meta-use">Phase 1, beta, in-review modules, scheduled posts.</div>
+      </div>
+      <div class="demo">
+        <span class="badge" style="background: rgba(234,179,8,.10); color: var(--warning); border:1px solid rgba(234,179,8,.2);">Phase 1</span>
+        <span class="dot" style="background: var(--gold); box-shadow:0 0 6px rgba(255,184,0,.4);"></span>
+        <span class="bar" style="background: var(--warning);"></span>
+      </div>
+    </div>
+
+    <div class="row-sem">
+      <div class="chip" style="background: var(--danger);">DANGER</div>
+      <div>
+        <div class="meta-name">Danger · Destructive</div>
+        <div class="meta-hex">#DC2626 · rgba(220,38,38,.10) tint</div>
+        <div class="meta-use">Errors, liquidation risk, delete, sign-out.</div>
+      </div>
+      <div class="demo">
+        <span class="badge" style="background: rgba(220,38,38,.10); color: var(--danger); border:1px solid rgba(220,38,38,.2);">At risk</span>
+        <span class="dot" style="background: var(--danger);"></span>
+        <span class="bar" style="background: var(--danger);"></span>
+      </div>
+    </div>
+
+    <div class="row-sem">
+      <div class="chip" style="background: var(--green); color:#0a0e1a;">STATUS</div>
+      <div>
+        <div class="meta-name">Status green · Agent online</div>
+        <div class="meta-hex">#4ADE80 · glow rgba(74,222,128,.5)</div>
+        <div class="meta-use">Status dots on agent cards and chips. Lighter than Success — used on dark surfaces.</div>
+      </div>
+      <div class="demo">
+        <span class="badge" style="background: rgba(74,222,128,.10); color:#15803d; border:1px solid rgba(74,222,128,.25);">● ONLINE</span>
+        <span class="dot" style="background: var(--green); box-shadow:0 0 6px rgba(74,222,128,.5);"></span>
+        <span class="bar" style="background: var(--green);"></span>
+      </div>
+    </div>
+
+  </div>
+</div></body></html>

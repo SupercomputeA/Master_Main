@@ -5,31 +5,38 @@ import { useAuth } from "../lib/auth"
 
 type Role = "public" | "member" | "admin"
 
-const navByRole: Record<Role, { href: string; label: string }[]> = {
-  public: [
-    { href: "/", label: "Home" },
-    { href: "/about", label: "About" },
-    { href: "/storefront", label: "StoreFront" },
-    { href: "/consulting", label: "Consulting" },
-    { href: "/school", label: "School" },
-    { href: "/press", label: "Press" },
-    { href: "/social", label: "Social" },
-  ],
-  member: [
-    { href: "/projects", label: "Projects" },
-    { href: "/staking", label: "Staking" },
-    { href: "/publishing", label: "Publishing" },
-    { href: "/token", label: "Token" },
-    { href: "/account", label: "Profile" },
-  ],
-  admin: [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/agent", label: "Agent" },
-    { href: "/newsdesk", label: "NewsDesk" },
-    { href: "/tradedesk", label: "TradeDesk" },
-    { href: "/fleet", label: "Agent Fleet" },
-  ],
-}
+type NavItem = { href: string; label: string; sub?: { href: string; label: string }[] }
+
+const publicNav: NavItem[] = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/storefront", label: "StoreFront" },
+  { href: "/consulting", label: "Consulting" },
+  { href: "/school", label: "School" },
+  { href: "/press", label: "Press" },
+  { href: "/social", label: "Social", sub: [
+    { href: "/social/livestreaming", label: "LiveStream" },
+  ]},
+]
+
+const memberNav: NavItem[] = [
+  { href: "/projects", label: "Projects" },
+  { href: "/app/dashboard", label: "Dashboard" },
+  { href: "/app/social", label: "Social Hub" },
+  { href: "/staking", label: "Staking" },
+  { href: "/publishing", label: "Publishing" },
+  { href: "/token", label: "Token" },
+  { href: "/account", label: "Profile" },
+]
+
+const adminNav: NavItem[] = [
+  { href: "/admin", label: "Command Center" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/agent", label: "Agent" },
+  { href: "/newsdesk", label: "NewsDesk" },
+  { href: "/tradedesk", label: "TradeDesk" },
+  { href: "/fleet", label: "Agent Fleet" },
+]
 
 export default function Sidebar() {
   const { isAdmin } = useAuth()
@@ -104,10 +111,17 @@ export default function Sidebar() {
       <nav className="sidebar-nav">
         <div className="nav-section">
           <div className="nav-section-label">{role}</div>
-          {navByRole[role].map((link) => (
-            <Link key={link.href} href={link.href} className="nav-link">
-              <span>{link.label}</span>
-            </Link>
+          {(role === "public" ? publicNav : role === "member" ? memberNav : adminNav).map((link) => (
+            <div key={link.href}>
+              <Link href={link.href} className="nav-link">
+                <span>{link.label}</span>
+              </Link>
+              {link.sub && link.sub.map((sub) => (
+                <Link key={sub.href} href={sub.href} className="nav-link" style={{ paddingLeft: 32, fontSize: 11, opacity: 0.7 }}>
+                  <span>{sub.label}</span>
+                </Link>
+              ))}
+            </div>
           ))}
         </div>
       </nav>

@@ -14,16 +14,27 @@
   --bg: #0a192f;
   --bg-alt: #0f2744;
   --surface: #112a45;
+  --surface-1: #0f2744;
   --fg: #fff;
+  --text: #fff;
   --muted: rgba(255,255,255,0.5);
   --accent: #d4af37;
+  --gold: #d4af37;
+  --gold-dim: rgba(212,175,55,0.15);
   --accent-dim: rgba(212,175,55,0.15);
   --teal: #1a535c;
   --teal-dim: rgba(26,83,92,0.2);
   --border: rgba(255,255,255,0.08);
   --border-accent: rgba(212,175,55,0.3);
+  --cyan: #5bc0be;
+  --navy: #0a192f;
+  --card: #112a45;
+  --success: #5bc0be;
+  --danger: #ff6b6b;
   --font-display: 'Oswald', sans-serif;
+  --font-d: 'Oswald', sans-serif;
   --font-mono: 'Courier Prime', ui-monospace, monospace;
+  --font-m: 'Courier Prime', ui-monospace, monospace;
   --font-logo: 'Phosphate', sans-serif;
   --sidebar-width: 260px;
 }

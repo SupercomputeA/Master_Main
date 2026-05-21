@@ -39,6 +39,7 @@ const adminNav: NavItem[] = [
   { href: "/admin", label: "Command Center" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/agent", label: "Agent" },
+  { href: "/projects/builder", label: "Create Project" },
   { href: "/newsdesk", label: "NewsDesk", sub: [
     { href: "/newsdesk/builder", label: "Article Builder" },
   ]},

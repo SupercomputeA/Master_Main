@@ -1,25 +1,87 @@
 import Layout from "../components/Layout"
 import Footer from "../components/Footer"
 import { useAuth } from "../lib/auth"
+import { modules, type SchoolModule } from "../lib/school"
 
-const modules = [
-  { id: "M1", title: "Blockchain Fundamentals", lessons: 8, completed: 8, progress: 100, desc: "Hash functions, consensus, and the history of decentralized money." },
-  { id: "M2", title: "Smart Contracts 101", lessons: 10, completed: 10, progress: 100, desc: "Solidity basics, gas optimization, and deploying on Base." },
-  { id: "M3", title: "DeFi Architecture", lessons: 12, completed: 12, progress: 100, desc: "AMMs, lending protocols, yield strategies, and risk." },
-  { id: "M4", title: "Web3 Identity & Auth", lessons: 6, completed: 6, progress: 100, desc: "SIWE, DIDs, Verifiable Credentials, and session management." },
-  { id: "M5", title: "Autonomous Agents", lessons: 10, completed: 7, progress: 70, desc: "Agent frameworks, on-chain automation, and fleet orchestration." },
-  { id: "M6", title: "Treasury Management", lessons: 8, completed: 0, progress: 0, desc: "Multi-sig ops, portfolio rebalancing, and governance." },
-  { id: "M7", title: "Token Engineering", lessons: 10, completed: 0, progress: 0, desc: "Tokenomics design, bonding curves, and incentive modeling." },
-]
+function ModuleCard({ m, index }: { m: SchoolModule; index: number }) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div style={{ background: "var(--bg)", border: "1px solid var(--border)" }}>
+      <div
+        onClick={() => setOpen(!open)}
+        style={{ padding: "20px 24px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: 8,
+            background: `${m.color}15`, border: `1px solid ${m.color}30`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 18,
+          }}>{m.icon}</div>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: m.color }}>{m.id}</span>
+              <span style={{ fontSize: 15, fontWeight: 600 }}>{m.title}</span>
+            </div>
+            <div style={{ fontSize: 11, color: "var(--muted)" }}>{m.subtitle} · {m.lessons.length} lessons · {m.duration}</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{
+            fontFamily: "var(--font-mono)", fontSize: 9, padding: "3px 8px",
+            background: `${m.color}15`, color: m.color, border: `1px solid ${m.color}30`,
+          }}>{m.difficulty}</span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, padding: "3px 8px", background: "var(--accent-dim)", color: "var(--accent)", border: "1px solid var(--border-accent)" }}>
+            {m.access.toUpperCase()}
+          </span>
+          <span style={{ fontSize: 14, color: "var(--muted)", transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
+        </div>
+      </div>
+      {open && (
+        <div style={{ borderTop: "1px solid var(--border)", padding: "20px 24px 24px" }}>
+          <p style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.6, marginBottom: 16 }}>{m.description}</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
+            <div style={{ background: "var(--surface)", padding: "8px 14px", display: "grid", gridTemplateColumns: "1fr 1fr 80px", gap: 12, fontSize: 9, fontFamily: "var(--font-mono)", color: "var(--muted)", textTransform: "uppercase" }}>
+              <div>Lesson</div>
+              <div>Topics</div>
+              <div>Duration</div>
+            </div>
+            {m.lessons.map((l) => (
+              <div key={l.id} style={{ background: "var(--bg)", padding: "12px 14px", display: "grid", gridTemplateColumns: "1fr 1fr 80px", gap: 12, alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>{l.title}</div>
+                  <div style={{ fontSize: 10, color: "var(--muted)" }}>{l.description}</div>
+                </div>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                  {l.topics.map((t) => (
+                    <span key={t} style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--muted)", border: "1px solid var(--border)", padding: "1px 6px" }}>{t}</span>
+                  ))}
+                </div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--accent)", textAlign: "right" }}>{l.duration}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
+            <button className="btn-connect" style={{ fontSize: 10, padding: "6px 18px" }}>Start Module</button>
+            {m.credential && <button className="btn-connect" style={{ fontSize: 10, padding: "6px 18px", background: "transparent", color: "var(--muted)", borderColor: "var(--border)" }}>View Credential</button>}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+import { useState } from "react"
 
 const assignments = [
-  { module: "M5", title: "Deploy Your First Agent", due: "2026-06-01", status: "pending", points: 100 },
-  { module: "M5", title: "Agent Monitoring Dashboard", due: "2026-06-15", status: "pending", points: 150 },
-  { module: "M6", title: "Multi-sig Configuration Lab", due: "2026-07-01", status: "locked", points: 200 },
+  { module: "WS-01", title: "Configure a Multi-Sig Wallet", due: "2026-06-01", status: "pending", points: 100 },
+  { module: "DF-01", title: "Provide Liquidity on Aerodrome", due: "2026-06-15", status: "pending", points: 150 },
+  { module: "RF-01", title: "ReFi Protocol Analysis Paper", due: "2026-07-01", status: "locked", points: 200 },
 ]
 
 export default function SchoolPage() {
-  const { session } = useAuth()
+  const { session, profile } = useAuth()
 
   return (
     <Layout title="SUPERCOMPUTE · Web3 School">
@@ -32,9 +94,23 @@ export default function SchoolPage() {
           WEB3<br /><em>SCHOOL</em>
         </h1>
         <p className="hero-sub">
-          Principled Web3 education. Seven modules. NFT credentials on Base.
-          Start free, earn your way to TradeDesk access.
+          Principled Web3 education. Free modules on Wallet Security, ReFi, DeFi, and Core Values.
+          NFT credentials on Base. Start free, earn your way to TradeDesk access.
         </p>
+      </section>
+
+      <section className="section">
+        <div className="section-header">
+          <div className="label">// free modules</div>
+          <div>
+            <h2 className="display-md">Start Learning Free</h2>
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
+          {modules.filter(m => m.access === "free").map((m, i) => (
+            <ModuleCard key={m.id} m={m} index={i} />
+          ))}
+        </div>
       </section>
 
       {session ? (
@@ -46,38 +122,18 @@ export default function SchoolPage() {
                 <h2 className="display-md">Your Progress</h2>
               </div>
             </div>
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "20px 24px", marginBottom: 24 }}>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "20px 24px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                 <span style={{ fontSize: 12, color: "var(--muted)" }}>Overall Completion</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--accent)" }}>55%</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--accent)" }}>15%</span>
               </div>
               <div style={{ height: 6, background: "var(--border)", borderRadius: 3, overflow: "hidden" }}>
-                <div style={{ width: "55%", height: "100%", background: "var(--accent)", borderRadius: 3 }}></div>
+                <div style={{ width: "15%", height: "100%", background: "var(--accent)", borderRadius: 3 }}></div>
               </div>
               <div style={{ display: "flex", gap: 24, marginTop: 16, fontSize: 11, color: "var(--muted)" }}>
-                <span>43 / 64 lessons</span>
-                <span>5 / 7 modules</span>
-                <span>0 / 3 assignments submitted</span>
+                <span>0 / 21 lessons complete</span>
+                <span>{profile?.name ?? "Connect"} · {profile?.role ?? "Member"}</span>
               </div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
-              {modules.map((m) => (
-                <div key={m.id} style={{ background: "var(--bg)", padding: "18px 20px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <div>
-                      <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--accent)" }}>{m.id}</span>
-                      <span style={{ fontSize: 14, fontWeight: 600, marginLeft: 12 }}>{m.title}</span>
-                    </div>
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: m.progress === 100 ? "var(--accent)" : "var(--muted)" }}>
-                      {m.completed}/{m.lessons}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: 11, color: "var(--muted)", marginBottom: 10 }}>{m.desc}</p>
-                  <div style={{ height: 4, background: "var(--border)", borderRadius: 2, overflow: "hidden" }}>
-                    <div style={{ width: `${m.progress}%`, height: "100%", background: m.progress === 100 ? "var(--accent)" : "#555", borderRadius: 2 }}></div>
-                  </div>
-                </div>
-              ))}
             </div>
           </section>
 
@@ -85,7 +141,7 @@ export default function SchoolPage() {
             <div className="section-header">
               <div className="label">// assignments</div>
               <div>
-                <h2 className="display-md">Upcoming Work</h2>
+                <h2 className="display-md">Upcoming Assignments</h2>
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
@@ -104,8 +160,8 @@ export default function SchoolPage() {
         </>
       ) : (
         <section className="section">
-          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "60px 24px", textAlign: "center", color: "var(--muted)", fontSize: 13 }}>
-            Connect your wallet and sign in to access course materials, track progress, and submit assignments.
+          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "40px 24px", textAlign: "center", color: "var(--muted)", fontSize: 13 }}>
+            Free modules are open to everyone. Sign in to track progress, submit assignments, and earn NFT credentials.
           </div>
         </section>
       )}

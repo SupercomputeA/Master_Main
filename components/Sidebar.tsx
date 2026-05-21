@@ -11,8 +11,12 @@ const publicNav: NavItem[] = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
   { href: "/storefront", label: "StoreFront" },
-  { href: "/consulting", label: "Consulting" },
-  { href: "/school", label: "School" },
+  { href: "/consulting", label: "Consulting", sub: [
+    { href: "/consulting/questionnaire", label: "Questionnaire" },
+  ]},
+  { href: "/school", label: "School", sub: [
+    { href: "/school/builder", label: "Course Builder" },
+  ]},
   { href: "/press", label: "Press" },
   { href: "/social", label: "Social", sub: [
     { href: "/social/livestreaming", label: "LiveStream" },
@@ -20,7 +24,9 @@ const publicNav: NavItem[] = [
 ]
 
 const memberNav: NavItem[] = [
-  { href: "/projects", label: "Projects" },
+  { href: "/projects", label: "Projects", sub: [
+    { href: "/projects/builder", label: "Builder" },
+  ]},
   { href: "/app/dashboard", label: "Dashboard" },
   { href: "/app/social", label: "Social Hub" },
   { href: "/staking", label: "Staking" },
@@ -33,7 +39,9 @@ const adminNav: NavItem[] = [
   { href: "/admin", label: "Command Center" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/agent", label: "Agent" },
-  { href: "/newsdesk", label: "NewsDesk" },
+  { href: "/newsdesk", label: "NewsDesk", sub: [
+    { href: "/newsdesk/builder", label: "Article Builder" },
+  ]},
   { href: "/tradedesk", label: "TradeDesk" },
   { href: "/fleet", label: "Agent Fleet" },
 ]

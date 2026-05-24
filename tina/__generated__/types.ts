@@ -237,13 +237,61 @@ export type CollectionDocumentsArgs = {
 
 export type DocumentNode = Post | Service | Project | Agent | SchoolModule | Folder;
 
+export type PostSeo = {
+  __typename?: 'PostSeo';
+  title?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  keywords?: Maybe<Scalars['String']['output']>;
+  ogImage?: Maybe<Scalars['String']['output']>;
+};
+
+export type PostKnowledgeGraphNodes = {
+  __typename?: 'PostKnowledgeGraphNodes';
+  id?: Maybe<Scalars['String']['output']>;
+  label?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type PostKnowledgeGraphEdges = {
+  __typename?: 'PostKnowledgeGraphEdges';
+  from?: Maybe<Scalars['String']['output']>;
+  to?: Maybe<Scalars['String']['output']>;
+  label?: Maybe<Scalars['String']['output']>;
+};
+
+export type PostKnowledgeGraph = {
+  __typename?: 'PostKnowledgeGraph';
+  nodes?: Maybe<Array<Maybe<PostKnowledgeGraphNodes>>>;
+  edges?: Maybe<Array<Maybe<PostKnowledgeGraphEdges>>>;
+};
+
+export type PostProtocolEval = {
+  __typename?: 'PostProtocolEval';
+  protocol?: Maybe<Scalars['String']['output']>;
+  chain?: Maybe<Scalars['String']['output']>;
+  tvl?: Maybe<Scalars['String']['output']>;
+  riskScore?: Maybe<Scalars['String']['output']>;
+  audit?: Maybe<Scalars['String']['output']>;
+  recommendation?: Maybe<Scalars['String']['output']>;
+  category?: Maybe<Scalars['String']['output']>;
+  auditedBy?: Maybe<Scalars['String']['output']>;
+  launchDate?: Maybe<Scalars['String']['output']>;
+};
+
 export type Post = Node & Document & {
   __typename?: 'Post';
   title: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
   category?: Maybe<Scalars['String']['output']>;
   author?: Maybe<Scalars['String']['output']>;
   date?: Maybe<Scalars['String']['output']>;
+  excerpt?: Maybe<Scalars['String']['output']>;
+  access?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
   body?: Maybe<Scalars['JSON']['output']>;
+  seo?: Maybe<PostSeo>;
+  knowledgeGraph?: Maybe<PostKnowledgeGraph>;
+  protocolEval?: Maybe<PostProtocolEval>;
   id: Scalars['ID']['output'];
   _sys: SystemInfo;
   _values: Scalars['JSON']['output'];
@@ -270,12 +318,55 @@ export type RichTextFilter = {
   exists?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+export type PostSeoFilter = {
+  title?: InputMaybe<StringFilter>;
+  description?: InputMaybe<StringFilter>;
+  keywords?: InputMaybe<StringFilter>;
+  ogImage?: InputMaybe<StringFilter>;
+};
+
+export type PostKnowledgeGraphNodesFilter = {
+  id?: InputMaybe<StringFilter>;
+  label?: InputMaybe<StringFilter>;
+  type?: InputMaybe<StringFilter>;
+};
+
+export type PostKnowledgeGraphEdgesFilter = {
+  from?: InputMaybe<StringFilter>;
+  to?: InputMaybe<StringFilter>;
+  label?: InputMaybe<StringFilter>;
+};
+
+export type PostKnowledgeGraphFilter = {
+  nodes?: InputMaybe<PostKnowledgeGraphNodesFilter>;
+  edges?: InputMaybe<PostKnowledgeGraphEdgesFilter>;
+};
+
+export type PostProtocolEvalFilter = {
+  protocol?: InputMaybe<StringFilter>;
+  chain?: InputMaybe<StringFilter>;
+  tvl?: InputMaybe<StringFilter>;
+  riskScore?: InputMaybe<StringFilter>;
+  audit?: InputMaybe<StringFilter>;
+  recommendation?: InputMaybe<StringFilter>;
+  category?: InputMaybe<StringFilter>;
+  auditedBy?: InputMaybe<StringFilter>;
+  launchDate?: InputMaybe<StringFilter>;
+};
+
 export type PostFilter = {
   title?: InputMaybe<StringFilter>;
+  slug?: InputMaybe<StringFilter>;
   category?: InputMaybe<StringFilter>;
   author?: InputMaybe<StringFilter>;
   date?: InputMaybe<DatetimeFilter>;
+  excerpt?: InputMaybe<StringFilter>;
+  access?: InputMaybe<StringFilter>;
+  status?: InputMaybe<StringFilter>;
   body?: InputMaybe<RichTextFilter>;
+  seo?: InputMaybe<PostSeoFilter>;
+  knowledgeGraph?: InputMaybe<PostKnowledgeGraphFilter>;
+  protocolEval?: InputMaybe<PostProtocolEvalFilter>;
 };
 
 export type PostConnectionEdges = {
@@ -547,12 +638,55 @@ export type DocumentMutation = {
   schoolModule?: InputMaybe<SchoolModuleMutation>;
 };
 
+export type PostSeoMutation = {
+  title?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  keywords?: InputMaybe<Scalars['String']['input']>;
+  ogImage?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostKnowledgeGraphNodesMutation = {
+  id?: InputMaybe<Scalars['String']['input']>;
+  label?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostKnowledgeGraphEdgesMutation = {
+  from?: InputMaybe<Scalars['String']['input']>;
+  to?: InputMaybe<Scalars['String']['input']>;
+  label?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostKnowledgeGraphMutation = {
+  nodes?: InputMaybe<Array<InputMaybe<PostKnowledgeGraphNodesMutation>>>;
+  edges?: InputMaybe<Array<InputMaybe<PostKnowledgeGraphEdgesMutation>>>;
+};
+
+export type PostProtocolEvalMutation = {
+  protocol?: InputMaybe<Scalars['String']['input']>;
+  chain?: InputMaybe<Scalars['String']['input']>;
+  tvl?: InputMaybe<Scalars['String']['input']>;
+  riskScore?: InputMaybe<Scalars['String']['input']>;
+  audit?: InputMaybe<Scalars['String']['input']>;
+  recommendation?: InputMaybe<Scalars['String']['input']>;
+  category?: InputMaybe<Scalars['String']['input']>;
+  auditedBy?: InputMaybe<Scalars['String']['input']>;
+  launchDate?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type PostMutation = {
   title?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
   category?: InputMaybe<Scalars['String']['input']>;
   author?: InputMaybe<Scalars['String']['input']>;
   date?: InputMaybe<Scalars['String']['input']>;
+  excerpt?: InputMaybe<Scalars['String']['input']>;
+  access?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
   body?: InputMaybe<Scalars['JSON']['input']>;
+  seo?: InputMaybe<PostSeoMutation>;
+  knowledgeGraph?: InputMaybe<PostKnowledgeGraphMutation>;
+  protocolEval?: InputMaybe<PostProtocolEvalMutation>;
 };
 
 export type ServiceMutation = {
@@ -582,7 +716,7 @@ export type SchoolModuleMutation = {
   free?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type PostPartsFragment = { __typename: 'Post', title: string, category?: string | null, author?: string | null, date?: string | null, body?: any | null };
+export type PostPartsFragment = { __typename: 'Post', title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null };
 
 export type ServicePartsFragment = { __typename: 'Service', title: string, description?: string | null, price?: string | null, duration?: string | null };
 
@@ -597,7 +731,7 @@ export type PostQueryVariables = Exact<{
 }>;
 
 
-export type PostQuery = { __typename?: 'Query', post: { __typename: 'Post', id: string, title: string, category?: string | null, author?: string | null, date?: string | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+export type PostQuery = { __typename?: 'Query', post: { __typename: 'Post', id: string, title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null } };
 
 export type PostConnectionQueryVariables = Exact<{
   before?: InputMaybe<Scalars['String']['input']>;
@@ -609,7 +743,7 @@ export type PostConnectionQueryVariables = Exact<{
 }>;
 
 
-export type PostConnectionQuery = { __typename?: 'Query', postConnection: { __typename?: 'PostConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PostConnectionEdges', cursor: string, node?: { __typename: 'Post', id: string, title: string, category?: string | null, author?: string | null, date?: string | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+export type PostConnectionQuery = { __typename?: 'Query', postConnection: { __typename?: 'PostConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PostConnectionEdges', cursor: string, node?: { __typename: 'Post', id: string, title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null } | null } | null> | null } };
 
 export type ServiceQueryVariables = Exact<{
   relativePath: Scalars['String']['input'];
@@ -691,10 +825,48 @@ export const PostPartsFragmentDoc = gql`
     fragment PostParts on Post {
   __typename
   title
+  slug
   category
   author
   date
+  excerpt
+  access
+  status
   body
+  seo {
+    __typename
+    title
+    description
+    keywords
+    ogImage
+  }
+  knowledgeGraph {
+    __typename
+    nodes {
+      __typename
+      id
+      label
+      type
+    }
+    edges {
+      __typename
+      from
+      to
+      label
+    }
+  }
+  protocolEval {
+    __typename
+    protocol
+    chain
+    tvl
+    riskScore
+    audit
+    recommendation
+    category
+    auditedBy
+    launchDate
+  }
 }
     `;
 export const ServicePartsFragmentDoc = gql`
@@ -1097,7 +1269,7 @@ export const ExperimentalGetTinaClient = () =>
   getSdk(
     generateRequester(
       createClient({
-        url: "https://content.tinajs.io/2.4/content/b77cb4b2-e33c-47ed-a714-7a7613e614bc/github/main",
+        url: "http://localhost:4001/graphql",
         queries,
       })
     )

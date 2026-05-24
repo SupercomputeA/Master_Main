@@ -28,7 +28,7 @@ const activityLog = [
 ]
 
 export default function Account() {
-  const { session, profile, devMode } = useAuth()
+  const { session, profile } = useAuth()
 
   return (
     <Layout title="SUPERCOMPUTE · Profile">
@@ -89,12 +89,6 @@ export default function Account() {
                 <span style={{ fontSize: 12, color: "var(--muted)" }}>NFTs Held</span>
                 <span style={{ fontSize: 13, color: "var(--fg)" }}>4 credentials · 1 badge</span>
               </div>
-              {devMode && (
-                <div style={{ background: "var(--bg)", padding: "14px 20px", display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: 12, color: "#888" }}>Session</span>
-                  <span style={{ fontSize: 10, fontFamily: "var(--font-mono)", color: "#888", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis" }}>{session.slice(0, 20)}…</span>
-                </div>
-              )}
             </div>
           </section>
 

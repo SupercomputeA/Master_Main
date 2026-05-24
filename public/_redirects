@@ -1,2 +1,0 @@
-# SPA fallback — all routes serve index.html so the client-side router handles them
-/*  /index.html  200

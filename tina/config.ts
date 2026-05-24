@@ -25,34 +25,76 @@ export default defineConfig({
         path: "content/posts",
         format: "md",
         fields: [
+          { type: "string", name: "title", label: "Title", isTitle: true, required: true },
+          { type: "string", name: "slug", label: "Slug", required: true },
           {
-            type: "string",
-            name: "title",
-            label: "Title",
-            isTitle: true,
-            required: true,
+            type: "string", name: "category", label: "Category",
+            options: ["INTELLIGENCE", "SOVEREIGNTY", "DISPATCH", "SIGNAL", "PROTOCOL_EVAL"],
+          },
+          { type: "string", name: "author", label: "Author" },
+          { type: "datetime", name: "date", label: "Date" },
+          { type: "string", name: "excerpt", label: "Excerpt", ui: { component: "textarea" } },
+          {
+            type: "string", name: "access", label: "Access",
+            options: ["public", "subscriber"],
           },
           {
-            type: "string",
-            name: "category",
-            label: "Category",
-            options: ["Sovereignty", "Dispatch", "Intelligence", "Community Signal"],
+            type: "string", name: "status", label: "Status",
+            options: ["draft", "review", "published"],
+          },
+          { type: "rich-text", name: "body", label: "Body", isBody: true },
+          {
+            type: "object", name: "seo", label: "SEO Metadata",
+            fields: [
+              { type: "string", name: "title", label: "SEO Title" },
+              { type: "string", name: "description", label: "Meta Description", ui: { component: "textarea" } },
+              { type: "string", name: "keywords", label: "Keywords (comma separated)" },
+              { type: "string", name: "ogImage", label: "OG Image URL" },
+            ],
           },
           {
-            type: "string",
-            name: "author",
-            label: "Author",
+            type: "object", name: "knowledgeGraph", label: "Knowledge Graph",
+            fields: [
+              {
+                type: "object", name: "nodes", label: "Nodes", list: true,
+                fields: [
+                  { type: "string", name: "id", label: "ID" },
+                  { type: "string", name: "label", label: "Label" },
+                  {
+                    type: "string", name: "type", label: "Type",
+                    options: ["protocol", "token", "agent", "concept", "person"],
+                  },
+                ],
+              },
+              {
+                type: "object", name: "edges", label: "Edges", list: true,
+                fields: [
+                  { type: "string", name: "from", label: "From" },
+                  { type: "string", name: "to", label: "To" },
+                  { type: "string", name: "label", label: "Label" },
+                ],
+              },
+            ],
           },
           {
-            type: "datetime",
-            name: "date",
-            label: "Date",
-          },
-          {
-            type: "rich-text",
-            name: "body",
-            label: "Body",
-            isBody: true,
+            type: "object", name: "protocolEval", label: "Protocol Evaluation",
+            fields: [
+              { type: "string", name: "protocol", label: "Protocol Name" },
+              { type: "string", name: "chain", label: "Chain" },
+              { type: "string", name: "tvl", label: "TVL" },
+              {
+                type: "string", name: "riskScore", label: "Risk Score",
+                options: ["Low", "Medium", "High", "Critical"],
+              },
+              { type: "string", name: "audit", label: "Audit Info" },
+              {
+                type: "string", name: "recommendation", label: "Recommendation",
+                options: ["Invest", "Monitor", "Caution", "Avoid"],
+              },
+              { type: "string", name: "category", label: "Category" },
+              { type: "string", name: "auditedBy", label: "Audited By" },
+              { type: "string", name: "launchDate", label: "Launch Date" },
+            ],
           },
         ],
       },

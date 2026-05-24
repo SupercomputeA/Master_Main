@@ -3,7 +3,7 @@ export default function Hero() {
     <section className="hero" id="home">
       <div className="hero-kicker">
         <div className="status-dot"></div>
-        <span className="label">// Building in public</span>
+        <span className="label">// operator terminal</span>
       </div>
       <h1 className="display-xl hero-title">
         WEB3<br />BUILT FOR<br /><em>LIBERATION</em>

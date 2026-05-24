@@ -21,6 +21,7 @@ export interface SchoolModule {
   credential: string | null
   icon: string
   color: string
+  done?: boolean
 }
 
 export const modules: SchoolModule[] = [
@@ -101,9 +102,119 @@ export const modules: SchoolModule[] = [
       { id: "CV-01-04", title: "Regenerative Practice", description: "How ReFi principles apply to personal practice, not just protocol design.", duration: "20 min", topics: ["Personal sustainability", "Community care", "Knowledge sharing", "Mentorship cycles"] },
     ],
   },
+  {
+    id: "AS-01",
+    title: "Agent Systems",
+    subtitle: "Autonomous AI Agents on Base",
+    description: "Design, deploy, and manage autonomous AI agents with on-chain identity, token-gated access, and multi-agent coordination. Build for Virtuals Protocol and beyond.",
+    difficulty: "Intermediate",
+    access: "member",
+    duration: "4 hours",
+    credential: "Agent Systems Graduate",
+    icon: "🤖",
+    color: "#7c3aed",
+    lessons: [
+      { id: "AS-01-01", title: "Agent Architecture", description: "Core components of autonomous agents — perception, reasoning, action loops.", duration: "25 min", topics: ["Agent loops", "LLM integration", "Tool use", "Memory systems"] },
+      { id: "AS-01-02", title: "On-Chain Identity for Agents", description: "Giving agents wallets, signing capabilities, and on-chain reputation.", duration: "30 min", topics: ["Agent wallets", "Delegated signing", "On-chain attestations", "Reputation tracking"] },
+      { id: "AS-01-03", title: "Token-Gated Agent Access", description: "Restricting agent actions and data access based on token holdings.", duration: "25 min", topics: ["Token gating", "$SCOM staking", "Access tiers", "Balance verification"] },
+      { id: "AS-01-04", title: "Multi-Agent Coordination", description: "Patterns for multiple agents working together — routing, delegation, consensus.", duration: "35 min", topics: ["Agent routing", "Task delegation", "Consensus mechanisms", "Conflict resolution"] },
+      { id: "AS-01-05", title: "Virtuals Protocol Deep Dive", description: "Building and deploying agents on the Virtuals Protocol platform.", duration: "30 min", topics: ["Virtuals framework", "Agent deployment", "Revenue models", "Agent evaluation"] },
+      { id: "AS-01-06", title: "Production Operations", description: "Monitoring, logging, alerting, and upgrading agents in production.", duration: "25 min", topics: ["Agent monitoring", "Error recovery", "Version management", "Cost optimization"] },
+    ],
+  },
+  {
+    id: "TK-01",
+    title: "Tokenomics Deep Dive",
+    subtitle: "Design Sustainable Token Economies",
+    description: "Master tokenomics design — supply mechanics, emission schedules, vesting, treasury management, and governance. Build token models that create lasting value.",
+    difficulty: "Advanced",
+    access: "member",
+    duration: "5 hours",
+    credential: "Tokenomics Architect",
+    icon: "⬡",
+    color: "#d4af37",
+    lessons: [
+      { id: "TK-01-01", title: "Supply Mechanics", description: "Total supply, inflation/deflation, mint/burn mechanisms, and supply curves.", duration: "30 min", topics: ["Supply design", "Inflation models", "Burn mechanisms", "Supply caps"] },
+      { id: "TK-01-02", title: "Emission Schedules", description: "Designing release schedules for team, investors, community, and ecosystem.", duration: "35 min", topics: ["Vesting schedules", "Linear vs staged", "Cliff periods", "TGE planning"] },
+      { id: "TK-01-03", title: "Treasury Management", description: "Managing protocol treasuries — diversification, spending, and sustainability.", duration: "30 min", topics: ["Treasury diversification", "Stablecoin reserves", "Yield strategies", "Spending policies"] },
+      { id: "TK-01-04", title: "Governance Design", description: "Token-weighted voting, quorum, delegation, and proposal frameworks.", duration: "30 min", topics: ["Voting mechanisms", "Quorum design", "Delegation", "Proposal lifecycle"] },
+      { id: "TK-01-05", title: "Incentive Alignment", description: "Designing incentives that align user behavior with protocol health.", duration: "35 min", topics: ["Staking incentives", "Liquidity mining", "Retroactive rewards", "Sybil resistance"] },
+      { id: "TK-01-06", title: "Case Study Analysis", description: "Analyzing real token launches — what worked, what broke, what to avoid.", duration: "40 min", topics: ["Case studies", "Post-mortems", "Modeling tools", "Stress testing"] },
+    ],
+  },
+  {
+    id: "SC-01",
+    title: "Smart Contract Security",
+    subtitle: "Audit-Ready Development",
+    description: "Learn smart contract security patterns — common vulnerabilities, auditing methodology, formal verification, and secure development lifecycle for EVM chains.",
+    difficulty: "Advanced",
+    access: "member",
+    duration: "6 hours",
+    credential: "Security Auditor",
+    icon: "🛡️",
+    color: "#ff6b6b",
+    lessons: [
+      { id: "SC-01-01", title: "Reentrancy & Access Control", description: "Understanding reentrancy attacks and proper access control patterns.", duration: "35 min", topics: ["Reentrancy", "CEI pattern", "Access control", "Ownable patterns"] },
+      { id: "SC-01-02", title: "Oracle Manipulation", description: "How oracles get manipulated and how to protect against price oracle attacks.", duration: "30 min", topics: ["TWAP oracles", "Chainlink", "Flash loan attacks", "Manipulation resistance"] },
+      { id: "SC-01-03", title: "Integer Overflows & Math", description: "Safe math, precision loss, rounding errors, and Solidity 0.8+ protections.", duration: "25 min", topics: ["Overflow/underflow", "Precision loss", "Rounding errors", "Fixed point math"] },
+      { id: "SC-01-04", title: "Auditing Methodology", description: "How professional auditors review contracts — tools, checklists, and reporting.", duration: "40 min", topics: ["Audit scope", "Static analysis", "Fuzzing", "Reporting standards"] },
+      { id: "SC-01-05", title: "Formal Verification", description: "Using mathematical proofs to verify contract correctness.", duration: "35 min", topics: ["Formal methods", "Invariants", "Symbolic execution", "Certora / Scribble"] },
+      { id: "SC-01-06", title: "Secure Development Lifecycle", description: "Building security into the entire development pipeline from spec to deployment.", duration: "25 min", topics: ["Threat modeling", "Code reviews", "Test coverage", "Bug bounties"] },
+    ],
+  },
+  {
+    id: "LQ-01",
+    title: "Liquidity Strategy",
+    subtitle: "Bootstrapping & Managing Liquidity",
+    description: "Strategic approaches to bootstrapping liquidity, market-making, token incentives, and managing LP positions across DEXes on Base.",
+    difficulty: "Advanced",
+    access: "member",
+    duration: "4 hours",
+    credential: "Liquidity Strategist",
+    icon: "💧",
+    color: "#5bc0be",
+    lessons: [
+      { id: "LQ-01-01", title: "Liquidity Bootstrapping", description: "Strategies for initial liquidity events — LBP, LGE, and initial DEX offerings.", duration: "30 min", topics: ["Liquidity bootstrapping", "Balancer LBP", "Fjord Foundry", "Initial DEX offering"] },
+      { id: "LQ-01-02", title: "Concentrated Liquidity", description: "Managing Uniswap V3-style concentrated liquidity positions for maximum efficiency.", duration: "35 min", topics: ["Concentrated liquidity", "Range orders", "Fee tiers", "Rebalancing"] },
+      { id: "LQ-01-03", title: "Incentive Design", description: "Designing token incentives to attract and retain liquidity providers.", duration: "30 min", topics: ["LP incentives", "Emission distribution", "Vesting for LPs", "Vote-escrow models"] },
+      { id: "LQ-01-04", title: "Stable Pool Management", description: "Managing stablecoin pools, pegged assets, and balancing pool composition.", duration: "25 min", topics: ["Stable pools", "Peg management", "Curve / Aerodrome", "Pool composition"] },
+      { id: "LQ-01-05", title: "Cross-Chain Liquidity", description: "Strategies for managing liquidity across multiple chains and bridges.", duration: "30 min", topics: ["Cross-chain liquidity", "Bridge selection", "Wormhole / LayerZero", "Unified liquidity"] },
+    ],
+  },
+  {
+    id: "PG-01",
+    title: "Protocol Governance",
+    subtitle: "DAOs, Voting & Proposals",
+    description: "Design and participate in on-chain governance systems — DAO structures, voting mechanisms, proposal lifecycles, and community coordination.",
+    difficulty: "Intermediate",
+    access: "member",
+    duration: "3 hours",
+    credential: "Governance Specialist",
+    icon: "🏛️",
+    color: "#d4af37",
+    lessons: [
+      { id: "PG-01-01", title: "DAO Structures", description: "Different DAO models — token-based, multi-sig, hybrid, and legal wrappers.", duration: "25 min", topics: ["Token DAOs", "Multi-sig DAOs", "Hybrid models", "Legal structures"] },
+      { id: "PG-01-02", title: "Voting Mechanisms", description: "Quadratic voting, conviction voting, token-weighted voting, and delegation.", duration: "30 min", topics: ["Token-weighted voting", "Quadratic voting", "Conviction voting", "Delegate systems"] },
+      { id: "PG-01-03", title: "Proposal Lifecycle", description: "From temperature check to on-chain execution — the full proposal pipeline.", duration: "25 min", topics: ["Temperature checks", "RFC process", "Voting periods", "Execution & timelocks"] },
+      { id: "PG-01-04", title: "Treasury Governance", description: "Managing DAO treasuries through proposals, multi-sig, and streaming payments.", duration: "30 min", topics: ["Treasury proposals", "Multi-sig execution", "Streaming payments", "Accounting & reporting"] },
+      { id: "PG-01-05", title: "Community Coordination", description: "Tools and practices for effective community governance and participation.", duration: "20 min", topics: ["Discussion forums", "Governance tools", "Participation incentives", "Conflict resolution"] },
+    ],
+  },
 ]
 
 export const modulesByAccess = {
   free: modules.filter(m => m.access === "free"),
   member: modules.filter(m => m.access === "member"),
+}
+
+export function getModule(id: string): SchoolModule | undefined {
+  return modules.find(m => m.id === id)
+}
+
+export function getLesson(moduleId: string, lessonId: string): { module: SchoolModule; lesson: Lesson } | undefined {
+  const mod = modules.find(m => m.id === moduleId)
+  if (!mod) return
+  const lesson = mod.lessons.find(l => l.id === lessonId)
+  if (!lesson) return
+  return { module: mod, lesson }
 }

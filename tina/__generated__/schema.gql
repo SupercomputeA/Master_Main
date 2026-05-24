@@ -99,12 +99,55 @@ type Collection {
 
 union DocumentNode = Post | Service | Project | Agent | SchoolModule | Folder
 
+type PostSeo {
+  title: String
+  description: String
+  keywords: String
+  ogImage: String
+}
+
+type PostKnowledgeGraphNodes {
+  id: String
+  label: String
+  type: String
+}
+
+type PostKnowledgeGraphEdges {
+  from: String
+  to: String
+  label: String
+}
+
+type PostKnowledgeGraph {
+  nodes: [PostKnowledgeGraphNodes]
+  edges: [PostKnowledgeGraphEdges]
+}
+
+type PostProtocolEval {
+  protocol: String
+  chain: String
+  tvl: String
+  riskScore: String
+  audit: String
+  recommendation: String
+  category: String
+  auditedBy: String
+  launchDate: String
+}
+
 type Post implements Node & Document {
   title: String!
+  slug: String!
   category: String
   author: String
   date: String
+  excerpt: String
+  access: String
+  status: String
   body: JSON
+  seo: PostSeo
+  knowledgeGraph: PostKnowledgeGraph
+  protocolEval: PostProtocolEval
   id: ID!
   _sys: SystemInfo!
   _values: JSON!
@@ -131,12 +174,55 @@ input RichTextFilter {
   exists: Boolean
 }
 
+input PostSeoFilter {
+  title: StringFilter
+  description: StringFilter
+  keywords: StringFilter
+  ogImage: StringFilter
+}
+
+input PostKnowledgeGraphNodesFilter {
+  id: StringFilter
+  label: StringFilter
+  type: StringFilter
+}
+
+input PostKnowledgeGraphEdgesFilter {
+  from: StringFilter
+  to: StringFilter
+  label: StringFilter
+}
+
+input PostKnowledgeGraphFilter {
+  nodes: PostKnowledgeGraphNodesFilter
+  edges: PostKnowledgeGraphEdgesFilter
+}
+
+input PostProtocolEvalFilter {
+  protocol: StringFilter
+  chain: StringFilter
+  tvl: StringFilter
+  riskScore: StringFilter
+  audit: StringFilter
+  recommendation: StringFilter
+  category: StringFilter
+  auditedBy: StringFilter
+  launchDate: StringFilter
+}
+
 input PostFilter {
   title: StringFilter
+  slug: StringFilter
   category: StringFilter
   author: StringFilter
   date: DatetimeFilter
+  excerpt: StringFilter
+  access: StringFilter
+  status: StringFilter
   body: RichTextFilter
+  seo: PostSeoFilter
+  knowledgeGraph: PostKnowledgeGraphFilter
+  protocolEval: PostProtocolEvalFilter
 }
 
 type PostConnectionEdges {
@@ -300,12 +386,55 @@ input DocumentMutation {
   schoolModule: SchoolModuleMutation
 }
 
+input PostSeoMutation {
+  title: String
+  description: String
+  keywords: String
+  ogImage: String
+}
+
+input PostKnowledgeGraphNodesMutation {
+  id: String
+  label: String
+  type: String
+}
+
+input PostKnowledgeGraphEdgesMutation {
+  from: String
+  to: String
+  label: String
+}
+
+input PostKnowledgeGraphMutation {
+  nodes: [PostKnowledgeGraphNodesMutation]
+  edges: [PostKnowledgeGraphEdgesMutation]
+}
+
+input PostProtocolEvalMutation {
+  protocol: String
+  chain: String
+  tvl: String
+  riskScore: String
+  audit: String
+  recommendation: String
+  category: String
+  auditedBy: String
+  launchDate: String
+}
+
 input PostMutation {
   title: String
+  slug: String
   category: String
   author: String
   date: String
+  excerpt: String
+  access: String
+  status: String
   body: JSON
+  seo: PostSeoMutation
+  knowledgeGraph: PostKnowledgeGraphMutation
+  protocolEval: PostProtocolEvalMutation
 }
 
 input ServiceMutation {

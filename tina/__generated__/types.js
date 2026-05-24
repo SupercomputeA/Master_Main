@@ -9,10 +9,48 @@ export const PostPartsFragmentDoc = gql`
     fragment PostParts on Post {
   __typename
   title
+  slug
   category
   author
   date
+  excerpt
+  access
+  status
   body
+  seo {
+    __typename
+    title
+    description
+    keywords
+    ogImage
+  }
+  knowledgeGraph {
+    __typename
+    nodes {
+      __typename
+      id
+      label
+      type
+    }
+    edges {
+      __typename
+      from
+      to
+      label
+    }
+  }
+  protocolEval {
+    __typename
+    protocol
+    chain
+    tvl
+    riskScore
+    audit
+    recommendation
+    category
+    auditedBy
+    launchDate
+  }
 }
     `;
 export const ServicePartsFragmentDoc = gql`
@@ -389,7 +427,7 @@ const generateRequester = (client) => {
 export const ExperimentalGetTinaClient = () => getSdk(
   generateRequester(
     createClient({
-      url: "https://content.tinajs.io/2.4/content/b77cb4b2-e33c-47ed-a714-7a7613e614bc/github/main",
+      url: "http://localhost:4001/graphql",
       queries
     })
   )

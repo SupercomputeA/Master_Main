@@ -3,7 +3,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
 import { useAccount, useSignMessage, useDisconnect } from "wagmi"
 import { useConnect } from "wagmi"
-import { injected } from "wagmi/connectors"
 import { getNonce, getMessage, login, logout as apiLogout } from "./siwe"
 
 type Profile = { name: string; role: string } | null
@@ -15,8 +14,6 @@ type AuthContextType = {
   connect: () => void
   disconnect: () => void
   isAdmin: boolean
-  devMode: boolean
-  loginAs: (name: string, role: string) => void
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -26,14 +23,11 @@ const AuthContext = createContext<AuthContextType>({
   connect: () => {},
   disconnect: () => {},
   isAdmin: false,
-  devMode: false,
-  loginAs: () => {},
 })
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [devMode, setDevMode] = useState(false)
   const { address, isConnected } = useAccount()
-  const { connect: wagmiConnect } = useConnect()
+  const { connect: wagmiConnect, connectors } = useConnect()
   const { disconnect: wagmiDisconnect } = useDisconnect()
   const { signMessageAsync } = useSignMessage()
 
@@ -76,7 +70,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthing(false)
   }
 
-  const connect = useCallback(() => wagmiConnect({ connector: injected() }), [wagmiConnect])
+  const connect = useCallback(() => {
+    const injectedConn = connectors.find(c => c.id === "injected")
+    if (injectedConn) wagmiConnect({ connector: injectedConn })
+  }, [wagmiConnect, connectors])
 
   const disconnect = useCallback(() => {
     if (session) apiLogout(session).catch(() => {})
@@ -86,18 +83,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     wagmiDisconnect()
   }, [session, wagmiDisconnect])
 
-  const loginAs = useCallback((name: string, role: string) => {
-    const fakeSession = `dev_${name}_${role}_${Date.now()}`
-    const fakeProfile = { name, role }
-    localStorage.setItem("session", fakeSession)
-    localStorage.setItem("dev_profile", JSON.stringify(fakeProfile))
-    setSession(fakeSession)
-    setProfile(fakeProfile)
-    setDevMode(true)
-  }, [])
-
   return (
-    <AuthContext.Provider value={{ session, profile, authing, connect, disconnect, isAdmin: profile?.role === "admin", devMode, loginAs }}>
+    <AuthContext.Provider value={{ session, profile, authing, connect, disconnect, isAdmin: profile?.role === "admin" }}>
       {children}
     </AuthContext.Provider>
   )

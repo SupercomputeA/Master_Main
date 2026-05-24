@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/router"
 import ConnectWallet from "./ConnectWallet"
 import { useAuth } from "../lib/auth"
 
@@ -7,27 +8,24 @@ type Role = "public" | "member" | "admin"
 
 type NavItem = { href: string; label: string; sub?: { href: string; label: string }[] }
 
+const memberPrefixes = ["/projects", "/app/", "/staking", "/publishing", "/token", "/account"]
+const adminPrefixes = ["/admin", "/agent", "/newsdesk", "/tradedesk", "/fleet", "/school/builder", "/projects", "/projects/builder"]
+
 const publicNav: NavItem[] = [
   { href: "/", label: "Home" },
+  { href: "/solar-punk", label: "Solar Punk" },
+
   { href: "/about", label: "About" },
   { href: "/storefront", label: "StoreFront" },
-  { href: "/consulting", label: "Consulting", sub: [
-    { href: "/consulting/questionnaire", label: "Questionnaire" },
-  ]},
-  { href: "/school", label: "School", sub: [
-    { href: "/school/builder", label: "Course Builder" },
-  ]},
-  { href: "/press", label: "Press" },
-  { href: "/social", label: "Social", sub: [
-    { href: "/social/livestreaming", label: "LiveStream" },
-  ]},
+  { href: "/consulting", label: "Consulting" },
+  { href: "/school", label: "School" },
+  { href: "/social", label: "Social" },
 ]
 
 const memberNav: NavItem[] = [
-  { href: "/projects", label: "Projects", sub: [
-    { href: "/projects/builder", label: "Builder" },
+  { href: "/projects/browse", label: "Projects", sub: [
+    { href: "/projects/guide", label: "Guide" },
   ]},
-  { href: "/app/dashboard", label: "Dashboard" },
   { href: "/app/social", label: "Social Hub" },
   { href: "/staking", label: "Staking" },
   { href: "/publishing", label: "Publishing" },
@@ -37,9 +35,11 @@ const memberNav: NavItem[] = [
 
 const adminNav: NavItem[] = [
   { href: "/admin", label: "Command Center" },
-  { href: "/dashboard", label: "Dashboard" },
+  { href: "/app/dashboard", label: "Dashboard" },
   { href: "/agent", label: "Agent" },
+  { href: "/projects", label: "Project Dashboard" },
   { href: "/projects/builder", label: "Create Project" },
+  { href: "/school/builder", label: "Course Builder" },
   { href: "/newsdesk", label: "NewsDesk", sub: [
     { href: "/newsdesk/builder", label: "Article Builder" },
   ]},
@@ -49,7 +49,20 @@ const adminNav: NavItem[] = [
 
 export default function Sidebar() {
   const { isAdmin } = useAuth()
-  const [role, setRole] = useState<Role>("public")
+  const router = useRouter()
+
+  const detectRole = (): Role => {
+    const path = router.asPath
+    if (adminPrefixes.some(p => path.startsWith(p)) && isAdmin) return "admin"
+    if (memberPrefixes.some(p => path.startsWith(p))) return "member"
+    return "public"
+  }
+
+  const [role, setRole] = useState<Role>(detectRole)
+
+  useEffect(() => {
+    setRole(detectRole())
+  }, [router.asPath, isAdmin])
 
   return (
     <aside className="sidebar">

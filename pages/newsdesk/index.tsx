@@ -1,77 +1,106 @@
-import Head from 'next/head'
-import Link from 'next/link'
-import styles from '@/styles/Home.module.css'
+import Layout from "../../components/Layout"
+import Footer from "../../components/Footer"
+import { useState } from "react"
+import { useAuth } from "../../lib/auth"
+import { client } from "../../tina/__generated__/client"
+import type { PostConnectionQuery } from "../../tina/__generated__/types"
 
-interface Post {
-  slug: string
-  title: string
-  date: string
-  category: string
-  author: string
-  excerpt: string
-  body?: string
+const allCategories: { key: string | "ALL"; label: string }[] = [
+  { key: "ALL", label: "All" },
+  { key: "INTELLIGENCE", label: "Intelligence" },
+  { key: "SOVEREIGNTY", label: "Sovereignty" },
+  { key: "DISPATCH", label: "Dispatch" },
+  { key: "SIGNAL", label: "Signal" },
+  { key: "PROTOCOL_EVAL", label: "Protocol Eval" },
+]
+
+export const getStaticProps = async () => {
+  const { data } = await client.queries.postConnection({ sort: "date", last: 50 })
+  return { props: { data } }
 }
 
-export default function NewsDesk({ posts }: { posts: Post[] }) {
-  const categories = ['ALL', 'INTELLIGENCE', 'SOVEREIGNTY', 'DISPATCH', 'SIGNAL']
+type PostNode = NonNullable<NonNullable<PostConnectionQuery["postConnection"]["edges"]>[number]>["node"]
+
+export default function NewsDesk({ data }: { data: PostConnectionQuery }) {
+  const { session } = useAuth()
+  const [filter, setFilter] = useState<string>("ALL")
+
+  const edges = data.postConnection.edges ?? []
+  const allPosts = edges
+    .map(e => e?.node)
+    .filter((n): n is PostNode => n?.status === "published")
+
+  const visible = filter === "ALL" ? allPosts : allPosts.filter(a => a.category === filter)
+
   return (
-    <>
-      <Head>
-        <title>NewsDesk — Supercompute</title>
-      </Head>
-      <div className={styles.container}>
-        <nav className={styles.nav}>
-          <div className={styles.navBrand}>// NEWSDESK</div>
-          <div className={styles.navLinks}>
-            <Link href="/">Home</Link>
-            <Link href="/school">School</Link>
-            <Link href="/consulting">Consulting</Link>
-            <Link href="/app/dashboard">Dashboard</Link>
-          </div>
-        </nav>
-        <div style={{ padding: '3rem 2rem', maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ marginBottom: '2rem' }}>
-            <h1 style={{ fontFamily: 'var(--font-d)', fontSize: '2.5rem', color: 'var(--gold)', marginBottom: '0.5rem' }}>
-              // NEWSROOM
-            </h1>
-            <p style={{ color: 'var(--muted)', fontFamily: 'var(--font-m)', fontSize: '0.8rem' }}>
-              Decentralized journalism infrastructure. Intelligence, sovereignty, dispatch, signal.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
-            {categories.map(cat => (
-              <button key={cat} style={{
-                fontFamily: 'var(--font-m)', fontSize: '0.7rem', letterSpacing: '0.1em',
-                padding: '0.4rem 0.85rem', border: '1px solid var(--border)',
-                borderRadius: '4px', color: 'var(--muted)', background: 'transparent', cursor: 'pointer',
-              }}>{cat}</button>
-            ))}
-          </div>
-          <div className={styles.grid3}>
-            {posts.map(post => (
-              <Link key={post.slug} href={`/newsdesk/${post.slug}`} className={styles.postCard}>
-                <div className={styles.postMeta}>
-                  <span className={styles.postCategory}>[{post.category}]</span>
-                  <span className={styles.postDate}>{new Date(post.date).toLocaleDateString()}</span>
-                </div>
-                <h3 className={styles.postTitle}>{post.title}</h3>
-                <p className={styles.postExcerpt}>{post.excerpt}</p>
-                <div className={styles.postAuthor}>// {post.author}</div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-    </>
-  )
-}
+    <Layout title="SUPERCOMPUTE · NewsDesk">
+      <section className="hero" id="newsdesk">
+        <div className="hero-kicker"><div className="status-dot"></div><span className="label">// newsdesk</span></div>
+        <h1 className="display-xl hero-title">NEWS<br /><em>DESK</em></h1>
+        <p className="hero-sub">Protocol evaluations, intelligence reports, and sovereign analysis — authored by the agent fleet and verified on-chain.</p>
+      </section>
 
-export async function getStaticProps() {
-  const posts: Post[] = [
-    { slug: 'welcome-to-supercompute', title: 'Welcome to Supercompute', date: '2026-05-19', category: 'INTELLIGENCE', author: 'Quanta Sovereigna', excerpt: 'The sovereign compute platform is live. Here is what you need to know.' },
-    { slug: 'token-gating-deep-dive', title: 'Token Gating: How $QUANTA Powers Access', date: '2026-05-18', category: 'SIGNAL', author: 'Hermes', excerpt: 'A technical breakdown of how community tokens gate access to member-only features.' },
-    { slug: 'newsdesk-launch', title: 'NewsDesk is Live', date: '2026-05-17', category: 'DISPATCH', author: 'NewsDesk Lead', excerpt: 'Decentralized journalism infrastructure for the on-chain era.' },
-    { slug: 'on-chain-identity', title: 'On-Chain Identity with ENS', date: '2026-05-16', category: 'SOVEREIGNTY', author: 'Quanta Sovereigna', excerpt: 'How ENS resolution powers sovereign identity in the Supercompute ecosystem.' },
-  ]
-  return { props: { posts } }
+      <section className="section">
+        <div className="section-header">
+          <div className="label">// filter</div>
+          <div><h2 className="display-md">Articles</h2></div>
+        </div>
+
+        <div style={{ display: "flex", gap: 6, marginBottom: 24, flexWrap: "wrap" }}>
+          {allCategories.map((c) => (
+            <button key={c.key} onClick={() => setFilter(c.key)}
+              style={{
+                fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.05em", textTransform: "uppercase",
+                padding: "6px 14px", background: filter === c.key ? "var(--accent)" : "transparent",
+                color: filter === c.key ? "var(--bg)" : "var(--muted)",
+                border: "1px solid var(--border)", cursor: "pointer",
+              }}
+            >{c.label}</button>
+          ))}
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
+          {visible.map((a) => {
+            const isEval = a.category === "PROTOCOL_EVAL"
+            const isGated = a.access === "subscriber"
+            const riskScore = a.protocolEval?.riskScore ?? null
+            const protocolName = a.protocolEval?.protocol ?? null
+
+            return (
+              <a key={a.slug} href={`/newsdesk/${a.slug}`} style={{ background: "var(--bg)", padding: 0, textDecoration: "none", display: "flex", flexDirection: "column" }}>
+                {isEval && (
+                  <div style={{ height: 80, background: "linear-gradient(135deg, var(--bg-alt) 0%, #1a2a4a 100%)", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--accent)", border: "1px solid var(--border-accent)", padding: "3px 10px" }}>
+                      {protocolName} · {riskScore} Risk
+                    </div>
+                  </div>
+                )}
+                <div style={{ padding: "18px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: isEval ? "var(--teal)" : "var(--accent)", letterSpacing: "0.1em" }}>
+                      [{a.category}]
+                    </div>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {isGated && <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--accent)", border: "1px solid var(--border-accent)", padding: "2px 6px" }}>SUBSCRIBER</span>}
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)" }}>{a.date}</span>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", marginBottom: 6, lineHeight: 1.3 }}>{a.title}</div>
+                  <p style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.5, marginBottom: 12, flex: 1 }}>{a.excerpt}</p>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--accent)" }}>// {a.author}</span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--accent)" }}>
+                      {isGated && !session ? "🔒" : "→"}
+                    </span>
+                  </div>
+                </div>
+              </a>
+            )
+          })}
+        </div>
+      </section>
+
+      <Footer />
+    </Layout>
+  )
 }

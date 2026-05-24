@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useAuth } from "../lib/auth"
 
 export default function ConnectWallet() {
-  const { profile, devMode, authing, connect, disconnect, loginAs } = useAuth()
+  const { profile, authing, connect, disconnect } = useAuth()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => setMounted(true), [])
@@ -20,11 +20,6 @@ export default function ConnectWallet() {
   if (profile) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {devMode && (
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "#888", textAlign: "center", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-            Dev Mode
-          </div>
-        )}
         <div style={{
           fontFamily: "var(--font-mono)",
           fontSize: 10,
@@ -35,7 +30,6 @@ export default function ConnectWallet() {
           overflow: "hidden",
           textOverflow: "ellipsis",
         }}>
-          {profile.role === "admin" && "⚡ "}
           {profile.name}
         </div>
         <button
@@ -50,17 +44,8 @@ export default function ConnectWallet() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <button onClick={connect} className="btn-connect">
-        // Connect
-      </button>
-      <button
-        onClick={() => loginAs("Dev Admin", "admin")}
-        className="btn-connect"
-        style={{ fontSize: 9, padding: "4px 10px", background: "transparent", color: "#666", borderColor: "#333" }}
-      >
-        :: Dev Admin
-      </button>
-    </div>
+    <button onClick={connect} className="btn-connect">
+      // Connect
+    </button>
   )
 }

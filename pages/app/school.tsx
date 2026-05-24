@@ -1,74 +1,136 @@
-import Head from 'next/head'
-import Link from 'next/link'
-import styles from '@/styles/Home.module.css'
-
-const modules = [
-  { num: '01', title: 'DeFi Foundations', desc: 'AMMs, liquidity pools, yield farming, and impermanent loss.', free: true, done: true },
-  { num: '02', title: 'On-Chain Identity', desc: 'ENS resolution, wallet architecture, and soul-bound tokens.', free: true, done: true },
-  { num: '03', title: 'Agent Systems', desc: 'Autonomous AI agents with on-chain identity and token-gated access.', free: false, done: false },
-  { num: '04', title: 'Tokenomics Deep Dive', desc: 'Emission schedules, vesting, treasury management, and governance.', free: false, done: false },
-  { num: '05', title: 'Smart Contract Security', desc: 'Auditing patterns, reentrancy guards, and access control.', free: false, done: false },
-  { num: '06', title: 'Liquidity Strategy', desc: 'Bootstrapping liquidity, market-making, and token incentives.', free: false, done: false },
-  { num: '07', title: 'Protocol Governance', desc: 'DAO structure, voting mechanisms, and on-chain proposals.', free: false, done: false },
-]
+import Layout from "../../components/Layout"
+import Footer from "../../components/Footer"
+import { modules, modulesByAccess } from "../../lib/school"
+import { useAuth } from "../../lib/auth"
+import { useState } from "react"
 
 export default function MemberSchool() {
+  const { session } = useAuth()
+  const [filter, setFilter] = useState<"all" | "free" | "member">("all")
+  const display = filter === "all" ? modules : modulesByAccess[filter]
   const completed = modules.filter(m => m.done).length
   const progress = Math.round((completed / modules.length) * 100)
+
   return (
-    <>
-      <Head><title>Web3 School — Supercompute</title></Head>
-      <div className={styles.memberLayout}>
-        <aside className={styles.memberSidebar}>
-          <div style={{ fontFamily: 'var(--font-d)', fontSize: '0.9rem', color: 'var(--gold)', marginBottom: '2rem' }}>// SCHOOL II</div>
-          <nav className={styles.memberNav}>
-            <Link href="/app/dashboard">Dashboard</Link>
-            <Link href="/app/projects">Projects</Link>
-            <Link href="/app/staking">Staking</Link>
-            <Link href="/app/publishing">Publishing</Link>
-            <Link href="/app/school" className="active">School</Link>
-            <Link href="/app/token">Token</Link>
-            <Link href="/newsdesk">NewsDesk</Link>
-            <Link href="/">← Public Site</Link>
-          </nav>
-        </aside>
-        <main className={styles.memberMain}>
-          <h1 style={{ fontFamily: 'var(--font-d)', fontSize: '1.75rem', color: 'var(--gold)', marginBottom: '0.5rem' }}>// SCHOOL II</h1>
-          <p style={{ fontFamily: 'var(--font-m)', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '2rem' }}>Member-only advanced curriculum.</p>
-          {/* Progress */}
-          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.5rem', marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-              <span style={{ fontFamily: 'var(--font-m)', fontSize: '0.75rem', color: 'var(--text)' }}>Course Progress</span>
-              <span style={{ fontFamily: 'var(--font-d)', fontSize: '1rem', color: 'var(--gold)' }}>{progress}%</span>
-            </div>
-            <div style={{ background: 'var(--navy3)', borderRadius: '4px', height: '8px' }}>
-              <div style={{ width: `${progress}%`, background: 'var(--gold)', borderRadius: '4px', height: '100%', transition: 'width 0.3s' }} />
-            </div>
-            <div style={{ fontFamily: 'var(--font-m)', fontSize: '0.7rem', color: 'var(--muted)', marginTop: '0.5rem' }}>{completed} of {modules.length} modules completed</div>
+    <Layout title="SUPERCOMPUTE · Web3 School">
+      <section className="hero" id="school">
+        <div className="hero-kicker">
+          <div className="status-dot"></div>
+          <span className="label">// school · member</span>
+        </div>
+        <h1 className="display-xl hero-title">
+          WEB3<br /><em>SCHOOL</em>
+        </h1>
+        <p className="hero-sub">
+          Member curriculum — advanced modules on agents, tokenomics, security, liquidity, and governance.
+          Complete modules to earn NFT credentials.
+        </p>
+      </section>
+
+      <section className="section">
+        <div className="section-header">
+          <div className="label">// progress</div>
+          <div>
+            <h2 className="display-md">Your Progress</h2>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {modules.map(mod => (
-              <div key={mod.num} style={{
-                display: 'flex', alignItems: 'center', gap: '1.5rem',
-                padding: '1.25rem 1.5rem',
-                background: 'var(--card)', border: `1px solid ${mod.done ? 'var(--success)' : 'var(--border)'}`,
-                borderRadius: '8px', opacity: mod.done ? 0.7 : 1,
-              }}>
-                <span style={{ fontFamily: 'var(--font-d)', fontSize: '1.25rem', color: mod.done ? 'var(--success)' : 'var(--gold)', minWidth: '36px' }}>
-                  {mod.done ? '✓' : mod.num}
-                </span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: 'var(--font-d)', fontSize: '0.95rem', color: 'var(--text)', marginBottom: '0.2rem' }}>{mod.title}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{mod.desc}</div>
-                </div>
-                <span style={{ fontFamily: 'var(--font-m)', fontSize: '0.65rem', color: mod.done ? 'var(--success)' : 'var(--gold)', letterSpacing: '0.1em', border: `1px solid ${mod.done ? 'var(--success)' : 'var(--gold)'}`, padding: '0.2rem 0.6rem', borderRadius: '4px' }}>
-                  {mod.done ? 'COMPLETED' : (mod.free ? 'FREE' : 'MEMBERS')}
+        </div>
+        <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "20px 24px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <span style={{ fontSize: 12, color: "var(--fg)" }}>Overall Completion</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--accent)" }}>{progress}%</span>
+          </div>
+          <div style={{ height: 6, background: "var(--border)", overflow: "hidden" }}>
+            <div style={{ width: `${progress}%`, height: "100%", background: "var(--accent)" }}></div>
+          </div>
+          <div style={{ display: "flex", gap: 24, marginTop: 16, fontSize: 11, color: "var(--fg)" }}>
+            <span>{completed} / {modules.length} modules completed</span>
+            <span>{session ? "Connected" : "Connect to track"} · {modules.filter(m => m.access === "free").length} free / {modules.filter(m => m.access === "member").length} member</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="section-header">
+          <div className="label">// curriculum</div>
+          <div>
+            <h2 className="display-md">Master Syllabus</h2>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+          {(["all", "free", "member"] as const).map(f => (
+            <button key={f} onClick={() => setFilter(f)} style={{
+              fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase",
+              padding: "6px 16px", border: `1px solid ${filter === f ? "var(--accent)" : "var(--border)"}`,
+              background: filter === f ? "var(--accent-dim)" : "transparent",
+              color: filter === f ? "var(--accent)" : "var(--fg)",
+              cursor: "pointer",
+            }}>
+              {f === "all" ? "All Modules" : f === "free" ? "Free" : "Member"}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
+          {display.map(m => (
+            <div key={m.id} style={{
+              background: "var(--bg)", padding: "24px",
+              display: "flex", flexDirection: "column", gap: 12,
+              transition: "background 0.2s",
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 24 }}>{m.icon}</span>
+                <span style={{
+                  fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.1em", textTransform: "uppercase",
+                  padding: "2px 8px", border: `1px solid ${m.color}44`, color: m.color,
+                }}>
+                  {m.access}
                 </span>
               </div>
-            ))}
-          </div>
-        </main>
-      </div>
-    </>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.02em", color: m.color }}>
+                {m.id} · {m.title}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--fg)", lineHeight: 1.6, flex: 1 }}>
+                {m.description}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--fg)" }}>
+                  {m.lessons.length} lessons · {m.duration}
+                </div>
+                <span style={{
+                  fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.1em",
+                  padding: "2px 6px", border: "1px solid var(--border)", color: "var(--fg)",
+                }}>
+                  {m.difficulty}
+                </span>
+              </div>
+              {m.credential && (
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--muted)" }}>
+                  Credential: {m.credential}
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                <a href={`/school/lesson/${m.lessons[0].id}`} style={{
+                  fontFamily: "var(--font-mono)", fontSize: 9, padding: "6px 14px",
+                  background: m.access === "free" ? "var(--accent)" : "transparent",
+                  color: m.access === "free" ? "var(--bg)" : "var(--accent)",
+                  border: `1px solid ${m.access === "free" ? "var(--accent)" : "var(--accent-dim)"}`,
+                  textDecoration: "none", display: "inline-block",
+                }}>
+                  {m.access === "free" ? "Start Free" : "→ Begin Module"}
+                </a>
+                <a href={`/school/${m.id}`} style={{
+                  fontFamily: "var(--font-mono)", fontSize: 9, padding: "6px 14px",
+                  background: "transparent", color: "var(--fg)",
+                  border: "1px solid var(--border)", textDecoration: "none",
+                }}>
+                  View All
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <Footer />
+    </Layout>
   )
 }

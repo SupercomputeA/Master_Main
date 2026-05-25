@@ -17,6 +17,7 @@ export const PostPartsFragmentDoc = gql`
   access
   status
   body
+  kgQuery
   seo {
     __typename
     title

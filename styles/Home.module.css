@@ -19,7 +19,9 @@
 .formBtnSecondary { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); background: transparent; border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
 .formInput { font-family: var(--font-mono); font-size: 0.75rem; color: var(--fg); background: var(--bg); border: 1px solid var(--border); padding: 0.5rem 0.75rem; border-radius: 4px; width: 100%; }
 .formInput:focus { border-color: var(--accent); outline: none; }
-.navCta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); background: transparent; border: 1px solid var(--accent); padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+.formGroup { margin-bottom: 1.25rem; }
+.formLabel { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); margin-bottom: 0.5rem; letter-spacing: 0.05em; text-transform: uppercase; }
+.formBtn { font-family: var(--font-mono); font-size: 0.75rem; color: var(--bg); background: var(--accent); border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
 .nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); }
 .navBrand { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); letter-spacing: 0.15em; }

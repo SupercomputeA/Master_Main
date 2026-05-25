@@ -5,9 +5,8 @@ import Link from "next/link"
 const projects = [
   { id: "quanta-s", name: "Quanta S", tagline: "Autonomous agent managing DeFi positions on Base", chain: "Base", agents: 1, status: "Active" },
   { id: "openclaw", name: "OpenClaw", tagline: "Decentralized yield aggregation protocol", chain: "Base", agents: 1, status: "Active" },
-  { id: "knight", name: "KNIGHT", tagline: "Infrastructure monitoring and alerting agent", chain: "Base", agents: 1, status: "Active" },
   { id: "tradedesk", name: "TradeDesk", tagline: "Multi-chain trading terminal with agent execution", chain: "Base, Arb", agents: 1, status: "Beta" },
-  { id: "agent-fleet", name: "Agent Fleet API", tagline: "Unified API for all 13 Supercompute agents", chain: "Base", agents: 13, status: "Active" },
+  { id: "agent-fleet", name: "Agent Fleet API", tagline: "Unified API for Supercompute agents", chain: "Base", agents: 3, status: "Active" },
   { id: "staking-vaults", name: "Staking Vaults", tagline: "Automated yield strategies with multi-sig security", chain: "Base", agents: 1, status: "Active" },
 ]
 

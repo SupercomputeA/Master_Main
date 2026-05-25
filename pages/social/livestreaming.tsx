@@ -28,7 +28,7 @@ const streams = [
     date: "2026-05-19",
     time: "14:00 UTC",
     status: "replay" as const,
-    desc: "Weekly agent status review. OpenClaw, Quanta S, and KNIGHT performance reports.",
+    desc: "Weekly agent status review. OpenClaw, Quanta S, and Condor performance reports.",
   },
 ]
 

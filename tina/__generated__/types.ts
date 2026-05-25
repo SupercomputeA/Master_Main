@@ -289,6 +289,7 @@ export type Post = Node & Document & {
   access?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
   body?: Maybe<Scalars['JSON']['output']>;
+  kgQuery?: Maybe<Scalars['String']['output']>;
   seo?: Maybe<PostSeo>;
   knowledgeGraph?: Maybe<PostKnowledgeGraph>;
   protocolEval?: Maybe<PostProtocolEval>;
@@ -364,6 +365,7 @@ export type PostFilter = {
   access?: InputMaybe<StringFilter>;
   status?: InputMaybe<StringFilter>;
   body?: InputMaybe<RichTextFilter>;
+  kgQuery?: InputMaybe<StringFilter>;
   seo?: InputMaybe<PostSeoFilter>;
   knowledgeGraph?: InputMaybe<PostKnowledgeGraphFilter>;
   protocolEval?: InputMaybe<PostProtocolEvalFilter>;
@@ -684,6 +686,7 @@ export type PostMutation = {
   access?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
   body?: InputMaybe<Scalars['JSON']['input']>;
+  kgQuery?: InputMaybe<Scalars['String']['input']>;
   seo?: InputMaybe<PostSeoMutation>;
   knowledgeGraph?: InputMaybe<PostKnowledgeGraphMutation>;
   protocolEval?: InputMaybe<PostProtocolEvalMutation>;
@@ -716,7 +719,7 @@ export type SchoolModuleMutation = {
   free?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type PostPartsFragment = { __typename: 'Post', title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null };
+export type PostPartsFragment = { __typename: 'Post', title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, kgQuery?: string | null, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null };
 
 export type ServicePartsFragment = { __typename: 'Service', title: string, description?: string | null, price?: string | null, duration?: string | null };
 
@@ -731,7 +734,7 @@ export type PostQueryVariables = Exact<{
 }>;
 
 
-export type PostQuery = { __typename?: 'Query', post: { __typename: 'Post', id: string, title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null } };
+export type PostQuery = { __typename?: 'Query', post: { __typename: 'Post', id: string, title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, kgQuery?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null } };
 
 export type PostConnectionQueryVariables = Exact<{
   before?: InputMaybe<Scalars['String']['input']>;
@@ -743,7 +746,7 @@ export type PostConnectionQueryVariables = Exact<{
 }>;
 
 
-export type PostConnectionQuery = { __typename?: 'Query', postConnection: { __typename?: 'PostConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PostConnectionEdges', cursor: string, node?: { __typename: 'Post', id: string, title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null } | null } | null> | null } };
+export type PostConnectionQuery = { __typename?: 'Query', postConnection: { __typename?: 'PostConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PostConnectionEdges', cursor: string, node?: { __typename: 'Post', id: string, title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, kgQuery?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null } | null } | null> | null } };
 
 export type ServiceQueryVariables = Exact<{
   relativePath: Scalars['String']['input'];
@@ -833,6 +836,7 @@ export const PostPartsFragmentDoc = gql`
   access
   status
   body
+  kgQuery
   seo {
     __typename
     title

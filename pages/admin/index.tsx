@@ -6,13 +6,13 @@ const stats = [
   { label: "Total Articles", value: "5", sub: "NewsDesk" },
   { label: "School Modules", value: "7", sub: "2 free, 5 member" },
   { label: "Active Projects", value: "14", sub: "On Base" },
-  { label: "Agents Online", value: "13", sub: "All operational" },
+  { label: "Agents Online", value: "3", sub: "All operational" },
 ]
 
 const agents = [
   { name: "HERMES", role: "BackOffice", status: "Operational" },
-  { name: "QUANTA S", role: "Operations", status: "Operational" },
-  { name: "KNIGHT", role: "Trade", status: "Operational" },
+  { name: "vQuanta", role: "Operations", status: "Operational" },
+  { name: "Condor", role: "Trade", status: "Operational" },
 ]
 
 export default function AdminDashboard() {

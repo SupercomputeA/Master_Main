@@ -145,6 +145,7 @@ type Post implements Node & Document {
   access: String
   status: String
   body: JSON
+  kgQuery: String
   seo: PostSeo
   knowledgeGraph: PostKnowledgeGraph
   protocolEval: PostProtocolEval
@@ -220,6 +221,7 @@ input PostFilter {
   access: StringFilter
   status: StringFilter
   body: RichTextFilter
+  kgQuery: StringFilter
   seo: PostSeoFilter
   knowledgeGraph: PostKnowledgeGraphFilter
   protocolEval: PostProtocolEvalFilter
@@ -432,6 +434,7 @@ input PostMutation {
   access: String
   status: String
   body: JSON
+  kgQuery: String
   seo: PostSeoMutation
   knowledgeGraph: PostKnowledgeGraphMutation
   protocolEval: PostProtocolEvalMutation

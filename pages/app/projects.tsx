@@ -4,7 +4,6 @@ import styles from '@/styles/Home.module.css'
 
 const projects = [
   { name: 'Glyph Foundry', ticker: '$GLYPH', stack: 'Solidity · The Graph · Base', status: 'Active', desc: 'On-chain generative art protocol with royalty streaming.' },
-  { name: 'KNIGHT', ticker: '$KNIGHT', stack: 'Uniswap V4 · ERC-6909 · Base', status: 'Active', desc: 'Modular liquidity layer with intent-based execution.' },
   { name: 'Bracket Studio', ticker: '$BRKT', stack: 'ERC-721 · ERC-1155 · Base', status: 'Active', desc: 'Creative studio for on-chain media and IP licensing.' },
   { name: 'Spool Protocol', ticker: '$SPOOL', stack: 'EigenLayer · AVS · Base', status: 'Active', desc: 'Restaking infrastructure for Base Chain validators.' },
 ]
@@ -17,7 +16,7 @@ export default function Projects() {
         <aside className={styles.memberSidebar}>
           <div style={{ fontFamily: 'var(--font-d)', fontSize: '0.9rem', color: 'var(--gold)', marginBottom: '2rem' }}>// PROJECTS</div>
           <nav className={styles.memberNav}>
-            <Link href="/app/dashboard">Dashboard</Link>
+            <Link href="/dashboard">Dashboard</Link>
             <Link href="/app/projects" className="active">Projects</Link>
             <Link href="/app/staking">Staking</Link>
             <Link href="/app/publishing">Publishing</Link>

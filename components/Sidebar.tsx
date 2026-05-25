@@ -9,7 +9,7 @@ type Role = "public" | "member" | "admin"
 type NavItem = { href: string; label: string; sub?: { href: string; label: string }[] }
 
 const memberPrefixes = ["/projects", "/app/", "/staking", "/publishing", "/token", "/account"]
-const adminPrefixes = ["/admin", "/agent", "/newsdesk", "/tradedesk", "/fleet", "/school/builder", "/projects", "/projects/builder"]
+const adminPrefixes = ["/admin", "/dashboard", "/projects", "/eddesk", "/newsdesk", "/tradedesk"]
 
 const publicNav: NavItem[] = [
   { href: "/", label: "Home" },
@@ -26,6 +26,9 @@ const memberNav: NavItem[] = [
   { href: "/projects/browse", label: "Projects", sub: [
     { href: "/projects/guide", label: "Guide" },
   ]},
+  { href: "/app/school", label: "School", sub: [
+    { href: "/school", label: "Public Catalog" },
+  ]},
   { href: "/app/social", label: "Social Hub" },
   { href: "/staking", label: "Staking" },
   { href: "/publishing", label: "Publishing" },
@@ -35,16 +38,11 @@ const memberNav: NavItem[] = [
 
 const adminNav: NavItem[] = [
   { href: "/admin", label: "Command Center" },
-  { href: "/app/dashboard", label: "Dashboard" },
-  { href: "/agent", label: "Agent" },
   { href: "/projects", label: "Project Dashboard" },
-  { href: "/projects/builder", label: "Create Project" },
-  { href: "/school/builder", label: "Course Builder" },
-  { href: "/newsdesk", label: "NewsDesk", sub: [
-    { href: "/newsdesk/builder", label: "Article Builder" },
-  ]},
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/eddesk", label: "EdDesk" },
+  { href: "/newsdesk", label: "NewsDesk" },
   { href: "/tradedesk", label: "TradeDesk" },
-  { href: "/fleet", label: "Agent Fleet" },
 ]
 
 export default function Sidebar() {

@@ -193,7 +193,7 @@ export default function NewsDeskBuilder() {
             <div className="section-header"><div className="label">// recent</div><div><h2 className="display-md">Recent Articles</h2></div></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
               {[
-                { title: "Protocol Evaluation: Aave V3 on Base", cat: "PROTOCOL_EVAL", author: "KNIGHT", status: "Published", date: "May 20" },
+                { title: "Protocol Evaluation: Aave V3 on Base", cat: "PROTOCOL_EVAL", author: "Condor", status: "Published", date: "May 20" },
                 { title: "Welcome to Supercompute", cat: "INTELLIGENCE", author: "Quanta Sovereigna", status: "Published", date: "May 19" },
                 { title: "Token Gating Deep Dive", cat: "SIGNAL", author: "Hermes", status: "Published", date: "May 18" },
               ].map((a, i) => (

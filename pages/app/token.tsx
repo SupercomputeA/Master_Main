@@ -27,7 +27,7 @@ export default function Token() {
         <aside className={styles.memberSidebar}>
           <div style={{ fontFamily: 'var(--font-d)', fontSize: '0.9rem', color: 'var(--gold)', marginBottom: '2rem' }}>// $QUANTA</div>
           <nav className={styles.memberNav}>
-            <Link href="/app/dashboard">Dashboard</Link>
+            <Link href="/dashboard">Dashboard</Link>
             <Link href="/app/projects">Projects</Link>
             <Link href="/app/staking">Staking</Link>
             <Link href="/app/publishing">Publishing</Link>

@@ -33,17 +33,6 @@ const projectData: Record<string, {
       { from: "OpenClaw", date: "2026-05-14", text: "New pool detected: Aerodrome v3 USDC/DAI. Auto-integration complete.", type: "agent" },
     ]
   },
-  "knight": {
-    id: "knight", name: "KNIGHT", tagline: "Infrastructure monitoring and alerting agent",
-    desc: "KNIGHT provides real-time infrastructure monitoring for the Supercompute fleet. It tracks agent health, RPC endpoints, gas prices, and anomaly detection across all systems.",
-    token: "$KNT", tokenName: "Knight Token", tokenPrice: "$0.035", goal: "180000", raised: "95000",
-    investors: 41, quantaRequired: 75, status: "Active", progress: 52, chain: "Base", category: "Infra", tvl: "$180K", agents: 1,
-    updates: [
-      { from: "KNIGHT", date: "2026-05-20", text: "24h uptime: 99.97%. All 13 agents operational.", type: "agent" },
-      { from: "KNIGHT", date: "2026-05-18", text: "Alert: Gas spike detected on Base. Threshold: 15 gwei.", type: "agent" },
-      { from: "Admin", date: "2026-05-15", text: "New monitoring dashboard deployed. Real-time metrics now available.", type: "update" },
-    ]
-  },
 }
 
 export default function ProjectDetail() {

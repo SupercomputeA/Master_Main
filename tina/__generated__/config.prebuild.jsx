@@ -46,6 +46,7 @@ var config_default = defineConfig({
             options: ["draft", "review", "published"]
           },
           { type: "rich-text", name: "body", label: "Body", isBody: true },
+          { type: "string", name: "kgQuery", label: "Memgraph Query (for memgraph template)" },
           {
             type: "object",
             name: "seo",

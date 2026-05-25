@@ -7,7 +7,7 @@ const timeline = [
   { year: "2018", event: "Survived the crypto winter. Built treasury management tools for DAOs." },
   { year: "2020", event: "DeFi Summer. Shipped first yield aggregation protocol. Onboarded 200+ farmers." },
   { year: "2022", event: "Base Chain launch. Migrated all operations to L2. Began agent development." },
-  { year: "2024", event: "First autonomous agent (OpenClaw) deployed. Fleet expanded to 13 agents." },
+  { year: "2024", event: "First autonomous agent (OpenClaw) deployed. Fleet expanded to 3 agents." },
   { year: "2025", event: "Quanta S launched on Virtuals Protocol. NewsDesk goes live." },
   { year: "2026", event: "Phase 1 complete. $SCOM token, Web3 School, TradeDesk all operational." },
 ]

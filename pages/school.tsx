@@ -2,6 +2,7 @@ import Layout from "../components/Layout"
 import Footer from "../components/Footer"
 import { useAuth } from "../lib/auth"
 import { modules, type SchoolModule } from "../lib/school"
+import { useState } from "react"
 
 function ModuleCard({ m, index }: { m: SchoolModule; index: number }) {
   const [open, setOpen] = useState(false)
@@ -71,8 +72,6 @@ function ModuleCard({ m, index }: { m: SchoolModule; index: number }) {
     </div>
   )
 }
-
-import { useState } from "react"
 
 const assignments = [
   { module: "WS-01", title: "Configure a Multi-Sig Wallet", due: "2026-06-01", status: "pending", points: 100 },

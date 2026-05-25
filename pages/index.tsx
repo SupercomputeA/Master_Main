@@ -19,8 +19,12 @@ export default function Home() {
         }}>
           SUPERCOMPUTE
         </h1>
-        <p className="hero-sub" style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--muted)", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 24 }}>
-          driving innovation supercompute
+        <p style={{
+          fontFamily: "var(--font-logo)", fontSize: "clamp(28px, 5vw, 50px)",
+          fontWeight: 400, lineHeight: 1, marginBottom: 24, color: "var(--muted)",
+          letterSpacing: "0.02em",
+        }}>
+          driving innovation
         </p>
         <p className="hero-sub" style={{ maxWidth: 600, fontSize: 14 }}>
           Sovereign compute infrastructure for the on-chain era. Agent fleet, protocol evaluations, and community-governed treasury on Base Chain.
@@ -40,7 +44,7 @@ export default function Home() {
           <div style={{ background: "var(--bg)", padding: "24px 20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// TradeDesk</div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--muted)" }}>BUILD</div>
-            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>KNIGHT observer active</div>
+            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>Observer mode active</div>
           </div>
         </div>
       </section>

@@ -5,7 +5,7 @@ import { useAccount, useSignMessage, useDisconnect } from "wagmi"
 import { useConnect } from "wagmi"
 import { getNonce, getMessage, login, logout as apiLogout } from "./siwe"
 
-type Profile = { name: string; role: string } | null
+type Profile = { name: string; role: string; address?: string; wallet_address?: string } | null
 
 type AuthContextType = {
   session: string | null

@@ -256,7 +256,7 @@ export default function ProjectsCreate() {
                 </div>
                 <div style={{ background: "var(--bg)", padding: "14px 20px", display: "flex", justifyContent: "space-between" }}>
                   <span style={{ fontSize: 12, color: "var(--muted)" }}>Agents Assigned</span>
-                  <span style={{ fontSize: 13 }}>3 (HERMES, QUANTA S, KNIGHT)</span>
+                  <span style={{ fontSize: 13 }}>3 (HERMES, vQuanta, Condor)</span>
                 </div>
               </div>
               <div style={{ background: "var(--bg-alt)", border: "1px solid var(--border)", padding: "16px", marginBottom: 20, fontSize: 12, color: "var(--muted)" }}>

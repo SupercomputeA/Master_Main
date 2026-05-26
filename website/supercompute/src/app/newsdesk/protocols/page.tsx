@@ -2,6 +2,7 @@ import Layout from "@/components/Layout"
 import Footer from "@/components/Footer"
 import fs from "fs"
 import path from "path"
+import NewsDeskProtocolRow from "@/components/NewsDeskProtocolRow"
 
 const PROTOCOLS_DIR = "/Users/QSMolt/TSM II/TCM II/HQ II/04 NewsDesk/Protocol Evaluation"
 
@@ -174,112 +175,7 @@ export default function NewsDeskProtocolsPage() {
             }}
           >
             {protocols.map((p) => (
-              <a
-                key={p.file}
-                href={`/newsdesk/protocols/${p.protocolNum}`}
-                style={{
-                  display: "block",
-                  background: "var(--bg)",
-                  padding: "20px 24px",
-                  cursor: "pointer",
-                  textDecoration: "none",
-                }}
-                onMouseEnter={(e) => {
-                  ;(
-                    e.currentTarget as HTMLElement
-                  ).style.background = "var(--surface)"
-                }}
-                onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.background =
-                    "var(--bg)"
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    marginBottom: 8,
-                  }}
-                >
-                  <div style={{ display: "flex", gap: 16, alignItems: "baseline" }}>
-                    <span
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: 10,
-                        color: "var(--accent)",
-                        minWidth: 32,
-                      }}
-                    >
-                      #{p.protocolNum}
-                    </span>
-                    <span
-                      style={{
-                        fontFamily: "var(--font-display)",
-                        fontSize: 18,
-                        color: "var(--fg)",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {p.title}
-                    </span>
-                  </div>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 9,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      padding: "4px 8px",
-                      border: "1px solid var(--border)",
-                      color: statusColor(p.status as string),
-                    }}
-                  >
-                    {p.status}
-                  </span>
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 8,
-                    flexWrap: "wrap",
-                    marginTop: 8,
-                  }}
-                >
-                  {(Array.isArray(p.metaThemes)
-                    ? p.metaThemes
-                    : p.metaThemes
-                    ? p.metaThemes.split(",")
-                    : []
-                  )
-                    .slice(0, 4)
-                    .map((t: string) => (
-                      <span
-                        key={t}
-                        style={{
-                          fontFamily: "var(--font-mono)",
-                          fontSize: 8,
-                          color: "var(--muted)",
-                          background: "var(--border)",
-                          padding: "2px 6px",
-                        }}
-                      >
-                        {t.trim()}
-                      </span>
-                    ))}
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 9,
-                      color: "var(--muted)",
-                      marginLeft: "auto",
-                    }}
-                  >
-                    {p.created !== "—" ? p.created.slice(0, 10) : "—"}
-                  </span>
-                </div>
-              </a>
+              <NewsDeskProtocolRow key={p.file} p={p} />
             ))}
           </div>
         )}

@@ -2,6 +2,7 @@ import Layout from "@/components/Layout"
 import Link from "next/link"
 import fs from "fs"
 import path from "path"
+import QuantaProtocolRow from "@/components/QuantaProtocolRow"
 
 const PROTOCOLS_DIR = "/Users/QSMolt/TSM II/TCM II/HQ II/04 NewsDesk/Protocol Evaluation"
 
@@ -168,107 +169,7 @@ export default function QuantProtocolsPage() {
 
             {/* Rows */}
             {protocols.map((p) => (
-              <div
-                key={p.file}
-                style={{
-                  background: "var(--bg)",
-                  padding: "16px 20px",
-                  display: "grid",
-                  gridTemplateColumns: "60px 1fr 90px 1fr 80px",
-                  gap: 16,
-                  alignItems: "center",
-                  cursor: "pointer",
-                }}
-                onClick={() =>
-                  window.open(
-                    `/newsdesk/protocols/${p.protocolNum}`,
-                    "_blank"
-                  )
-                }
-                onMouseEnter={(e) => {
-                  ;(
-                    e.currentTarget as HTMLElement
-                  ).style.background = "var(--surface)"
-                }}
-                onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.background =
-                    "var(--bg)"
-                }}
-              >
-                <div
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: 10,
-                    color: "var(--accent)",
-                  }}
-                >
-                  {p.protocolNum}
-                </div>
-                <div
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: 14,
-                    color: "var(--fg)",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {p.title}
-                </div>
-                <div>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 9,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      padding: "4px 8px",
-                      border: "1px solid var(--border)",
-                      color:
-                        statusColor(p.status as string)
-                    }}
-                  >
-                    {p.status}
-                  </span>
-                </div>
-                <div
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: 9,
-                    color: "var(--muted)",
-                    display: "flex",
-                    gap: 6,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {(Array.isArray(p.metaThemes)
-                    ? p.metaThemes
-                    : p.metaThemes
-                    ? p.metaThemes.split(",")
-                    : []
-                  )
-                    .slice(0, 3)
-                    .map((t: string) => (
-                      <span
-                        key={t}
-                        style={{
-                          background: "var(--border)",
-                          padding: "2px 6px",
-                        }}
-                      >
-                        {t.trim()}
-                      </span>
-                    ))}
-                </div>
-                <div
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: 10,
-                    color: "var(--muted)",
-                  }}
-                >
-                  {p.created !== "—" ? p.created.slice(0, 10) : "—"}
-                </div>
-              </div>
+              <QuantaProtocolRow key={p.file} p={p} />
             ))}
           </div>
         )}

@@ -12,6 +12,7 @@ const navByRole: Record<Role, { href: string; label: string }[]> = {
     { href: "/", label: "Home" },
     { href: "/about", label: "About" },
     { href: "/storefront", label: "StoreFront" },
+    { href: "/mint", label: "Mint" },
     { href: "/consulting", label: "Consulting" },
     { href: "/school", label: "School" },
     { href: "/press", label: "Press" },

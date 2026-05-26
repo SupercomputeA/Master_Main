@@ -9,21 +9,52 @@ export interface SEOData {
   ogImage: string
 }
 
+export type EntityNodeType =
+  | "protocol" | "token" | "agent" | "concept" | "person"
+  | "term" | "date" | "event" | "narrative" | "image"
+
 export interface KnowledgeGraphNode {
   id: string
   label: string
-  type: "protocol" | "token" | "agent" | "concept" | "person"
+  type: EntityNodeType
+  description?: string
+  definition?: string
+  datetime?: string
+  location?: string
+  src?: string
+  alt?: string
+  order?: number
+  prompt?: string
 }
 
 export interface KnowledgeGraphEdge {
   from: string
   to: string
   label: string
+  weight?: number
+}
+
+export interface PresetView {
+  id: string
+  label: string
+  description?: string
+  filters?: string
+  highlightIds?: string
+  focusNodeId?: string
+}
+
+export interface NarrativePath {
+  id: string
+  title: string
+  description?: string
+  steps: string
 }
 
 export interface KnowledgeGraph {
   nodes: KnowledgeGraphNode[]
   edges: KnowledgeGraphEdge[]
+  presets?: PresetView[]
+  narratives?: NarrativePath[]
 }
 
 export interface Comment {

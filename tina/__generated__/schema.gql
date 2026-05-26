@@ -110,17 +110,44 @@ type PostKnowledgeGraphNodes {
   id: String
   label: String
   type: String
+  description: String
+  definition: String
+  datetime: String
+  location: String
+  src: String
+  alt: String
+  order: Float
+  prompt: String
 }
 
 type PostKnowledgeGraphEdges {
   from: String
   to: String
   label: String
+  weight: Float
+}
+
+type PostKnowledgeGraphPresets {
+  id: String
+  label: String
+  description: String
+  filters: String
+  highlightIds: String
+  focusNodeId: String
+}
+
+type PostKnowledgeGraphNarratives {
+  id: String
+  title: String
+  description: String
+  steps: String
 }
 
 type PostKnowledgeGraph {
   nodes: [PostKnowledgeGraphNodes]
   edges: [PostKnowledgeGraphEdges]
+  presets: [PostKnowledgeGraphPresets]
+  narratives: [PostKnowledgeGraphNarratives]
 }
 
 type PostProtocolEval {
@@ -182,21 +209,58 @@ input PostSeoFilter {
   ogImage: StringFilter
 }
 
+input NumberFilter {
+  lt: Float
+  lte: Float
+  gte: Float
+  gt: Float
+  eq: Float
+  exists: Boolean
+  in: [Float]
+}
+
 input PostKnowledgeGraphNodesFilter {
   id: StringFilter
   label: StringFilter
   type: StringFilter
+  description: StringFilter
+  definition: StringFilter
+  datetime: DatetimeFilter
+  location: StringFilter
+  src: StringFilter
+  alt: StringFilter
+  order: NumberFilter
+  prompt: StringFilter
 }
 
 input PostKnowledgeGraphEdgesFilter {
   from: StringFilter
   to: StringFilter
   label: StringFilter
+  weight: NumberFilter
+}
+
+input PostKnowledgeGraphPresetsFilter {
+  id: StringFilter
+  label: StringFilter
+  description: StringFilter
+  filters: StringFilter
+  highlightIds: StringFilter
+  focusNodeId: StringFilter
+}
+
+input PostKnowledgeGraphNarrativesFilter {
+  id: StringFilter
+  title: StringFilter
+  description: StringFilter
+  steps: StringFilter
 }
 
 input PostKnowledgeGraphFilter {
   nodes: PostKnowledgeGraphNodesFilter
   edges: PostKnowledgeGraphEdgesFilter
+  presets: PostKnowledgeGraphPresetsFilter
+  narratives: PostKnowledgeGraphNarrativesFilter
 }
 
 input PostProtocolEvalFilter {
@@ -399,17 +463,44 @@ input PostKnowledgeGraphNodesMutation {
   id: String
   label: String
   type: String
+  description: String
+  definition: String
+  datetime: String
+  location: String
+  src: String
+  alt: String
+  order: Float
+  prompt: String
 }
 
 input PostKnowledgeGraphEdgesMutation {
   from: String
   to: String
   label: String
+  weight: Float
+}
+
+input PostKnowledgeGraphPresetsMutation {
+  id: String
+  label: String
+  description: String
+  filters: String
+  highlightIds: String
+  focusNodeId: String
+}
+
+input PostKnowledgeGraphNarrativesMutation {
+  id: String
+  title: String
+  description: String
+  steps: String
 }
 
 input PostKnowledgeGraphMutation {
   nodes: [PostKnowledgeGraphNodesMutation]
   edges: [PostKnowledgeGraphEdgesMutation]
+  presets: [PostKnowledgeGraphPresetsMutation]
+  narratives: [PostKnowledgeGraphNarrativesMutation]
 }
 
 input PostProtocolEvalMutation {

@@ -250,6 +250,14 @@ export type PostKnowledgeGraphNodes = {
   id?: Maybe<Scalars['String']['output']>;
   label?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  definition?: Maybe<Scalars['String']['output']>;
+  datetime?: Maybe<Scalars['String']['output']>;
+  location?: Maybe<Scalars['String']['output']>;
+  src?: Maybe<Scalars['String']['output']>;
+  alt?: Maybe<Scalars['String']['output']>;
+  order?: Maybe<Scalars['Float']['output']>;
+  prompt?: Maybe<Scalars['String']['output']>;
 };
 
 export type PostKnowledgeGraphEdges = {
@@ -257,12 +265,33 @@ export type PostKnowledgeGraphEdges = {
   from?: Maybe<Scalars['String']['output']>;
   to?: Maybe<Scalars['String']['output']>;
   label?: Maybe<Scalars['String']['output']>;
+  weight?: Maybe<Scalars['Float']['output']>;
+};
+
+export type PostKnowledgeGraphPresets = {
+  __typename?: 'PostKnowledgeGraphPresets';
+  id?: Maybe<Scalars['String']['output']>;
+  label?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  filters?: Maybe<Scalars['String']['output']>;
+  highlightIds?: Maybe<Scalars['String']['output']>;
+  focusNodeId?: Maybe<Scalars['String']['output']>;
+};
+
+export type PostKnowledgeGraphNarratives = {
+  __typename?: 'PostKnowledgeGraphNarratives';
+  id?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  steps?: Maybe<Scalars['String']['output']>;
 };
 
 export type PostKnowledgeGraph = {
   __typename?: 'PostKnowledgeGraph';
   nodes?: Maybe<Array<Maybe<PostKnowledgeGraphNodes>>>;
   edges?: Maybe<Array<Maybe<PostKnowledgeGraphEdges>>>;
+  presets?: Maybe<Array<Maybe<PostKnowledgeGraphPresets>>>;
+  narratives?: Maybe<Array<Maybe<PostKnowledgeGraphNarratives>>>;
 };
 
 export type PostProtocolEval = {
@@ -326,21 +355,58 @@ export type PostSeoFilter = {
   ogImage?: InputMaybe<StringFilter>;
 };
 
+export type NumberFilter = {
+  lt?: InputMaybe<Scalars['Float']['input']>;
+  lte?: InputMaybe<Scalars['Float']['input']>;
+  gte?: InputMaybe<Scalars['Float']['input']>;
+  gt?: InputMaybe<Scalars['Float']['input']>;
+  eq?: InputMaybe<Scalars['Float']['input']>;
+  exists?: InputMaybe<Scalars['Boolean']['input']>;
+  in?: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>>>;
+};
+
 export type PostKnowledgeGraphNodesFilter = {
   id?: InputMaybe<StringFilter>;
   label?: InputMaybe<StringFilter>;
   type?: InputMaybe<StringFilter>;
+  description?: InputMaybe<StringFilter>;
+  definition?: InputMaybe<StringFilter>;
+  datetime?: InputMaybe<DatetimeFilter>;
+  location?: InputMaybe<StringFilter>;
+  src?: InputMaybe<StringFilter>;
+  alt?: InputMaybe<StringFilter>;
+  order?: InputMaybe<NumberFilter>;
+  prompt?: InputMaybe<StringFilter>;
 };
 
 export type PostKnowledgeGraphEdgesFilter = {
   from?: InputMaybe<StringFilter>;
   to?: InputMaybe<StringFilter>;
   label?: InputMaybe<StringFilter>;
+  weight?: InputMaybe<NumberFilter>;
+};
+
+export type PostKnowledgeGraphPresetsFilter = {
+  id?: InputMaybe<StringFilter>;
+  label?: InputMaybe<StringFilter>;
+  description?: InputMaybe<StringFilter>;
+  filters?: InputMaybe<StringFilter>;
+  highlightIds?: InputMaybe<StringFilter>;
+  focusNodeId?: InputMaybe<StringFilter>;
+};
+
+export type PostKnowledgeGraphNarrativesFilter = {
+  id?: InputMaybe<StringFilter>;
+  title?: InputMaybe<StringFilter>;
+  description?: InputMaybe<StringFilter>;
+  steps?: InputMaybe<StringFilter>;
 };
 
 export type PostKnowledgeGraphFilter = {
   nodes?: InputMaybe<PostKnowledgeGraphNodesFilter>;
   edges?: InputMaybe<PostKnowledgeGraphEdgesFilter>;
+  presets?: InputMaybe<PostKnowledgeGraphPresetsFilter>;
+  narratives?: InputMaybe<PostKnowledgeGraphNarrativesFilter>;
 };
 
 export type PostProtocolEvalFilter = {
@@ -651,17 +717,44 @@ export type PostKnowledgeGraphNodesMutation = {
   id?: InputMaybe<Scalars['String']['input']>;
   label?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  definition?: InputMaybe<Scalars['String']['input']>;
+  datetime?: InputMaybe<Scalars['String']['input']>;
+  location?: InputMaybe<Scalars['String']['input']>;
+  src?: InputMaybe<Scalars['String']['input']>;
+  alt?: InputMaybe<Scalars['String']['input']>;
+  order?: InputMaybe<Scalars['Float']['input']>;
+  prompt?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type PostKnowledgeGraphEdgesMutation = {
   from?: InputMaybe<Scalars['String']['input']>;
   to?: InputMaybe<Scalars['String']['input']>;
   label?: InputMaybe<Scalars['String']['input']>;
+  weight?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type PostKnowledgeGraphPresetsMutation = {
+  id?: InputMaybe<Scalars['String']['input']>;
+  label?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Scalars['String']['input']>;
+  highlightIds?: InputMaybe<Scalars['String']['input']>;
+  focusNodeId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostKnowledgeGraphNarrativesMutation = {
+  id?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  steps?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type PostKnowledgeGraphMutation = {
   nodes?: InputMaybe<Array<InputMaybe<PostKnowledgeGraphNodesMutation>>>;
   edges?: InputMaybe<Array<InputMaybe<PostKnowledgeGraphEdgesMutation>>>;
+  presets?: InputMaybe<Array<InputMaybe<PostKnowledgeGraphPresetsMutation>>>;
+  narratives?: InputMaybe<Array<InputMaybe<PostKnowledgeGraphNarrativesMutation>>>;
 };
 
 export type PostProtocolEvalMutation = {
@@ -719,7 +812,7 @@ export type SchoolModuleMutation = {
   free?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type PostPartsFragment = { __typename: 'Post', title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, kgQuery?: string | null, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null };
+export type PostPartsFragment = { __typename: 'Post', title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, kgQuery?: string | null, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null, description?: string | null, definition?: string | null, datetime?: string | null, location?: string | null, src?: string | null, alt?: string | null, order?: number | null, prompt?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null, weight?: number | null } | null> | null, presets?: Array<{ __typename: 'PostKnowledgeGraphPresets', id?: string | null, label?: string | null, description?: string | null, filters?: string | null, highlightIds?: string | null, focusNodeId?: string | null } | null> | null, narratives?: Array<{ __typename: 'PostKnowledgeGraphNarratives', id?: string | null, title?: string | null, description?: string | null, steps?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null };
 
 export type ServicePartsFragment = { __typename: 'Service', title: string, description?: string | null, price?: string | null, duration?: string | null };
 
@@ -734,7 +827,7 @@ export type PostQueryVariables = Exact<{
 }>;
 
 
-export type PostQuery = { __typename?: 'Query', post: { __typename: 'Post', id: string, title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, kgQuery?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null } };
+export type PostQuery = { __typename?: 'Query', post: { __typename: 'Post', id: string, title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, kgQuery?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null, description?: string | null, definition?: string | null, datetime?: string | null, location?: string | null, src?: string | null, alt?: string | null, order?: number | null, prompt?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null, weight?: number | null } | null> | null, presets?: Array<{ __typename: 'PostKnowledgeGraphPresets', id?: string | null, label?: string | null, description?: string | null, filters?: string | null, highlightIds?: string | null, focusNodeId?: string | null } | null> | null, narratives?: Array<{ __typename: 'PostKnowledgeGraphNarratives', id?: string | null, title?: string | null, description?: string | null, steps?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null } };
 
 export type PostConnectionQueryVariables = Exact<{
   before?: InputMaybe<Scalars['String']['input']>;
@@ -746,7 +839,7 @@ export type PostConnectionQueryVariables = Exact<{
 }>;
 
 
-export type PostConnectionQuery = { __typename?: 'Query', postConnection: { __typename?: 'PostConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PostConnectionEdges', cursor: string, node?: { __typename: 'Post', id: string, title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, kgQuery?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null } | null } | null> | null } };
+export type PostConnectionQuery = { __typename?: 'Query', postConnection: { __typename?: 'PostConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PostConnectionEdges', cursor: string, node?: { __typename: 'Post', id: string, title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, kgQuery?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null, description?: string | null, definition?: string | null, datetime?: string | null, location?: string | null, src?: string | null, alt?: string | null, order?: number | null, prompt?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null, weight?: number | null } | null> | null, presets?: Array<{ __typename: 'PostKnowledgeGraphPresets', id?: string | null, label?: string | null, description?: string | null, filters?: string | null, highlightIds?: string | null, focusNodeId?: string | null } | null> | null, narratives?: Array<{ __typename: 'PostKnowledgeGraphNarratives', id?: string | null, title?: string | null, description?: string | null, steps?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null } | null } | null> | null } };
 
 export type ServiceQueryVariables = Exact<{
   relativePath: Scalars['String']['input'];
@@ -851,12 +944,37 @@ export const PostPartsFragmentDoc = gql`
       id
       label
       type
+      description
+      definition
+      datetime
+      location
+      src
+      alt
+      order
+      prompt
     }
     edges {
       __typename
       from
       to
       label
+      weight
+    }
+    presets {
+      __typename
+      id
+      label
+      description
+      filters
+      highlightIds
+      focusNodeId
+    }
+    narratives {
+      __typename
+      id
+      title
+      description
+      steps
     }
   }
   protocolEval {

@@ -1,29 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import Layout from "../components/Layout"
 import Footer from "../components/Footer"
-import KnowledgeGraph from "../components/KnowledgeGraph"
+import EntityMap from "../components/entity-map"
+import type { EntityMapData } from "../components/entity-map"
 import DialogueEngine from "../components/DialogueEngine"
 
-type KGNode = { id: string; label: string; type: string; x?: number; y?: number; r?: number }
-type KGEdge = [string, string]
-
-const LEGEND_ITEMS = [
-  { type: "agent", label: "Agent", color: "#ff6b35" },
-  { type: "protocol", label: "Protocol", color: "#10b981" },
-  { type: "token", label: "Token", color: "#fbbf24" },
-  { type: "project", label: "Project", color: "#a855f7" },
-  { type: "officer", label: "Officer", color: "#f59e0b" },
-  { type: "incident", label: "Incident", color: "#0ea5e9" },
-  { type: "misconduct", label: "Misconduct", color: "#ef4444" },
-  { type: "department", label: "Department", color: "#8b5cf6" },
-  { type: "complaint", label: "Complaint", color: "#06b6d4" },
-]
+type ApiNode = { id: string; label: string; type: string; description?: string; properties?: Record<string, string> }
+type ApiEdge = [string, string, string?]
 
 export default function KnowledgeGraphPage() {
   const [domain, setDomain] = useState<"supercompute" | "policing">("supercompute")
-  const [graph, setGraph] = useState<{ nodes: KGNode[]; edges: KGEdge[] } | null>(null)
+  const [rawGraph, setRawGraph] = useState<{ nodes: ApiNode[]; edges: ApiEdge[] } | null>(null)
   const [loading, setLoading] = useState(true)
   const [mcpEnabled, setMcpEnabled] = useState(false)
 
@@ -31,19 +20,30 @@ export default function KnowledgeGraphPage() {
     fetch(`/api/kg/graph?domain=${domain}`)
       .then(r => r.json())
       .then(d => {
-        setGraph(d.graph)
+        setRawGraph(d.graph)
         setMcpEnabled(d.mcp)
         setLoading(false)
       })
       .catch(() => setLoading(false))
   }, [domain])
 
-  const stats = graph
-    ? [
-        { label: "Nodes", value: graph.nodes.length },
-        { label: "Edges", value: graph.edges.length },
-      ]
-    : []
+  const entityMapData = useMemo((): EntityMapData | null => {
+    if (!rawGraph) return null
+    return {
+      nodes: rawGraph.nodes.map(n => ({
+        id: n.id,
+        label: n.label,
+        type: n.type as any,
+        description: n.description,
+        properties: n.properties,
+      })),
+      edges: rawGraph.edges.map(e => ({
+        from: e[0],
+        to: e[1],
+        label: e[2] || "",
+      })),
+    }
+  }, [rawGraph])
 
   return (
     <Layout title="SUPERCOMPUTE · Knowledge Graph">
@@ -66,7 +66,7 @@ export default function KnowledgeGraphPage() {
         </p>
         <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
           {(["supercompute", "policing"] as const).map(d => (
-            <button key={d} onClick={() => { setDomain(d); setLoading(true); setGraph(null) }}
+            <button key={d} onClick={() => { setDomain(d); setLoading(true); setRawGraph(null) }}
               style={{
                 padding: "6px 14px",
                 background: domain === d ? "var(--accent)" : "transparent",
@@ -82,76 +82,19 @@ export default function KnowledgeGraphPage() {
       </section>
 
       <section className="section">
-        <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
-          {/* Graph canvas */}
-          <div>
-            <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", background: "var(--surface)" }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                // {domain === "supercompute" ? "Supercompute Entity Map" : "Police Accountability Network"}
-              </div>
-            </div>
-            {loading ? (
-              <div style={{ height: 450, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg)" }}>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)" }}>
-                  {mcpEnabled ? "Calling Memgraph MCP..." : "Loading graph data..."}
-                </div>
-              </div>
-            ) : graph ? (
-              <KnowledgeGraph data={graph} height={450} />
-            ) : (
-              <div style={{ height: 450, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg)" }}>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)" }}>No data</div>
-              </div>
-            )}
-          </div>
-
-          {/* Info panel */}
-          <div style={{ background: "var(--bg)", display: "flex", flexDirection: "column" }}>
-            {/* Legend */}
-            <div style={{ padding: "16px", borderBottom: "1px solid var(--border)" }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
-                // node types
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {LEGEND_ITEMS.filter(l => domain === "policing" ? ["officer", "incident", "misconduct", "department", "complaint"].includes(l.type) : true).map(item => (
-                  <div key={item.type} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: item.color, flexShrink: 0 }} />
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)" }}>{item.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Stats */}
-            {stats.length > 0 && (
-              <div style={{ padding: "16px", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
-                  // graph stats
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                  {stats.map(s => (
-                    <div key={s.label} style={{ background: "var(--surface)", padding: "10px 12px" }}>
-                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--muted)", marginBottom: 2 }}>{s.label.toUpperCase()}</div>
-                      <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--accent)" }}>{s.value}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* About */}
-            <div style={{ padding: "16px", flex: 1 }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>
-                // about
-              </div>
-              <p style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.7 }}>
-                {domain === "supercompute"
-                  ? "Supercompute protocol entities — agents, tokens, protocols, and projects. Edges show relationships and dependencies."
-                  : "Police accountability network from public records (NYPD, CCRB, Marshall Project). Node connections reveal patterns invisible in tabular data."}
-              </p>
+        {loading ? (
+          <div style={{ height: 500, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg)", border: "1px solid var(--border)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)" }}>
+              {mcpEnabled ? "Calling Memgraph MCP..." : "Loading graph data..."}
             </div>
           </div>
-        </div>
+        ) : entityMapData ? (
+          <EntityMap data={entityMapData} height={500} />
+        ) : (
+          <div style={{ height: 500, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg)", border: "1px solid var(--border)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)" }}>No data</div>
+          </div>
+        )}
       </section>
 
       {/* Dialogue + article */}

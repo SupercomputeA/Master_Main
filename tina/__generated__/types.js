@@ -32,12 +32,37 @@ export const PostPartsFragmentDoc = gql`
       id
       label
       type
+      description
+      definition
+      datetime
+      location
+      src
+      alt
+      order
+      prompt
     }
     edges {
       __typename
       from
       to
       label
+      weight
+    }
+    presets {
+      __typename
+      id
+      label
+      description
+      filters
+      highlightIds
+      focusNodeId
+    }
+    narratives {
+      __typename
+      id
+      title
+      description
+      steps
     }
   }
   protocolEval {

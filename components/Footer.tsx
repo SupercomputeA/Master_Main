@@ -3,32 +3,30 @@ export default function Footer() {
     <footer>
       <div className="footer-grid">
         <div className="footer-brand">
-          <a href="#" className="logo">SUPERCOMPUTE</a>
-          <p>One operator. Hands-on Web3 consulting on Base Chain since 2013.</p>
+          <a href="/" className="logo">SUPERCOMPUTE</a>
+          <p>Agent-powered publishing. Write once, publish everywhere.</p>
         </div>
         <div className="footer-links">
           <div className="link-col">
-            <div className="label-sm">Practice</div>
+            <div className="label-sm">Publish</div>
             <ul>
-              <li><a href="#consulting">Consulting</a></li>
-              <li><a href="#fleet">Agent Fleet</a></li>
-              <li><a href="#newsdesk">NewsDesk</a></li>
-              <li><a href="#school">Web3 School</a></li>
+              <li><a href="/compose">Compose</a></li>
+              <li><a href="/newsdesk">NewsDesk</a></li>
+              <li><a href="/knowledge-graph">Entity Map</a></li>
             </ul>
           </div>
           <div className="link-col">
-            <div className="label-sm">Publishing</div>
+            <div className="label-sm">Export To</div>
             <ul>
-              <li><a href="#">Blog</a></li>
-              <li><a href="#">$SCOM Token</a></li>
-              <li><a href="#">Agent Chat</a></li>
-              <li><a href="#">Shop</a></li>
+              <li><a href="#">X / Twitter</a></li>
+              <li><a href="#">Farcaster</a></li>
+              <li><a href="#">Lens Protocol</a></li>
+              <li><a href="#">Mirror</a></li>
             </ul>
           </div>
           <div className="link-col">
             <div className="label-sm">Connect</div>
             <ul>
-              <li><a href="#">Calendly</a></li>
               <li><a href="#">@supercompute_io</a></li>
               <li><a href="#">Farcaster</a></li>
               <li><a href="#">supercompute.eth</a></li>
@@ -37,11 +35,11 @@ export default function Footer() {
         </div>
       </div>
       <div className="footer-bottom">
-        <div className="footer-copy">&copy; 2026 Supercompute · Phase 1 · Base Chain // uptime → 99.9% · since May 2026</div>
+        <div className="footer-copy">&copy; 2026 Supercompute Publishing · Base Chain · Agent-Powered</div>
         <div className="footer-social">
           <a href="#">X</a>
           <a href="#">Farcaster</a>
-          <a href="#">Calendly</a>
+          <a href="#">Lens</a>
         </div>
       </div>
     </footer>

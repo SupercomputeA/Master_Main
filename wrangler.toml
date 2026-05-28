@@ -14,4 +14,4 @@ id = "031b7cbbfed44d478d7d7c4abe67c666"
 
 [vars]
 CORS_ORIGIN = "https://supercompute.io"
-MEMGRAPH_HTTP_URL = "http://localhost:7444"
+MEMGRAPH_HTTP_URL = "https://a935-2603-8000-a700-c88b-99d7-83a3-80be-6a48.ngrok-free.app"

@@ -105,9 +105,62 @@ export async function onRequest(context) {
       return json({ graph: SUPERCOMPUTE_GRAPH, domain, mcp: false })
     }
     if (memgraphUrl) {
-      const results = await queryMemgraph("MATCH (n) OPTIONAL MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 100", memgraphUrl)
-      const g = memgraphToGraph(results)
-      if (g) return json({ graph: g, domain, mcp: true })
+      try {
+        // Query all nodes
+        const nodeRes = await fetch(`${memgraphUrl}/db/data/cypher`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: "MATCH (n) RETURN n" }),
+        })
+        const nodeData = await nodeRes.json()
+        // Query all relationships
+        const edgeRes = await fetch(`${memgraphUrl}/db/data/cypher`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: "MATCH (n)-[r]->(m) RETURN r, n, m" }),
+        })
+        const edgeData = await edgeRes.json()
+
+        if (nodeData?.results && edgeData?.results) {
+          const seen = new Set()
+          const nodes = []
+          for (const row of nodeData.results) {
+            const n = row.n
+            if (n && n.id && !seen.has(n.id)) {
+              seen.add(n.id)
+              nodes.push({
+                id: n.id,
+                label: n.name || n.properties?.name || n.type,
+                type: (n.type || "").toLowerCase(),
+                description: n.properties?.description || "",
+                properties: n.properties || {},
+              })
+            }
+          }
+          const edges = []
+          for (const row of edgeData.results) {
+            const r = row.r
+            if (r) {
+              edges.push([r.properties?.from || r.start?.toString() || "", r.properties?.to || r.end?.toString() || "", r.type || ""])
+            }
+            // Also extract nodes from relationships that aren't in the node list
+            for (const key of ["n", "m"]) {
+              const relNode = row[key]
+              if (relNode && relNode.id && !seen.has(relNode.id)) {
+                seen.add(relNode.id)
+                nodes.push({
+                  id: relNode.id,
+                  label: relNode.name || relNode.properties?.name || relNode.type || "node",
+                  type: (relNode.type || "").toLowerCase(),
+                  description: relNode.properties?.description || "",
+                  properties: relNode.properties || {},
+                })
+              }
+            }
+          }
+          return json({ graph: { nodes, edges }, domain, mcp: true })
+        }
+      } catch (e) {
+        // Fall through to demo
+      }
     }
     return json({ graph: DEMO_POLICING_GRAPH, domain, mcp: false })
   }

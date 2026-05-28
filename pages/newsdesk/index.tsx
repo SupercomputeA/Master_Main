@@ -17,8 +17,12 @@ const allCategories: { key: string | "ALL"; label: string }[] = [
 const builderCategories = ["INTELLIGENCE", "SOVEREIGNTY", "DISPATCH", "SIGNAL", "PROTOCOL_EVAL"]
 
 export const getStaticProps = async () => {
-  const { data } = await client.queries.postConnection({ sort: "date", last: 50 })
-  return { props: { data } }
+  try {
+    const { data } = await client.queries.postConnection({ sort: "date", last: 50 })
+    return { props: { data } }
+  } catch {
+    return { props: { data: { postConnection: { edges: [] } } } }
+  }
 }
 
 type PostNode = NonNullable<NonNullable<PostConnectionQuery["postConnection"]["edges"]>[number]>["node"]

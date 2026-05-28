@@ -99,23 +99,45 @@ const DEMO_COMMENTS: Comment[] = [
 ]
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const { data } = await client.queries.postConnection()
-  const paths = (data.postConnection.edges ?? [])
-    .map(e => e?.node?.slug)
-    .filter(Boolean)
-    .map(slug => ({ params: { slug } }))
-  return { paths, fallback: false }
+  let paths: { params: { slug: string } }[] = []
+  try {
+    const { data } = await client.queries.postConnection()
+    paths = (data.postConnection.edges ?? [])
+      .map(e => e?.node?.slug)
+      .filter(Boolean)
+      .map(slug => ({ params: { slug } }))
+  } catch {
+    // Tina Cloud not available during build — skip pre-rendering
+  }
+  return { paths, fallback: 'blocking' }
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const slug = params?.slug as string
-  const { data } = await client.queries.post({ relativePath: `${slug}.md` })
-  return { props: { data } }
+  try {
+    const { data } = await client.queries.post({ relativePath: `${slug}.md` })
+    return { props: { data } }
+  } catch {
+    return { props: { data: null } }
+  }
 }
 
-export default function ArticleDetail({ data }: { data: PostQuery }) {
+export default function ArticleDetail({ data }: { data: PostQuery | null }) {
   const { session } = useAuth()
-  const article = data.post
+  const article = data?.post
+
+  if (!article) {
+    return (
+      <Layout>
+        <div style={{ padding: 48, textAlign: 'center' }}>
+          <p style={{ color: 'var(--muted)', fontFamily: 'var(--font-mono)', fontSize: 14 }}>
+            Article not available. Connect wallet to sync content.
+          </p>
+        </div>
+        <Footer />
+      </Layout>
+    )
+  }
 
   const [commentText, setCommentText] = useState("")
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)

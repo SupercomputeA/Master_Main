@@ -14,6 +14,9 @@
     "db:push": "wrangler d1 execute supercompute --local --file=./schema.sql",
     "db:push:prod": "wrangler d1 execute supercompute --file=./schema.sql --env production",
     "build": "npx esbuild src/worker.js --bundle --outfile=dist/worker.js --format=esm --platform=neutral --target=es2020 --minify",
+    "next:build": "npx next build",
+    "full:build": "npx tinacms build && npx next build",
+    "deploy:next": "npm run full:build && npx wrangler pages deploy out --project-name=supercompute --commit-dirty=true",
     "preview": "wrangler pages project . --preview"
   },
   "dependencies": {

@@ -1,7 +1,7 @@
 {
-  "name": "supercompute",
-  "version": "1.0.0",
-  "description": "QUANTA - Sovereign Compute Platform on Base Chain",
+  "name": "supercompute-publishing",
+  "version": "0.2.0",
+  "description": "Supercompute Publishing — agent-powered news app, one post to every platform",
   "type": "module",
   "scripts": {
     "dev": "tinacms dev -c \"wrangler dev\"",

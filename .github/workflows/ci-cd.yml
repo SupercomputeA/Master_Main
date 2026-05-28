@@ -83,6 +83,11 @@ jobs:
       - name: Build Next.js static export
         run: npx next build
 
+      - name: Copy Functions into deploy root
+        run: |
+          cp -r functions out/functions
+          echo "✓ Functions copied to out/functions/"
+
       - name: Install Wrangler
         run: npm install -g wrangler
 

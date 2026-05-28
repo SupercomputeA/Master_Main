@@ -85,7 +85,7 @@ jobs:
 
       - name: Deploy to Cloudflare Pages (main site)
         run: |
-          wrangler pages deploy public --project-name=supercompute
+          wrangler pages deploy public --project-name=supercompute --node-compat
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

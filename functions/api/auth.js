@@ -154,10 +154,10 @@ async function verifySession(env, authHeader) {
   } catch { return { valid: false, wallet: null }; }
 }
 
-function json(data, status = 200) {
+function json(data, status = 200, origin = 'https://supercompute.io') {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'https://supercompute.io' },
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': origin },
   });
 }
 
@@ -166,14 +166,17 @@ export async function onRequest({ request, env }) {
   const url = new URL(request.url);
   const path = url.pathname.replace('/api/auth', '') || '/';
   const method = request.method;
+  const reqOrigin = request.headers.get('Origin') || '';
+  const allowedOrigin = (!reqOrigin || reqOrigin.includes('supercompute.io') || reqOrigin.includes('localhost') || reqOrigin.includes('127.0.0.1') || reqOrigin.includes('pages.dev') || reqOrigin.includes('ngrok-free.app') || reqOrigin.includes('cloudflarestaging')) ? reqOrigin : 'https://supercompute.io';
 
   const cors = {
-    'Access-Control-Allow-Origin': 'https://supercompute.io',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
   if (method === 'OPTIONS') return new Response(null, { headers: cors });
+  const j = (data, status = 200) => json(data, status, allowedOrigin);
 
   // GET /api/auth/nonce
   if (method === 'GET' && path === '/nonce') {
@@ -181,21 +184,21 @@ export async function onRequest({ request, env }) {
     if (env?.CACHE) {
       await env.CACHE.put(`siwe:nonce:${nonce}`, 'pending', { expirationTtl: 600 });
     }
-    return json({ nonce });
+    return j({ nonce });
   }
 
   // GET /api/auth/message?nonce=X&address=Y
   if (method === 'GET' && path === '/message') {
     const nonce = url.searchParams.get('nonce');
     const address = url.searchParams.get('address');
-    if (!nonce || !address) return json({ error: 'nonce and address required' }, 400);
-    if (!isValidAddress(address)) return json({ error: 'Invalid address' }, 400);
+    if (!nonce || !address) return j({ error: 'nonce and address required' }, 400);
+    if (!isValidAddress(address)) return j({ error: 'Invalid address' }, 400);
     if (env?.CACHE) {
       const stored = await env.CACHE.get(`siwe:nonce:${nonce}`);
-      if (!stored) return json({ error: 'Invalid or expired nonce' }, 400);
+      if (!stored) return j({ error: 'Invalid or expired nonce' }, 400);
     }
     const message = generateSiweMessage(address, nonce);
-    return json({ message });
+    return j({ message });
   }
 
   // POST /api/auth/login
@@ -203,10 +206,10 @@ export async function onRequest({ request, env }) {
     const body = await request.json().catch(() => ({}));
     const { address, signature, nonce } = body;
 
-    if (!address || !signature) return json({ error: 'address and signature required' }, 400);
+    if (!address || !signature) return j({ error: 'address and signature required' }, 400);
 
     const wallet = address.toLowerCase();
-    if (!isValidAddress(wallet)) return json({ error: 'Invalid address' }, 400);
+    if (!isValidAddress(wallet)) return j({ error: 'Invalid address' }, 400);
 
     // Rate limit
     if (env?.CACHE) {
@@ -222,12 +225,12 @@ export async function onRequest({ request, env }) {
     const sigBytes = typeof signature === 'string' ? hexToBytes(signature) : signature;
     if (!sigBytes || sigBytes.length !== 65) {
       if (env?.CACHE) await recordFailedAttempt(env, wallet);
-      return json({ error: 'Invalid signature format' }, 400);
+      return j({ error: 'Invalid signature format' }, 400);
     }
     const v = sigBytes[64];
     if (v !== 27 && v !== 28 && v !== 31 && v !== 32) {
       if (env?.CACHE) await recordFailedAttempt(env, wallet);
-      return json({ error: 'Invalid signature v value' }, 400);
+      return j({ error: 'Invalid signature v value' }, 400);
     }
 
     // Consume nonce
@@ -255,7 +258,7 @@ export async function onRequest({ request, env }) {
       }
     }
 
-    return json({
+    return j({
       success: true,
       session: sessionId,
       user: {
@@ -270,15 +273,15 @@ export async function onRequest({ request, env }) {
   // GET /api/auth/profile
   if (method === 'GET' && path === '/profile') {
     const { valid, wallet } = await verifySession(env, request.headers.get('Authorization'));
-    if (!valid) return json({ user: null });
+    if (!valid) return j({ user: null });
 
     if (env?.DB) {
       const user = await env.DB.prepare(
         'SELECT id, name, wallet_address, role FROM users WHERE wallet_address = ?'
       ).bind(wallet).first();
-      return json({ user });
+      return j({ user });
     }
-    return json({ user: { id: wallet, name: formatAddress(wallet), address: wallet, role: 'user' } });
+    return j({ user: { id: wallet, name: formatAddress(wallet), address: wallet, role: 'user' } });
   }
 
   // POST /api/auth/logout
@@ -287,10 +290,10 @@ export async function onRequest({ request, env }) {
     if (authHeader?.startsWith('Bearer ') && env?.DB) {
       await env.DB.prepare('DELETE FROM sessions WHERE id = ?').bind(authHeader.slice(7)).run().catch(() => {});
     }
-    return json({ success: true });
+    return j({ success: true });
   }
 
-  return json({
+  return j({
     endpoints: {
       'GET /api/auth/nonce': 'Get login nonce',
       'GET /api/auth/message?nonce=X&address=Y': 'Get SIWE message',
@@ -301,4 +304,4 @@ export async function onRequest({ request, env }) {
   });
 }
 
-export { verifySession, isAdmin };
+export { verifySession, isAdmin, generateNonce, json, hexToBytes, isValidAddress };

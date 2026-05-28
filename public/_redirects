@@ -1,2 +1,2 @@
-# SPA fallback — all routes serve index.html so the client-side router handles them
-/*  /index.html  200
+# Cloudflare Pages SPA fallback — route all 404s to index.html
+/*    /index.html   200

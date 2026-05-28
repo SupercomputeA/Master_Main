@@ -3,12 +3,12 @@ import Sidebar from "./Sidebar"
 import AgentChat from "./AgentChat"
 import type { ReactNode } from "react"
 
-export default function Layout({ children, title = "SUPERCOMPUTE · Publishing" }: { children: ReactNode; title?: string }) {
+export default function Layout({ children, title = "SUPERCOMPUTE · Web3 built for liberation" }: { children: ReactNode; title?: string }) {
   return (
     <>
       <Head>
         <title>{title}</title>
-        <meta name="description" content="Agent-powered news publishing. One post, every platform." />
+        <meta name="description" content="One operator, hands-on Web3 consulting on Base Chain since 2013." />
       </Head>
       <AgentChat />
       <div style={{ display: "flex", minHeight: "100vh" }}>

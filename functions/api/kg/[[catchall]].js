@@ -1,5 +1,5 @@
-// functions/api/kg.js — Knowledge Graph API
-// Cloudflare Pages Functions — routes via /api/kg/*
+// functions/api/kg/[[catchall]].js — Knowledge Graph API
+// Cloudflare Pages Functions catch-all — handles /api/kg, /api/kg/graph, etc.
 // Connects to Memgraph when MEMGRAPH_HTTP_URL is set, falls back to demo data
 
 const DEMO_POLICING_GRAPH = {
@@ -99,26 +99,28 @@ export async function onRequest(context) {
     })
   }
 
-  // GET /api/kg/graph
+  // GET /api/kg/graph — frontend expects: { graph: { nodes, edges }, mcp: bool }
   if (method === "GET" && route === "/graph") {
-    if (domain === "supercompute") return json({ result: SUPERCOMPUTE_GRAPH, domain })
+    if (domain === "supercompute") {
+      return json({ graph: SUPERCOMPUTE_GRAPH, domain, mcp: false })
+    }
     if (memgraphUrl) {
       const results = await queryMemgraph("MATCH (n) OPTIONAL MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 100", memgraphUrl)
       const g = memgraphToGraph(results)
-      if (g) return json({ result: g, domain, mcp: true })
+      if (g) return json({ graph: g, domain, mcp: true })
     }
-    return json({ result: DEMO_POLICING_GRAPH, domain })
+    return json({ graph: DEMO_POLICING_GRAPH, domain, mcp: false })
   }
 
   // GET /api/kg/stats
   if (method === "GET" && route === "/stats") {
-    const graph = domain === "supercompute" ? SUPERCOMPUTE_GRAPH : DEMO_POLICING_GRAPH
+    const g = domain === "supercompute" ? SUPERCOMPUTE_GRAPH : DEMO_POLICING_GRAPH
     const nodeTypes = {}
-    graph.nodes.forEach(n => { nodeTypes[n.type] = (nodeTypes[n.type] || 0) + 1 })
+    g.nodes.forEach(n => { nodeTypes[n.type] = (nodeTypes[n.type] || 0) + 1 })
     return json({
       stats: [
-        { label: "Nodes", value: graph.nodes.length },
-        { label: "Edges", value: graph.edges.length },
+        { label: "Nodes", value: g.nodes.length },
+        { label: "Edges", value: g.edges.length },
         ...Object.entries(nodeTypes).map(([type, count]) => ({ label: type.toUpperCase() + "s", value: count })),
       ],
       domain,
@@ -132,17 +134,17 @@ export async function onRequest(context) {
     if (!cypher) return json({ error: "cypher query required" }, 400)
     if (memgraphUrl) {
       const results = await queryMemgraph(cypher, memgraphUrl)
-      if (results) return json({ result: memgraphToGraph(results) || results, cypher, mcp: true })
+      if (results) return json({ graph: memgraphToGraph(results) || results, cypher, mcp: true })
     }
-    const graph = domain === "supercompute" ? SUPERCOMPUTE_GRAPH : DEMO_POLICING_GRAPH
-    return json({ result: { nodes: graph.nodes, edges: graph.edges }, cypher, mcp: false })
+    const g = domain === "supercompute" ? SUPERCOMPUTE_GRAPH : DEMO_POLICING_GRAPH
+    return json({ graph: { nodes: g.nodes, edges: g.edges }, cypher, mcp: false })
   }
 
   // GET /api/kg/search
   if (method === "GET" && route === "/search") {
     const q = url.searchParams.get("q") || ""
-    const graph = domain === "supercompute" ? SUPERCOMPUTE_GRAPH : DEMO_POLICING_GRAPH
-    const matches = graph.nodes.filter(n =>
+    const g = domain === "supercompute" ? SUPERCOMPUTE_GRAPH : DEMO_POLICING_GRAPH
+    const matches = g.nodes.filter(n =>
       n.label.toLowerCase().includes(q.toLowerCase()) || n.type.toLowerCase().includes(q.toLowerCase())
     )
     return json({ results: matches, query: q })

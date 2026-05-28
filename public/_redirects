@@ -1,4 +1,2 @@
-# SPA fallback — route all 404s to index.html
-# API routes handled by Cloudflare Pages Functions — excluded here
-/api/*    /api/:splat   200
+# SPA fallback — route all non-file, non-API 404s to index.html
 /*    /index.html   200

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "npm run sync && wrangler pages deploy public --project-name=supercompute --commit-dirty=true",
-    "sync": "cp Supercompute.html public/index.html && SHA=$(git rev-parse --short HEAD 2>/dev/null || echo dev) && BRANCH=$(git branch --show-current 2>/dev/null || echo local) && STAMP=$(date +'%H:%M') && sed -i.bak \"s|__VERSION__|$BRANCH @ $SHA · $STAMP|g\" public/index.html && rm public/index.html.bak && cp sc.css public/sc.css && cp sc-app.jsx public/sc-app.jsx && cp sc-shared.jsx public/sc-shared.jsx && cp sc-landing.jsx public/sc-landing.jsx && cp sc-flows.js public/sc-flows.js && cp sc-logic.js public/sc-logic.js && cp tweaks-panel.jsx public/tweaks-panel.jsx && echo \"Synced 8 files to public/ · version: $BRANCH @ $SHA · $STAMP\"",
+    "sync": "cp Supercompute.html public/index.html && mkdir -p public/site && cp -r site/* public/site/ 2>/dev/null; SHA=$(git rev-parse --short HEAD 2>/dev/null || echo dev) && BRANCH=$(git branch --show-current 2>/dev/null || echo local) && STAMP=$(date +'%H:%M') && sed -i.bak \"s|__VERSION__|$BRANCH @ $SHA · $STAMP|g\" public/index.html && rm public/index.html.bak && cp sc.css public/sc.css && cp sc-app.jsx public/sc-app.jsx && cp sc-shared.jsx public/sc-shared.jsx && cp sc-landing.jsx public/sc-landing.jsx && cp sc-flows.js public/sc-flows.js && cp sc-logic.js public/sc-logic.js && cp tweaks-panel.jsx public/tweaks-panel.jsx && echo \"Synced files to public/ · version: $BRANCH @ $SHA · $STAMP\"",
     "db:create": "wrangler d1 create supercompute",
     "db:push": "wrangler d1 execute supercompute --local --file=./schema.sql",
     "db:push:prod": "wrangler d1 execute supercompute --file=./schema.sql --env production",

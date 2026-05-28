@@ -1,141 +1,9 @@
 // src/api/auth.js — Auth API with SIWE (EIP-4361) + EIP-191 Verification
+import { verifyMessage } from 'viem';
 import { generateSiweMessage, generateNonce, isValidAddress, parseSiweMessage, formatAddress } from '../utils/siwe.js';
 
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW = 900; // 15 minutes in seconds
-
-// ── secp256k1 EIP-191 verification via Web Crypto API ────────────────────────
-async function secp256k1Recover(digest, signature, recoveryParam) {
-  // Import the secp256k1 curve
-  const key = await crypto.subtle.importKey(
-    'raw',
-    hexToBytes('0479BE659EB3F5D24FB4E42FD9D7BDF919781B5C4B49B3E5AA7AD12E9E0E6D8A9B3F5D24FB4E42FD9D7BDF919781B5C4B49B3E5AA7AD12E9E0E6D8A9B3'),
-    { name: 'ECDH', namedCurve: 'secp256k1' },
-    false,
-    ['deriveBits']
-  ).catch(() => null);
-
-  // Use uncompressed pubkey recovery approach
-  const sigBytes = hexToBytes(signature);
-  const r = sigBytes.slice(0, 32);
-  const s = sigBytes.slice(32, 64);
-  const v = recoveryParam === undefined ? sigBytes[64] || 27 : recoveryParam;
-
-  // Attempt recovery using raw secp256k1
-  // This is a simplified approach — in production use @Solana/web3.js or viem
-  return null; // Fallback to manual recovery below
-}
-
-// Manual EIP-191 verification without external deps
-// EIP-191: prefix = "\x19Ethereum Signed Message:\n" + len(message) + message
-function eip191Hash(message) {
-  const encoded = new TextEncoder().encode(message);
-  const prefix = new TextEncoder().encode('\x19Ethereum Signed Message:\n' + encoded.length);
-  const combined = new Uint8Array(prefix.length + encoded.length);
-  combined.set(prefix);
-  combined.set(encoded, prefix.length);
-  return combined;
-}
-
-async function hashSha256(data) {
-  const buffer = await crypto.subtle.digest('SHA-256', data);
-  return new Uint8Array(buffer);
-}
-
-// Convert hex string to Uint8Array
-function hexToBytes(hex) {
-  const hexClean = hex.replace('0x', '');
-  const bytes = new Uint8Array(hexClean.length / 2);
-  for (let i = 0; i < bytes.length; i++) {
-    bytes[i] = parseInt(hexClean.substr(i * 2, 2), 16);
-  }
-  return bytes;
-}
-
-// Convert bytes to hex string
-function bytesToHex(bytes) {
-  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// Verify EIP-191 personal_sign signature
-// signature: 65 bytes [r(32) + s(32) + v(1)]
-// Returns recovered address or null on failure
-async function verifyEIP191(message, signature, expectedAddress) {
-  try {
-    // Handle JSON-RPC format signatures (may have v, r, s separate or as 65-byte string)
-    let sigBytes;
-    if (typeof signature === 'string') {
-      sigBytes = hexToBytes(signature);
-    } else if (signature.r && signature.s) {
-      // JSON-RPC format: { r, s, v }
-      const v = signature.v;
-      const r = signature.r.replace('0x', '');
-      const s = signature.s.replace('0x', '');
-      // Reconstruct 65-byte signature
-      sigBytes = new Uint8Array(65);
-      const rBytes = hexToBytes(r);
-      const sBytes = hexToBytes(s);
-      sigBytes.set(rBytes, 0);
-      sigBytes.set(sBytes, 32);
-      sigBytes[64] = (v % 27) + 27; // normalize v
-    } else {
-      return null;
-    }
-
-    // For EIP-191 typed data, we need the keccak256 of the prefixed message
-    // Then use secp256k1 recovery to get the address
-    // Since Web Crypto doesn't expose secp256k1 directly, we use a workaround:
-    // For development/testing, verify format is valid
-    if (sigBytes.length !== 65) {
-      console.log('Invalid signature length:', sigBytes.length);
-      return null;
-    }
-
-    // Use SubtleCrypto ECDSA with P-256 as a stub — NOTE: real secp256k1 needs a library
-    // For now, do basic format check + return candidate addresses
-    const r = bytesToHex(sigBytes.slice(0, 32));
-    const s = bytesToHex(sigBytes.slice(32, 64));
-    const v = sigBytes[64];
-
-    console.log('Signature format OK, r:', r.slice(0, 16) + '..., v:', v);
-
-    // In production, use viem or @Solana/web3.js for real secp256k1 recovery
-    // viem: import { verifyMessage } from 'viem'
-    // This is a placeholder that accepts properly-formatted signatures for development
-    return { r, s, v, valid: true };
-
-  } catch (err) {
-    console.error('EIP-191 verification error:', err);
-    return null;
-  }
-}
-
-// Full EIP-191 verification using Web Crypto API secp256k1
-async function fullEIP191Verify(message, signature, expectedAddress) {
-  try {
-    const msgBytes = eip191Hash(message);
-    const msgHash = await hashSha256(msgBytes);
-    const sigBytes = typeof signature === 'string' ? hexToBytes(signature) : signature;
-    
-    // Try to use PKCS11 ECDSA verification via subtle
-    // Import raw key from signature r,x coordinate
-    const r = sigBytes.slice(0, 32);
-    const s = sigBytes.slice(32, 64);
-    const v = sigBytes[64];
-
-    // Simplified: return true if signature is well-formed
-    // In production, integrate viem for proper secp256k1 recovery:
-    // import { verifyMessage } from 'viem'
-    // const valid = verifyMessage({ address: expectedAddress, message, signature })
-    if (r.length === 32 && s.length === 32 && (v === 27 || v === 28)) {
-      return true;
-    }
-    return false;
-  } catch (err) {
-    console.error('Full EIP-191 verify error:', err);
-    return false;
-  }
-}
 
 // ── Rate limiting via KV ────────────────────────────────────────────────────
 async function checkRateLimit(env, address) {
@@ -237,7 +105,7 @@ export async function handleAuth(request, env, ctx) {
   // GET /api/auth/nonce — Generate login nonce
   if (method === 'GET' && path === '/nonce') {
     const nonce = generateNonce();
-    await env.CACHE.put(`siwe:nonce:${nonce}`, 'pending', { expirationTtl: 600 });
+    await env.CACHE.put(`siwe:nonce:${nonce}`, JSON.stringify({ status: 'pending' }), { expirationTtl: 600 });
 
     return new Response(JSON.stringify({ nonce }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -261,8 +129,8 @@ export async function handleAuth(request, env, ctx) {
       });
     }
 
-    const storedNonce = await env.CACHE.get(`siwe:nonce:${nonce}`);
-    if (!storedNonce) {
+    const storedRaw = await env.CACHE.get(`siwe:nonce:${nonce}`);
+    if (!storedRaw) {
       return new Response(JSON.stringify({ error: 'Invalid or expired nonce' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -270,6 +138,13 @@ export async function handleAuth(request, env, ctx) {
 
     const message = generateSiweMessage(address, nonce);
     const parsed = parseSiweMessage(message);
+
+    // Persist the exact message under the nonce so /login can verify against it
+    await env.CACHE.put(
+      `siwe:nonce:${nonce}`,
+      JSON.stringify({ status: 'issued', address: address.toLowerCase(), message }),
+      { expirationTtl: 600 },
+    );
 
     return new Response(JSON.stringify({
       message,
@@ -303,8 +178,8 @@ export async function handleAuth(request, env, ctx) {
         }
       }
 
-      if (!address || !body.signature) {
-        return new Response(JSON.stringify({ error: 'Missing address or signature' }), {
+      if (!address || !body.signature || !body.nonce) {
+        return new Response(JSON.stringify({ error: 'Missing address, signature, or nonce' }), {
           status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
@@ -317,39 +192,50 @@ export async function handleAuth(request, env, ctx) {
         });
       }
 
-      // EIP-191 verification (simplified — in production use viem's verifyMessage)
-      // For now, verify the signature format is valid 65 bytes
-      const sigBytes = typeof body.signature === 'string'
-        ? hexToBytes(body.signature.replace('0x', ''))
-        : body.signature;
-
-      if (!sigBytes || sigBytes.length !== 65) {
+      // Fetch the SIWE message that was issued under this nonce
+      const storedRaw = await env.CACHE.get(`siwe:nonce:${body.nonce}`);
+      if (!storedRaw) {
         await recordFailedAttempt(env, wallet);
-        return new Response(JSON.stringify({ error: 'Invalid signature format' }), {
-          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        return new Response(JSON.stringify({ error: 'Invalid or expired nonce' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      const v = sigBytes[64];
-      if (v !== 27 && v !== 28 && v !== 31 && v !== 32) {
+      let stored;
+      try { stored = JSON.parse(storedRaw); } catch { stored = null; }
+      if (!stored || stored.status !== 'issued' || !stored.message) {
         await recordFailedAttempt(env, wallet);
-        return new Response(JSON.stringify({ error: 'Invalid signature v value' }), {
-          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        return new Response(JSON.stringify({ error: 'Nonce not bound to a message — call /api/auth/message first' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      console.log('SIWE login:', { address: wallet, v });
-
-      // In production, uncomment this with viem:
-      // import { verifyMessage } from 'viem';
-      // const siweMessage = generateSiweMessage(wallet, body.nonce);
-      // const valid = await verifyMessage({ address: wallet, message: siweMessage, signature: body.signature });
-      // if (!valid) { await recordFailedAttempt(env, wallet); return 401; }
-
-      // Delete used nonce
-      if (body.nonce) {
-        await env.CACHE.delete(`siwe:nonce:${body.nonce}`);
+      if (stored.address && stored.address !== wallet) {
+        await recordFailedAttempt(env, wallet);
+        return new Response(JSON.stringify({ error: 'Address does not match issued message' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
+
+      // Real EIP-191 verification via viem
+      const signature = body.signature.startsWith('0x') ? body.signature : `0x${body.signature}`;
+      let valid = false;
+      try {
+        valid = await verifyMessage({ address: wallet, message: stored.message, signature });
+      } catch (e) {
+        console.error('verifyMessage threw:', e);
+        valid = false;
+      }
+
+      if (!valid) {
+        await recordFailedAttempt(env, wallet);
+        return new Response(JSON.stringify({ error: 'Signature verification failed' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Single-use nonce: delete on success
+      await env.CACHE.delete(`siwe:nonce:${body.nonce}`);
 
       // Create session
       const sessionId = generateNonce();

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 import ConnectWallet from "./ConnectWallet"
+import { GuildMembershipBadge } from "./GuildAccess"
 
 type NavItem = { href: string; label: string }
 
@@ -9,6 +10,11 @@ const nav: NavItem[] = [
   { href: "/newsdesk", label: "NewsDesk" },
   { href: "/compose", label: "Compose" },
   { href: "/knowledge-graph", label: "Entity Map" },
+]
+
+const secondary: NavItem[] = [
+  { href: "/storefront", label: "StoreFront" },
+  { href: "/guild", label: "Guild" },
 ]
 
 export default function Sidebar() {
@@ -46,6 +52,20 @@ export default function Sidebar() {
         </div>
 
         <div className="nav-section" style={{ marginTop: 16 }}>
+          <div className="nav-section-label">apps</div>
+          {secondary.map(link => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="nav-link"
+              style={router.pathname === link.href ? { color: "var(--accent)" } : undefined}
+            >
+              <span>{link.label}</span>
+            </Link>
+          ))}
+        </div>
+
+        <div className="nav-section" style={{ marginTop: 16 }}>
           <div className="nav-section-label">export</div>
           <div style={{ padding: "4px 16px", fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", lineHeight: 2 }}>
             <div>X / Twitter</div>
@@ -57,6 +77,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
+        <GuildMembershipBadge />
         <ConnectWallet />
       </div>
     </aside>

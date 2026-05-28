@@ -18,7 +18,7 @@ export default function KnowledgeGraphPage() {
 
   useEffect(() => {
     fetch(`/api/kg/graph?domain=${domain}`)
-      .then(r => r.json())
+      .then(r => r.json() as Promise<{ graph: { nodes: ApiNode[]; edges: ApiEdge[] }; mcp: boolean }>)
       .then(d => {
         setRawGraph(d.graph)
         setMcpEnabled(d.mcp)

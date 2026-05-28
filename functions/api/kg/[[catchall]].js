@@ -83,12 +83,12 @@ export async function onRequest(context) {
   const { request, env } = context
   const url = new URL(request.url)
   const method = request.method
-  const path = url.pathname.replace("/api/kg", "") || "/"
+  const route = url.pathname.replace("/api/kg", "") || "/"
   const memgraphUrl = env.MEMGRAPH_HTTP_URL || null
   const domain = url.searchParams.get("domain") || "supercompute"
 
   // GET /api/kg
-  if (method === "GET" && path === "/") {
+  if (method === "GET" && route === "/") {
     return json({
       endpoints: {
         "GET /api/kg/graph?domain=supercompute|policing": "Get full knowledge graph",
@@ -100,7 +100,7 @@ export async function onRequest(context) {
   }
 
   // GET /api/kg/graph
-  if (method === "GET" && path === "/graph") {
+  if (method === "GET" && route === "/graph") {
     if (domain === "supercompute") return json({ result: SUPERCOMPUTE_GRAPH, domain })
     if (memgraphUrl) {
       const results = await queryMemgraph("MATCH (n) OPTIONAL MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 100", memgraphUrl)
@@ -111,7 +111,7 @@ export async function onRequest(context) {
   }
 
   // GET /api/kg/stats
-  if (method === "GET" && path === "/stats") {
+  if (method === "GET" && route === "/stats") {
     const graph = domain === "supercompute" ? SUPERCOMPUTE_GRAPH : DEMO_POLICING_GRAPH
     const nodeTypes = {}
     graph.nodes.forEach(n => { nodeTypes[n.type] = (nodeTypes[n.type] || 0) + 1 })
@@ -126,7 +126,7 @@ export async function onRequest(context) {
   }
 
   // POST /api/kg/query
-  if (method === "POST" && path === "/query") {
+  if (method === "POST" && route === "/query") {
     const body = await request.json().catch(() => ({}))
     const { cypher } = body
     if (!cypher) return json({ error: "cypher query required" }, 400)
@@ -139,7 +139,7 @@ export async function onRequest(context) {
   }
 
   // GET /api/kg/search
-  if (method === "GET" && path === "/search") {
+  if (method === "GET" && route === "/search") {
     const q = url.searchParams.get("q") || ""
     const graph = domain === "supercompute" ? SUPERCOMPUTE_GRAPH : DEMO_POLICING_GRAPH
     const matches = graph.nodes.filter(n =>

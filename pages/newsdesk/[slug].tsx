@@ -104,7 +104,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     const { data } = await client.queries.postConnection()
     paths = (data.postConnection.edges ?? [])
       .map(e => e?.node?.slug)
-      .filter(Boolean)
+      .filter((s): s is string => !!s)
       .map(slug => ({ params: { slug } }))
   } catch {
     // Tina Cloud not available during build — skip pre-rendering

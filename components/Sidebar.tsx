@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import ConnectWallet from "./ConnectWallet"
 import { useAuth } from "../lib/auth"
+import pkg from "../package.json"
 
 type Role = "public" | "member" | "admin"
 
@@ -63,7 +64,7 @@ export default function Sidebar() {
         <img src="/SupercomputeLogo.png" alt="SUPERCOMPUTE" className="sidebar-logo" />
         <div className="logo-text-group">
           <Link href="/" className="logo">SUPERCOMPUTE</Link>
-          <span className="logo-sub">// operator</span>
+          <span className="logo-sub">// v{pkg.version}</span>
         </div>
       </div>
 

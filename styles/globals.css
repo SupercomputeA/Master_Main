@@ -39,7 +39,13 @@
   --sidebar-width: 260px;
 }
 
-html { scroll-behavior: smooth; }
+/* Reserve scrollbar space so pages don't shift horizontally when content height changes */
+html { scrollbar-gutter: stable; }
+
+/* Smooth-scroll on in-page anchors only — not on route changes */
+@media (prefers-reduced-motion: no-preference) {
+  :target { scroll-margin-top: 24px; }
+}
 
 body {
   background: var(--bg);
@@ -108,7 +114,7 @@ body {
 .btn-connect:hover { opacity: 0.85; }
 
 /* Hero */
-.hero { padding: 32px 0 64px; border-bottom: 1px solid var(--border); }
+.hero { padding: 32px 0 64px; border-bottom: 1px solid var(--border); min-height: 320px; display: flex; flex-direction: column; justify-content: flex-start; }
 .hero-kicker { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }

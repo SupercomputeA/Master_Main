@@ -176,6 +176,32 @@ export function FiatRampModal({
 
 export function FiatRampButton({ className, style }: { className?: string; style?: React.CSSProperties }) {
   const [isOpen, setIsOpen] = useState(false)
+  const hasKeys = Boolean(process.env.NEXT_PUBLIC_MOONPAY_KEY || process.env.NEXT_PUBLIC_TRANSAK_KEY)
+
+  if (!hasKeys) {
+    return (
+      <>
+        <button className={className} style={style} onClick={() => setIsOpen(true)}>
+          💰 Buy Crypto · soon
+        </button>
+        {isOpen && (
+          <div style={styles.modalOverlay} onClick={() => setIsOpen(false)}>
+            <div style={{ ...styles.modalContent, textAlign: "center" }} onClick={e => e.stopPropagation()}>
+              <button style={styles.modalClose} onClick={() => setIsOpen(false)}>×</button>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>💰</div>
+              <h3 style={styles.title}>Fiat Ramps · Coming Soon</h3>
+              <p style={{ ...styles.description, marginTop: 8 }}>
+                Buy crypto with credit card, bank transfer, or Apple Pay — coming soon to Supercompute.
+              </p>
+              <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 16 }}>
+                Powered by MoonPay + Transak. We'll let members know when it's live.
+              </p>
+            </div>
+          </div>
+        )}
+      </>
+    )
+  }
 
   return (
     <>

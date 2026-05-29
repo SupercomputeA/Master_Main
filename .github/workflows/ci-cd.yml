@@ -37,13 +37,20 @@ jobs:
 
       - name: Build Next.js static export
         run: npx next build
+        env:
+          NEXT_PUBLIC_WALLET_CONNECT_ID: ${{ secrets.NEXT_PUBLIC_WALLET_CONNECT_ID }}
+          NEXT_PUBLIC_NEYNAR_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_NEYNAR_CLIENT_ID }}
+          NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN: ${{ secrets.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN }}
+          NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN: ${{ secrets.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN }}
+          NEXT_PUBLIC_MOONPAY_KEY: ${{ secrets.NEXT_PUBLIC_MOONPAY_KEY }}
+          NEXT_PUBLIC_TRANSAK_KEY: ${{ secrets.NEXT_PUBLIC_TRANSAK_KEY }}
 
       - name: Verify build output
         run: |
           ls -la out/ | head -10
           test -f out/index.html && echo "✓ out/index.html exists"
-          test -f out/guild/index.html && echo "✓ out/guild/ page exists"
-          test -f out/storefront/index.html && echo "✓ out/storefront/ page exists"
+          test -f out/about.html && echo "✓ out/about.html exists"
+          test -f out/storefront.html && echo "✓ out/storefront.html exists"
           echo "✓ Next.js export complete"
 
       - name: Check for debug/code issues
@@ -82,6 +89,13 @@ jobs:
 
       - name: Build Next.js static export
         run: npx next build
+        env:
+          NEXT_PUBLIC_WALLET_CONNECT_ID: ${{ secrets.NEXT_PUBLIC_WALLET_CONNECT_ID }}
+          NEXT_PUBLIC_NEYNAR_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_NEYNAR_CLIENT_ID }}
+          NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN: ${{ secrets.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN }}
+          NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN: ${{ secrets.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN }}
+          NEXT_PUBLIC_MOONPAY_KEY: ${{ secrets.NEXT_PUBLIC_MOONPAY_KEY }}
+          NEXT_PUBLIC_TRANSAK_KEY: ${{ secrets.NEXT_PUBLIC_TRANSAK_KEY }}
 
       - name: Copy Functions into deploy root
         run: |

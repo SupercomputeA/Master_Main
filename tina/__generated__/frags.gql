@@ -81,10 +81,31 @@ fragment ServiceParts on Service {
 
 fragment ProjectParts on Project {
   __typename
+  slug
   title
-  type
-  detail
+  tagline
+  description
+  category
   status
+  chain
+  agents
+  tokenSymbol
+  tokenName
+  tokenAddress
+  tokenPrice
+  tvl
+  goal
+  raised
+  investors
+  progress
+  scomRequired
+  updates {
+    __typename
+    from
+    date
+    text
+    type
+  }
 }
 
 fragment AgentParts on Agent {
@@ -97,7 +118,23 @@ fragment AgentParts on Agent {
 
 fragment SchoolModuleParts on SchoolModule {
   __typename
+  moduleId
   title
+  subtitle
+  description
+  difficulty
+  access
   duration
-  free
+  credential
+  icon
+  color
+  done
+  lessons {
+    __typename
+    id
+    title
+    description
+    duration
+    topics
+  }
 }

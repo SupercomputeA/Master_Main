@@ -1,0 +1,50 @@
+{
+  "moduleId": "RF-01",
+  "title": "Regenerative Finance (ReFi)",
+  "subtitle": "Finance That Heals, Not Extracts",
+  "description": "Explore how blockchain can fund ecological regeneration, carbon markets, and community-owned infrastructure. ReFi aligns capital with planetary health.",
+  "difficulty": "Intermediate",
+  "access": "free",
+  "duration": "3 hours",
+  "credential": "",
+  "icon": "🌱",
+  "color": "#4ade80",
+  "done": true,
+  "lessons": [
+    {
+      "id": "RF-01-01",
+      "title": "What is ReFi?",
+      "description": "The philosophy and economics of regenerative finance vs extractive finance.",
+      "duration": "20 min",
+      "topics": "Regenerative economics, Externalities, Tokenized ecosystems, Mission alignment"
+    },
+    {
+      "id": "RF-01-02",
+      "title": "Carbon Markets On-Chain",
+      "description": "How tokenized carbon credits work and the major protocols in the space.",
+      "duration": "30 min",
+      "topics": "Carbon credits, Verification, Toucan Protocol, KlimaDAO"
+    },
+    {
+      "id": "RF-01-03",
+      "title": "Tokenized Ecological Assets",
+      "description": "Representing natural capital — trees, soil, water — as on-chain assets.",
+      "duration": "25 min",
+      "topics": "Natural capital, Asset tokenization, Measurement & reporting, Liquidity pools"
+    },
+    {
+      "id": "RF-01-04",
+      "title": "Community-Owned Infrastructure",
+      "description": "DAOs and cooperatives building public goods with ReFi principles.",
+      "duration": "25 min",
+      "topics": "Public goods funding, Gitcoin, Retroactive funding, Community DAOs"
+    },
+    {
+      "id": "RF-01-05",
+      "title": "ReFi on Base",
+      "description": "Active ReFi projects building on Base Chain and how to participate.",
+      "duration": "20 min",
+      "topics": "Base ecosystem, ReFi projects, Participation guide, Resources"
+    }
+  ]
+}

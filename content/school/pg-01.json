@@ -1,0 +1,50 @@
+{
+  "moduleId": "PG-01",
+  "title": "Protocol Governance",
+  "subtitle": "DAOs, Voting & Proposals",
+  "description": "Design and participate in on-chain governance systems — DAO structures, voting mechanisms, proposal lifecycles, and community coordination.",
+  "difficulty": "Intermediate",
+  "access": "member",
+  "duration": "3 hours",
+  "credential": "Governance Specialist",
+  "icon": "🏛️",
+  "color": "#d4af37",
+  "done": true,
+  "lessons": [
+    {
+      "id": "PG-01-01",
+      "title": "DAO Structures",
+      "description": "Different DAO models — token-based, multi-sig, hybrid, and legal wrappers.",
+      "duration": "25 min",
+      "topics": "Token DAOs, Multi-sig DAOs, Hybrid models, Legal structures"
+    },
+    {
+      "id": "PG-01-02",
+      "title": "Voting Mechanisms",
+      "description": "Quadratic voting, conviction voting, token-weighted voting, and delegation.",
+      "duration": "30 min",
+      "topics": "Token-weighted voting, Quadratic voting, Conviction voting, Delegate systems"
+    },
+    {
+      "id": "PG-01-03",
+      "title": "Proposal Lifecycle",
+      "description": "From temperature check to on-chain execution — the full proposal pipeline.",
+      "duration": "25 min",
+      "topics": "Temperature checks, RFC process, Voting periods, Execution & timelocks"
+    },
+    {
+      "id": "PG-01-04",
+      "title": "Treasury Governance",
+      "description": "Managing DAO treasuries through proposals, multi-sig, and streaming payments.",
+      "duration": "30 min",
+      "topics": "Treasury proposals, Multi-sig execution, Streaming payments, Accounting & reporting"
+    },
+    {
+      "id": "PG-01-05",
+      "title": "Community Coordination",
+      "description": "Tools and practices for effective community governance and participation.",
+      "duration": "20 min",
+      "topics": "Discussion forums, Governance tools, Participation incentives, Conflict resolution"
+    }
+  ]
+}

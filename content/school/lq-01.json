@@ -1,0 +1,50 @@
+{
+  "moduleId": "LQ-01",
+  "title": "Liquidity Strategy",
+  "subtitle": "Bootstrapping & Managing Liquidity",
+  "description": "Strategic approaches to bootstrapping liquidity, market-making, token incentives, and managing LP positions across DEXes on Base.",
+  "difficulty": "Advanced",
+  "access": "member",
+  "duration": "4 hours",
+  "credential": "Liquidity Strategist",
+  "icon": "💧",
+  "color": "#5bc0be",
+  "done": true,
+  "lessons": [
+    {
+      "id": "LQ-01-01",
+      "title": "Liquidity Bootstrapping",
+      "description": "Strategies for initial liquidity events — LBP, LGE, and initial DEX offerings.",
+      "duration": "30 min",
+      "topics": "Liquidity bootstrapping, Balancer LBP, Fjord Foundry, Initial DEX offering"
+    },
+    {
+      "id": "LQ-01-02",
+      "title": "Concentrated Liquidity",
+      "description": "Managing Uniswap V3-style concentrated liquidity positions for maximum efficiency.",
+      "duration": "35 min",
+      "topics": "Concentrated liquidity, Range orders, Fee tiers, Rebalancing"
+    },
+    {
+      "id": "LQ-01-03",
+      "title": "Incentive Design",
+      "description": "Designing token incentives to attract and retain liquidity providers.",
+      "duration": "30 min",
+      "topics": "LP incentives, Emission distribution, Vesting for LPs, Vote-escrow models"
+    },
+    {
+      "id": "LQ-01-04",
+      "title": "Stable Pool Management",
+      "description": "Managing stablecoin pools, pegged assets, and balancing pool composition.",
+      "duration": "25 min",
+      "topics": "Stable pools, Peg management, Curve / Aerodrome, Pool composition"
+    },
+    {
+      "id": "LQ-01-05",
+      "title": "Cross-Chain Liquidity",
+      "description": "Strategies for managing liquidity across multiple chains and bridges.",
+      "duration": "30 min",
+      "topics": "Cross-chain liquidity, Bridge selection, Wormhole / LayerZero, Unified liquidity"
+    }
+  ]
+}

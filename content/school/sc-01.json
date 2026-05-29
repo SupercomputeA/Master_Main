@@ -1,0 +1,57 @@
+{
+  "moduleId": "SC-01",
+  "title": "Smart Contract Security",
+  "subtitle": "Audit-Ready Development",
+  "description": "Learn smart contract security patterns — common vulnerabilities, auditing methodology, formal verification, and secure development lifecycle for EVM chains.",
+  "difficulty": "Advanced",
+  "access": "member",
+  "duration": "6 hours",
+  "credential": "Security Auditor",
+  "icon": "🛡️",
+  "color": "#ff6b6b",
+  "done": true,
+  "lessons": [
+    {
+      "id": "SC-01-01",
+      "title": "Reentrancy & Access Control",
+      "description": "Understanding reentrancy attacks and proper access control patterns.",
+      "duration": "35 min",
+      "topics": "Reentrancy, CEI pattern, Access control, Ownable patterns"
+    },
+    {
+      "id": "SC-01-02",
+      "title": "Oracle Manipulation",
+      "description": "How oracles get manipulated and how to protect against price oracle attacks.",
+      "duration": "30 min",
+      "topics": "TWAP oracles, Chainlink, Flash loan attacks, Manipulation resistance"
+    },
+    {
+      "id": "SC-01-03",
+      "title": "Integer Overflows & Math",
+      "description": "Safe math, precision loss, rounding errors, and Solidity 0.8+ protections.",
+      "duration": "25 min",
+      "topics": "Overflow/underflow, Precision loss, Rounding errors, Fixed point math"
+    },
+    {
+      "id": "SC-01-04",
+      "title": "Auditing Methodology",
+      "description": "How professional auditors review contracts — tools, checklists, and reporting.",
+      "duration": "40 min",
+      "topics": "Audit scope, Static analysis, Fuzzing, Reporting standards"
+    },
+    {
+      "id": "SC-01-05",
+      "title": "Formal Verification",
+      "description": "Using mathematical proofs to verify contract correctness.",
+      "duration": "35 min",
+      "topics": "Formal methods, Invariants, Symbolic execution, Certora / Scribble"
+    },
+    {
+      "id": "SC-01-06",
+      "title": "Secure Development Lifecycle",
+      "description": "Building security into the entire development pipeline from spec to deployment.",
+      "duration": "25 min",
+      "topics": "Threat modeling, Code reviews, Test coverage, Bug bounties"
+    }
+  ]
+}

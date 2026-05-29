@@ -1,0 +1,57 @@
+{
+  "moduleId": "DF-01",
+  "title": "Decentralized Finance (DeFi)",
+  "subtitle": "Banking Without Banks",
+  "description": "Learn the core primitives of DeFi — AMMs, lending markets, yield strategies, and risk management. Practical knowledge for participating in on-chain finance.",
+  "difficulty": "Intermediate",
+  "access": "free",
+  "duration": "4 hours",
+  "credential": "",
+  "icon": "⬡",
+  "color": "#d4af37",
+  "done": true,
+  "lessons": [
+    {
+      "id": "DF-01-01",
+      "title": "AMMs & Liquidity Pools",
+      "description": "How automated market makers work and the dynamics of providing liquidity.",
+      "duration": "30 min",
+      "topics": "AMM mechanics, Constant product, Impermanent loss, Liquidity depth"
+    },
+    {
+      "id": "DF-01-02",
+      "title": "Lending & Borrowing",
+      "description": "Decentralized lending protocols, collateralization ratios, and liquidation risk.",
+      "duration": "30 min",
+      "topics": "Over-collateralization, Variable rates, Liquidation, Compound / Aave"
+    },
+    {
+      "id": "DF-01-03",
+      "title": "Yield Farming Strategies",
+      "description": "How to responsibly farm yields across protocols while managing risk.",
+      "duration": "35 min",
+      "topics": "LP fees, Incentive tokens, Auto-compounding, Risk assessment"
+    },
+    {
+      "id": "DF-01-04",
+      "title": "L2 Bridges & Migration",
+      "description": "Moving assets between chains, bridge security, and L2 economics.",
+      "duration": "25 min",
+      "topics": "Bridges, Canonical vs third-party, Base migration, Gas optimization"
+    },
+    {
+      "id": "DF-01-05",
+      "title": "DeFi Risk Management",
+      "description": "Identifying and mitigating smart contract risk, oracle risk, and systemic risk.",
+      "duration": "30 min",
+      "topics": "Smart contract risk, Oracles, Audit review, Position sizing"
+    },
+    {
+      "id": "DF-01-06",
+      "title": "DeFi on Base",
+      "description": "Overview of the Base DeFi ecosystem: Aerodrome, Uniswap V3, Compound, and more.",
+      "duration": "20 min",
+      "topics": "Base protocols, TVL distribution, Yield comparison, Getting started"
+    }
+  ]
+}

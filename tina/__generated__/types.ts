@@ -481,22 +481,67 @@ export type ServiceConnection = Connection & {
   edges?: Maybe<Array<Maybe<ServiceConnectionEdges>>>;
 };
 
+export type ProjectUpdates = {
+  __typename?: 'ProjectUpdates';
+  from?: Maybe<Scalars['String']['output']>;
+  date?: Maybe<Scalars['String']['output']>;
+  text?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
 export type Project = Node & Document & {
   __typename?: 'Project';
+  slug: Scalars['String']['output'];
   title: Scalars['String']['output'];
-  type?: Maybe<Scalars['String']['output']>;
-  detail?: Maybe<Scalars['String']['output']>;
+  tagline?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  category?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
+  chain?: Maybe<Scalars['String']['output']>;
+  agents?: Maybe<Scalars['Float']['output']>;
+  tokenSymbol?: Maybe<Scalars['String']['output']>;
+  tokenName?: Maybe<Scalars['String']['output']>;
+  tokenAddress?: Maybe<Scalars['String']['output']>;
+  tokenPrice?: Maybe<Scalars['String']['output']>;
+  tvl?: Maybe<Scalars['String']['output']>;
+  goal?: Maybe<Scalars['Float']['output']>;
+  raised?: Maybe<Scalars['Float']['output']>;
+  investors?: Maybe<Scalars['Float']['output']>;
+  progress?: Maybe<Scalars['Float']['output']>;
+  scomRequired?: Maybe<Scalars['Float']['output']>;
+  updates?: Maybe<Array<Maybe<ProjectUpdates>>>;
   id: Scalars['ID']['output'];
   _sys: SystemInfo;
   _values: Scalars['JSON']['output'];
 };
 
-export type ProjectFilter = {
-  title?: InputMaybe<StringFilter>;
+export type ProjectUpdatesFilter = {
+  from?: InputMaybe<StringFilter>;
+  date?: InputMaybe<DatetimeFilter>;
+  text?: InputMaybe<StringFilter>;
   type?: InputMaybe<StringFilter>;
-  detail?: InputMaybe<StringFilter>;
+};
+
+export type ProjectFilter = {
+  slug?: InputMaybe<StringFilter>;
+  title?: InputMaybe<StringFilter>;
+  tagline?: InputMaybe<StringFilter>;
+  description?: InputMaybe<StringFilter>;
+  category?: InputMaybe<StringFilter>;
   status?: InputMaybe<StringFilter>;
+  chain?: InputMaybe<StringFilter>;
+  agents?: InputMaybe<NumberFilter>;
+  tokenSymbol?: InputMaybe<StringFilter>;
+  tokenName?: InputMaybe<StringFilter>;
+  tokenAddress?: InputMaybe<StringFilter>;
+  tokenPrice?: InputMaybe<StringFilter>;
+  tvl?: InputMaybe<StringFilter>;
+  goal?: InputMaybe<NumberFilter>;
+  raised?: InputMaybe<NumberFilter>;
+  investors?: InputMaybe<NumberFilter>;
+  progress?: InputMaybe<NumberFilter>;
+  scomRequired?: InputMaybe<NumberFilter>;
+  updates?: InputMaybe<ProjectUpdatesFilter>;
 };
 
 export type ProjectConnectionEdges = {
@@ -543,11 +588,29 @@ export type AgentConnection = Connection & {
   edges?: Maybe<Array<Maybe<AgentConnectionEdges>>>;
 };
 
+export type SchoolModuleLessons = {
+  __typename?: 'SchoolModuleLessons';
+  id?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  duration?: Maybe<Scalars['String']['output']>;
+  topics?: Maybe<Scalars['String']['output']>;
+};
+
 export type SchoolModule = Node & Document & {
   __typename?: 'SchoolModule';
+  moduleId: Scalars['String']['output'];
   title: Scalars['String']['output'];
+  subtitle?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  difficulty?: Maybe<Scalars['String']['output']>;
+  access?: Maybe<Scalars['String']['output']>;
   duration?: Maybe<Scalars['String']['output']>;
-  free?: Maybe<Scalars['Boolean']['output']>;
+  credential?: Maybe<Scalars['String']['output']>;
+  icon?: Maybe<Scalars['String']['output']>;
+  color?: Maybe<Scalars['String']['output']>;
+  done?: Maybe<Scalars['Boolean']['output']>;
+  lessons?: Maybe<Array<Maybe<SchoolModuleLessons>>>;
   id: Scalars['ID']['output'];
   _sys: SystemInfo;
   _values: Scalars['JSON']['output'];
@@ -558,10 +621,27 @@ export type BooleanFilter = {
   exists?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SchoolModuleFilter = {
+export type SchoolModuleLessonsFilter = {
+  id?: InputMaybe<StringFilter>;
   title?: InputMaybe<StringFilter>;
+  description?: InputMaybe<StringFilter>;
   duration?: InputMaybe<StringFilter>;
-  free?: InputMaybe<BooleanFilter>;
+  topics?: InputMaybe<StringFilter>;
+};
+
+export type SchoolModuleFilter = {
+  moduleId?: InputMaybe<StringFilter>;
+  title?: InputMaybe<StringFilter>;
+  subtitle?: InputMaybe<StringFilter>;
+  description?: InputMaybe<StringFilter>;
+  difficulty?: InputMaybe<StringFilter>;
+  access?: InputMaybe<StringFilter>;
+  duration?: InputMaybe<StringFilter>;
+  credential?: InputMaybe<StringFilter>;
+  icon?: InputMaybe<StringFilter>;
+  color?: InputMaybe<StringFilter>;
+  done?: InputMaybe<BooleanFilter>;
+  lessons?: InputMaybe<SchoolModuleLessonsFilter>;
 };
 
 export type SchoolModuleConnectionEdges = {
@@ -792,11 +872,33 @@ export type ServiceMutation = {
   duration?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type ProjectMutation = {
-  title?: InputMaybe<Scalars['String']['input']>;
+export type ProjectUpdatesMutation = {
+  from?: InputMaybe<Scalars['String']['input']>;
+  date?: InputMaybe<Scalars['String']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
-  detail?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ProjectMutation = {
+  slug?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  tagline?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  category?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
+  chain?: InputMaybe<Scalars['String']['input']>;
+  agents?: InputMaybe<Scalars['Float']['input']>;
+  tokenSymbol?: InputMaybe<Scalars['String']['input']>;
+  tokenName?: InputMaybe<Scalars['String']['input']>;
+  tokenAddress?: InputMaybe<Scalars['String']['input']>;
+  tokenPrice?: InputMaybe<Scalars['String']['input']>;
+  tvl?: InputMaybe<Scalars['String']['input']>;
+  goal?: InputMaybe<Scalars['Float']['input']>;
+  raised?: InputMaybe<Scalars['Float']['input']>;
+  investors?: InputMaybe<Scalars['Float']['input']>;
+  progress?: InputMaybe<Scalars['Float']['input']>;
+  scomRequired?: InputMaybe<Scalars['Float']['input']>;
+  updates?: InputMaybe<Array<InputMaybe<ProjectUpdatesMutation>>>;
 };
 
 export type AgentMutation = {
@@ -806,21 +908,38 @@ export type AgentMutation = {
   description?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type SchoolModuleMutation = {
+export type SchoolModuleLessonsMutation = {
+  id?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   duration?: InputMaybe<Scalars['String']['input']>;
-  free?: InputMaybe<Scalars['Boolean']['input']>;
+  topics?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SchoolModuleMutation = {
+  moduleId?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  subtitle?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  difficulty?: InputMaybe<Scalars['String']['input']>;
+  access?: InputMaybe<Scalars['String']['input']>;
+  duration?: InputMaybe<Scalars['String']['input']>;
+  credential?: InputMaybe<Scalars['String']['input']>;
+  icon?: InputMaybe<Scalars['String']['input']>;
+  color?: InputMaybe<Scalars['String']['input']>;
+  done?: InputMaybe<Scalars['Boolean']['input']>;
+  lessons?: InputMaybe<Array<InputMaybe<SchoolModuleLessonsMutation>>>;
 };
 
 export type PostPartsFragment = { __typename: 'Post', title: string, slug: string, category?: string | null, author?: string | null, date?: string | null, excerpt?: string | null, access?: string | null, status?: string | null, body?: any | null, kgQuery?: string | null, seo?: { __typename: 'PostSeo', title?: string | null, description?: string | null, keywords?: string | null, ogImage?: string | null } | null, knowledgeGraph?: { __typename: 'PostKnowledgeGraph', nodes?: Array<{ __typename: 'PostKnowledgeGraphNodes', id?: string | null, label?: string | null, type?: string | null, description?: string | null, definition?: string | null, datetime?: string | null, location?: string | null, src?: string | null, alt?: string | null, order?: number | null, prompt?: string | null } | null> | null, edges?: Array<{ __typename: 'PostKnowledgeGraphEdges', from?: string | null, to?: string | null, label?: string | null, weight?: number | null } | null> | null, presets?: Array<{ __typename: 'PostKnowledgeGraphPresets', id?: string | null, label?: string | null, description?: string | null, filters?: string | null, highlightIds?: string | null, focusNodeId?: string | null } | null> | null, narratives?: Array<{ __typename: 'PostKnowledgeGraphNarratives', id?: string | null, title?: string | null, description?: string | null, steps?: string | null } | null> | null } | null, protocolEval?: { __typename: 'PostProtocolEval', protocol?: string | null, chain?: string | null, tvl?: string | null, riskScore?: string | null, audit?: string | null, recommendation?: string | null, category?: string | null, auditedBy?: string | null, launchDate?: string | null } | null };
 
 export type ServicePartsFragment = { __typename: 'Service', title: string, description?: string | null, price?: string | null, duration?: string | null };
 
-export type ProjectPartsFragment = { __typename: 'Project', title: string, type?: string | null, detail?: string | null, status?: string | null };
+export type ProjectPartsFragment = { __typename: 'Project', slug: string, title: string, tagline?: string | null, description?: string | null, category?: string | null, status?: string | null, chain?: string | null, agents?: number | null, tokenSymbol?: string | null, tokenName?: string | null, tokenAddress?: string | null, tokenPrice?: string | null, tvl?: string | null, goal?: number | null, raised?: number | null, investors?: number | null, progress?: number | null, scomRequired?: number | null, updates?: Array<{ __typename: 'ProjectUpdates', from?: string | null, date?: string | null, text?: string | null, type?: string | null } | null> | null };
 
 export type AgentPartsFragment = { __typename: 'Agent', title: string, role?: string | null, status?: string | null, description?: string | null };
 
-export type SchoolModulePartsFragment = { __typename: 'SchoolModule', title: string, duration?: string | null, free?: boolean | null };
+export type SchoolModulePartsFragment = { __typename: 'SchoolModule', moduleId: string, title: string, subtitle?: string | null, description?: string | null, difficulty?: string | null, access?: string | null, duration?: string | null, credential?: string | null, icon?: string | null, color?: string | null, done?: boolean | null, lessons?: Array<{ __typename: 'SchoolModuleLessons', id?: string | null, title?: string | null, description?: string | null, duration?: string | null, topics?: string | null } | null> | null };
 
 export type PostQueryVariables = Exact<{
   relativePath: Scalars['String']['input'];
@@ -865,7 +984,7 @@ export type ProjectQueryVariables = Exact<{
 }>;
 
 
-export type ProjectQuery = { __typename?: 'Query', project: { __typename: 'Project', id: string, title: string, type?: string | null, detail?: string | null, status?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+export type ProjectQuery = { __typename?: 'Query', project: { __typename: 'Project', id: string, slug: string, title: string, tagline?: string | null, description?: string | null, category?: string | null, status?: string | null, chain?: string | null, agents?: number | null, tokenSymbol?: string | null, tokenName?: string | null, tokenAddress?: string | null, tokenPrice?: string | null, tvl?: string | null, goal?: number | null, raised?: number | null, investors?: number | null, progress?: number | null, scomRequired?: number | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, updates?: Array<{ __typename: 'ProjectUpdates', from?: string | null, date?: string | null, text?: string | null, type?: string | null } | null> | null } };
 
 export type ProjectConnectionQueryVariables = Exact<{
   before?: InputMaybe<Scalars['String']['input']>;
@@ -877,7 +996,7 @@ export type ProjectConnectionQueryVariables = Exact<{
 }>;
 
 
-export type ProjectConnectionQuery = { __typename?: 'Query', projectConnection: { __typename?: 'ProjectConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'ProjectConnectionEdges', cursor: string, node?: { __typename: 'Project', id: string, title: string, type?: string | null, detail?: string | null, status?: string | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+export type ProjectConnectionQuery = { __typename?: 'Query', projectConnection: { __typename?: 'ProjectConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'ProjectConnectionEdges', cursor: string, node?: { __typename: 'Project', id: string, slug: string, title: string, tagline?: string | null, description?: string | null, category?: string | null, status?: string | null, chain?: string | null, agents?: number | null, tokenSymbol?: string | null, tokenName?: string | null, tokenAddress?: string | null, tokenPrice?: string | null, tvl?: string | null, goal?: number | null, raised?: number | null, investors?: number | null, progress?: number | null, scomRequired?: number | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, updates?: Array<{ __typename: 'ProjectUpdates', from?: string | null, date?: string | null, text?: string | null, type?: string | null } | null> | null } | null } | null> | null } };
 
 export type AgentQueryVariables = Exact<{
   relativePath: Scalars['String']['input'];
@@ -903,7 +1022,7 @@ export type SchoolModuleQueryVariables = Exact<{
 }>;
 
 
-export type SchoolModuleQuery = { __typename?: 'Query', schoolModule: { __typename: 'SchoolModule', id: string, title: string, duration?: string | null, free?: boolean | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+export type SchoolModuleQuery = { __typename?: 'Query', schoolModule: { __typename: 'SchoolModule', id: string, moduleId: string, title: string, subtitle?: string | null, description?: string | null, difficulty?: string | null, access?: string | null, duration?: string | null, credential?: string | null, icon?: string | null, color?: string | null, done?: boolean | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, lessons?: Array<{ __typename: 'SchoolModuleLessons', id?: string | null, title?: string | null, description?: string | null, duration?: string | null, topics?: string | null } | null> | null } };
 
 export type SchoolModuleConnectionQueryVariables = Exact<{
   before?: InputMaybe<Scalars['String']['input']>;
@@ -915,7 +1034,7 @@ export type SchoolModuleConnectionQueryVariables = Exact<{
 }>;
 
 
-export type SchoolModuleConnectionQuery = { __typename?: 'Query', schoolModuleConnection: { __typename?: 'SchoolModuleConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'SchoolModuleConnectionEdges', cursor: string, node?: { __typename: 'SchoolModule', id: string, title: string, duration?: string | null, free?: boolean | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+export type SchoolModuleConnectionQuery = { __typename?: 'Query', schoolModuleConnection: { __typename?: 'SchoolModuleConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'SchoolModuleConnectionEdges', cursor: string, node?: { __typename: 'SchoolModule', id: string, moduleId: string, title: string, subtitle?: string | null, description?: string | null, difficulty?: string | null, access?: string | null, duration?: string | null, credential?: string | null, icon?: string | null, color?: string | null, done?: boolean | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, lessons?: Array<{ __typename: 'SchoolModuleLessons', id?: string | null, title?: string | null, description?: string | null, duration?: string | null, topics?: string | null } | null> | null } | null } | null> | null } };
 
 export const PostPartsFragmentDoc = gql`
     fragment PostParts on Post {
@@ -1003,10 +1122,31 @@ export const ServicePartsFragmentDoc = gql`
 export const ProjectPartsFragmentDoc = gql`
     fragment ProjectParts on Project {
   __typename
+  slug
   title
-  type
-  detail
+  tagline
+  description
+  category
   status
+  chain
+  agents
+  tokenSymbol
+  tokenName
+  tokenAddress
+  tokenPrice
+  tvl
+  goal
+  raised
+  investors
+  progress
+  scomRequired
+  updates {
+    __typename
+    from
+    date
+    text
+    type
+  }
 }
     `;
 export const AgentPartsFragmentDoc = gql`
@@ -1021,9 +1161,25 @@ export const AgentPartsFragmentDoc = gql`
 export const SchoolModulePartsFragmentDoc = gql`
     fragment SchoolModuleParts on SchoolModule {
   __typename
+  moduleId
   title
+  subtitle
+  description
+  difficulty
+  access
   duration
-  free
+  credential
+  icon
+  color
+  done
+  lessons {
+    __typename
+    id
+    title
+    description
+    duration
+    topics
+  }
 }
     `;
 export const PostDocument = gql`
@@ -1391,7 +1547,7 @@ export const ExperimentalGetTinaClient = () =>
   getSdk(
     generateRequester(
       createClient({
-        url: "https://content.tinajs.io/2.4/content/b77cb4b2-e33c-47ed-a714-7a7613e614bc/github/feat/supercompute-publishing",
+        url: "http://localhost:4001/graphql",
         queries,
       })
     )

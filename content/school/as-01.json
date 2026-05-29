@@ -1,0 +1,57 @@
+{
+  "moduleId": "AS-01",
+  "title": "Agent Systems",
+  "subtitle": "Autonomous AI Agents on Base",
+  "description": "Design, deploy, and manage autonomous AI agents with on-chain identity, token-gated access, and multi-agent coordination. Build for Virtuals Protocol and beyond.",
+  "difficulty": "Intermediate",
+  "access": "member",
+  "duration": "4 hours",
+  "credential": "Agent Systems Graduate",
+  "icon": "🤖",
+  "color": "#7c3aed",
+  "done": true,
+  "lessons": [
+    {
+      "id": "AS-01-01",
+      "title": "Agent Architecture",
+      "description": "Core components of autonomous agents — perception, reasoning, action loops.",
+      "duration": "25 min",
+      "topics": "Agent loops, LLM integration, Tool use, Memory systems"
+    },
+    {
+      "id": "AS-01-02",
+      "title": "On-Chain Identity for Agents",
+      "description": "Giving agents wallets, signing capabilities, and on-chain reputation.",
+      "duration": "30 min",
+      "topics": "Agent wallets, Delegated signing, On-chain attestations, Reputation tracking"
+    },
+    {
+      "id": "AS-01-03",
+      "title": "Token-Gated Agent Access",
+      "description": "Restricting agent actions and data access based on token holdings.",
+      "duration": "25 min",
+      "topics": "Token gating, $SCOM staking, Access tiers, Balance verification"
+    },
+    {
+      "id": "AS-01-04",
+      "title": "Multi-Agent Coordination",
+      "description": "Patterns for multiple agents working together — routing, delegation, consensus.",
+      "duration": "35 min",
+      "topics": "Agent routing, Task delegation, Consensus mechanisms, Conflict resolution"
+    },
+    {
+      "id": "AS-01-05",
+      "title": "Virtuals Protocol Deep Dive",
+      "description": "Building and deploying agents on the Virtuals Protocol platform.",
+      "duration": "30 min",
+      "topics": "Virtuals framework, Agent deployment, Revenue models, Agent evaluation"
+    },
+    {
+      "id": "AS-01-06",
+      "title": "Production Operations",
+      "description": "Monitoring, logging, alerting, and upgrading agents in production.",
+      "duration": "25 min",
+      "topics": "Agent monitoring, Error recovery, Version management, Cost optimization"
+    }
+  ]
+}

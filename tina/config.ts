@@ -146,10 +146,40 @@ export default defineConfig({
         path: "content/projects",
         format: "json",
         fields: [
+          { type: "string", name: "slug", label: "Slug (URL ID)", required: true },
           { type: "string", name: "title", label: "Title", isTitle: true, required: true },
-          { type: "string", name: "type", label: "Type" },
-          { type: "string", name: "detail", label: "Detail", ui: { component: "textarea" } },
-          { type: "string", name: "status", label: "Status" },
+          { type: "string", name: "tagline", label: "Tagline" },
+          { type: "string", name: "description", label: "Description", ui: { component: "textarea" } },
+          { type: "string", name: "category", label: "Category", options: ["Agent", "Protocol", "DeFi", "Infrastructure", "Tool"] },
+          { type: "string", name: "status", label: "Status", options: ["Active", "Beta", "Building", "Planning"] },
+          { type: "string", name: "chain", label: "Chain(s)" },
+          { type: "number", name: "agents", label: "Agent Count" },
+
+          { type: "string", name: "tokenSymbol", label: "Token Symbol (e.g. $QNTA)" },
+          { type: "string", name: "tokenName", label: "Token Name" },
+          { type: "string", name: "tokenAddress", label: "Token Contract Address" },
+          { type: "string", name: "tokenPrice", label: "Token Price (display)" },
+          { type: "string", name: "tvl", label: "TVL (display)" },
+
+          { type: "number", name: "goal", label: "Fundraise Goal (USD)" },
+          { type: "number", name: "raised", label: "Amount Raised (USD)" },
+          { type: "number", name: "investors", label: "Investor Count" },
+          { type: "number", name: "progress", label: "Progress %" },
+          { type: "number", name: "scomRequired", label: "$SCOM Required to Invest" },
+
+          {
+            type: "object", name: "updates", label: "Project Updates", list: true,
+            ui: {
+              itemProps: (item: { from?: string; date?: string }) =>
+                ({ label: `${item.date || ""} — ${item.from || ""}` }),
+            },
+            fields: [
+              { type: "string", name: "from", label: "From" },
+              { type: "datetime", name: "date", label: "Date" },
+              { type: "string", name: "text", label: "Text", ui: { component: "textarea" } },
+              { type: "string", name: "type", label: "Type", options: ["agent", "admin", "milestone", "release", "incident"] },
+            ],
+          },
         ],
       },
       {
@@ -170,9 +200,31 @@ export default defineConfig({
         path: "content/school",
         format: "json",
         fields: [
+          { type: "string", name: "moduleId", label: "Module ID (e.g. WS-01)", required: true },
           { type: "string", name: "title", label: "Title", isTitle: true, required: true },
+          { type: "string", name: "subtitle", label: "Subtitle" },
+          { type: "string", name: "description", label: "Description", ui: { component: "textarea" } },
+          { type: "string", name: "difficulty", label: "Difficulty", options: ["Beginner", "Intermediate", "Advanced"] },
+          { type: "string", name: "access", label: "Access", options: ["free", "member"] },
           { type: "string", name: "duration", label: "Duration" },
-          { type: "boolean", name: "free", label: "Free" },
+          { type: "string", name: "credential", label: "Credential" },
+          { type: "string", name: "icon", label: "Icon (emoji)" },
+          { type: "string", name: "color", label: "Accent Color (hex)" },
+          { type: "boolean", name: "done", label: "Available?" },
+          {
+            type: "object", name: "lessons", label: "Lessons", list: true,
+            ui: {
+              itemProps: (item: { id?: string; title?: string }) =>
+                ({ label: `${item.id || ""} — ${item.title || ""}` }),
+            },
+            fields: [
+              { type: "string", name: "id", label: "Lesson ID" },
+              { type: "string", name: "title", label: "Title" },
+              { type: "string", name: "description", label: "Description", ui: { component: "textarea" } },
+              { type: "string", name: "duration", label: "Duration" },
+              { type: "string", name: "topics", label: "Topics (comma separated)" },
+            ],
+          },
         ],
       },
     ],

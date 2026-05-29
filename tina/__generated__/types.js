@@ -91,10 +91,31 @@ export const ServicePartsFragmentDoc = gql`
 export const ProjectPartsFragmentDoc = gql`
     fragment ProjectParts on Project {
   __typename
+  slug
   title
-  type
-  detail
+  tagline
+  description
+  category
   status
+  chain
+  agents
+  tokenSymbol
+  tokenName
+  tokenAddress
+  tokenPrice
+  tvl
+  goal
+  raised
+  investors
+  progress
+  scomRequired
+  updates {
+    __typename
+    from
+    date
+    text
+    type
+  }
 }
     `;
 export const AgentPartsFragmentDoc = gql`
@@ -109,9 +130,25 @@ export const AgentPartsFragmentDoc = gql`
 export const SchoolModulePartsFragmentDoc = gql`
     fragment SchoolModuleParts on SchoolModule {
   __typename
+  moduleId
   title
+  subtitle
+  description
+  difficulty
+  access
   duration
-  free
+  credential
+  icon
+  color
+  done
+  lessons {
+    __typename
+    id
+    title
+    description
+    duration
+    topics
+  }
 }
     `;
 export const PostDocument = gql`
@@ -453,7 +490,7 @@ const generateRequester = (client) => {
 export const ExperimentalGetTinaClient = () => getSdk(
   generateRequester(
     createClient({
-      url: "https://content.tinajs.io/2.4/content/b77cb4b2-e33c-47ed-a714-7a7613e614bc/github/feat/supercompute-publishing",
+      url: "http://localhost:4001/graphql",
       queries
     })
   )

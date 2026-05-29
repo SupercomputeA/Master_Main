@@ -63,9 +63,18 @@ function ModuleCard({ m }: { m: SchoolModuleContent }) {
               <div>Duration</div>
             </div>
             {m.lessons.map(l => (
-              <div key={l.id} style={{ background: "var(--bg)", padding: "12px 14px", display: "grid", gridTemplateColumns: "1fr 1fr 80px", gap: 12, alignItems: "center" }}>
+              <Link
+                key={l.id}
+                href={`/school/lesson/${l.id}`}
+                onClick={e => e.stopPropagation()}
+                style={{
+                  background: "var(--bg)", padding: "12px 14px",
+                  display: "grid", gridTemplateColumns: "1fr 1fr 80px", gap: 12,
+                  alignItems: "center", textDecoration: "none", color: "inherit",
+                }}
+              >
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>{l.title}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2, color: "var(--fg)" }}>{l.title}</div>
                   <div style={{ fontSize: 10, color: "var(--muted)" }}>{l.description}</div>
                 </div>
                 <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
@@ -74,18 +83,13 @@ function ModuleCard({ m }: { m: SchoolModuleContent }) {
                   ))}
                 </div>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--accent)", textAlign: "right" }}>{l.duration}</div>
-              </div>
+              </Link>
             ))}
           </div>
-          <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
+          <div style={{ marginTop: 16, display: "flex", gap: 12 }} onClick={e => e.stopPropagation()}>
             <Link href={`/school/${m.moduleId}`} className="btn-connect" style={{ fontSize: 10, padding: "6px 18px", textDecoration: "none" }}>
               Start Module
             </Link>
-            {m.credential && (
-              <button className="btn-connect" style={{ fontSize: 10, padding: "6px 18px", background: "transparent", color: "var(--muted)", borderColor: "var(--border)" }}>
-                View Credential
-              </button>
-            )}
           </div>
         </div>
       )}

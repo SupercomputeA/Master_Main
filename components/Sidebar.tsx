@@ -1,62 +1,65 @@
 import Link from "next/link"
-import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import ConnectWallet from "./ConnectWallet"
-import { useAuth } from "../lib/auth"
 import pkg from "../package.json"
 
-type Role = "public" | "member" | "admin"
+interface NavItem {
+  href: string
+  label: string
+  external?: boolean
+}
 
-type NavItem = { href: string; label: string; sub?: { href: string; label: string }[] }
+interface NavGroup {
+  label?: string
+  items: NavItem[]
+}
 
-const memberPrefixes = ["/projects", "/app/", "/staking", "/publishing", "/token", "/account"]
-const adminPrefixes = ["/projects"]
-
-const publicNav: NavItem[] = [
-  { href: "/", label: "Home" },
-  { href: "/solar-punk", label: "Solar Punk" },
-
-  { href: "/about", label: "About" },
-  { href: "/storefront", label: "StoreFront" },
-  { href: "/consulting", label: "Consulting" },
-  { href: "/school", label: "School" },
-  { href: "/social", label: "Social" },
+const groups: NavGroup[] = [
+  {
+    items: [
+      { href: "/", label: "Home" },
+      { href: "/about", label: "About" },
+      { href: "/solar-punk", label: "Solar Punk" },
+    ],
+  },
+  {
+    label: "learn",
+    items: [
+      { href: "/school", label: "School" },
+    ],
+  },
+  {
+    label: "build",
+    items: [
+      { href: "/projects/browse", label: "Projects" },
+      { href: "/consulting", label: "Consulting" },
+    ],
+  },
+  {
+    label: "economy",
+    items: [
+      { href: "/token", label: "$SCOM Token" },
+      { href: "/staking", label: "Staking" },
+      { href: "/storefront", label: "Storefront" },
+    ],
+  },
+  {
+    label: "community",
+    items: [
+      { href: "/social", label: "Social" },
+      { href: "https://supercompute.newsdesk.app", label: "NewsDesk ↗", external: true },
+    ],
+  },
 ]
 
-const memberNav: NavItem[] = [
-  { href: "/projects/browse", label: "Projects", sub: [
-    { href: "/projects/guide", label: "Guide" },
-  ]},
-  { href: "/app/school", label: "School", sub: [
-    { href: "/school", label: "Public Catalog" },
-  ]},
-  { href: "/app/social", label: "Social Hub" },
-  { href: "/staking", label: "Staking" },
-  { href: "/publishing", label: "Publishing" },
-  { href: "/token", label: "Token" },
-  { href: "/account", label: "Profile" },
-]
-
-const adminNav: NavItem[] = [
-  { href: "/projects", label: "Project Dashboard" },
-]
+function isActive(href: string, current: string): boolean {
+  if (href === "/") return current === "/"
+  return current === href || current.startsWith(href + "/")
+}
 
 export default function Sidebar() {
-  const { isAdmin } = useAuth()
   const router = useRouter()
-
-  const detectRole = (): Role => {
-    const path = router.asPath
-    if (adminPrefixes.some(p => path.startsWith(p)) && isAdmin) return "admin"
-    if (memberPrefixes.some(p => path.startsWith(p))) return "member"
-    return "public"
-  }
-
-  const [role, setRole] = useState<Role>(detectRole)
-
-  useEffect(() => {
-    setRole(detectRole())
-  }, [router.asPath, isAdmin])
+  const current = router.asPath.split("#")[0].split("?")[0]
 
   return (
     <aside className="sidebar">
@@ -68,78 +71,33 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 0, borderBottom: "1px solid var(--border)", padding: "8px 12px" }}>
-        <button
-          onClick={() => setRole("public")}
-          style={{
-            flex: 1,
-            fontFamily: "var(--font-mono)",
-            fontSize: 9,
-            letterSpacing: "0.1rem",
-            textTransform: "uppercase",
-            background: role === "public" ? "var(--accent)" : "transparent",
-            color: role === "public" ? "var(--bg)" : "var(--muted)",
-            border: "1px solid var(--border)",
-            padding: "6px 8px",
-            cursor: "pointer",
-          }}
-        >
-          Public
-        </button>
-        <button
-          onClick={() => setRole("member")}
-          style={{
-            flex: 1,
-            fontFamily: "var(--font-mono)",
-            fontSize: 9,
-            letterSpacing: "0.1rem",
-            textTransform: "uppercase",
-            background: role === "member" ? "var(--accent)" : "transparent",
-            color: role === "member" ? "var(--bg)" : "var(--muted)",
-            border: "1px solid var(--border)",
-            padding: "6px 8px",
-            cursor: "pointer",
-          }}
-        >
-          Member
-        </button>
-        {isAdmin && (
-          <button
-            onClick={() => setRole("admin")}
-            style={{
-              flex: 1,
-              fontFamily: "var(--font-mono)",
-              fontSize: 9,
-              letterSpacing: "0.1rem",
-              textTransform: "uppercase",
-              background: role === "admin" ? "var(--accent)" : "transparent",
-              color: role === "admin" ? "var(--bg)" : "var(--muted)",
-              border: "1px solid var(--border)",
-              padding: "6px 8px",
-              cursor: "pointer",
-            }}
-          >
-            Admin
-          </button>
-        )}
-      </div>
-
       <nav className="sidebar-nav">
-        <div className="nav-section">
-          <div className="nav-section-label">{role}</div>
-          {(role === "public" ? publicNav : role === "member" ? memberNav : adminNav).map((link) => (
-            <div key={link.href}>
-              <Link href={link.href} className="nav-link">
-                <span>{link.label}</span>
-              </Link>
-              {link.sub && link.sub.map((sub) => (
-                <Link key={sub.href} href={sub.href} className="nav-link" style={{ paddingLeft: 32, fontSize: 11, opacity: 0.7 }}>
-                  <span>{sub.label}</span>
-                </Link>
-              ))}
-            </div>
-          ))}
-        </div>
+        {groups.map((group, gi) => (
+          <div key={gi} className="nav-section" style={{ marginTop: gi === 0 ? 0 : 14 }}>
+            {group.label && <div className="nav-section-label">{group.label}</div>}
+            {group.items.map(item => {
+              const active = !item.external && isActive(item.href, current)
+              const linkProps = item.external
+                ? { href: item.href, target: "_blank", rel: "noopener noreferrer" }
+                : { href: item.href }
+              const LinkComponent = item.external ? "a" : Link
+              return (
+                <LinkComponent
+                  key={item.href}
+                  {...linkProps}
+                  className="nav-link"
+                  style={active ? {
+                    color: "var(--accent)",
+                    borderLeft: "2px solid var(--accent)",
+                    paddingLeft: 14,
+                  } : undefined}
+                >
+                  <span>{item.label}</span>
+                </LinkComponent>
+              )
+            })}
+          </div>
+        ))}
       </nav>
 
       <div className="sidebar-footer">

@@ -15,6 +15,7 @@ products that have their own deployments.
 |------|--------|-----------------|
 | `newsdesk/` | Now its own product | `SupercomputeA/supercompute-publishing` |
 | `knowledge-graph.tsx` | Belongs to the publishing app | Same as above |
+| `app/{projects,publishing,school,social,staking,token}.tsx` | Duplicates of public routes. Replaced by single routes with in-page wallet/token gates. | Merged into `pages/{projects/browse,school,social,staking,token}.tsx` |
 
 (Other early-iteration pages — admin/, eddesk, tradedesk, dashboard, press —
 were deleted in origin/main during reconciliation and never made it here.)

@@ -50,7 +50,9 @@ export async function onRequest({ request, env }) {
     const sigBytes = typeof signature === 'string' ? hexToBytes(signature) : signature;
     if (!sigBytes || sigBytes.length !== 65) { if (env?.CACHE) await recordFailedAttempt(env, wallet); return j({ error: 'Invalid signature format' }, 400); }
     const v = sigBytes[64];
-    if (v !== 27 && v !== 28 && v !== 31 && v !== 32) { if (env?.CACHE) await recordFailedAttempt(env, wallet); return j({ error: 'Invalid signature v value' }, 400); }
+    // Normalize EIP-155 v values (chain_id * 2 + 35/36) to 27/28
+    const normalizedV = v >= 35 ? (v % 2 === 0 ? 28 : 27) : v;
+    if (normalizedV !== 27 && normalizedV !== 28 && normalizedV !== 31 && normalizedV !== 32) { if (env?.CACHE) await recordFailedAttempt(env, wallet); return j({ error: 'Invalid signature v value' }, 400); }
     if (env?.CACHE && nonce) await env.CACHE.delete(`siwe:nonce:${nonce}`);
     const sessionId = generateNonce();
     const sessionExpiry = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;

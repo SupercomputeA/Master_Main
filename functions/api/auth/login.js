@@ -1,5 +1,5 @@
 import { generateNonce, hexToBytes, isValidAddress, json } from '../auth.js';
-import { verifyMessage } from 'viem/utils';
+import { recoverMessageAddress } from 'viem/utils';
 const ADMIN_QUERY = 'SELECT role FROM admin_wallets WHERE wallet_address = ?';
 async function isAdmin(env, wallet) {
   if (!env?.DB) return false;
@@ -65,14 +65,16 @@ export async function onRequest({ request, env }) {
       // Retrieve the exact SIWE message that was signed
       const storedMessage = await env.CACHE.get(`siwe:msg:${nonce}`);
       if (!storedMessage) { await recordFailedAttempt(env, wallet); return j({ error: 'Expired or invalid session. Request a new nonce.' }, 400); }
-      // Verify the signature against the stored message using viem
+      // Verify the signature by recovering the address from the stored message
       try {
-        const valid = await verifyMessage({
-          address,
+        const recoveredAddress = await recoverMessageAddress({
           message: storedMessage,
           signature,
         });
-        if (!valid) { await recordFailedAttempt(env, wallet); return j({ error: 'Signature does not match address' }, 401); }
+        if (recoveredAddress.toLowerCase() !== wallet) {
+          await recordFailedAttempt(env, wallet);
+          return j({ error: 'Signature does not match address' }, 401);
+        }
       } catch (verifyErr) {
         const errMsg = verifyErr instanceof Error ? verifyErr.message : String(verifyErr);
         await recordFailedAttempt(env, wallet);

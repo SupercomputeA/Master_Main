@@ -18,11 +18,10 @@ export default function AgentChat() {
   const [thinking, setThinking] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  if (!isAdmin) return null
-
   useEffect(() => {
+    if (!isAdmin) return
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+  }, [messages, isAdmin])
 
   const send = useCallback(async () => {
     const text = input.trim()
@@ -51,6 +50,8 @@ export default function AgentChat() {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send() }
     if (e.key === "Escape") setOpen(false)
   }
+
+  if (!isAdmin) return null
 
   return (
     <>

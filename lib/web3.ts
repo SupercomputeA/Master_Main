@@ -1,5 +1,5 @@
 import { http, createConfig } from "wagmi"
-import { base, mainnet } from "wagmi/chains"
+import { base } from "wagmi/chains"
 import { injected, walletConnect } from "wagmi/connectors"
 
 export const WALLET_CONNECT_ID = process.env.NEXT_PUBLIC_WALLET_CONNECT_ID || ""
@@ -23,10 +23,9 @@ const connectors = [
 ]
 
 export const wagmiConfig = createConfig({
-  chains: [base, mainnet],
+  chains: [base],
   connectors,
   transports: {
     [base.id]: http(),
-    [mainnet.id]: http(),
   },
 })

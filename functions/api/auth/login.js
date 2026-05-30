@@ -1,5 +1,5 @@
 import { generateNonce, hexToBytes, isValidAddress, json } from '../auth.js';
-import { verifyMessage } from 'viem';
+import { verifyMessage } from 'viem/utils';
 const ADMIN_QUERY = 'SELECT role FROM admin_wallets WHERE wallet_address = ?';
 async function isAdmin(env, wallet) {
   if (!env?.DB) return false;

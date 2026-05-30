@@ -74,8 +74,9 @@ export async function onRequest({ request, env }) {
         });
         if (!valid) { await recordFailedAttempt(env, wallet); return j({ error: 'Signature does not match address' }, 401); }
       } catch (verifyErr) {
+        const errMsg = verifyErr instanceof Error ? verifyErr.message : String(verifyErr);
         await recordFailedAttempt(env, wallet);
-        return j({ error: 'Signature verification failed' }, 401);
+        return j({ error: 'Signature verification failed', detail: errMsg }, 401);
       }
       // Clean up
       await env.CACHE.delete(`siwe:msg:${nonce}`);

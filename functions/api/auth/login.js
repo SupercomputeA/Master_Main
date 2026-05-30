@@ -1,4 +1,5 @@
 import { generateNonce, hexToBytes, isValidAddress, json } from '../auth.js';
+import { verifyMessage } from 'viem';
 const ADMIN_QUERY = 'SELECT role FROM admin_wallets WHERE wallet_address = ?';
 async function isAdmin(env, wallet) {
   if (!env?.DB) return false;
@@ -32,7 +33,14 @@ async function recordFailedAttempt(env, address) {
 }
 export async function onRequest({ request, env }) {
   const reqOrigin = request.headers.get('Origin') || '';
-  const allowedOrigin = (!reqOrigin || reqOrigin.includes('supercompute.io') || reqOrigin.includes('localhost') || reqOrigin.includes('127.0.0.1') || reqOrigin.includes('pages.dev') || reqOrigin.includes('ngrok-free.app') || reqOrigin.includes('cloudflarestaging')) ? reqOrigin : 'https://supercompute.io';
+  let allowedOrigin = 'https://supercompute.io';
+  if (reqOrigin) {
+    try {
+      const host = new URL(reqOrigin).hostname;
+      const allowed = host === 'supercompute.io' || host === 'supercompute.pages.dev' || host === 'localhost' || host === '127.0.0.1' || host.endsWith('.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app');
+      if (allowed) allowedOrigin = reqOrigin;
+    } catch {}
+  }
   const cors = { 'Access-Control-Allow-Origin': allowedOrigin, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization' };
   const j = (data, s = 200) => json(data, s, allowedOrigin);
   try {
@@ -53,7 +61,26 @@ export async function onRequest({ request, env }) {
     // Normalize EIP-155 v values (chain_id * 2 + 35/36) to 27/28
     const normalizedV = v >= 35 ? (v % 2 === 0 ? 28 : 27) : v;
     if (normalizedV !== 27 && normalizedV !== 28 && normalizedV !== 31 && normalizedV !== 32) { if (env?.CACHE) await recordFailedAttempt(env, wallet); return j({ error: 'Invalid signature v value' }, 400); }
-    if (env?.CACHE && nonce) await env.CACHE.delete(`siwe:nonce:${nonce}`);
+    if (env?.CACHE && nonce) {
+      // Retrieve the exact SIWE message that was signed
+      const storedMessage = await env.CACHE.get(`siwe:msg:${nonce}`);
+      if (!storedMessage) { await recordFailedAttempt(env, wallet); return j({ error: 'Expired or invalid session. Request a new nonce.' }, 400); }
+      // Verify the signature against the stored message using viem
+      try {
+        const valid = await verifyMessage({
+          address,
+          message: storedMessage,
+          signature,
+        });
+        if (!valid) { await recordFailedAttempt(env, wallet); return j({ error: 'Signature does not match address' }, 401); }
+      } catch (verifyErr) {
+        await recordFailedAttempt(env, wallet);
+        return j({ error: 'Signature verification failed' }, 401);
+      }
+      // Clean up
+      await env.CACHE.delete(`siwe:msg:${nonce}`);
+      await env.CACHE.delete(`siwe:nonce:${nonce}`);
+    }
     const sessionId = generateNonce();
     const sessionExpiry = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;
     if (env?.DB) {
@@ -74,7 +101,6 @@ export async function onRequest({ request, env }) {
     return j({ success: true, session: sessionId, user: { id: wallet, name: formatAddr(wallet), address: wallet, role: admin ? 'admin' : 'user' } });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
-    const stack = e instanceof Error ? e.stack : undefined;
-    return j({ error: 'Internal error', message, stack }, 500);
+    return j({ error: 'Internal error', message }, 500);
   }
 }

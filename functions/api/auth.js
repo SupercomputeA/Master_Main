@@ -167,7 +167,14 @@ export async function onRequest({ request, env }) {
   const path = url.pathname.replace('/api/auth', '') || '/';
   const method = request.method;
   const reqOrigin = request.headers.get('Origin') || '';
-  const allowedOrigin = (!reqOrigin || reqOrigin.includes('supercompute.io') || reqOrigin.includes('localhost') || reqOrigin.includes('127.0.0.1') || reqOrigin.includes('pages.dev') || reqOrigin.includes('ngrok-free.app') || reqOrigin.includes('cloudflarestaging')) ? reqOrigin : 'https://supercompute.io';
+  let allowedOrigin = 'https://supercompute.io';
+  if (reqOrigin) {
+    try {
+      const host = new URL(reqOrigin).hostname;
+      const allowed = host === 'supercompute.io' || host === 'supercompute.pages.dev' || host === 'localhost' || host === '127.0.0.1' || host.endsWith('.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app');
+      if (allowed) allowedOrigin = reqOrigin;
+    } catch {}
+  }
 
   const cors = {
     'Access-Control-Allow-Origin': allowedOrigin,

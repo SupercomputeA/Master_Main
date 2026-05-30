@@ -62,7 +62,9 @@ export async function onRequest({ request, env }) {
     if (env?.DB) {
       const existing = await env.DB.prepare('SELECT id, role FROM users WHERE wallet_address = ?').bind(wallet).first();
       if (!existing) {
-        await env.DB.prepare('INSERT INTO users (id, wallet_address, name, role) VALUES (?, ?, ?, ?)').bind(generateNonce(), wallet, formatAddr(wallet), admin ? 'admin' : 'user').run();
+        // email column kept as '' for back-compat with live D1 schema where it
+        // was historically NOT NULL. Schema on disk allows null; safe either way.
+        await env.DB.prepare('INSERT INTO users (id, wallet_address, email, name, role) VALUES (?, ?, ?, ?, ?)').bind(generateNonce(), wallet, '', formatAddr(wallet), admin ? 'admin' : 'user').run();
       } else if (existing.role !== (admin ? 'admin' : 'user')) {
         await env.DB.prepare('UPDATE users SET role = ? WHERE wallet_address = ?').bind(admin ? 'admin' : 'user', wallet).run();
       }

@@ -33,6 +33,7 @@ const groups: NavGroup[] = [
       { href: "/projects/browse", label: "Projects" },
       { href: "/projects/solar-punk", label: "Solar Punk" },
       { href: "/consulting", label: "Consulting" },
+      { href: "/knowledge-graph", label: "Knowledge Graph" },
     ],
   },
   {

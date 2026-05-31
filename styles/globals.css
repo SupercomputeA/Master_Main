@@ -82,6 +82,8 @@ body {
   background: var(--site-bg);
   color: var(--cream);
   min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
   position: relative;
 }
@@ -90,7 +92,15 @@ body {
 
 /* ─── LAYOUT ──────────────────────────────────────────────────────────── */
 
-.main { padding: 48px; max-width: 1100px; position: relative; z-index: 2; }
+.main {
+  padding: 48px;
+  max-width: 1100px;
+  position: relative;
+  z-index: 2;
+  margin-left: var(--nav-w);
+  height: 100vh;
+  overflow-y: auto;
+}
 
 /* ─── SIDEBAR ──────────────────────────────────────────────────────────── */
 

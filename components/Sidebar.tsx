@@ -19,7 +19,6 @@ const groups: NavGroup[] = [
     items: [
       { href: "/", label: "Home" },
       { href: "/about", label: "About" },
-      { href: "/solar-punk", label: "Solar Punk" },
     ],
   },
   {
@@ -32,6 +31,7 @@ const groups: NavGroup[] = [
     label: "build",
     items: [
       { href: "/projects/browse", label: "Projects" },
+      { href: "/projects/solar-punk", label: "Solar Punk" },
       { href: "/consulting", label: "Consulting" },
     ],
   },

@@ -1,8 +1,8 @@
 import dynamic from "next/dynamic"
-import Layout from "../components/Layout"
-import Footer from "../components/Footer"
+import Layout from "../../components/Layout"
+import Footer from "../../components/Footer"
 
-const FarcasterFeed = dynamic(() => import("../components/FarcasterFeed"), { ssr: false })
+const FarcasterFeed = dynamic(() => import("../../components/FarcasterFeed"), { ssr: false })
 
 const features = [
   {

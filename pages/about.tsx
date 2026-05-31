@@ -78,6 +78,45 @@ export default function About() {
         </div>
       </section>
 
+      <section className="section">
+        <div className="section-header">
+          <div className="label">// knowledge graph</div>
+          <div>
+            <h2 className="display-md">Entity Map</h2>
+            <p style={{ fontSize: 13, color: "var(--mono-blue)", marginTop: 8, maxWidth: 480, lineHeight: 1.7 }}>
+              Three interconnected knowledge graphs powering entity discovery across school curricula,
+              protocol ecosystems, and public data.
+            </p>
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, border: "1px solid var(--border)" }}>
+          <a href="/knowledge-graph?graph=school" style={{ padding: "24px", textDecoration: "none", color: "inherit", borderBottom: "1px solid var(--border)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 20, marginBottom: 8 }}>📚</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: "var(--cream)" }}>School KG</div>
+            <div style={{ fontSize: 11, color: "var(--mono-blue)", lineHeight: 1.5 }}>
+              9 modules, prerequisite chains, credential paths. Visualize your learning track.
+            </div>
+          </a>
+          <a href="/knowledge-graph?graph=police" style={{ padding: "24px", textDecoration: "none", color: "inherit", borderBottom: "1px solid var(--border)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 20, marginBottom: 8 }}>🚔</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: "var(--cream)" }}>Police Data KG</div>
+            <div style={{ fontSize: 11, color: "var(--mono-blue)", lineHeight: 1.5 }}>
+              NYPD misconduct records — officers, incidents, complaints, and department relationships.
+            </div>
+          </a>
+          <a href="/knowledge-graph?graph=defi" style={{ padding: "24px", textDecoration: "none", color: "inherit", borderBottom: "1px solid var(--border)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 20, marginBottom: 8 }}>🏦</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: "var(--cream)" }}>DeFi / ReFi KG</div>
+            <div style={{ fontSize: 11, color: "var(--mono-blue)", lineHeight: 1.5 }}>
+              Protocols, tokens, agents on Base Chain. Explore composability relationships.
+            </div>
+          </a>
+        </div>
+        <div style={{ marginTop: 16 }}>
+          <a href="/knowledge-graph" className="btn btn-outline">Open Knowledge Graph →</a>
+        </div>
+      </section>
+
       <Footer />
     </Layout>
   )

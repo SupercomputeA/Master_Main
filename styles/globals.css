@@ -47,6 +47,8 @@
   --white-04: rgba(255,255,255,.04);
 
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-display: var(--font-mono);
+  --font-logo: 'Phosphate-Solid', 'Phosphate SC', Phosphate, Impact, 'Arial Black', sans-serif;
 
   --s-1:  4px;  --s-2:  8px;  --s-3:  12px;
   --s-4:  16px; --s-5:  20px; --s-6:  24px;

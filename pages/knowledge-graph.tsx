@@ -14,15 +14,20 @@ const GRAPHS = [
   { id: "defi", label: "DeFi / ReFi KG", icon: "🏦" },
 ]
 
+type KgNode = { id: string; label: string; type: string; description?: string; level?: string }
+type KgEdge = [string, string]
+type KgGraph = { nodes: KgNode[]; edges: KgEdge[]; meta?: unknown }
+type KgResponse = { graph: KgGraph; mcp?: boolean }
+
 export default function KnowledgeGraphPage() {
   const [graphId, setGraphId] = useState("school")
-  const [graphData, setGraphData] = useState(null)
+  const [graphData, setGraphData] = useState<KgGraph | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [hoveredNode, setHoveredNode] = useState(null)
-  const [selectedNode, setSelectedNode] = useState(null)
+  const [error, setError] = useState<string | null>(null)
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null)
+  const [selectedNode, setSelectedNode] = useState<KgNode | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
-  const canvasRef = useRef(null)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const animRef = useRef(null)
   const positionsRef = useRef(new Map())
   const dragRef = useRef(null)
@@ -32,13 +37,13 @@ export default function KnowledgeGraphPage() {
     setError(null)
     setSelectedNode(null)
     fetch(`/api/kg/graph?graph=${graphId}`)
-      .then(r => r.json())
+      .then(r => r.json() as Promise<KgResponse>)
       .then(d => {
         setGraphData(d.graph)
         positionsRef.current = new Map()
         setLoading(false)
       })
-      .catch(e => { setError(e.message); setLoading(false) })
+      .catch((e: unknown) => { setError(e instanceof Error ? e.message : String(e)); setLoading(false) })
   }, [graphId])
 
   const filteredNodes = useMemo(() => {
@@ -56,6 +61,7 @@ export default function KnowledgeGraphPage() {
     const canvas = canvasRef.current
     if (!canvas || !graphData) return
     const ctx = canvas.getContext("2d")
+    if (!ctx) return
     const w = canvas.width, h = canvas.height
     ctx.clearRect(0, 0, w, h)
     ctx.fillStyle = "#0a1330"
@@ -83,7 +89,7 @@ export default function KnowledgeGraphPage() {
     graphData.nodes.forEach(node => {
       const p = pos.get(node.id)
       if (!p) return
-      const color = GRAPH_CATEGORIES[node.type] || GRAPH_CATEGORIES.default
+      const color = GRAPH_CATEGORIES[node.type as keyof typeof GRAPH_CATEGORIES] || GRAPH_CATEGORIES.default
       const r = (pos.get(node.id)?.connections || 0) > 3 ? 10 : 7
       const isHover = hoveredNode === node.id
       const isSel = selectedNode?.id === node.id
@@ -107,7 +113,9 @@ export default function KnowledgeGraphPage() {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas || !graphData) return
-    const rect = canvas.parentElement.getBoundingClientRect()
+    const parent = canvas.parentElement
+    if (!parent) return
+    const rect = parent.getBoundingClientRect()
     canvas.width = rect.width
     canvas.height = rect.height
     const w = canvas.width, h = canvas.height
@@ -125,7 +133,7 @@ export default function KnowledgeGraphPage() {
       }
     })
 
-    let animId
+    let animId: number
     const simulate = () => {
       const pos = positionsRef.current
       graphData.nodes.forEach(n1 => {
@@ -164,7 +172,7 @@ export default function KnowledgeGraphPage() {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const getNodeAt = (x, y) => {
+    const getNodeAt = (x: number, y: number) => {
       for (const [id, p] of positionsRef.current) {
         const node = graphData?.nodes.find(n => n.id === id)
         if (!node) continue

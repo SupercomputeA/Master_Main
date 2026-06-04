@@ -103,7 +103,12 @@ jobs:
           echo "✓ Functions copied to out/functions/"
 
       - name: Install Wrangler
-        run: npm install -g wrangler
+        # Pin the global install to wrangler@4 to match the package.json
+        # devDependency (^4.0.0). The unpinned `npm install -g wrangler` would
+        # pull whatever wrangler major is current, which on a future v5
+        # release would silently break `wrangler pages deploy` (the deploy
+        # job uses the v4 syntax). Pin it here so deploys stay deterministic.
+        run: npm install -g wrangler@4
 
       - name: Deploy to Cloudflare Pages (supercompute website)
         run: |

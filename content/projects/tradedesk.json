@@ -1,0 +1,23 @@
+{
+  "slug": "tradedesk",
+  "title": "TradeDesk",
+  "tagline": "Multi-chain trading terminal with agent execution",
+  "description": "TradeDesk is the Supercompute multi-chain trading terminal. Strategies execute via the agent fleet, with explicit risk caps and pre-trade approvals.",
+  "category": "Tool",
+  "status": "Beta",
+  "chain": "Base, Arbitrum",
+  "agents": 1,
+  "tokenSymbol": "$SCOM",
+  "tokenName": "Supercompute",
+  "tokenAddress": "",
+  "tokenPrice": "TBD",
+  "tvl": "$0",
+  "goal": 250000,
+  "raised": 0,
+  "investors": 0,
+  "progress": 5,
+  "scomRequired": 500,
+  "updates": [
+    { "from": "Admin", "date": "2026-05-10T00:00:00.000Z", "text": "Closed beta opens June. 50 members will receive priority access.", "type": "milestone" }
+  ]
+}

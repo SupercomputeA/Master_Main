@@ -330,21 +330,65 @@ type ServiceConnection implements Connection {
   edges: [ServiceConnectionEdges]
 }
 
-type Project implements Node & Document {
-  title: String!
+type ProjectUpdates {
+  from: String
+  date: String
+  text: String
   type: String
-  detail: String
+}
+
+type Project implements Node & Document {
+  slug: String!
+  title: String!
+  tagline: String
+  description: String
+  category: String
   status: String
+  chain: String
+  agents: Float
+  tokenSymbol: String
+  tokenName: String
+  tokenAddress: String
+  tokenPrice: String
+  tvl: String
+  goal: Float
+  raised: Float
+  investors: Float
+  progress: Float
+  scomRequired: Float
+  updates: [ProjectUpdates]
   id: ID!
   _sys: SystemInfo!
   _values: JSON!
 }
 
-input ProjectFilter {
-  title: StringFilter
+input ProjectUpdatesFilter {
+  from: StringFilter
+  date: DatetimeFilter
+  text: StringFilter
   type: StringFilter
-  detail: StringFilter
+}
+
+input ProjectFilter {
+  slug: StringFilter
+  title: StringFilter
+  tagline: StringFilter
+  description: StringFilter
+  category: StringFilter
   status: StringFilter
+  chain: StringFilter
+  agents: NumberFilter
+  tokenSymbol: StringFilter
+  tokenName: StringFilter
+  tokenAddress: StringFilter
+  tokenPrice: StringFilter
+  tvl: StringFilter
+  goal: NumberFilter
+  raised: NumberFilter
+  investors: NumberFilter
+  progress: NumberFilter
+  scomRequired: NumberFilter
+  updates: ProjectUpdatesFilter
 }
 
 type ProjectConnectionEdges {
@@ -386,10 +430,27 @@ type AgentConnection implements Connection {
   edges: [AgentConnectionEdges]
 }
 
-type SchoolModule implements Node & Document {
-  title: String!
+type SchoolModuleLessons {
+  id: String
+  title: String
+  description: String
   duration: String
-  free: Boolean
+  topics: String
+}
+
+type SchoolModule implements Node & Document {
+  moduleId: String!
+  title: String!
+  subtitle: String
+  description: String
+  difficulty: String
+  access: String
+  duration: String
+  credential: String
+  icon: String
+  color: String
+  done: Boolean
+  lessons: [SchoolModuleLessons]
   id: ID!
   _sys: SystemInfo!
   _values: JSON!
@@ -400,10 +461,27 @@ input BooleanFilter {
   exists: Boolean
 }
 
-input SchoolModuleFilter {
+input SchoolModuleLessonsFilter {
+  id: StringFilter
   title: StringFilter
+  description: StringFilter
   duration: StringFilter
-  free: BooleanFilter
+  topics: StringFilter
+}
+
+input SchoolModuleFilter {
+  moduleId: StringFilter
+  title: StringFilter
+  subtitle: StringFilter
+  description: StringFilter
+  difficulty: StringFilter
+  access: StringFilter
+  duration: StringFilter
+  credential: StringFilter
+  icon: StringFilter
+  color: StringFilter
+  done: BooleanFilter
+  lessons: SchoolModuleLessonsFilter
 }
 
 type SchoolModuleConnectionEdges {
@@ -538,11 +616,33 @@ input ServiceMutation {
   duration: String
 }
 
-input ProjectMutation {
-  title: String
+input ProjectUpdatesMutation {
+  from: String
+  date: String
+  text: String
   type: String
-  detail: String
+}
+
+input ProjectMutation {
+  slug: String
+  title: String
+  tagline: String
+  description: String
+  category: String
   status: String
+  chain: String
+  agents: Float
+  tokenSymbol: String
+  tokenName: String
+  tokenAddress: String
+  tokenPrice: String
+  tvl: String
+  goal: Float
+  raised: Float
+  investors: Float
+  progress: Float
+  scomRequired: Float
+  updates: [ProjectUpdatesMutation]
 }
 
 input AgentMutation {
@@ -552,10 +652,27 @@ input AgentMutation {
   description: String
 }
 
-input SchoolModuleMutation {
+input SchoolModuleLessonsMutation {
+  id: String
   title: String
+  description: String
   duration: String
-  free: Boolean
+  topics: String
+}
+
+input SchoolModuleMutation {
+  moduleId: String
+  title: String
+  subtitle: String
+  description: String
+  difficulty: String
+  access: String
+  duration: String
+  credential: String
+  icon: String
+  color: String
+  done: Boolean
+  lessons: [SchoolModuleLessonsMutation]
 }
 
 schema {

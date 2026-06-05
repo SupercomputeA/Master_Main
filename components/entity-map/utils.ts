@@ -201,7 +201,7 @@ export function drawLegend(
   ctx.stroke()
   ctx.globalAlpha = 1
 
-  ctx.font = "9px 'Courier Prime', monospace"
+  ctx.font = "9px 'JetBrains Mono', monospace"
   ctx.fillStyle = "#d4af37"
   ctx.fillText("// LEGEND", lx + padding, ly + padding + 6)
 
@@ -213,7 +213,7 @@ export function drawLegend(
     drawNodeShape(ctx, shape, lx + padding + 5, iy, 5, color, null, 1)
 
     ctx.fillStyle = "rgba(255,255,255,0.7)"
-    ctx.font = "10px 'Courier Prime', monospace"
+    ctx.font = "10px 'JetBrains Mono', monospace"
     ctx.fillText(
       (type.charAt(0).toUpperCase() + type.slice(1)),
       lx + padding + 16,

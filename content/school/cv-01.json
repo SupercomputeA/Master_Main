@@ -1,0 +1,43 @@
+{
+  "moduleId": "CV-01",
+  "title": "Core Values",
+  "subtitle": "Principles That Guide This Work",
+  "description": "The philosophical foundation of Supercompute. Understand the values that shape principled Web3 work — sovereignty, transparency, regeneration, and community.",
+  "difficulty": "Beginner",
+  "access": "free",
+  "duration": "1.5 hours",
+  "credential": "",
+  "icon": "✦",
+  "color": "#5bc0be",
+  "done": true,
+  "lessons": [
+    {
+      "id": "CV-01-01",
+      "title": "Sovereign Infrastructure",
+      "description": "Why owning your own infrastructure matters for long-term freedom.",
+      "duration": "15 min",
+      "topics": "Self-sovereignty, Infrastructure ownership, Centralization risks, Exit to community"
+    },
+    {
+      "id": "CV-01-02",
+      "title": "Principled Building",
+      "description": "Building for liberation over extraction — how to align incentives with values.",
+      "duration": "20 min",
+      "topics": "Value alignment, Token design ethics, Community-first, Long-term thinking"
+    },
+    {
+      "id": "CV-01-03",
+      "title": "Transparency by Default",
+      "description": "Why building in public creates trust and better outcomes.",
+      "duration": "15 min",
+      "topics": "Open source, On-chain verification, Public logs, Accountability"
+    },
+    {
+      "id": "CV-01-04",
+      "title": "Regenerative Practice",
+      "description": "How ReFi principles apply to personal practice, not just protocol design.",
+      "duration": "20 min",
+      "topics": "Personal sustainability, Community care, Knowledge sharing, Mentorship cycles"
+    }
+  ]
+}

@@ -1,149 +1,329 @@
-"use client"
-
-import { useState, useEffect, useMemo } from "react"
+import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import Layout from "../components/Layout"
-import Footer from "../components/Footer"
-import EntityMap from "../components/entity-map"
-import type { EntityMapData } from "../components/entity-map"
-import DialogueEngine from "../components/DialogueEngine"
 
-type ApiNode = { id: string; label: string; type: string; description?: string; properties?: Record<string, string> }
-type ApiEdge = [string, string, string?]
+const GRAPH_CATEGORIES = {
+  protocol: "#10b981", token: "#fbbf24", agent: "#ff6b35",
+  module: "#6FA3E5", officer: "#f59e0b", incident: "#0ea5e9",
+  misconduct: "#ef4444", department: "#8b5cf6", complaint: "#06b6d4",
+  chain: "#627EEA", default: "#64748b",
+}
+
+const GRAPHS = [
+  { id: "school", label: "Web3 School KG", icon: "📚" },
+  { id: "police", label: "Police Data KG", icon: "🚔" },
+  { id: "defi", label: "DeFi / ReFi KG", icon: "🏦" },
+]
+
+type KgNode = { id: string; label: string; type: string; description?: string; level?: string }
+type KgEdge = [string, string]
+type KgGraph = { nodes: KgNode[]; edges: KgEdge[]; meta?: unknown }
+type KgResponse = { graph: KgGraph; mcp?: boolean }
 
 export default function KnowledgeGraphPage() {
-  const [domain, setDomain] = useState<"supercompute" | "policing">("supercompute")
-  const [rawGraph, setRawGraph] = useState<{ nodes: ApiNode[]; edges: ApiEdge[] } | null>(null)
+  const [graphId, setGraphId] = useState("school")
+  const [graphData, setGraphData] = useState<KgGraph | null>(null)
   const [loading, setLoading] = useState(true)
-  const [mcpEnabled, setMcpEnabled] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null)
+  const [selectedNode, setSelectedNode] = useState<KgNode | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const animRef = useRef(null)
+  const positionsRef = useRef(new Map())
+  const dragRef = useRef(null)
 
   useEffect(() => {
-    fetch(`/api/kg/graph?domain=${domain}`)
-      .then(r => r.json() as Promise<{ graph: { nodes: ApiNode[]; edges: ApiEdge[] }; mcp: boolean }>)
+    setLoading(true)
+    setError(null)
+    setSelectedNode(null)
+    fetch(`/api/kg/graph?graph=${graphId}`)
+      .then(r => r.json() as Promise<KgResponse>)
       .then(d => {
-        setRawGraph(d.graph)
-        setMcpEnabled(d.mcp)
+        setGraphData(d.graph)
+        positionsRef.current = new Map()
         setLoading(false)
       })
-      .catch(() => setLoading(false))
-  }, [domain])
+      .catch((e: unknown) => { setError(e instanceof Error ? e.message : String(e)); setLoading(false) })
+  }, [graphId])
 
-  const entityMapData = useMemo((): EntityMapData | null => {
-    if (!rawGraph) return null
-    return {
-      nodes: rawGraph.nodes.map(n => ({
-        id: n.id,
-        label: n.label,
-        type: n.type as any,
-        description: n.description,
-        properties: n.properties,
-      })),
-      edges: rawGraph.edges.map(e => ({
-        from: e[0],
-        to: e[1],
-        label: e[2] || "",
-      })),
+  const filteredNodes = useMemo(() => {
+    if (!graphData) return []
+    if (!searchQuery.trim()) return graphData.nodes
+    const q = searchQuery.toLowerCase()
+    return graphData.nodes.filter(n =>
+      n.label.toLowerCase().includes(q) ||
+      n.type?.toLowerCase().includes(q) ||
+      (n.description || "").toLowerCase().includes(q)
+    )
+  }, [graphData, searchQuery])
+
+  const draw = useCallback(() => {
+    const canvas = canvasRef.current
+    if (!canvas || !graphData) return
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+    const w = canvas.width, h = canvas.height
+    ctx.clearRect(0, 0, w, h)
+    ctx.fillStyle = "#0a1330"
+    ctx.fillRect(0, 0, w, h)
+
+    // Grid
+    ctx.strokeStyle = "rgba(30,58,95,0.15)"
+    ctx.lineWidth = 1
+    for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke() }
+    for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke() }
+
+    const pos = positionsRef.current
+    const isFiltering = searchQuery.trim().length > 0
+
+    // Edges
+    graphData.edges.forEach(([from, to]) => {
+      const p1 = pos.get(from), p2 = pos.get(to)
+      if (!p1 || !p2) return
+      ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y)
+      ctx.strokeStyle = "rgba(201,163,58,0.08)"
+      ctx.lineWidth = 1; ctx.stroke()
+    })
+
+    // Nodes
+    graphData.nodes.forEach(node => {
+      const p = pos.get(node.id)
+      if (!p) return
+      const color = GRAPH_CATEGORIES[node.type as keyof typeof GRAPH_CATEGORIES] || GRAPH_CATEGORIES.default
+      const r = (pos.get(node.id)?.connections || 0) > 3 ? 10 : 7
+      const isHover = hoveredNode === node.id
+      const isSel = selectedNode?.id === node.id
+      const isVisible = !isFiltering || filteredNodes.some(n => n.id === node.id)
+      if (isFiltering && !isVisible) return
+
+      ctx.globalAlpha = isSel ? 1 : isHover ? 0.9 : 0.6
+      ctx.beginPath(); ctx.arc(p.x, p.y, r * (isHover || isSel ? 1.3 : 1), 0, Math.PI * 2)
+      ctx.fillStyle = color; ctx.fill()
+      ctx.strokeStyle = isSel ? "#C9A33A" : "rgba(255,255,255,0.15)"
+      ctx.lineWidth = isSel ? 2 : 1; ctx.stroke()
+      ctx.globalAlpha = 1
+
+      ctx.fillStyle = "#F4ECD8"
+      ctx.font = "9px 'JetBrains Mono', monospace"
+      ctx.textAlign = "center"
+      ctx.fillText(node.label, p.x, p.y + r + 12)
+    })
+  }, [graphData, hoveredNode, selectedNode, filteredNodes, searchQuery])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas || !graphData) return
+    const parent = canvas.parentElement
+    if (!parent) return
+    const rect = parent.getBoundingClientRect()
+    canvas.width = rect.width
+    canvas.height = rect.height
+    const w = canvas.width, h = canvas.height
+
+    // Initialize positions
+    graphData.nodes.forEach((n, i) => {
+      if (!positionsRef.current.has(n.id)) {
+        const angle = (i / graphData.nodes.length) * Math.PI * 2
+        positionsRef.current.set(n.id, {
+          x: w / 2 + Math.cos(angle) * Math.min(w, h) * 0.3,
+          y: h / 2 + Math.sin(angle) * Math.min(w, h) * 0.3,
+          vx: 0, vy: 0,
+          connections: graphData.edges.filter(e => e[0] === n.id || e[1] === n.id).length,
+        })
+      }
+    })
+
+    let animId: number
+    const simulate = () => {
+      const pos = positionsRef.current
+      graphData.nodes.forEach(n1 => {
+        const p1 = pos.get(n1.id)
+        if (!p1) return
+        graphData.nodes.forEach(n2 => {
+          if (n1.id >= n2.id) return
+          const p2 = pos.get(n2.id)
+          if (!p2) return
+          const dx = p2.x - p1.x, dy = p2.y - p1.y
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1
+          const f = 2000 / (dist * dist)
+          p1.vx -= dx / dist * f; p1.vy -= dy / dist * f
+          p2.vx += dx / dist * f; p2.vy += dy / dist * f
+        })
+      })
+      graphData.edges.forEach(([from, to]) => {
+        const p1 = pos.get(from), p2 = pos.get(to)
+        if (!p1 || !p2) return
+        const dx = p2.x - p1.x, dy = p2.y - p1.y
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1
+        const f = dist * 0.008
+        p1.vx += dx / dist * f; p1.vy += dy / dist * f
+        p2.vx -= dx / dist * f; p2.vy -= dy / dist * f
+      })
+      pos.forEach(p => { p.vx -= p.x * 0.003; p.vy -= p.y * 0.003 })
+      pos.forEach(p => { if (!dragRef.current) { p.vx *= 0.85; p.vy *= 0.85; p.x += p.vx; p.y += p.vy } })
+      draw()
+      animId = requestAnimationFrame(simulate)
     }
-  }, [rawGraph])
+    animId = requestAnimationFrame(simulate)
+    return () => cancelAnimationFrame(animId)
+  }, [graphData, draw])
+
+  // Mouse handlers
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const getNodeAt = (x: number, y: number) => {
+      for (const [id, p] of positionsRef.current) {
+        const node = graphData?.nodes.find(n => n.id === id)
+        if (!node) continue
+        const r = (p.connections || 0) > 3 ? 13 : 10
+        if (Math.abs(x - p.x) < r && Math.abs(y - p.y) < r) return id
+      }
+      return null
+    }
+    canvas.onmousemove = e => {
+      const r = canvas.getBoundingClientRect()
+      const x = e.clientX - r.left, y = e.clientY - r.top
+      const id = getNodeAt(x, y)
+      canvas.style.cursor = id ? "pointer" : "default"
+      if (id !== hoveredNode) setHoveredNode(id)
+    }
+    canvas.onclick = e => {
+      const r = canvas.getBoundingClientRect()
+      const x = e.clientX - r.left, y = e.clientY - r.top
+      const id = getNodeAt(x, y)
+      if (id) {
+        const node = graphData?.nodes.find(n => n.id === id)
+        setSelectedNode(node || null)
+      } else {
+        setSelectedNode(null)
+      }
+    }
+  }, [graphData, hoveredNode])
 
   return (
     <Layout title="SUPERCOMPUTE · Knowledge Graph">
-      <section className="hero" id="kg-hero">
-        <div className="hero-kicker">
-          <div className="status-dot" />
-          <span className="label">// knowledge graph</span>
-          {mcpEnabled && (
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--teal)", border: "1px solid var(--teal)", padding: "2px 8px", marginLeft: 8 }}>
-              ● MEMGRAPH LIVE
-            </span>
-          )}
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+
+        {/* Header */}
+        <div className="hero" style={{ paddingBottom: 24, minHeight: "auto", borderBottom: "1px solid var(--border)" }}>
+          <div className="hero-kicker">
+            <div className="status-dot" />
+            <span className="label" style={{ color: "var(--gold-warm)" }}>// knowledge graph</span>
+          </div>
+          <h1 style={{ fontSize: "1.6rem", fontWeight: 700, marginBottom: 8 }}>
+            Knowledge <span style={{ color: "var(--gold-warm)" }}>Graphs</span>
+          </h1>
+          <p style={{ color: "var(--mono-blue)", fontSize: 13, maxWidth: 540, lineHeight: 1.7 }}>
+            Multi-graph knowledge system. Switch between domains to explore entity relationships,
+            prerequisite chains, and network topology.
+          </p>
         </div>
-        <h1 className="display-xl hero-title">
-          KNOWLEDGE<br /><em>GRAPH</em>
-        </h1>
-        <p className="hero-sub">
-          Interactive entity map powered by {domain === "supercompute" ? "Supercompute protocol data" : "Memgraph MCP + police accountability records"}.
-          Drag nodes, explore connections, confront assumptions.
-        </p>
-        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-          {(["supercompute", "policing"] as const).map(d => (
-            <button key={d} onClick={() => { setDomain(d); setLoading(true); setRawGraph(null) }}
-              style={{
-                padding: "6px 14px",
-                background: domain === d ? "var(--accent)" : "transparent",
-                color: domain === d ? "var(--bg)" : "var(--muted)",
+
+        {/* Graph selector */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {GRAPHS.map(g => (
+            <button
+              key={g.id}
+              onClick={() => setGraphId(g.id)}
+              className="cmd-btn"
+              style={graphId === g.id ? {
+                background: "var(--gold-warm)", color: "var(--site-bg)",
+                border: "1px solid var(--gold-warm)",
+              } : {
+                background: "transparent", color: "var(--cream)",
                 border: "1px solid var(--border)",
-                fontFamily: "var(--font-mono)", fontSize: 9, cursor: "pointer",
-                textTransform: "uppercase", letterSpacing: "0.1em",
-              }}>
-              {d}
+              }}
+            >
+              {g.icon} {g.label}
             </button>
           ))}
         </div>
-      </section>
 
-      <section className="section">
-        {loading ? (
-          <div style={{ height: 500, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg)", border: "1px solid var(--border)" }}>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)" }}>
-              {mcpEnabled ? "Calling Memgraph MCP..." : "Loading graph data..."}
-            </div>
-          </div>
-        ) : entityMapData ? (
-          <EntityMap data={entityMapData} height={500} />
-        ) : (
-          <div style={{ height: 500, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg)", border: "1px solid var(--border)" }}>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)" }}>No data</div>
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="// search nodes..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          style={{
+            fontFamily: "var(--font-mono)", fontSize: 12, background: "transparent",
+            color: "var(--cream)", border: "1px solid var(--border)",
+            padding: "10px 14px", outline: "none", width: "100%", boxSizing: "border-box",
+          }}
+        />
+
+        {/* Error state */}
+        {error && (
+          <div style={{ padding: 24, border: "1px solid var(--danger)", color: "var(--danger)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
+            ⚠ {error}
           </div>
         )}
-      </section>
 
-      {/* Dialogue + article */}
-      <section className="section">
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
-          {/* Article */}
-          <div style={{ background: "var(--bg)", padding: "28px 24px" }}>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>
-              // About This Data
-            </div>
-            <div style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.8 }}>
-              {domain === "supercompute" ? (
-                <>
-                  <p style={{ marginBottom: 16 }}>
-                    This knowledge graph visualizes the Supercompute protocol ecosystem. Each node is an entity — agent, token, protocol, project — and edges show how they relate.
-                  </p>
-                  <p style={{ marginBottom: 16 }}>
-                    <strong style={{ color: "var(--accent)" }}>Why a knowledge graph?</strong><br />
-                    Traditional docs hide relationships. A KG shows how $SCOM flows to stakers via FeeRouter, how agents coordinate, how protocols depend on each other.
-                  </p>
-                  <p>
-                    Drag nodes to rearrange. Click to select. The graph updates live from Memgraph MCP when connected.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p style={{ marginBottom: 16 }}>
-                    This knowledge graph visualizes public misconduct records. Nodes are officers, incidents, complaints, and departments. Edges show connections — which officers were in which incidents, which complaints were filed.
-                  </p>
-                  <p style={{ marginBottom: 16 }}>
-                    <strong style={{ color: "var(--accent)" }}>Why a knowledge graph?</strong><br />
-                    Tabular data obscures patterns. A KG reveals: officers in multiple incidents, departments with systemic problems, complaints that lead nowhere.
-                  </p>
-                  <p>
-                    Interact with the dialogue to the right to examine your assumptions about policing and accountability.
-                  </p>
-                </>
-              )}
+        {/* Loading state */}
+        {loading && (
+          <div style={{ height: 400, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--mono-blue)" }}>// loading graph...</div>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && graphData && graphData.nodes.length === 0 && (
+          <div style={{ height: 400, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)", flexDirection: "column", gap: 12 }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 24 }}>◎</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--mono-blue)" }}>
+              // no entities in this graph
             </div>
           </div>
+        )}
 
-          {/* Dialogue */}
-          <div style={{ background: "var(--surface)", minHeight: 500 }}>
-            <DialogueEngine />
+        {/* Canvas */}
+        {!loading && graphData && graphData.nodes.length > 0 && (
+          <div style={{ display: "flex", gap: 16 }}>
+            <div style={{ flex: 1, height: 500, border: "1px solid var(--border)", position: "relative", overflow: "hidden" }}>
+              <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
+            </div>
+
+            {/* Detail panel */}
+            {selectedNode && (
+              <div style={{
+                width: 260, border: "1px solid var(--border-warm)", padding: 20,
+                display: "flex", flexDirection: "column", gap: 12, alignSelf: "flex-start",
+              }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--gold-warm)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
+                  [{selectedNode.type}]
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--cream)" }}>
+                  {selectedNode.label}
+                </div>
+                <div style={{ fontSize: 12, color: "var(--mono-blue)", lineHeight: 1.6 }}>
+                  {selectedNode.description || "No description"}
+                </div>
+                {selectedNode.level && (
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--gold-warm)", border: "1px solid var(--border-warm)", padding: "4px 8px", alignSelf: "flex-start" }}>
+                    {selectedNode.level.toUpperCase()}
+                  </div>
+                )}
+                {graphId === "school" && (
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--mono-blue)", marginTop: 8 }}>
+                    // {selectedNode.id}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        )}
 
-      <Footer />
+        {/* Stats */}
+        {graphData && graphData.nodes.length > 0 && (
+          <div style={{ display: "flex", gap: 24, fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--mono-blue)", borderTop: "1px solid var(--border)", paddingTop: 16 }}>
+            <span>{graphData.nodes.length} entities</span>
+            <span>{graphData.edges.length} relationships</span>
+            <span>{new Set(graphData.nodes.map(n => n.type)).size} types</span>
+          </div>
+        )}
+
+      </div>
     </Layout>
   )
 }

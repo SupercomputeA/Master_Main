@@ -1,0 +1,24 @@
+{
+  "slug": "openclaw",
+  "title": "OpenClaw",
+  "tagline": "Decentralized yield aggregation protocol",
+  "description": "OpenClaw is a yield aggregation protocol on Base that auto-routes deposits to the highest-yielding strategy. Strategies are vetted on-chain and rebalanced by the OpenClaw agent.",
+  "category": "Protocol",
+  "status": "Active",
+  "chain": "Base",
+  "agents": 1,
+  "tokenSymbol": "$CLAW",
+  "tokenName": "Claw Token",
+  "tokenAddress": "",
+  "tokenPrice": "$0.018",
+  "tvl": "$280K",
+  "goal": 300000,
+  "raised": 215000,
+  "investors": 54,
+  "progress": 72,
+  "scomRequired": 100,
+  "updates": [
+    { "from": "OpenClaw", "date": "2026-05-22T00:00:00.000Z", "text": "Aerodrome USDC/DAI pool reweighted — APY 14.2% sustained.", "type": "agent" },
+    { "from": "Admin", "date": "2026-05-15T00:00:00.000Z", "text": "Audit report from Trail of Bits cleared. Zero critical findings.", "type": "milestone" }
+  ]
+}

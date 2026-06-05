@@ -4,15 +4,12 @@ import { useEffect, useState } from "react"
 import { useAuth } from "../lib/auth"
 import { useUserProfile } from "../lib/useNeynar"
 import { lookupAddress, shortenAddress } from "../lib/web3-utils"
-import { NeynarOnboarding } from "./NeynarOnboarding"
-import { FiatRampButton } from "./FiatRamp"
 
 export default function ConnectWallet() {
   const { profile, authing, connect, disconnect } = useAuth()
   const { user: neynarUser } = useUserProfile()
   const [mounted, setMounted] = useState(false)
   const [ensName, setEnsName] = useState<string | null>(null)
-  const [showOnboarding, setShowOnboarding] = useState(false)
 
   const walletAddress = profile?.address || profile?.wallet_address || (profile?.name?.startsWith("0x") ? profile.name : null)
 
@@ -75,21 +72,6 @@ export default function ConnectWallet() {
           {profile.role === "admin" ? "● ADMIN" : "● MEMBER"}
         </div>
 
-        <div style={{ display: "flex", gap: 4 }}>
-          <FiatRampButton
-            className="btn-connect"
-            style={{ flex: 1, fontSize: 8, padding: "6px 8px", background: "var(--teal)", color: "#fff" }}
-          />
-          <button
-            onClick={() => setShowOnboarding(true)}
-            className="btn-connect"
-            style={{ flex: 1, fontSize: 8, padding: "6px 8px" }}
-            title="Neynar Signer"
-          >
-            🔑
-          </button>
-        </div>
-
         <button
           onClick={disconnect}
           className="btn-connect"
@@ -97,40 +79,13 @@ export default function ConnectWallet() {
         >
           // Disconnect
         </button>
-
-        {showOnboarding && (
-          <NeynarOnboarding
-            onComplete={() => setShowOnboarding(false)}
-            onCancel={() => setShowOnboarding(false)}
-          />
-        )}
       </div>
     )
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <button onClick={connect} className="btn-connect">
-        // Connect
-      </button>
-      <button
-        onClick={() => setShowOnboarding(true)}
-        className="btn-connect"
-        style={{ background: "var(--gold)", color: "#000", borderColor: "var(--gold)" }}
-      >
-        🔑 Neynar Signer
-      </button>
-      <FiatRampButton
-        className="btn-connect"
-        style={{ background: "var(--teal)", color: "#fff", borderColor: "var(--teal)" }}
-      />
-
-      {showOnboarding && (
-        <NeynarOnboarding
-          onComplete={() => setShowOnboarding(false)}
-          onCancel={() => setShowOnboarding(false)}
-        />
-      )}
-    </div>
+    <button onClick={connect} className="btn-connect">
+      // Connect
+    </button>
   )
 }

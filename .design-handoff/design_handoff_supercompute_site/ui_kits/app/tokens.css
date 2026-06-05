@@ -1,4 +1,0 @@
-/* App UI kit tokens — re-exports the project's design tokens.
- * The Terminal Blue palette (--site-bg, --gold-warm, --cream, --mono-blue,
- * --hud-yellow) lives in /colors_and_type.css. */
-@import url('../../colors_and_type.css');

@@ -1,24 +1,66 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 import ConnectWallet from "./ConnectWallet"
-import { GuildMembershipBadge } from "./GuildAccess"
+import pkg from "../package.json"
 
-type NavItem = { href: string; label: string }
+interface NavItem {
+  href: string
+  label: string
+  external?: boolean
+}
 
-const nav: NavItem[] = [
-  { href: "/", label: "Feed" },
-  { href: "/newsdesk", label: "NewsDesk" },
-  { href: "/compose", label: "Compose" },
-  { href: "/knowledge-graph", label: "Entity Map" },
+interface NavGroup {
+  label?: string
+  items: NavItem[]
+}
+
+const groups: NavGroup[] = [
+  {
+    items: [
+      { href: "/", label: "Home" },
+      { href: "/about", label: "About" },
+    ],
+  },
+  {
+    label: "learn",
+    items: [
+      { href: "/school", label: "School" },
+    ],
+  },
+  {
+    label: "build",
+    items: [
+      { href: "/projects/browse", label: "Projects" },
+      { href: "/projects/solar-punk", label: "Solar Punk" },
+      { href: "/consulting", label: "Consulting" },
+      { href: "/knowledge-graph", label: "Knowledge Graph" },
+    ],
+  },
+  {
+    label: "economy",
+    items: [
+      { href: "/token", label: "$SCOM Token" },
+      { href: "/staking", label: "Staking" },
+      { href: "/storefront", label: "Storefront" },
+    ],
+  },
+  {
+    label: "community",
+    items: [
+      { href: "/social", label: "Social" },
+      { href: "https://supercompute.newsdesk.app", label: "NewsDesk ↗", external: true },
+    ],
+  },
 ]
 
-const secondary: NavItem[] = [
-  { href: "/storefront", label: "StoreFront" },
-  { href: "/guild", label: "Guild" },
-]
+function isActive(href: string, current: string): boolean {
+  if (href === "/") return current === "/"
+  return current === href || current.startsWith(href + "/")
+}
 
 export default function Sidebar() {
   const router = useRouter()
+  const current = router.asPath.split("#")[0].split("?")[0]
 
   return (
     <aside className="sidebar">
@@ -26,58 +68,40 @@ export default function Sidebar() {
         <img src="/SupercomputeLogo.png" alt="SUPERCOMPUTE" className="sidebar-logo" />
         <div className="logo-text-group">
           <Link href="/" className="logo">SUPERCOMPUTE</Link>
-          <span className="logo-sub">// publishing</span>
-        </div>
-      </div>
-
-      <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.15rem", textTransform: "uppercase", color: "var(--accent)" }}>
-          agent-powered news
+          <span className="logo-sub">// v{pkg.version}</span>
         </div>
       </div>
 
       <nav className="sidebar-nav">
-        <div className="nav-section">
-          <div className="nav-section-label">publish</div>
-          {nav.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="nav-link"
-              style={router.pathname === link.href || router.pathname.startsWith(link.href + "/") ? { color: "var(--accent)" } : undefined}
-            >
-              <span>{link.label}</span>
-            </Link>
-          ))}
-        </div>
-
-        <div className="nav-section" style={{ marginTop: 16 }}>
-          <div className="nav-section-label">apps</div>
-          {secondary.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="nav-link"
-              style={router.pathname === link.href ? { color: "var(--accent)" } : undefined}
-            >
-              <span>{link.label}</span>
-            </Link>
-          ))}
-        </div>
-
-        <div className="nav-section" style={{ marginTop: 16 }}>
-          <div className="nav-section-label">export</div>
-          <div style={{ padding: "4px 16px", fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", lineHeight: 2 }}>
-            <div>X / Twitter</div>
-            <div>Farcaster</div>
-            <div>Lens Protocol</div>
-            <div>Mirror</div>
+        {groups.map((group, gi) => (
+          <div key={gi} className="nav-section" style={{ marginTop: gi === 0 ? 0 : 14 }}>
+            {group.label && <div className="nav-section-label">{group.label}</div>}
+            {group.items.map(item => {
+              const active = !item.external && isActive(item.href, current)
+              const linkProps = item.external
+                ? { href: item.href, target: "_blank", rel: "noopener noreferrer" }
+                : { href: item.href }
+              const LinkComponent = item.external ? "a" : Link
+              return (
+                <LinkComponent
+                  key={item.href}
+                  {...linkProps}
+                  className="nav-link"
+                  style={active ? {
+                    color: "var(--accent)",
+                    borderLeft: "2px solid var(--accent)",
+                    paddingLeft: 14,
+                  } : undefined}
+                >
+                  <span>{item.label}</span>
+                </LinkComponent>
+              )
+            })}
           </div>
-        </div>
+        ))}
       </nav>
 
       <div className="sidebar-footer">
-        <GuildMembershipBadge />
         <ConnectWallet />
       </div>
     </aside>

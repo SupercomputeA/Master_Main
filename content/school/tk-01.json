@@ -1,0 +1,57 @@
+{
+  "moduleId": "TK-01",
+  "title": "Tokenomics Deep Dive",
+  "subtitle": "Design Sustainable Token Economies",
+  "description": "Master tokenomics design — supply mechanics, emission schedules, vesting, treasury management, and governance. Build token models that create lasting value.",
+  "difficulty": "Advanced",
+  "access": "member",
+  "duration": "5 hours",
+  "credential": "Tokenomics Architect",
+  "icon": "⬡",
+  "color": "#d4af37",
+  "done": true,
+  "lessons": [
+    {
+      "id": "TK-01-01",
+      "title": "Supply Mechanics",
+      "description": "Total supply, inflation/deflation, mint/burn mechanisms, and supply curves.",
+      "duration": "30 min",
+      "topics": "Supply design, Inflation models, Burn mechanisms, Supply caps"
+    },
+    {
+      "id": "TK-01-02",
+      "title": "Emission Schedules",
+      "description": "Designing release schedules for team, investors, community, and ecosystem.",
+      "duration": "35 min",
+      "topics": "Vesting schedules, Linear vs staged, Cliff periods, TGE planning"
+    },
+    {
+      "id": "TK-01-03",
+      "title": "Treasury Management",
+      "description": "Managing protocol treasuries — diversification, spending, and sustainability.",
+      "duration": "30 min",
+      "topics": "Treasury diversification, Stablecoin reserves, Yield strategies, Spending policies"
+    },
+    {
+      "id": "TK-01-04",
+      "title": "Governance Design",
+      "description": "Token-weighted voting, quorum, delegation, and proposal frameworks.",
+      "duration": "30 min",
+      "topics": "Voting mechanisms, Quorum design, Delegation, Proposal lifecycle"
+    },
+    {
+      "id": "TK-01-05",
+      "title": "Incentive Alignment",
+      "description": "Designing incentives that align user behavior with protocol health.",
+      "duration": "35 min",
+      "topics": "Staking incentives, Liquidity mining, Retroactive rewards, Sybil resistance"
+    },
+    {
+      "id": "TK-01-06",
+      "title": "Case Study Analysis",
+      "description": "Analyzing real token launches — what worked, what broke, what to avoid.",
+      "duration": "40 min",
+      "topics": "Case studies, Post-mortems, Modeling tools, Stress testing"
+    }
+  ]
+}

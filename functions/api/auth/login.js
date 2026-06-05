@@ -1,4 +1,5 @@
 import { generateNonce, hexToBytes, isValidAddress, json } from '../auth.js';
+import { recoverMessageAddress } from 'viem/utils';
 const ADMIN_QUERY = 'SELECT role FROM admin_wallets WHERE wallet_address = ?';
 async function isAdmin(env, wallet) {
   if (!env?.DB) return false;
@@ -31,11 +32,18 @@ async function recordFailedAttempt(env, address) {
   await env.CACHE.put(key, JSON.stringify(data), { expirationTtl: RATE_LIMIT_WINDOW });
 }
 export async function onRequest({ request, env }) {
+  const reqOrigin = request.headers.get('Origin') || '';
+  let allowedOrigin = 'https://supercompute.io';
+  if (reqOrigin) {
+    try {
+      const host = new URL(reqOrigin).hostname;
+      const allowed = host === 'supercompute.io' || host === 'supercompute.pages.dev' || host === 'localhost' || host === '127.0.0.1' || host.endsWith('.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app');
+      if (allowed) allowedOrigin = reqOrigin;
+    } catch {}
+  }
+  const cors = { 'Access-Control-Allow-Origin': allowedOrigin, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization' };
+  const j = (data, s = 200) => json(data, s, allowedOrigin);
   try {
-    const reqOrigin = request.headers.get('Origin') || '';
-    const allowedOrigin = (!reqOrigin || reqOrigin.includes('supercompute.io') || reqOrigin.includes('localhost') || reqOrigin.includes('127.0.0.1') || reqOrigin.includes('pages.dev') || reqOrigin.includes('ngrok-free.app') || reqOrigin.includes('cloudflarestaging')) ? reqOrigin : 'https://supercompute.io';
-    const cors = { 'Access-Control-Allow-Origin': allowedOrigin, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization' };
-    const j = (data, s = 200) => json(data, s, allowedOrigin);
     if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
     if (request.method !== 'POST') return j({ error: 'POST required' }, 405);
     const body = await request.json().catch(() => ({}));
@@ -50,8 +58,32 @@ export async function onRequest({ request, env }) {
     const sigBytes = typeof signature === 'string' ? hexToBytes(signature) : signature;
     if (!sigBytes || sigBytes.length !== 65) { if (env?.CACHE) await recordFailedAttempt(env, wallet); return j({ error: 'Invalid signature format' }, 400); }
     const v = sigBytes[64];
-    if (v !== 27 && v !== 28 && v !== 31 && v !== 32) { if (env?.CACHE) await recordFailedAttempt(env, wallet); return j({ error: 'Invalid signature v value' }, 400); }
-    if (env?.CACHE && nonce) await env.CACHE.delete(`siwe:nonce:${nonce}`);
+    // Normalize EIP-155 v values (chain_id * 2 + 35/36) to 27/28
+    const normalizedV = v >= 35 ? (v % 2 === 0 ? 28 : 27) : v;
+    if (normalizedV !== 27 && normalizedV !== 28 && normalizedV !== 31 && normalizedV !== 32) { if (env?.CACHE) await recordFailedAttempt(env, wallet); return j({ error: 'Invalid signature v value' }, 400); }
+    if (env?.CACHE && nonce) {
+      // Retrieve the exact SIWE message that was signed
+      const storedMessage = await env.CACHE.get(`siwe:msg:${nonce}`);
+      if (!storedMessage) { await recordFailedAttempt(env, wallet); return j({ error: 'Expired or invalid session. Request a new nonce.' }, 400); }
+      // Verify the signature by recovering the address from the stored message
+      try {
+        const recoveredAddress = await recoverMessageAddress({
+          message: storedMessage,
+          signature,
+        });
+        if (recoveredAddress.toLowerCase() !== wallet) {
+          await recordFailedAttempt(env, wallet);
+          return j({ error: 'Signature does not match address' }, 401);
+        }
+      } catch (verifyErr) {
+        const errMsg = verifyErr instanceof Error ? verifyErr.message : String(verifyErr);
+        await recordFailedAttempt(env, wallet);
+        return j({ error: 'Signature verification failed', detail: errMsg }, 401);
+      }
+      // Clean up
+      await env.CACHE.delete(`siwe:msg:${nonce}`);
+      await env.CACHE.delete(`siwe:nonce:${nonce}`);
+    }
     const sessionId = generateNonce();
     const sessionExpiry = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;
     if (env?.DB) {
@@ -62,13 +94,18 @@ export async function onRequest({ request, env }) {
     if (env?.DB) {
       const existing = await env.DB.prepare('SELECT id, role FROM users WHERE wallet_address = ?').bind(wallet).first();
       if (!existing) {
-        await env.DB.prepare('INSERT INTO users (id, wallet_address, name, role) VALUES (?, ?, ?, ?)').bind(generateNonce(), wallet, formatAddr(wallet), admin ? 'admin' : 'user').run();
+        // email uses wallet-derived placeholder to avoid UNIQUE collisions
+        // on live D1 where users.email is NOT NULL + UNIQUE.
+        // Fix: run schema migration to make it nullable + remove unique.
+        const placeholderEmail = `${wallet}@placeholder.supercompute`;
+        await env.DB.prepare('INSERT INTO users (id, wallet_address, email, name, role) VALUES (?, ?, ?, ?, ?)').bind(generateNonce(), wallet, placeholderEmail, formatAddr(wallet), admin ? 'admin' : 'user').run();
       } else if (existing.role !== (admin ? 'admin' : 'user')) {
         await env.DB.prepare('UPDATE users SET role = ? WHERE wallet_address = ?').bind(admin ? 'admin' : 'user', wallet).run();
       }
     }
     return j({ success: true, session: sessionId, user: { id: wallet, name: formatAddr(wallet), address: wallet, role: admin ? 'admin' : 'user' } });
   } catch (e) {
-    return new Response(JSON.stringify({ error: 'Internal error', message: e instanceof Error ? e.message : String(e) }), { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } });
+    const message = e instanceof Error ? e.message : String(e);
+    return j({ error: 'Internal error', message }, 500);
   }
 }

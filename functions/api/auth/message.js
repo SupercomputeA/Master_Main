@@ -8,6 +8,15 @@ export async function onRequest({ request, env }) {
   if (env?.CACHE) {
     const stored = await env.CACHE.get(`siwe:nonce:${nonce}`);
     if (!stored) return json({ error: 'Invalid or expired nonce' }, 400);
+    // Verify nonce is bound to this address (if bound)
+    if (stored !== 'pending') {
+      try {
+        const data = JSON.parse(stored);
+        if (data.address && data.address !== address.toLowerCase()) {
+          return json({ error: 'Nonce belongs to a different address' }, 400);
+        }
+      } catch {}
+    }
   }
   const now = new Date(Date.now() + 10 * 60 * 1000).toISOString();
   const message = [
@@ -21,5 +30,9 @@ export async function onRequest({ request, env }) {
     '',
     'Sign in to SUPERCOMPUTE Web3 Platform',
   ].join('\n');
+  // Store the exact message for later verification
+  if (env?.CACHE) {
+    await env.CACHE.put(`siwe:msg:${nonce}`, message, { expirationTtl: 600 });
+  }
   return json({ message });
 }

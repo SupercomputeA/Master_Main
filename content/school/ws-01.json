@@ -1,0 +1,57 @@
+{
+  "moduleId": "WS-01",
+  "title": "Wallet Security",
+  "subtitle": "Protect Your Keys, Protect Your Assets",
+  "description": "Master the fundamentals of wallet security — seed phrases, hardware wallets, multi-sig setups, phishing prevention, and disaster recovery. Every Web3 user's first essential skill.",
+  "difficulty": "Beginner",
+  "access": "free",
+  "duration": "2 hours",
+  "credential": "",
+  "icon": "🔐",
+  "color": "#5bc0be",
+  "done": true,
+  "lessons": [
+    {
+      "id": "WS-01-01",
+      "title": "How Wallets Work",
+      "description": "Public/private key pairs, seed phrases, and address derivation.",
+      "duration": "15 min",
+      "topics": "Public keys, Private keys, Seed phrases, Address derivation"
+    },
+    {
+      "id": "WS-01-02",
+      "title": "Hot vs Cold Storage",
+      "description": "Trade-offs between convenience and security for different wallet types.",
+      "duration": "20 min",
+      "topics": "Hot wallets, Cold wallets, Hardware wallets, Paper wallets"
+    },
+    {
+      "id": "WS-01-03",
+      "title": "Phishing & Scams",
+      "description": "How to identify and avoid common Web3 phishing attacks and social engineering.",
+      "duration": "25 min",
+      "topics": "Phishing识别, Social engineering, Fake dApps, Approval scams"
+    },
+    {
+      "id": "WS-01-04",
+      "title": "Multi-Sig Setup",
+      "description": "Configuring multi-signature wallets for team and high-value accounts.",
+      "duration": "30 min",
+      "topics": "Multi-sig basics, Gnosis Safe, Signer management, Recovery options"
+    },
+    {
+      "id": "WS-01-05",
+      "title": "Disaster Recovery",
+      "description": "What to do when things go wrong — lost keys, compromised devices, emergency actions.",
+      "duration": "20 min",
+      "topics": "Recovery phrases, Social recovery, Emergency procedures, Insurance"
+    },
+    {
+      "id": "WS-01-06",
+      "title": "Wallet Hygiene",
+      "description": "Daily habits and best practices for keeping your wallets safe long-term.",
+      "duration": "10 min",
+      "topics": "Regular checks, Permissions audit, Address book, Backup routines"
+    }
+  ]
+}

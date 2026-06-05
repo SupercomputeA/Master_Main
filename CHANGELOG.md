@@ -1,38 +1,38 @@
-# Supercompute Publishing — Changelog
+# Changelog
 
-The publishing app is its own product on its own branch (`feat/supercompute-publishing`),
-deploying to `supercompute.newsdesk.app`. It does not share a release cadence with the
-main site (`supercompute.io`), which tracks `main` and has its own CHANGELOG over there.
+All notable changes to the Supercompute main site live here. Format loosely follows
+[Keep a Changelog](https://keepachangelog.com/), versioning follows
+[SemVer](https://semver.org/).
 
-Format loosely follows [Keep a Changelog](https://keepachangelog.com/), versioning
-follows [SemVer](https://semver.org/). Pre-1.0 while we shape the surface area.
+The publishing app ships independently on `feat/supercompute-publishing` and tracks
+its own versions over there.
 
-## [0.2.0] — 2026-05-28
+## [1.1.0] — 2026-05-28
 
 ### Added
-- Guild access surface: `pages/guild.tsx`, `GuildMembershipBadge` in the sidebar.
-- Sidebar secondary nav for `apps` (StoreFront, Guild) alongside the primary
-  publish nav.
+- `pages/_archive/` for parking off-style or off-domain pages so they can't deploy by
+  accident. README in the archive explains why each page is there.
+- Mainnet support and WalletConnect connector in `lib/web3.ts` (gated behind
+  `NEXT_PUBLIC_WALLET_CONNECT_ID`).
+- Admin wallet + projects migration: `migrations/0001_admin_wallets_and_projects.sql`.
 
 ### Changed
-- Package renamed to `supercompute-publishing` to keep deploys from cross-pollinating
-  with the main site's Cloudflare project.
-- Bumped to 0.2.0 to mark the post-fork iteration.
+- Cloudflare Worker auth + session handling refactor (`src/api/auth.js`, `src/worker.js`).
+- Sidebar nav cleaned up — admin role no longer links to archived dashboards.
 
-## [0.1.0] — 2026-05-25 (fork point)
-
-### Added
-- Fork of `main` at commit `58bd83a` (post Entity Map v0.0.1) into a publishing-only app.
-- `pages/compose.tsx` — split-panel editor + real-time export preview.
-- `lib/export/` — per-platform formatters with auto-threading, markdown handling,
-  hashtag generation. Targets: X/Twitter (280 chars), Farcaster (1024), Lens
-  (full markdown), Mirror (long-form).
-- New landing page (`pages/index.tsx`) — hero, platform targets, article feed.
-- Rebranded sidebar/layout/footer for "Supercompute Publishing".
-
-### Removed
-- 28 non-publishing pages stripped (staking, token, fleet, tradedesk, school,
-  social, projects, dashboards, etc.) so the app surface area is just publishing.
+### Removed (archived to `pages/_archive/`)
+- `newsdesk/` and `knowledge-graph.tsx` — these belong to the Supercompute NewsDesk
+  product (`supercompute.newsdesk.app`), which lives on `feat/supercompute-publishing`
+  and deploys separately.
+- `admin/`, `eddesk.tsx`, `tradedesk.tsx`, `dashboard.tsx`, `press.tsx` — off-style,
+  early-iteration pages kept around for reference but not for production.
 
 ### Notes
-- First version where this lane is its own product. Entity Map ships with this app.
+- This is the first version where the main site and the publishing app are explicitly
+  in separate lanes. Main = `supercompute.io`. Publishing = `supercompute.newsdesk.app`
+  (branch: `feat/supercompute-publishing`).
+
+## [1.0.0] — baseline
+
+The state of the repo before this cleanup. Reference only — git history is the source
+of truth.

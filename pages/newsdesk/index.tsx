@@ -1,9 +1,8 @@
 import Layout from "../../components/Layout"
 import Footer from "../../components/Footer"
-import { useState } from "react"
+import Link from "next/link"
+import { useEffect, useMemo, useState } from "react"
 import { useAuth } from "../../lib/auth"
-import { client } from "../../tina/__generated__/client"
-import type { PostConnectionQuery } from "../../tina/__generated__/types"
 
 const allCategories: { key: string | "ALL"; label: string }[] = [
   { key: "ALL", label: "All" },
@@ -16,24 +15,56 @@ const allCategories: { key: string | "ALL"; label: string }[] = [
 
 const builderCategories = ["INTELLIGENCE", "SOVEREIGNTY", "DISPATCH", "SIGNAL", "PROTOCOL_EVAL"]
 
-export const getStaticProps = async () => {
-  const { data } = await client.queries.postConnection({ sort: "date", last: 50 })
-  return { props: { data } }
+interface Article {
+  id: string
+  slug: string | null
+  title: string
+  excerpt: string | null
+  author: string | null
+  category: string | null
+  published_at: string | null
+  status: string | null
 }
 
-type PostNode = NonNullable<NonNullable<PostConnectionQuery["postConnection"]["edges"]>[number]>["node"]
+const API_BASE = ""
 
-export default function NewsDesk({ data }: { data: PostConnectionQuery }) {
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return ""
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return iso
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+}
+
+export default function NewsDesk() {
   const { session } = useAuth()
   const [filter, setFilter] = useState<string>("ALL")
   const [tab, setTab] = useState<"articles" | "builder">("articles")
+  const [articles, setArticles] = useState<Article[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const edges = data.postConnection.edges ?? []
-  const allPosts = edges
-    .map(e => e?.node)
-    .filter((n): n is PostNode => n?.status === "published")
+  useEffect(() => {
+    let cancelled = false
+    fetch(`${API_BASE}/api/articles`)
+      .then((r) => r.json())
+      .then((d: any) => {
+        if (cancelled) return
+        setArticles(d.articles || [])
+      })
+      .catch((e) => {
+        if (cancelled) return
+        setError(String(e))
+        setArticles([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
-  const visible = filter === "ALL" ? allPosts : allPosts.filter(a => a?.category === filter)
+  const allPosts = useMemo(
+    () => (articles || []).filter((a) => a.status === "published" || !a.status),
+    [articles]
+  )
+  const visible = filter === "ALL" ? allPosts : allPosts.filter((a) => a.category === filter)
 
   return (
     <Layout title="SUPERCOMPUTE · NewsDesk">
@@ -73,51 +104,53 @@ export default function NewsDesk({ data }: { data: PostConnectionQuery }) {
                   padding: "6px 14px", background: filter === c.key ? "var(--accent)" : "transparent",
                   color: filter === c.key ? "var(--bg)" : "var(--muted)",
                   border: "1px solid var(--border)", cursor: "pointer",
-                }}
-              >{c.label}</button>
+                }}>{c.label}</button>
             ))}
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
-            {visible.map((a) => {
-              if (!a) return null
-              const isEval = a.category === "PROTOCOL_EVAL"
-              const isGated = a.access === "subscriber"
-              const riskScore = a.protocolEval?.riskScore ?? null
-              const protocolName = a.protocolEval?.protocol ?? null
-
-              return (
-                <a key={a.slug} href={`/newsdesk/${a.slug}`} style={{ background: "var(--bg)", padding: 0, textDecoration: "none", display: "flex", flexDirection: "column" }}>
-                  {isEval && (
-                    <div style={{ height: 80, background: "linear-gradient(135deg, var(--bg-alt) 0%, #1a2a4a 100%)", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--accent)", border: "1px solid var(--border-accent)", padding: "3px 10px" }}>
-                        {protocolName} · {riskScore} Risk
+          {articles === null ? (
+            <div style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "40px 24px", textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
+              // loading feed…
+            </div>
+          ) : visible.length === 0 ? (
+            <div style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "40px 24px", textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
+              {error ? `// error: ${error}` : "// no articles in this category"}
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
+              {visible.map((a) => {
+                const slug = a.slug || a.id
+                const isEval = a.category === "PROTOCOL_EVAL"
+                return (
+                  <Link key={a.id} href={`/newsdesk/${slug}`} style={{ background: "var(--bg)", padding: 0, textDecoration: "none", display: "flex", flexDirection: "column" }}>
+                    {isEval && (
+                      <div style={{ height: 80, background: "linear-gradient(135deg, var(--bg-alt) 0%, #1a2a4a 100%)", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--accent)", border: "1px solid var(--border-accent)", padding: "3px 10px" }}>
+                          PROTOCOL_EVAL · ON-CHAIN
+                        </div>
+                      </div>
+                    )}
+                    <div style={{ padding: "18px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: isEval ? "var(--teal)" : "var(--accent)", letterSpacing: "0.1em" }}>
+                          [{a.category || "—"}]
+                        </div>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)" }}>{formatDate(a.published_at)}</span>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", marginBottom: 6, lineHeight: 1.3 }}>{a.title}</div>
+                      <p style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.5, marginBottom: 12, flex: 1 }}>{a.excerpt || ""}</p>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--accent)" }}>// {a.author || "anonymous"}</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--accent)" }}>→</span>
                       </div>
                     </div>
-                  )}
-                  <div style={{ padding: "18px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: isEval ? "var(--teal)" : "var(--accent)", letterSpacing: "0.1em" }}>
-                        [{a.category}]
-                      </div>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        {isGated && <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--accent)", border: "1px solid var(--border-accent)", padding: "2px 6px" }}>SUBSCRIBER</span>}
-                        <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)" }}>{a.date}</span>
-                      </div>
-                    </div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: "var(--fg)", marginBottom: 6, lineHeight: 1.3 }}>{a.title}</div>
-                    <p style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.5, marginBottom: 12, flex: 1 }}>{a.excerpt}</p>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--accent)" }}>// {a.author}</span>
-                      <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--accent)" }}>
-                        {isGated && !session ? "🔒" : "→"}
-                      </span>
-                    </div>
-                  </div>
-                </a>
-              )
-            })}
-          </div>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
         </section>
       )}
 
@@ -172,28 +205,6 @@ export default function NewsDesk({ data }: { data: PostConnectionQuery }) {
               <div style={{ marginBottom: 16 }}>
                 <div className="label-sm" style={{ marginBottom: 6 }}>Body (Markdown)</div>
                 <textarea rows={10} placeholder="Write your article content here..." style={{ ...inputStyle, fontFamily: "var(--font-mono)", fontSize: 11, resize: "vertical" }} />
-              </div>
-
-              <div style={{ marginTop: 24, marginBottom: 16 }}>
-                <div className="label-sm" style={{ marginBottom: 10, color: "var(--accent)" }}>// SEO Metadata</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 12 }}>
-                  <div>
-                    <div className="label-sm" style={{ marginBottom: 6 }}>SEO Title</div>
-                    <input type="text" placeholder="Search engine title..." style={inputStyle} />
-                  </div>
-                  <div>
-                    <div className="label-sm" style={{ marginBottom: 6 }}>OG Image Path</div>
-                    <input type="text" placeholder="/og-article.png" style={inputStyle} />
-                  </div>
-                </div>
-                <div style={{ marginBottom: 12 }}>
-                  <div className="label-sm" style={{ marginBottom: 6 }}>Meta Description</div>
-                  <input type="text" placeholder="150-160 character description for search results..." style={inputStyle} />
-                </div>
-                <div>
-                  <div className="label-sm" style={{ marginBottom: 6 }}>Keywords (comma-separated)</div>
-                  <input type="text" placeholder="DeFi, Base, yield, protocol evaluation" style={inputStyle} />
-                </div>
               </div>
 
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 24, borderTop: "1px solid var(--border)", paddingTop: 20 }}>

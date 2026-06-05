@@ -1,42 +1,50 @@
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import Layout from "../components/Layout"
 import Footer from "../components/Footer"
-import type { GetStaticProps } from "next"
-import { client } from "../tina/__generated__/client"
 
 interface ArticlePreview {
-  slug: string
+  id: string
+  slug: string | null
   title: string
-  excerpt: string
-  author: string
-  date: string
-  category: string
-  access: string
+  excerpt: string | null
+  author: string | null
+  published_at: string | null
+  category: string | null
+  status?: string | null
 }
 
-export const getStaticProps: GetStaticProps = async () => {
-  try {
-    const { data } = await client.queries.postConnection()
-    const articles: ArticlePreview[] = (data.postConnection.edges ?? [])
-      .map(e => e?.node)
-      .filter(Boolean)
-      .map((p: any) => ({
-        slug: p.slug || "",
-        title: p.title || "",
-        excerpt: p.excerpt || "",
-        author: p.author || "",
-        date: p.date || "",
-        category: p.category || "",
-        access: p.access || "public",
-      }))
-      .sort((a: ArticlePreview, b: ArticlePreview) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    return { props: { articles } }
-  } catch {
-    return { props: { articles: [] } }
-  }
+const API_BASE = ""
+
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return ""
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return iso
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
-export default function Home({ articles }: { articles: ArticlePreview[] }) {
+export default function Home() {
+  const [articles, setArticles] = useState<ArticlePreview[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch(`${API_BASE}/api/articles`)
+      .then((r) => r.json())
+      .then((d: any) => {
+        if (cancelled) return
+        setArticles(d.articles || [])
+      })
+      .catch((e) => {
+        if (cancelled) return
+        setError(String(e))
+        setArticles([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   return (
     <Layout title="SUPERCOMPUTE · Publishing">
       <section className="hero">
@@ -46,15 +54,13 @@ export default function Home({ articles }: { articles: ArticlePreview[] }) {
         </div>
         <h1 style={{
           fontFamily: "var(--font-logo)", fontSize: "clamp(48px, 10vw, 100px)",
-          fontWeight: 400, lineHeight: 1, marginBottom: 8, color: "var(--accent)",
-          letterSpacing: "0.02em",
+          fontWeight: 400, lineHeight: 1, marginBottom: 8, color: "var(--accent)", letterSpacing: "0.02em",
         }}>
           SUPERCOMPUTE
         </h1>
         <p style={{
           fontFamily: "var(--font-logo)", fontSize: "clamp(28px, 5vw, 50px)",
-          fontWeight: 400, lineHeight: 1, marginBottom: 24, color: "var(--muted)",
-          letterSpacing: "0.02em",
+          fontWeight: 400, lineHeight: 1, marginBottom: 24, color: "var(--muted)", letterSpacing: "0.02em",
         }}>
           publishing
         </p>
@@ -101,18 +107,26 @@ export default function Home({ articles }: { articles: ArticlePreview[] }) {
         </div>
       </section>
 
-      {/* Latest articles */}
-      {articles.length > 0 && (
-        <section className="section">
-          <div className="section-header">
-            <div className="label">// latest</div>
-            <div><h2 className="display-md">Feed</h2></div>
+      {/* Latest articles — runtime fetched from D1 */}
+      <section className="section">
+        <div className="section-header">
+          <div className="label">// latest</div>
+          <div><h2 className="display-md">Feed</h2></div>
+        </div>
+        {articles === null ? (
+          <div style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "40px 24px", textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
+            // loading feed…
           </div>
+        ) : articles.length === 0 ? (
+          <div style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "40px 24px", textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
+            {error ? `// error: ${error}` : "// no articles yet — start the press"}
+          </div>
+        ) : (
           <div style={{ display: "grid", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
             {articles.slice(0, 8).map(article => (
               <Link
-                key={article.slug}
-                href={`/newsdesk/${article.slug}`}
+                key={article.id}
+                href={`/newsdesk/${article.slug || article.id}`}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <div style={{
@@ -123,25 +137,24 @@ export default function Home({ articles }: { articles: ArticlePreview[] }) {
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                       <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: article.category === "PROTOCOL_EVAL" ? "var(--teal)" : "var(--accent)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                        {article.category}
+                        {article.category || "—"}
                       </span>
-                      {article.access === "subscriber" && (
-                        <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--accent)", border: "1px solid var(--border-accent)", padding: "1px 6px" }}>SUB</span>
-                      )}
                     </div>
                     <h3 style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--fg)", marginBottom: 6 }}>{article.title}</h3>
-                    <p style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--muted)", lineHeight: 1.5 }}>{article.excerpt}</p>
+                    <p style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--muted)", lineHeight: 1.5 }}>
+                      {article.excerpt || ""}
+                    </p>
                   </div>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)", textAlign: "right", minWidth: 100 }}>
-                    <div>{article.author}</div>
-                    <div style={{ marginTop: 4 }}>{article.date ? new Date(article.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}</div>
+                    <div>{article.author || ""}</div>
+                    <div style={{ marginTop: 4 }}>{formatDate(article.published_at)}</div>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
       <Footer />
     </Layout>

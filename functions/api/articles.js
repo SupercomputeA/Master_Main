@@ -8,19 +8,37 @@ function generateId() {
 }
 
 // GET /api/articles — List published articles
-async function listArticles(env) {
+// Query params:
+//   ?include=content  → include the full body (markdown) in each row
+//   ?slug=<slug>       → filter to a single article matching this slug
+//   ?status=<status>   → filter by status (default: published only via published_at)
+async function listArticles(env, url) {
   if (!env.DB) return json({ error: 'Database not configured' }, 503);
 
-  const articles = await env.DB.prepare(`
-    SELECT id, title, excerpt, category, author, icon, views, published_at, created_at
-    FROM articles WHERE published_at IS NOT NULL
-    ORDER BY published_at DESC LIMIT 50
-  `).all();
+  const includeContent = url.searchParams.get('include') === 'content';
+  const slugFilter = url.searchParams.get('slug');
+
+  const cols = includeContent
+    ? 'id, title, slug, excerpt, content, category, author, icon, views, status, published_at, created_at, updated_at'
+    : 'id, title, slug, excerpt, category, author, icon, views, published_at, created_at';
+
+  let where = 'WHERE published_at IS NOT NULL';
+  const binds = [];
+  if (slugFilter) {
+    where += ' AND slug = ?';
+    binds.push(slugFilter);
+  }
+
+  const sql = `SELECT ${cols} FROM articles ${where} ORDER BY published_at DESC LIMIT 50`;
+  const stmt = binds.length
+    ? env.DB.prepare(sql).bind(...binds)
+    : env.DB.prepare(sql);
+  const articles = await stmt.all();
 
   return json({ articles: articles.results || [] });
 }
 
-// GET /api/articles/:id
+// GET /api/articles/:id — single article by ID
 async function getArticle(env, id) {
   if (!env.DB) return json({ error: 'Database not configured' }, 503);
 
@@ -37,15 +55,26 @@ async function createArticle(env, body, authHeader) {
   if (!auth.valid) return json({ error: 'Unauthorized' }, 401);
   if (!await isAdmin(env, auth.wallet)) return json({ error: 'Forbidden: admin access required' }, 403);
 
-  const { title, excerpt, content, category, author, icon } = body;
+  const { title, excerpt, content, category, author, icon, slug } = body;
   if (!title) return json({ error: 'title required' }, 400);
 
   const id = generateId();
   const now = Math.floor(Date.now() / 1000);
   await env.DB.prepare(`
-    INSERT INTO articles (id, title, excerpt, content, category, author, icon, published_at, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, title, excerpt || '', content || '', category || 'signal', author || 'Quanta S', icon || '📰', body.published_at || now, now).run();
+    INSERT INTO articles (id, title, slug, excerpt, content, category, author, icon, published_at, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+    id,
+    title,
+    slug || null,
+    excerpt || '',
+    content || '',
+    category || 'signal',
+    author || 'Quanta S',
+    icon || '◎',
+    body.published_at || now,
+    now
+  ).run();
 
   return json({ success: true, id }, 201);
 }
@@ -61,7 +90,7 @@ async function updateArticle(env, id, body, authHeader) {
 
   const updates = [];
   const bindings = [];
-  for (const field of ['title', 'excerpt', 'content', 'category', 'author', 'icon', 'published_at']) {
+  for (const field of ['title', 'slug', 'excerpt', 'content', 'category', 'author', 'icon', 'published_at', 'status']) {
     if (body[field] !== undefined) {
       updates.push(`${field} = ?`);
       bindings.push(body[field]);
@@ -85,7 +114,12 @@ async function deleteArticle(env, id, authHeader) {
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': 'https://supercompute.io' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
   });
 }
 
@@ -97,14 +131,14 @@ export async function onRequest({ request, env, ctx }) {
   if (method === 'OPTIONS') {
     return new Response(null, {
       headers: {
-        'Access-Control-Allow-Origin': 'https://supercompute.io',
+        'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
     });
   }
 
-  if (method === 'GET' && path === '/') return listArticles(env);
+  if (method === 'GET' && path === '/') return listArticles(env, url);
   if (method === 'GET' && path.match(/^\/\w+$/)) return getArticle(env, path.slice(1));
   if (method === 'POST' && path === '/') {
     const body = await request.json().catch(() => ({}));
@@ -118,5 +152,14 @@ export async function onRequest({ request, env, ctx }) {
     return deleteArticle(env, path.slice(1), request.headers.get('Authorization'));
   }
 
-  return json({ endpoints: ['GET /api/articles', 'GET /api/articles/:id', 'POST /api/articles', 'PUT /api/articles/:id', 'DELETE /api/articles/:id'] });
+  return json({ endpoints: [
+    'GET /api/articles',
+    'GET /api/articles?include=content',
+    'GET /api/articles?slug=<slug>',
+    'GET /api/articles?include=content&slug=<slug>',
+    'GET /api/articles/:id',
+    'POST /api/articles',
+    'PUT /api/articles/:id',
+    'DELETE /api/articles/:id',
+  ]});
 }

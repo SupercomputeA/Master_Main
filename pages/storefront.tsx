@@ -158,7 +158,7 @@ export default function StoreFront() {
                           <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, minWidth: 20, textAlign: "center" }}>{c.quantity}</span>
                           <button onClick={() => updateQty(c.sku, c.quantity + 1)} style={{ fontFamily: "var(--font-mono)", fontSize: 12, background: "transparent", color: "var(--muted)", border: "1px solid var(--border)", padding: "2px 8px", cursor: "pointer" }}>+</button>
                         </div>
-                        <button onClick={() => removeFromCart(c.sku)} className="btn-connect" style={{ fontSize: 9, padding: "4px 10px", background: "transparent", color: "#ff6b6b", borderColor: "#ff6b6b" }}>Remove</button>
+                        <button onClick={() => removeFromCart(c.sku)} className="btn-connect" style={{ fontSize: 9, padding: "4px 10px", background: "transparent", color: "var(--danger)", borderColor: "var(--danger)" }}>Remove</button>
                       </div>
                     )
                   })}

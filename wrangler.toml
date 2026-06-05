@@ -1,4 +1,4 @@
-name = "supercompute-publishing"
+name = "supercompute"
 compatibility_date = "2026-04-30"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "out"
@@ -14,3 +14,9 @@ id = "031b7cbbfed44d478d7d7c4abe67c666"
 
 [vars]
 CORS_ORIGIN = "https://supercompute.io"
+
+[env.staging]
+name = "supercompute-staging"
+
+[env.staging.vars]
+CORS_ORIGIN = "https://staging.supercompute.io"

@@ -36,3 +36,4 @@ npm-debug.log*
 !public/*.jsx
 .next/
 out/
+tsconfig.tsbuildinfo

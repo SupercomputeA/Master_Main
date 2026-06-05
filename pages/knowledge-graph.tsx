@@ -1,11 +1,26 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import Layout from "../components/Layout"
 
-const GRAPH_CATEGORIES = {
-  protocol: "#10b981", token: "#fbbf24", agent: "#ff6b35",
-  module: "#6FA3E5", officer: "#f59e0b", incident: "#0ea5e9",
-  misconduct: "#ef4444", department: "#8b5cf6", complaint: "#06b6d4",
-  chain: "#627EEA", default: "#64748b",
+const GRAPH_CATEGORIES: Record<string, string> = {
+  // Terminal Dossier palette only
+  protocol: "#C9A33A",     // --gold-warm
+  token: "#6FA3E5",        // --mono-blue
+  agent: "#E0BE3F",        // --hud-yellow
+  module: "#6FA3E5",       // --mono-blue
+  concept: "#F4ECD8",      // --cream
+  term: "#6FA3E5",         // --mono-blue
+  person: "#C9A33A",       // --gold-warm
+  date: "#E0BE3F",         // --hud-yellow
+  event: "#E0BE3F",        // --hud-yellow
+  narrative: "#F4ECD8",    // --cream
+  image: "#C9A33A",        // --gold-warm
+  officer: "#dc2626",      // --danger
+  incident: "#E0BE3F",     // --hud-yellow
+  misconduct: "#dc2626",   // --danger
+  department: "#6FA3E5",   // --mono-blue
+  complaint: "#C9A33A",    // --gold-warm
+  chain: "#F4ECD8",        // --cream
+  default: "#6FA3E5",      // --mono-blue
 }
 
 const GRAPHS = [
@@ -67,8 +82,8 @@ export default function KnowledgeGraphPage() {
     ctx.fillStyle = "#0a1330"
     ctx.fillRect(0, 0, w, h)
 
-    // Grid
-    ctx.strokeStyle = "rgba(30,58,95,0.15)"
+    // Grid (Terminal Dossier hairline)
+    ctx.strokeStyle = "rgba(30,58,95,0.20)"
     ctx.lineWidth = 1
     for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke() }
     for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke() }
@@ -76,12 +91,12 @@ export default function KnowledgeGraphPage() {
     const pos = positionsRef.current
     const isFiltering = searchQuery.trim().length > 0
 
-    // Edges
+    // Edges (brass-warm, low opacity)
     graphData.edges.forEach(([from, to]) => {
       const p1 = pos.get(from), p2 = pos.get(to)
       if (!p1 || !p2) return
       ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y)
-      ctx.strokeStyle = "rgba(201,163,58,0.08)"
+      ctx.strokeStyle = "rgba(201,163,58,0.18)"
       ctx.lineWidth = 1; ctx.stroke()
     })
 
@@ -89,17 +104,17 @@ export default function KnowledgeGraphPage() {
     graphData.nodes.forEach(node => {
       const p = pos.get(node.id)
       if (!p) return
-      const color = GRAPH_CATEGORIES[node.type as keyof typeof GRAPH_CATEGORIES] || GRAPH_CATEGORIES.default
+      const color = GRAPH_CATEGORIES[node.type] || GRAPH_CATEGORIES.default
       const r = (pos.get(node.id)?.connections || 0) > 3 ? 10 : 7
       const isHover = hoveredNode === node.id
       const isSel = selectedNode?.id === node.id
       const isVisible = !isFiltering || filteredNodes.some(n => n.id === node.id)
       if (isFiltering && !isVisible) return
 
-      ctx.globalAlpha = isSel ? 1 : isHover ? 0.9 : 0.6
+      ctx.globalAlpha = isSel ? 1 : isHover ? 0.95 : 0.75
       ctx.beginPath(); ctx.arc(p.x, p.y, r * (isHover || isSel ? 1.3 : 1), 0, Math.PI * 2)
       ctx.fillStyle = color; ctx.fill()
-      ctx.strokeStyle = isSel ? "#C9A33A" : "rgba(255,255,255,0.15)"
+      ctx.strokeStyle = isSel ? "#C9A33A" : "rgba(244,236,216,0.25)"
       ctx.lineWidth = isSel ? 2 : 1; ctx.stroke()
       ctx.globalAlpha = 1
 

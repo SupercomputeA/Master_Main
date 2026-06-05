@@ -20,18 +20,34 @@ type GraphData = {
   stats?: { label: string; value: string | number }[]
 }
 
+// Terminal Dossier-aligned KG node palette. All values trace to canonical
+// tokens (--gold-warm, --mono-blue, --hud-yellow, --cream, --danger, --green).
+// No pink/cyan/violet — those are reserved for logo gradient + auth overlay
+// + school progress-bar fill per the Web3 Identity palette rule.
 const TYPE_COLORS: Record<string, string> = {
-  officer: "#f59e0b",
-  incident: "#0ea5e9",
-  misconduct: "#ef4444",
-  department: "#8b5cf6",
-  complaint: "#06b6d4",
-  protocol: "#10b981",
-  agent: "#ff6b35",
-  project: "#a855f7",
-  token: "#fbbf24",
-  member: "#60a5fa",
-  default: "#64748b",
+  // Article-level concepts (Tina schema)
+  protocol: "#C9A33A",   // --gold-warm  — primary node accent
+  token: "#6FA3E5",      // --mono-blue  — secondary
+  agent: "#E0BE3F",      // --hud-yellow — identity
+  concept: "#F4ECD8",    // --cream      — neutral
+  person: "#C9A33A",     // --gold-warm
+  term: "#6FA3E5",       // --mono-blue
+  date: "#E0BE3F",       // --hud-yellow
+  event: "#E0BE3F",      // --hud-yellow
+  narrative: "#F4ECD8",  // --cream
+  image: "#C9A33A",      // --gold-warm  (brass hairline substitute)
+
+  // Police/NYPD dataset semantic types (NYPD misconduct analysis)
+  officer: "#dc2626",    // --danger
+  incident: "#E0BE3F",   // --hud-yellow — attention
+  misconduct: "#dc2626", // --danger
+  department: "#6FA3E5", // --mono-blue  — institutional
+  complaint: "#C9A33A",  // --gold-warm  — visibility
+  chain: "#F4ECD8",      // --cream      — neutral
+  member: "#6FA3E5",     // --mono-blue
+  project: "#C9A33A",    // --gold-warm
+
+  default: "#6FA3E5",    // --mono-blue  — fallback
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -181,10 +197,10 @@ export default function KnowledgeGraph({
     const draw = () => {
       ctx.clearRect(0, 0, w, h)
 
-      ctx.fillStyle = "#0a0f17"
+      ctx.fillStyle = "#0a1330"
       ctx.fillRect(0, 0, w, h)
 
-      ctx.strokeStyle = "rgba(100,116,139,0.08)"
+      ctx.strokeStyle = "rgba(30,58,95,0.15)"
       ctx.lineWidth = 1
       const gridSize = 40
       const offsetX = transform.x % gridSize
@@ -454,7 +470,7 @@ export default function KnowledgeGraph({
   }, [data, height, interactive, transform, selectedNodeId, getNodeRadius, onNodeClick, highlightedNodes, initialized])
 
   return (
-    <div ref={containerRef} style={{ position: "relative", width, height, background: "#0a0f17" }}>
+    <div ref={containerRef} style={{ position: "relative", width, height, background: "var(--site-bg)", border: "1px solid var(--border-warm)" }}>
       <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", gap: 12, zIndex: 10 }}>
         <input
           type="text"
@@ -463,13 +479,12 @@ export default function KnowledgeGraph({
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{
             flex: 1,
-            background: "rgba(15,20,30,0.9)",
-            border: "1px solid rgba(50,60,80,0.5)",
-            borderRadius: 8,
+            background: "var(--surface-0)",
+            border: "1px solid var(--border)",
             padding: "10px 14px",
-            fontFamily: "monospace",
+            fontFamily: "var(--font-mono)",
             fontSize: 12,
-            color: "#e2e8f0",
+            color: "var(--cream)",
             outline: "none"
           }}
         />
@@ -477,13 +492,12 @@ export default function KnowledgeGraph({
           value={searchCategory}
           onChange={(e) => setSearchCategory(e.target.value)}
           style={{
-            background: "rgba(15,20,30,0.9)",
-            border: "1px solid rgba(50,60,80,0.5)",
-            borderRadius: 8,
+            background: "var(--surface-0)",
+            border: "1px solid var(--border)",
             padding: "10px 14px",
-            fontFamily: "monospace",
+            fontFamily: "var(--font-mono)",
             fontSize: 12,
-            color: "#e2e8f0",
+            color: "var(--cream)",
             cursor: "pointer"
           }}
         >

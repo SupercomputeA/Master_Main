@@ -113,13 +113,13 @@ export default function DialogueEngine() {
               padding: "10px 14px",
               fontSize: 12,
               lineHeight: 1.6,
-              background: m.role === "user" ? "var(--surface)" :
-                         m.role === "bias" ? "rgba(239,68,68,0.15)" :
-                         m.role === "counter" ? "rgba(16,185,129,0.15)" :
+              background: m.role === "user" ? "var(--surface-1)" :
+                         m.role === "bias" ? "rgba(220,38,38,0.15)" :
+                         m.role === "counter" ? "rgba(74,222,128,0.15)" :
                          "var(--bg)",
-              border: `1px solid ${m.role === "user" ? "var(--border-accent)" : m.role === "bias" ? "#ef4444" : m.role === "counter" ? "#10b981" : "var(--border)"}`,
+              border: `1px solid ${m.role === "user" ? "var(--border-warm)" : m.role === "bias" ? "var(--danger)" : m.role === "counter" ? "var(--green)" : "var(--border)"}`,
               fontFamily: m.role === "system" ? "var(--font-mono)" : "inherit",
-              color: m.role === "bias" ? "#ef4444" : m.role === "counter" ? "#10b981" : "var(--fg)",
+              color: m.role === "bias" ? "var(--danger)" : m.role === "counter" ? "var(--green)" : "var(--cream)",
             }}>
               {m.content}
             </div>

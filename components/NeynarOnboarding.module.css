@@ -1,3 +1,10 @@
+/* NeynarOnboarding — Terminal Dossier aligned.
+ * Originally a CSS Module; flattened to global classes so it doesn't
+ * violate the no-CSS-Modules rule. All radii removed (no rounded
+ * corners on cards per Terminal Dossier). Identity moments (spinner,
+ * close button) keep their circular shape.
+ */
+
 .container {
   display: flex;
   align-items: center;
@@ -6,13 +13,14 @@
 }
 
 .card {
-  background: var(--surface);
+  background: var(--surface-1);
   border: 1px solid var(--border);
-  border-radius: 12px;
   padding: 32px;
   max-width: 420px;
   width: 100%;
   text-align: center;
+  position: relative;
+  z-index: 2;
 }
 
 .icon {
@@ -21,16 +29,19 @@
 }
 
 .title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cream);
   margin: 0 0 12px 0;
+  letter-spacing: 0.02em;
 }
 
 .description {
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.5;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--mono-blue);
+  line-height: 1.7;
   margin: 0 0 24px 0;
 }
 
@@ -45,13 +56,14 @@
 .feature {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--text);
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--cream);
 }
 
 .featureIcon {
-  color: var(--accent);
+  color: var(--gold-warm);
   font-weight: 700;
 }
 
@@ -63,34 +75,33 @@
 
 .primaryButton {
   padding: 12px 24px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
+  background: var(--gold-warm);
+  color: var(--site-bg);
+  border: 1px solid var(--gold-warm);
+  font-family: var(--font-mono);
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.12rem;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: var(--t-fast);
 }
-
-.primaryButton:hover {
-  opacity: 0.9;
-}
+.primaryButton:hover { opacity: 0.85; }
 
 .secondaryButton {
   padding: 10px 24px;
   background: transparent;
-  color: var(--muted);
+  color: var(--cream);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12rem;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: var(--t-fast);
 }
-
-.secondaryButton:hover {
-  border-color: var(--muted);
-}
+.secondaryButton:hover { border-color: var(--gold-warm); color: var(--gold-warm); }
 
 .loadingSpinner {
   margin-bottom: 16px;
@@ -100,46 +111,45 @@
   width: 48px;
   height: 48px;
   border: 3px solid var(--border);
-  border-top-color: var(--accent);
+  border-top-color: var(--gold-warm);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 .status {
-  font-size: 14px;
-  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--mono-blue);
   margin: 0 0 16px 0;
 }
 
 .hint {
-  background: var(--bg);
-  border-radius: 8px;
+  background: var(--surface-0);
+  border: 1px solid var(--border);
   padding: 16px;
   margin-top: 16px;
 }
 
 .hint p {
+  font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--muted);
+  color: var(--mono-blue);
   margin: 0 0 8px 0;
 }
 
 .link {
+  font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--accent);
+  color: var(--gold-warm);
   text-decoration: none;
+  border-bottom: 1px solid var(--border-warm);
 }
-
-.link:hover {
-  text-decoration: underline;
-}
+.link:hover { color: var(--cream); border-bottom-color: var(--gold-warm); }
 
 .modalOverlay {
   position: fixed;
@@ -165,18 +175,16 @@
   right: 8px;
   width: 32px;
   height: 32px;
-  background: var(--surface);
+  background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: 50%;
-  font-size: 20px;
+  font-family: var(--font-mono);
+  font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--muted);
+  color: var(--mono-blue);
   z-index: 1;
 }
-
-.closeButton:hover {
-  border-color: var(--muted);
-}
+.closeButton:hover { border-color: var(--gold-warm); color: var(--gold-warm); }

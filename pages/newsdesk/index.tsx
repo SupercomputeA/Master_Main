@@ -124,7 +124,7 @@ export default function NewsDesk() {
                 return (
                   <Link key={a.id} href={`/newsdesk/${slug}`} style={{ background: "var(--bg)", padding: 0, textDecoration: "none", display: "flex", flexDirection: "column" }}>
                     {isEval && (
-                      <div style={{ height: 80, background: "linear-gradient(135deg, var(--bg-alt) 0%, #1a2a4a 100%)", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                      <div style={{ height: 80, background: "linear-gradient(135deg, var(--bg-alt) 0%, var(--surface-1) 100%)", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
                         <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--accent)", border: "1px solid var(--border-accent)", padding: "3px 10px" }}>
                           PROTOCOL_EVAL · ON-CHAIN
                         </div>

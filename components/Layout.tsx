@@ -13,8 +13,17 @@ export default function Layout({ children, title = "SUPERCOMPUTE · Web3 built f
       <AgentChat />
       <div style={{ display: "flex", minHeight: "100vh" }}>
         <Sidebar />
-        <main className="main">{children}</main>
+        <main className="main">
+          {/* HUD corners bracket the main content area (per Terminal Dossier spec) */}
+          <div className="hud-corner embed tl" />
+          <div className="hud-corner embed tr" />
+          <div className="hud-corner embed bl" />
+          <div className="hud-corner embed br" />
+          {children}
+        </main>
       </div>
+      {/* Full-viewport vignette (z-index 1) — sits above CRT scanlines */}
+      <div className="vignette" />
     </>
   )
 }

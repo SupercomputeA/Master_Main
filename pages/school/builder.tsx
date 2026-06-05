@@ -172,7 +172,7 @@ interface Lesson {
                   <div key={i} style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "16px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                       <span className="label-sm">Lesson {i + 1} · {l.id}</span>
-                      <button onClick={() => removeLesson(i)} className="btn-connect" style={{ fontSize: 9, padding: "2px 8px", background: "transparent", color: "#ff6b6b", borderColor: "#ff6b6b" }}>Remove</button>
+                      <button onClick={() => removeLesson(i)} className="btn-connect" style={{ fontSize: 9, padding: "2px 8px", background: "transparent", color: "var(--danger)", borderColor: "var(--danger)" }}>Remove</button>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
                       <input type="text" placeholder="Lesson title" style={inputStyle} value={l.title} onChange={e => updateLesson(i, "title", e.target.value)} />
@@ -201,7 +201,7 @@ interface Lesson {
   difficulty: "${difficulty}",
   access: "${access}",
   icon: "${icon}",
-  color: "#5bc0be",
+  color: "var(--mono-blue)",
   lessons: [${lessons.map((l, i) => `
     {
       id: "${l.id || "XX-0" + (i + 1)}",

@@ -1,73 +1,32 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    SUPERCOMPUTE — Next.js Publishing App
-   Terminal Dossier design system. Tokens + component styles in one file.
-   The design-system SPA (supercompute.io) maintains its own sc.css.
+   Terminal Dossier design system. Single token source: colors_and_type.css
+   (cloned from SupercomputeA/DesignDesk). Site-specific aliases + layout
+   shell below. No orphan hex values.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('./colors_and_type.css');
 
-@font-face {
-  font-family: 'Phosphate-Solid';
-  src: url('/fonts/PhosphateSolid.ttf') format('truetype');
-  font-weight: 400 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* ─── TOKENS ──────────────────────────────────────────────────────────── */
+/* ─── Site-specific aliases (canonical vars take precedence when used) ─── */
 
 :root {
-  --site-bg:     #0a1330;
-  --gold-warm:   #C9A33A;
-  --gold-warm-2: #b8902c;
-  --cream:       #F4ECD8;
-  --mono-blue:   #6FA3E5;
-  --hud-yellow:  #E0BE3F;
+  /* Convenience aliases for legacy class names in this layout shell */
+  --bg:        var(--site-bg);
+  --fg:        var(--cream);
+  --accent:    var(--gold-warm);
+  --muted:     var(--mono-blue);
 
-  --pink:   #F472B6;
-  --cyan:   #38BDF8;
-  --violet: #7c3aed;
+  /* Site-specific surfaces (sidebar, elevated rows) */
+  --surface-0: #0a1330;
+  --surface-1: #0d1f3d;
+  --surface-2: #0a1e3d;
 
-  --surface-0:  #0a1330;
-  --surface-1:  #0d1f3d;
-  --surface-2:  #0a1e3d;
-  --border:     #1E3A5F;
+  /* Terminal Dossier hairlines */
+  --border:      #1E3A5F;
   --border-warm: rgba(201, 163, 58, 0.30);
 
-  --success: #4ade80;
-  --warning: var(--gold-warm);
-  --danger:  #ef4444;
-
-  --white-90: rgba(255,255,255,.90);
-  --white-70: rgba(255,255,255,.70);
-  --white-55: rgba(255,255,255,.55);
-  --white-35: rgba(255,255,255,.35);
-  --white-12: rgba(255,255,255,.12);
-  --white-08: rgba(255,255,255,.08);
-  --white-04: rgba(255,255,255,.04);
-
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  --font-display: var(--font-mono);
-  --font-logo: 'Phosphate-Solid', 'Phosphate SC', Phosphate, Impact, 'Arial Black', sans-serif;
-
-  --s-1:  4px;  --s-2:  8px;  --s-3:  12px;
-  --s-4:  16px; --s-5:  20px; --s-6:  24px;
-  --s-8:  32px; --s-10: 40px; --s-12: 48px;
-  --nav-w:    220px;
-  --topbar-h: 52px;
-
-  --r-pill: 999px;
-
-  --t-fast:   .15s ease;
-  --t-base:   .20s ease;
-  --t-slow:   .60s ease;
-  --t-spring: 1.2s cubic-bezier(.34, 1.56, .64, 1);
-
-  --fs-9:   9px;   --fs-10: 10px;  --fs-11: 11px;
-  --fs-12:  12px;  --fs-13: 13px;  --fs-14: 14px;
-  --fs-base: 14px;
-  --fs-h3: 1.1rem; --fs-h2: 1.35rem; --fs-h1: 1.6rem;
-  --fs-display: clamp(1.9rem, 4.5vw, 3.4rem);
+  /* Tertiary accent (PROTOCOL_EVAL category, etc.) */
+  --teal: #1a535c;
 }
 
 /* ─── BASE ──────────────────────────────────────────────────────────────── */
@@ -91,6 +50,55 @@ body {
 }
 
 ::selection { background: var(--gold-warm); color: var(--site-bg); }
+
+/* ─── CRT effect (non-negotiable per brief, z-index law) ──────────────── */
+
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(0deg,  rgba(255,255,255,.030) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.030) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,.18) 0,
+    rgba(0,0,0,.18) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: multiply; opacity: .65;
+}
+
+.vignette {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
+}
+
+/* ─── HUD corners (signature, 4 viewport-pinned brackets) ──────────────── */
+
+.hud-corner {
+  position: fixed; width: 32px; height: 32px;
+  border: 2px solid var(--hud-yellow); z-index: 4; pointer-events: none;
+}
+.hud-corner.tl { top: 18px;    left: 18px;    border-right: none; border-bottom: none; }
+.hud-corner.tr { top: 18px;    right: 18px;   border-left: none;  border-bottom: none; }
+.hud-corner.bl { bottom: 18px; left: 18px;    border-right: none; border-top: none; }
+.hud-corner.br { bottom: 18px; right: 18px;   border-left: none;  border-top: none; }
+
+/* Member-app variant: corners bracket the .main content area, not viewport. */
+.hud-corner.embed { position: absolute; }
+
+@media (max-width: 700px) {
+  .hud-corner { width: 22px; height: 22px; }
+  .hud-corner.tl, .hud-corner.tr { top: 10px; }
+  .hud-corner.bl, .hud-corner.br { bottom: 10px; }
+  .hud-corner.tl, .hud-corner.bl { left: 10px; }
+  .hud-corner.tr, .hud-corner.br { right: 10px; }
+}
 
 /* ─── LAYOUT ──────────────────────────────────────────────────────────── */
 
@@ -133,6 +141,7 @@ body {
 .logo-text-group { display: flex; flex-direction: column; gap: 2px; }
 
 .logo {
+  font-family: var(--font-mono);
   font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -234,7 +243,9 @@ body {
   color: var(--mono-blue);
 }
 
+.display-xl { font-size: clamp(44px, 7vw, 96px); font-weight: 700; line-height: 0.92; letter-spacing: -0.02em; }
 .display-lg { font-size: clamp(26px, 3.5vw, 48px); font-weight: 700; line-height: 1; }
+.display-md { font-size: clamp(16px, 2vw, 24px); font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
 .terminal { font-family: var(--font-mono); font-size: 13px; color: var(--cream); }
 
 /* ─── HERO ──────────────────────────────────────────────────────────────── */
@@ -344,6 +355,34 @@ footer { padding: 40px 48px 28px; }
 .perk::before { content: '\2192'; font-family: var(--font-mono); font-size: 9px; color: var(--gold-warm); flex-shrink: 0; margin-top: 2px; }
 .btn-school { display: inline-block; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.15rem; text-transform: uppercase; text-decoration: none; color: var(--site-bg); background: var(--gold-warm); padding: 10px 18px; border: 1px solid var(--gold-warm); }
 
+/* ─── NEWS DESK ─────────────────────────────────────────────────────────── */
+
+.news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--border); }
+.news-card { padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+.news-card:hover { background: var(--surface-1); }
+.news-cat { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.15rem; text-transform: uppercase; color: var(--gold-warm); }
+.news-title { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.3; flex: 1; }
+.news-meta { font-family: var(--font-mono); font-size: 9px; color: var(--mono-blue); letter-spacing: 0.05em; padding-top: 12px; border-top: 1px solid var(--border); }
+
+/* ─── ARTICLE BODY (rendered markdown) ──────────────────────────────────── */
+
+.article-body { font-family: var(--font-mono); }
+.article-body h1, .article-body h2, .article-body h3 { color: var(--cream); font-weight: 600; letter-spacing: .2px; margin: 1.6em 0 .6em; }
+.article-body h1 { font-size: 1.4rem; }
+.article-body h2 { font-size: 1.15rem; }
+.article-body h3 { font-size: 1rem; }
+.article-body p { margin: 0 0 1.1em; line-height: 1.8; }
+.article-body a { color: var(--gold-warm); text-decoration: none; border-bottom: 1px solid var(--border-warm); }
+.article-body a:hover { color: var(--cream); border-bottom-color: var(--gold-warm); }
+.article-body ul, .article-body ol { margin: 0 0 1.1em 1.4em; line-height: 1.8; }
+.article-body li { margin: 0 0 .4em; }
+.article-body blockquote { border-left: 2px solid var(--gold-warm); padding: 4px 0 4px 16px; color: var(--mono-blue); margin: 1.2em 0; }
+.article-body code { font-family: var(--font-mono); background: var(--white-04); border: 1px solid var(--border); padding: 1px 6px; font-size: .92em; color: var(--gold-warm); }
+.article-body pre { background: var(--white-04); border: 1px solid var(--border); padding: 16px; overflow-x: auto; margin: 1.2em 0; }
+.article-body pre code { background: transparent; border: none; padding: 0; color: var(--cream); }
+.article-body hr { border: none; border-top: 1px dashed var(--border); margin: 2em 0; }
+.article-body img { max-width: 100%; height: auto; border: 1px solid var(--border-warm); }
+
 /* ─── RESPONSIVE ────────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
@@ -361,6 +400,7 @@ footer { padding: 40px 48px 28px; }
   .stake-grid { grid-template-columns: repeat(2, 1fr); }
   .footer-grid { grid-template-columns: 1fr; }
   .footer-links { grid-template-columns: repeat(2, 1fr); }
+  .news-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 520px) {

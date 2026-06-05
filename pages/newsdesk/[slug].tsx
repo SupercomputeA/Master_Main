@@ -4,6 +4,7 @@ import type { GetStaticPaths, GetStaticProps } from "next"
 import { marked } from "marked"
 import Layout from "../../components/Layout"
 import Footer from "../../components/Footer"
+import KnowledgeGraph from "../../components/KnowledgeGraph"
 
 interface Article {
   id: string
@@ -107,6 +108,35 @@ export default function ArticleDetail() {
 
   const htmlBody = useMemo(() => renderMarkdown(article?.content), [article?.content])
 
+  // Build a per-article knowledge graph from the article's metadata. This is
+  // a placeholder until Tina's `knowledgeGraph` field is wired into D1 (or
+  // until the article detail endpoint serves the structured KG). The graph
+  // is derived deterministically from category + author + status so the
+  // article page always renders a meaningful visualization.
+  const articleKg = useMemo(() => {
+    if (!article) return { nodes: [], edges: [] }
+    const cat = article.category || "GENERAL"
+    const author = article.author || "anonymous"
+    const nodes: Array<{ id: string; label: string; type: string }> = [
+      { id: "article", label: article.title?.slice(0, 28) || "Article", type: "concept" },
+      { id: `cat-${cat}`, label: cat, type: "term" },
+      { id: `author-${author}`, label: author, type: "person" },
+    ]
+    if (article.published_at) {
+      nodes.push({ id: "date", label: formatDate(article.published_at), type: "date" })
+    }
+    if (article.status) {
+      nodes.push({ id: `status-${article.status}`, label: article.status, type: "event" })
+    }
+    const edges: Array<[string, string]> = [
+      ["article", `cat-${cat}`],
+      ["article", `author-${author}`],
+    ]
+    if (article.published_at) edges.push(["article", "date"])
+    if (article.status) edges.push(["article", `status-${article.status}`])
+    return { nodes, edges }
+  }, [article])
+
   if (article === undefined) {
     return (
       <Layout title="SUPERCOMPUTE · Article">
@@ -150,9 +180,27 @@ export default function ArticleDetail() {
           </div>
           <h1 className="display-xl hero-title" style={{ fontSize: "clamp(28px, 5vw, 48px)" }}>{article.title}</h1>
           <div className="hero-meta" style={{ marginTop: 16 }}>
-            <div className="meta-item"><div className="label-sm">// Author</div><div className="val" style={{ color: "var(--accent)" }}>{article.author || "anonymous"}</div></div>
+            <div className="meta-item"><div className="label-sm">// Author</div><div className="val" style={{ color: "var(--gold-warm)" }}>{article.author || "anonymous"}</div></div>
             <div className="meta-item"><div className="label-sm">// Published</div><div className="val">{formatDate(article.published_at)}</div></div>
-            <div className="meta-item"><div className="label-sm">// Category</div><div className="val" style={{ color: article.category === "PROTOCOL_EVAL" ? "var(--teal)" : "var(--accent)" }}>{article.category || "—"}</div></div>
+            <div className="meta-item"><div className="label-sm">// Category</div><div className="val" style={{ color: article.category === "PROTOCOL_EVAL" ? "var(--teal)" : "var(--gold-warm)" }}>{article.category || "—"}</div></div>
+          </div>
+        </section>
+
+        {/* Knowledge graph jumbotron (per Terminal Dossier article spec) */}
+        <section className="section" style={{ paddingTop: 32 }}>
+          <div className="section-header">
+            <div className="label">// graph</div>
+            <div><h2 className="display-md">Knowledge Graph</h2></div>
+          </div>
+          <div style={{ border: "1px solid var(--border-warm)", background: "var(--site-bg)", position: "relative" }}>
+            <KnowledgeGraph
+              data={articleKg}
+              height={380}
+              interactive={false}
+            />
+          </div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--mono-blue)", marginTop: 12, letterSpacing: "0.05em" }}>
+            // {articleKg.nodes.length} entities · {articleKg.edges.length} relationships — derived from article metadata
           </div>
         </section>
 

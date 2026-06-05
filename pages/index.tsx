@@ -53,14 +53,14 @@ export default function Home() {
           <span className="label">// publishing · agent-powered</span>
         </div>
         <h1 style={{
-          fontFamily: "var(--font-logo)", fontSize: "clamp(48px, 10vw, 100px)",
-          fontWeight: 400, lineHeight: 1, marginBottom: 8, color: "var(--accent)", letterSpacing: "0.02em",
+          fontFamily: "var(--font-mono)", fontSize: "clamp(48px, 10vw, 100px)",
+          fontWeight: 600, lineHeight: 1, marginBottom: 8, color: "var(--accent)", letterSpacing: "0.02em",
         }}>
           SUPERCOMPUTE
         </h1>
         <p style={{
-          fontFamily: "var(--font-logo)", fontSize: "clamp(28px, 5vw, 50px)",
-          fontWeight: 400, lineHeight: 1, marginBottom: 24, color: "var(--muted)", letterSpacing: "0.02em",
+          fontFamily: "var(--font-mono)", fontSize: "clamp(28px, 5vw, 50px)",
+          fontWeight: 500, lineHeight: 1, marginBottom: 24, color: "var(--muted)", letterSpacing: "0.02em",
         }}>
           publishing
         </p>

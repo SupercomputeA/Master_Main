@@ -88,7 +88,7 @@ export async function handleAuth(request, env, ctx) {
   const method = request.method;
 
   const corsHeaders = {
-    'Access-Control-Allow-Origin': 'https://supercompute.io',
+    'Access-Control-Allow-Origin': env.CORS_ORIGIN || 'https://supercompute.io',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };

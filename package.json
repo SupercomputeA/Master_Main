@@ -7,7 +7,7 @@
     "dev": "tinacms dev -c \"wrangler dev\"",
     "tina:dev": "tinacms dev -c \"next dev\"",
     "tina:build": "tinacms build",
-    "build": "npx esbuild src/worker.js --bundle --outfile=dist/worker.js --format=esm --platform=neutral --target=es2020 --minify",
+    "build": "npx esbuild src/worker.js --bundle --outfile=dist/worker.js --format=esm --platform=neutral --target=es2020 --minify --external:ws --external:events --external:stream --external:https --external:http --external:url --external:net --external:tls --external:zlib",
     "next:build": "npx next build",
     "full:build": "npx tinacms build && npx next build",
     "deploy": "npm run full:build && npx wrangler pages deploy out --project-name=supercompute --commit-dirty=true",

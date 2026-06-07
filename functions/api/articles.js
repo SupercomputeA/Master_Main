@@ -30,12 +30,18 @@ async function listArticles(env, url) {
   }
 
   const sql = `SELECT ${cols} FROM articles ${where} ORDER BY published_at DESC LIMIT 50`;
-  const stmt = binds.length
-    ? env.DB.prepare(sql).bind(...binds)
-    : env.DB.prepare(sql);
-  const articles = await stmt.all();
-
-  return json({ articles: articles.results || [] });
+  try {
+    const stmt = binds.length
+      ? env.DB.prepare(sql).bind(...binds)
+      : env.DB.prepare(sql);
+    const articles = await stmt.all();
+    return json({ articles: articles.results || [] });
+  } catch (err) {
+    // Never let a DB error bubble into an unhandled 500 (which returns HTML and
+    // breaks the client's r.json()). Return an empty feed with a 500 status so
+    // the page degrades gracefully and the error is still observable.
+    return json({ articles: [], error: 'Failed to load articles' }, 500);
+  }
 }
 
 // GET /api/articles/:id — single article by ID

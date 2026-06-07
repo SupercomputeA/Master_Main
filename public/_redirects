@@ -1,2 +1,9 @@
-# SPA fallback — route all non-file, non-API 404s to index.html
+# Article detail pages: every /newsdesk/<slug> is served by the single
+# generated placeholder shell (out/newsdesk/article.html); the React app
+# resolves the real slug at runtime from window.location and fetches
+# /api/articles?include=content&slug=<slug>. Must come BEFORE the /* SPA
+# catch-all (first match wins).
+/newsdesk/*    /newsdesk/article   200
+
+# SPA fallback — route all remaining non-file, non-API 404s to index.html
 /*    /index.html   200

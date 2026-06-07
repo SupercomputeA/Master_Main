@@ -64,7 +64,10 @@ export default function NewsDesk() {
     () => (articles || []).filter((a) => a.status === "published" || !a.status),
     [articles]
   )
-  const visible = filter === "ALL" ? allPosts : allPosts.filter((a) => a.category === filter)
+  const visible =
+    filter === "ALL"
+      ? allPosts
+      : allPosts.filter((a) => (a.category || "").toUpperCase() === filter.toUpperCase())
 
   return (
     <Layout title="SUPERCOMPUTE · NewsDesk">

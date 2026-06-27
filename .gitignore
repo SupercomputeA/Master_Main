@@ -37,3 +37,7 @@ npm-debug.log*
 .next/
 out/
 tsconfig.tsbuildinfo
+# Environment trigger files
+PRODUCTION.md
+STAGING.md
+DEVELOPMENT.md

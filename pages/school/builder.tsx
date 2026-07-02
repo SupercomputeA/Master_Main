@@ -1,5 +1,7 @@
 import Layout from "../../components/Layout"
+import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
+import AuthGate from "../../components/AuthGate"
 import { useAuth } from "../../lib/auth"
 import { modules, type SchoolModule, type Lesson } from "../../lib/school"
 import { useState } from "react"
@@ -39,19 +41,22 @@ export default function SchoolBuilder() {
 
   if (!session) {
     return (
-      <Layout title="SUPERCOMPUTE · Course Builder">
+      <PublicLayout title="SUPERCOMPUTE · Course Builder">
         <section className="hero" id="school-builder">
           <div className="hero-kicker"><div className="status-dot"></div><span className="label">// school · builder</span></div>
           <h1 className="display-xl hero-title">COURSE<br /><em>BUILDER</em></h1>
           <p className="hero-sub">Sign in with your wallet to create and manage school modules.</p>
         </section>
-        <section className="section">
-          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "60px 24px", textAlign: "center", color: "var(--muted)", fontSize: 13 }}>
-            Sign in to access the course builder.
-          </div>
+        <section className="section" style={{ borderBottom: "none" }}>
+          <AuthGate
+            title="Course Builder is members-only"
+            note="Sign in to create and manage school modules."
+          >
+            <div />
+          </AuthGate>
         </section>
         <Footer />
-      </Layout>
+      </PublicLayout>
     )
   }
 

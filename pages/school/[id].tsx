@@ -1,8 +1,9 @@
 import type { GetStaticPaths, GetStaticProps } from "next"
 import Link from "next/link"
-import Layout from "../../components/Layout"
+import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 import TokenGate from "../../components/TokenGate"
+import AuthGate from "../../components/AuthGate"
 import { getAllSchoolModules, getSchoolModule, type SchoolModuleContent } from "../../lib/content"
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -69,7 +70,7 @@ function ModuleBody({ mod }: { mod: SchoolModuleContent }) {
             <div className="label">// credential</div>
             <div><h2 className="display-md">NFT Credential</h2></div>
           </div>
-          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "24px", display: "flex", gap: 20, alignItems: "center" }}>
+          <div style={{ background: "var(--surface-1)", border: "1px solid var(--border)", padding: "24px", display: "flex", gap: 20, alignItems: "center" }}>
             <div style={{
               width: 80, height: 80, borderRadius: "50%",
               background: `${mod.color}20`, border: `2px solid ${mod.color}`,
@@ -92,7 +93,7 @@ function ModuleBody({ mod }: { mod: SchoolModuleContent }) {
 
 export default function ModulePage({ mod }: { mod: SchoolModuleContent }) {
   return (
-    <Layout title={`SUPERCOMPUTE · ${mod.moduleId} ${mod.title}`}>
+    <PublicLayout title={`SUPERCOMPUTE · ${mod.moduleId} ${mod.title}`}>
       <section className="hero">
         <div className="hero-kicker">
           <div className="status-dot" />
@@ -110,21 +111,26 @@ export default function ModulePage({ mod }: { mod: SchoolModuleContent }) {
         </div>
       </section>
 
-      {mod.access === "member" ? (
-        <section className="section">
-          <TokenGate
-            requirements={[
-              { token: "$SCOM", minBalance: "100", label: "Hold 100 $SCOM for member modules" },
-            ]}
-          >
+      <section className="section" style={{ borderBottom: "none", paddingBottom: 0 }}>
+        <AuthGate
+          title="Sign in to open this module"
+          note="The lesson plan and credential unlock once you sign in. Free to join."
+        >
+          {mod.access === "member" ? (
+            <TokenGate
+              requirements={[
+                { token: "$SCOM", minBalance: "100", label: "Hold 100 $SCOM for member modules" },
+              ]}
+            >
+              <ModuleBody mod={mod} />
+            </TokenGate>
+          ) : (
             <ModuleBody mod={mod} />
-          </TokenGate>
-        </section>
-      ) : (
-        <ModuleBody mod={mod} />
-      )}
+          )}
+        </AuthGate>
+      </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

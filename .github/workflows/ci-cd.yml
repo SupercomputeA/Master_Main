@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging, development]
   pull_request:
-    branches: [main]
+    branches: [main, staging]
 
 jobs:
   validate:
@@ -60,7 +60,7 @@ jobs:
 
   deploy:
     needs: validate
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -84,7 +84,7 @@ jobs:
         env:
           NEXT_PUBLIC_TINA_CLIENT_ID: ${{ vars.NEXT_PUBLIC_TINA_CLIENT_ID }}
           TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
-          TINA_BRANCH: main
+          TINA_BRANCH: ${{ github.ref_name }}
         continue-on-error: true
 
       - name: Build Next.js static export
@@ -103,20 +103,32 @@ jobs:
           echo "✓ Functions copied to out/functions/"
 
       - name: Install Wrangler
-        # Pin the global install to wrangler@4 to match the package.json
-        # devDependency (^4.0.0). The unpinned `npm install -g wrangler` would
-        # pull whatever wrangler major is current, which on a future v5
-        # release would silently break `wrangler pages deploy` (the deploy
-        # job uses the v4 syntax). Pin it here so deploys stay deterministic.
         run: npm install -g wrangler@4
 
-      - name: Deploy to Cloudflare Pages (supercompute website)
+      - name: Deploy to Cloudflare Pages (production)
+        if: github.ref == 'refs/heads/main'
         run: |
           wrangler pages deploy out --project-name=supercompute --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+      - name: Deploy to Cloudflare Pages (staging)
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          wrangler pages deploy out --project-name=supercompute --branch staging --commit-dirty=true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy to Cloudflare Pages (development)
+        if: github.ref == 'refs/heads/development'
+        run: |
+          wrangler pages deploy out --project-name=supercompute --branch development --commit-dirty=true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: Verify deployment
         run: |
-          echo "Deployed supercompute website to supercompute.pages.dev"
+          echo "Deployed supercompute website to supercompute.pages.dev (${{ github.ref_name }})"

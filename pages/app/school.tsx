@@ -1,22 +1,40 @@
+import { useEffect, useState } from "react"
+import { useRouter } from "next/router"
+import Link from "next/link"
+import type { GetStaticProps } from "next"
 import MemberLayout from "../../components/MemberLayout"
+import { useAuth } from "../../lib/auth"
+import { getAllSchoolModules, type SchoolModuleContent } from "../../lib/content"
 
-/* Member — School (port of MemberSchool.dc.html) */
+/* Member — School (after login = the steak). Real curriculum from content/school,
+   each card links into the module coursework. Login-gated: logged-out visitors
+   never see the vertical member nav here — they're sent to the /school sizzle. */
 
-type Status = "progress" | "notstarted" | "done"
-const COURSES: { icon: string; title: string; desc: string; modules: string; status: Status }[] = [
-  { icon: "🔗", title: "Blockchain Fundamentals", desc: "Master the core concepts of blockchain technology, distributed ledgers, and consensus mechanisms.", modules: "5 modules", status: "progress" },
-  { icon: "💰", title: "DeFi Protocol Design", desc: "Learn how decentralized finance protocols work, from AMMs to lending platforms and yield strategies.", modules: "6 modules", status: "notstarted" },
-  { icon: "🏛️", title: "DAO Governance", desc: "Explore decentralized governance models, voting systems, and community coordination structures.", modules: "4 modules", status: "done" },
-  { icon: "🔐", title: "Smart Contract Security", desc: "Essential security practices for smart contracts, vulnerability patterns, and audit methodologies.", modules: "5 modules", status: "notstarted" },
-]
-
-function StatusTag({ status }: { status: Status }) {
-  if (status === "done") return <span className="course-status done">Completed</span>
-  if (status === "progress") return <span className="course-status progress">In Progress</span>
-  return <span className="course-status progress">Not Started</span>
+export const getStaticProps: GetStaticProps = async () => {
+  const modules = await getAllSchoolModules()
+  return { props: { modules } }
 }
 
-export default function MemberSchool() {
+function StatusTag({ done }: { done: boolean }) {
+  return done
+    ? <span className="course-status done">Completed</span>
+    : <span className="course-status progress">Start →</span>
+}
+
+export default function MemberSchool({ modules }: { modules: SchoolModuleContent[] }) {
+  const { session } = useAuth()
+  const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    if (mounted && !session) router.replace("/school")
+  }, [mounted, session, router])
+
+  if (!mounted || !session) return null
+
+  const doneCount = modules.filter(m => m.done).length
+  const pct = modules.length ? Math.round((doneCount / modules.length) * 100) : 0
+
   return (
     <MemberLayout
       title="SUPERCOMPUTE · Web3 School"
@@ -31,23 +49,23 @@ export default function MemberSchool() {
 
       <div className="progress-card">
         <div className="progress-label">Overall Progress</div>
-        <div className="progress-percent">45%</div>
+        <div className="progress-percent">{pct}%</div>
         <div className="progress-bar">
-          <div className="progress-fill" style={{ width: "45%" }} />
+          <div className="progress-fill" style={{ width: `${pct}%` }} />
         </div>
       </div>
 
       <div className="courses-grid">
-        {COURSES.map((c) => (
-          <div key={c.title} className="course-card">
-            <div className="course-icon">{c.icon}</div>
-            <div className="course-title">{c.title}</div>
-            <div className="course-desc">{c.desc}</div>
+        {modules.map((m) => (
+          <Link key={m.moduleId} href={`/school/${m.moduleId}`} className="course-card" style={{ textDecoration: "none", color: "inherit" }}>
+            <div className="course-icon">{m.icon}</div>
+            <div className="course-title">{m.title}</div>
+            <div className="course-desc">{m.description}</div>
             <div className="course-meta">
-              <span>{c.modules}</span>
-              <StatusTag status={c.status} />
+              <span>{m.lessons.length} lessons · {m.duration}</span>
+              <StatusTag done={m.done} />
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </MemberLayout>

@@ -9,10 +9,9 @@ import type { ReactNode } from "react"
 
 const NAV = [
   { href: "/", label: "Home" },
-  { href: "/projects", label: "Projects" },
   { href: "/publishing", label: "NewsDesk" },
-  { href: "/school", label: "School" },
-  { href: "/community", label: "Community" },
+  { href: "/tradedesk", label: "TradeDesk" },
+  { href: "/about", label: "About us" },
 ]
 
 function isActive(href: string, path: string): boolean {

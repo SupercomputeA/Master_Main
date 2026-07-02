@@ -1,4 +1,5 @@
-import Layout from "../components/Layout"
+import Link from "next/link"
+import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 
 const timeline = [
@@ -14,20 +15,25 @@ const timeline = [
 
 export default function About() {
   return (
-    <Layout title="SUPERCOMPUTE · About">
-      <section className="hero" id="about">
-        <div className="hero-kicker">
-          <div className="status-dot"></div>
-          <span className="label">// about</span>
-        </div>
-        <h1 className="display-xl hero-title">
-          ONE OPERATOR<br /><em>SINCE 2013</em>
-        </h1>
-        <p className="hero-sub">
-          Not a company. Not a DAO. One person doing hands-on Web3 work
-          for founders who ship. Fourteen projects, thirteen agents, zero incidents.
-        </p>
-      </section>
+    <PublicLayout title="SUPERCOMPUTE · About us">
+      <div className="landing">
+        <section className="l-hero">
+          <div className="l-eyebrow">
+            <span><span className="gold">./about</span> --supercompute</span>
+            <span className="l-caret" />
+          </div>
+          <h1 className="headline">About us</h1>
+          <div className="subheader">One operator since 2013</div>
+          <p className="hero-copy">
+            Not a company. Not a DAO. One person doing hands-on Web3 work for founders who
+            ship. Fourteen projects, thirteen agents, zero incidents.
+          </p>
+          <div style={{ marginTop: 32, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/auth" className="btn btn-primary">Work with us</Link>
+            <Link href="/publishing" className="btn btn-outline">NewsDesk</Link>
+          </div>
+        </section>
+      </div>
 
       <section className="section">
         <div className="section-header">
@@ -118,6 +124,6 @@ export default function About() {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

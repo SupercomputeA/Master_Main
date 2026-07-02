@@ -1,3 +1,4 @@
+import Link from "next/link"
 import PublicLayout from "../components/PublicLayout"
 
 /* Publishing — faithful port of templates/publishing/Publishing.dc.html.
@@ -39,6 +40,10 @@ export default function Publishing() {
             In-depth evaluation shorts exploring the mechanics, tokenomics, and community
             structures of Web3 protocols.
           </p>
+          <div style={{ marginTop: 32, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/auth" className="btn btn-primary">Subscribe</Link>
+            <Link href="/auth" className="btn btn-outline">Sign in</Link>
+          </div>
         </section>
       </div>
       <div className="tpl-publishing">

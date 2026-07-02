@@ -1,3 +1,4 @@
+import Link from "next/link"
 import PublicLayout from "../components/PublicLayout"
 
 /* Projects — faithful port of templates/projects/Projects.dc.html.
@@ -63,6 +64,10 @@ export default function Projects() {
             A portfolio of Web3 tools and initiatives — shipped on Base, owned by the
             communities they serve.
           </p>
+          <div style={{ marginTop: 32, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/auth" className="btn btn-primary">Start a project</Link>
+            <Link href="/auth" className="btn btn-outline">Sign in</Link>
+          </div>
         </section>
       </div>
       <div className="tpl-projects">

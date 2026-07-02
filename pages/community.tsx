@@ -1,3 +1,4 @@
+import Link from "next/link"
 import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 
@@ -38,6 +39,10 @@ export default function Community() {
             Follow the work in real time — live streams from the desk, a schedule of what's
             coming, and every channel to plug into. Ship alongside us.
           </p>
+          <div style={{ marginTop: 32, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/auth" className="btn btn-primary">Join the community</Link>
+            <Link href="/auth" className="btn btn-outline">Sign in</Link>
+          </div>
         </section>
       </div>
 

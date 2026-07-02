@@ -27,15 +27,21 @@ const POSTS: Post[] = [
 export default function Publishing() {
   return (
     <PublicLayout title="SUPERCOMPUTE · Publishing">
-      <div className="tpl-publishing">
-        <div className="p-header">
-          <div className="section-label">Publishing Division</div>
-          <h1 className="page-title">Protocol Analysis</h1>
-          <p className="page-desc">
+      <div className="landing">
+        <section className="l-hero">
+          <div className="l-eyebrow">
+            <span><span className="gold">./publishing</span> --supercompute</span>
+            <span className="l-caret" />
+          </div>
+          <h1 className="headline">Publishing</h1>
+          <div className="subheader">Protocol analysis</div>
+          <p className="hero-copy">
             In-depth evaluation shorts exploring the mechanics, tokenomics, and community
             structures of Web3 protocols.
           </p>
-        </div>
+        </section>
+      </div>
+      <div className="tpl-publishing">
 
         <div className="blog-grid">
           {POSTS.map((post) => (

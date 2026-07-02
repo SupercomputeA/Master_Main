@@ -51,11 +51,21 @@ const SECTIONS: { title: string; count: string; projects: Project[] }[] = [
 export default function Projects() {
   return (
     <PublicLayout title="SUPERCOMPUTE · Projects" wide>
+      <div className="landing">
+        <section className="l-hero">
+          <div className="l-eyebrow">
+            <span><span className="gold">./projects</span> --supercompute</span>
+            <span className="l-caret" />
+          </div>
+          <h1 className="headline">Projects</h1>
+          <div className="subheader">Built in the open</div>
+          <p className="hero-copy">
+            A portfolio of Web3 tools and initiatives — shipped on Base, owned by the
+            communities they serve.
+          </p>
+        </section>
+      </div>
       <div className="tpl-projects">
-        <div className="page-header">
-          <div className="section-label">Portfolio</div>
-          <h1 className="page-title">Supercompute Projects</h1>
-        </div>
 
         {SECTIONS.map((section) => (
           <div key={section.title} className="project-section">

@@ -3,6 +3,7 @@ import Link from "next/link"
 import PublicLayout from "../../../components/PublicLayout"
 import Footer from "../../../components/Footer"
 import TokenGate from "../../../components/TokenGate"
+import AuthGate from "../../../components/AuthGate"
 import { getAllSchoolModules, type SchoolModuleContent, type SchoolLesson } from "../../../lib/content"
 
 interface LessonContext {
@@ -165,36 +166,39 @@ export default function LessonPage({ ctx }: { ctx: LessonContext }) {
         </div>
       </section>
 
-      <section className="section">
-        <div className="section-header">
-          <div className="label">// topics · {topics.length}</div>
-          <div><h2 className="display-md">Key Topics</h2></div>
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {topics.map(t => (
-            <span key={t} style={{
-              fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.05em",
-              padding: "6px 14px", border: "1px solid var(--border-warm)", color: "var(--gold-warm)",
-            }}>
-              {t}
-            </span>
-          ))}
-        </div>
-      </section>
+      <section className="section" style={{ borderBottom: "none", paddingBottom: 0 }}>
+        <AuthGate
+          title="Sign in to start this lesson"
+          note="The objectives and practical exercise unlock once you sign in. Free to join."
+        >
+          <div className="section-header">
+            <div className="label">// topics · {topics.length}</div>
+            <div><h2 className="display-md">Key Topics</h2></div>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+            {topics.map(t => (
+              <span key={t} style={{
+                fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.05em",
+                padding: "6px 14px", border: "1px solid var(--border-warm)", color: "var(--gold-warm)",
+              }}>
+                {t}
+              </span>
+            ))}
+          </div>
 
-      {mod.access === "member" ? (
-        <section className="section" style={{ borderBottom: "none", paddingBottom: 0 }}>
-          <TokenGate
-            requirements={[
-              { token: "$SCOM", minBalance: "100", label: "Hold 100 $SCOM for this lesson" },
-            ]}
-          >
+          {mod.access === "member" ? (
+            <TokenGate
+              requirements={[
+                { token: "$SCOM", minBalance: "100", label: "Hold 100 $SCOM for this lesson" },
+              ]}
+            >
+              <LessonBody ctx={ctx} />
+            </TokenGate>
+          ) : (
             <LessonBody ctx={ctx} />
-          </TokenGate>
-        </section>
-      ) : (
-        <LessonBody ctx={ctx} />
-      )}
+          )}
+        </AuthGate>
+      </section>
 
       <Footer />
     </PublicLayout>

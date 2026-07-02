@@ -1,187 +1,129 @@
 import type { GetStaticProps } from "next"
-import { useState } from "react"
 import Link from "next/link"
 import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 import { useAuth } from "../lib/auth"
 import { getAllSchoolModules, type SchoolModuleContent } from "../lib/content"
 
+/* Public School landing — all sizzle. Sells the curriculum (tracks, credentials,
+   stats) but exposes NO classwork: lesson plans and lessons live behind login.
+   Logged out → track cards are teasers + a Join/Sign-in CTA. Logged in → cards
+   link into the modules. */
+
 export const getStaticProps: GetStaticProps = async () => {
   const modules = await getAllSchoolModules()
   return { props: { modules } }
 }
 
-function ModuleCard({ m }: { m: SchoolModuleContent }) {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <div style={{ background: "var(--bg)", border: "1px solid var(--border)" }}>
-      <div
-        onClick={() => setOpen(!open)}
-        style={{ padding: "20px 24px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: 8,
-            background: `${m.color}15`, border: `1px solid ${m.color}30`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 18,
-          }}>{m.icon}</div>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: m.color }}>{m.moduleId}</span>
-              <span style={{ fontSize: 15, fontWeight: 600 }}>{m.title}</span>
-            </div>
-            <div style={{ fontSize: 11, color: "var(--muted)" }}>
-              {m.subtitle} · {m.lessons.length} lessons · {m.duration}
-            </div>
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{
-            fontFamily: "var(--font-mono)", fontSize: 9, padding: "3px 8px",
-            background: `${m.color}15`, color: m.color, border: `1px solid ${m.color}30`,
-          }}>{m.difficulty}</span>
-          <span style={{
-            fontFamily: "var(--font-mono)", fontSize: 9, padding: "3px 8px",
-            background: m.access === "free" ? "var(--teal-dim)" : "var(--accent-dim)",
-            color: m.access === "free" ? "var(--teal)" : "var(--accent)",
-            border: `1px solid ${m.access === "free" ? "var(--teal)" : "var(--border-accent)"}`,
-          }}>
-            {m.access.toUpperCase()}
-          </span>
-          <span style={{ fontSize: 14, color: "var(--muted)", transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
+function TrackCard({ m, unlocked }: { m: SchoolModuleContent; unlocked: boolean }) {
+  const inner = (
+    <>
+      <div className="sz-track-top">
+        <div className="sz-track-ico" style={{ color: m.color, borderColor: `${m.color}55` }}>{m.icon}</div>
+        <div>
+          <div className="sz-track-name">{m.title}</div>
+          <div className="sz-track-sub">{m.subtitle}</div>
         </div>
       </div>
-      {open && (
-        <div style={{ borderTop: "1px solid var(--border)", padding: "20px 24px 24px" }}>
-          <p style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.6, marginBottom: 16 }}>{m.description}</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
-            <div style={{ background: "var(--surface)", padding: "8px 14px", display: "grid", gridTemplateColumns: "1fr 1fr 80px", gap: 12, fontSize: 9, fontFamily: "var(--font-mono)", color: "var(--muted)", textTransform: "uppercase" }}>
-              <div>Lesson</div>
-              <div>Topics</div>
-              <div>Duration</div>
-            </div>
-            {m.lessons.map(l => (
-              <Link
-                key={l.id}
-                href={`/school/lesson/${l.id}`}
-                onClick={e => e.stopPropagation()}
-                style={{
-                  background: "var(--bg)", padding: "12px 14px",
-                  display: "grid", gridTemplateColumns: "1fr 1fr 80px", gap: 12,
-                  alignItems: "center", textDecoration: "none", color: "inherit",
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2, color: "var(--fg)" }}>{l.title}</div>
-                  <div style={{ fontSize: 10, color: "var(--muted)" }}>{l.description}</div>
-                </div>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                  {l.topics.split(",").map(t => t.trim()).filter(Boolean).map(t => (
-                    <span key={t} style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--muted)", border: "1px solid var(--border)", padding: "1px 6px" }}>{t}</span>
-                  ))}
-                </div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--accent)", textAlign: "right" }}>{l.duration}</div>
-              </Link>
-            ))}
-          </div>
-          <div style={{ marginTop: 16, display: "flex", gap: 12 }} onClick={e => e.stopPropagation()}>
-            <Link href={`/school/${m.moduleId}`} className="btn-connect" style={{ fontSize: 10, padding: "6px 18px", textDecoration: "none" }}>
-              Start Module
-            </Link>
-          </div>
-        </div>
-      )}
-    </div>
+      <div className="sz-track-desc">{m.description}</div>
+      <div className="sz-track-meta">
+        <span>{m.lessons.length} lessons · {m.duration} · {m.difficulty}</span>
+        <span className="sz-track-lock">{unlocked ? "open →" : (m.access === "member" ? "$SCOM 🔒" : "sign in →")}</span>
+      </div>
+    </>
   )
+  return unlocked
+    ? <Link href={`/school/${m.moduleId}`} className="sz-track">{inner}</Link>
+    : <div className="sz-track">{inner}</div>
 }
 
 export default function SchoolPage({ modules }: { modules: SchoolModuleContent[] }) {
-  const { session, profile } = useAuth()
-  const freeModules = modules.filter(m => m.access === "free")
-  const memberModules = modules.filter(m => m.access === "member")
+  const { session } = useAuth()
+  const unlocked = !!session
+
+  const totalLessons = modules.reduce((s, m) => s + m.lessons.length, 0)
+  const credentials = modules.filter(m => m.credential).length || modules.length
 
   return (
     <PublicLayout title="SUPERCOMPUTE · Web3 School">
-      <section className="hero" id="school">
-        <div className="hero-kicker">
-          <div className="status-dot" />
-          <span className="label">// school</span>
+      <div className="landing">
+      <section className="l-hero">
+        <div className="l-eyebrow">
+          <span><span className="gold">./school</span> --supercompute</span>
+          <span className="l-caret" />
         </div>
-        <h1 className="display-xl hero-title">
-          WEB3<br /><em>SCHOOL</em>
-        </h1>
-        <p className="hero-sub">
-          Principled Web3 education. Free modules on Wallet Security, ReFi, DeFi, and Core Values.
-          NFT credentials on Base. Start free, earn your way to TradeDesk access.
+        <h1 className="headline">Web3 School</h1>
+        <div className="subheader">Build with liberation in mind</div>
+        <p className="hero-copy">
+          Principled Web3 education. Wallet Security, DeFi, ReFi, and Core Values —
+          taught by an operator who ships. Earn NFT credentials on Base. Start free,
+          scale to TradeDesk access.
         </p>
+        <div style={{ marginTop: 32, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          {unlocked ? (
+            <Link href={`/school/${modules[0]?.moduleId ?? ""}`} className="btn btn-primary">Enter your curriculum</Link>
+          ) : (
+            <>
+              <Link href="/auth" className="btn btn-primary">Join free to start</Link>
+              <Link href="/auth" className="btn btn-outline">Sign in</Link>
+            </>
+          )}
+        </div>
       </section>
 
       <section className="section">
         <div className="section-header">
-          <div className="label">// free modules · {freeModules.length}</div>
-          <div><h2 className="display-md">Start Learning Free</h2></div>
+          <div className="label">// by the numbers</div>
+          <div><h2 className="display-md">What's Inside</h2></div>
         </div>
-        {freeModules.length === 0 ? (
-          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "40px", textAlign: "center", color: "var(--muted)", fontSize: 12 }}>
-            No modules published yet. Editors add school modules via TinaCMS at /admin.
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
-            {freeModules.map(m => <ModuleCard key={m.moduleId} m={m} />)}
-          </div>
-        )}
+        <div className="sz-stats">
+          <div className="sz-stat"><div className="n">{modules.length}</div><div className="l">Tracks</div></div>
+          <div className="sz-stat"><div className="n">{totalLessons}</div><div className="l">Lessons</div></div>
+          <div className="sz-stat"><div className="n">{credentials}</div><div className="l">NFT Credentials</div></div>
+        </div>
+
+        <div className="sz-tracks">
+          {modules.map(m => <TrackCard key={m.moduleId} m={m} unlocked={unlocked} />)}
+        </div>
       </section>
 
-      {memberModules.length > 0 && (
-        <section className="section">
-          <div className="section-header">
-            <div className="label">// member modules · {memberModules.length}</div>
-            <div><h2 className="display-md">For $SCOM Holders</h2></div>
+      <section className="section">
+        <div className="section-header">
+          <div className="label">// credentials</div>
+          <div><h2 className="display-md">Earn On-Chain</h2></div>
+        </div>
+        <div style={{ background: "var(--surface-1)", border: "1px solid var(--border-warm)", padding: 32, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ fontSize: 44, lineHeight: 1 }}>🎖️</div>
+          <div style={{ flex: 1, minWidth: 260 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: "var(--cream)", marginBottom: 6 }}>Soul-bound NFT credentials on Base</div>
+            <p style={{ fontSize: 13, color: "var(--mono-blue)", lineHeight: 1.7 }}>
+              Finish a track and mint a verifiable credential, attested by the Supercompute
+              service. Stack them toward TradeDesk access and member modules.
+            </p>
           </div>
-          {session ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
-              {memberModules.map(m => <ModuleCard key={m.moduleId} m={m} />)}
-            </div>
-          ) : (
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border-accent)", padding: "40px 24px", textAlign: "center" }}>
-              <div style={{ fontSize: 32, marginBottom: 12 }}>🪙</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--accent)", marginBottom: 8 }}>
-                {memberModules.length} Member-Only Module{memberModules.length === 1 ? "" : "s"}
-              </div>
-              <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 16 }}>
-                Connect your wallet with 100+ $SCOM to unlock advanced modules and assignments.
-              </p>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--accent)" }}>
-                // Sign in or Join from the top nav to unlock
-              </div>
-            </div>
-          )}
-        </section>
-      )}
+        </div>
+      </section>
 
-      {session && (
-        <section className="section">
-          <div className="section-header">
-            <div className="label">// progress</div>
-            <div><h2 className="display-md">Your Progress</h2></div>
-          </div>
-          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "20px 24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontSize: 12, color: "var(--muted)" }}>Overall Completion</span>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--accent)" }}>0%</span>
+      <section className="sz-cta">
+        <div className="label" style={{ marginBottom: 16 }}>// enroll</div>
+        {unlocked ? (
+          <>
+            <h2 className="display-lg">You're in. Pick a track and start.</h2>
+            <p>Your progress and credentials are tied to your account.</p>
+            <Link href={`/school/${modules[0]?.moduleId ?? ""}`} className="btn btn-primary" style={{ padding: "16px 32px" }}>Start learning</Link>
+          </>
+        ) : (
+          <>
+            <h2 className="display-lg">Create your account to start learning.</h2>
+            <p>The curriculum, lesson plans, and credentials unlock the moment you sign in. Free to join.</p>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+              <Link href="/auth" className="btn btn-primary" style={{ padding: "16px 32px" }}>Join free</Link>
+              <Link href="/auth" className="btn btn-outline" style={{ padding: "16px 32px" }}>Sign in</Link>
             </div>
-            <div style={{ height: 6, background: "var(--border)", borderRadius: 3, overflow: "hidden" }}>
-              <div style={{ width: "0%", height: "100%", background: "var(--accent)", borderRadius: 3 }} />
-            </div>
-            <div style={{ display: "flex", gap: 24, marginTop: 16, fontSize: 11, color: "var(--muted)" }}>
-              <span>0 / {modules.reduce((s, m) => s + m.lessons.length, 0)} lessons complete</span>
-              <span>{profile?.name ?? "Connect"} · {profile?.role ?? "Member"}</span>
-            </div>
-          </div>
-        </section>
-      )}
+          </>
+        )}
+      </section>
+      </div>
 
       <Footer />
     </PublicLayout>

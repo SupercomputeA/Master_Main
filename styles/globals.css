@@ -1016,3 +1016,41 @@ footer { padding: 40px 48px 28px; }
   .tpl-form .f-row { grid-template-columns: 1fr; }
   .tpl-pdetail .pd-grid, .tpl-editor .ed-grid { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCHOOL — sizzle landing + login gate (classwork requires login)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.school-gate { text-align: center; padding: 56px 32px; border: 1px solid var(--border-warm); background: rgba(255,255,255,.02); position: relative; }
+.school-gate .sg-lock { font-size: 40px; margin-bottom: 16px; line-height: 1; }
+.school-gate .sg-title { font-family: var(--font-display); font-size: 22px; text-transform: uppercase; color: var(--cream); letter-spacing: .5px; margin-bottom: 10px; }
+.school-gate .sg-note { font-size: 13px; color: var(--mono-blue); max-width: 440px; margin: 0 auto 24px; line-height: 1.7; }
+.school-gate .sg-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.sg-btn { padding: 12px 26px; font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; text-decoration: none; cursor: pointer; transition: background .2s ease, color .2s ease, border-color .2s ease; }
+.sg-btn.solid { background: var(--gold-warm); color: var(--site-bg); border: 1px solid var(--gold-warm); }
+.sg-btn.solid:hover { background: var(--hud-yellow); border-color: var(--hud-yellow); }
+.sg-btn.ghost { background: transparent; color: var(--cream); border: 1px solid var(--border-warm); }
+.sg-btn.ghost:hover { color: var(--gold-warm); border-color: var(--gold-warm); }
+
+/* Sizzle landing */
+.sz-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--border); background: var(--border); margin-bottom: 56px; }
+.sz-stat { padding: 28px 20px; text-align: center; background: var(--site-bg); }
+.sz-stat .n { font-family: var(--font-display); font-size: 40px; color: var(--gold-warm); line-height: 1; margin-bottom: 8px; }
+.sz-stat .l { font-family: var(--font-mono); font-size: 9px; letter-spacing: .15rem; text-transform: uppercase; color: var(--mono-blue); }
+.sz-tracks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.sz-track { display: block; text-decoration: none; padding: 24px; border: 1px solid var(--border-warm); background: rgba(255,255,255,.02); transition: border-color .2s ease, background .2s ease; }
+a.sz-track:hover { border-color: var(--gold-warm); background: rgba(201,163,58,.05); }
+.sz-track-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.sz-track-ico { width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-warm); font-size: 18px; }
+.sz-track-name { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--cream); }
+.sz-track-sub { font-size: 11px; color: var(--mono-blue); margin-top: 2px; }
+.sz-track-desc { font-size: 12px; color: rgba(244,236,216,.7); line-height: 1.5; margin-bottom: 14px; }
+.sz-track-meta { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 10px; color: var(--mono-blue); padding-top: 12px; border-top: 1px solid var(--border); }
+.sz-track-lock { color: var(--gold-warm); letter-spacing: .05em; }
+.sz-cta { text-align: center; padding: 64px 32px 24px; border-top: 1px solid var(--border); margin-top: 56px; }
+.sz-cta h2 { color: var(--cream); margin-bottom: 12px; }
+.sz-cta p { font-size: 13px; color: var(--mono-blue); max-width: 460px; margin: 0 auto 28px; line-height: 1.7; }
+
+@media (max-width: 700px) {
+  .sz-tracks { grid-template-columns: 1fr; }
+  .sz-stats { grid-template-columns: 1fr; }
+}

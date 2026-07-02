@@ -3,6 +3,7 @@ import Link from "next/link"
 import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 import TokenGate from "../../components/TokenGate"
+import AuthGate from "../../components/AuthGate"
 import { getAllSchoolModules, getSchoolModule, type SchoolModuleContent } from "../../lib/content"
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -110,19 +111,24 @@ export default function ModulePage({ mod }: { mod: SchoolModuleContent }) {
         </div>
       </section>
 
-      {mod.access === "member" ? (
-        <section className="section">
-          <TokenGate
-            requirements={[
-              { token: "$SCOM", minBalance: "100", label: "Hold 100 $SCOM for member modules" },
-            ]}
-          >
+      <section className="section" style={{ borderBottom: "none", paddingBottom: 0 }}>
+        <AuthGate
+          title="Sign in to open this module"
+          note="The lesson plan and credential unlock once you sign in. Free to join."
+        >
+          {mod.access === "member" ? (
+            <TokenGate
+              requirements={[
+                { token: "$SCOM", minBalance: "100", label: "Hold 100 $SCOM for member modules" },
+              ]}
+            >
+              <ModuleBody mod={mod} />
+            </TokenGate>
+          ) : (
             <ModuleBody mod={mod} />
-          </TokenGate>
-        </section>
-      ) : (
-        <ModuleBody mod={mod} />
-      )}
+          )}
+        </AuthGate>
+      </section>
 
       <Footer />
     </PublicLayout>

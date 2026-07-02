@@ -27,18 +27,18 @@ const POSTS: Post[] = [
 
 export default function Publishing() {
   return (
-    <PublicLayout title="SUPERCOMPUTE · Publishing">
+    <PublicLayout title="SUPERCOMPUTE · NewsDesk">
       <div className="landing">
         <section className="l-hero">
           <div className="l-eyebrow">
-            <span><span className="gold">./publishing</span> --supercompute</span>
+            <span><span className="gold">./newsdesk</span> --supercompute</span>
             <span className="l-caret" />
           </div>
-          <h1 className="headline">Publishing</h1>
-          <div className="subheader">Protocol analysis</div>
+          <h1 className="headline">NewsDesk</h1>
+          <div className="subheader">Protocol evaluations</div>
           <p className="hero-copy">
-            In-depth evaluation shorts exploring the mechanics, tokenomics, and community
-            structures of Web3 protocols.
+            In-depth protocol evaluations and a living knowledge graph — mapping the
+            mechanics, tokenomics, and community structures of Web3.
           </p>
           <div style={{ marginTop: 32, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <Link href="/auth" className="btn btn-primary">Subscribe</Link>
@@ -47,6 +47,11 @@ export default function Publishing() {
         </section>
       </div>
       <div className="tpl-publishing">
+
+        <div className="section-header" style={{ marginBottom: 32 }}>
+          <div className="label">// evaluations</div>
+          <div><h2 className="display-md">Protocol Evaluations</h2></div>
+        </div>
 
         <div className="blog-grid">
           {POSTS.map((post) => (

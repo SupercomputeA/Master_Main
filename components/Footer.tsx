@@ -12,7 +12,7 @@ export default function Footer() {
             <ul>
               <li><a href="#consulting">Consulting</a></li>
               <li><a href="#fleet">Agent Fleet</a></li>
-              <li><a href="#newsdesk">NewsDesk</a></li>
+              <li><a href="/publishing">NewsDesk</a></li>
               <li><a href="#school">Web3 School</a></li>
             </ul>
           </div>

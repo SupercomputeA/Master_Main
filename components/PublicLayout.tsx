@@ -45,30 +45,32 @@ export default function PublicLayout({
       <div className="hud-corner bl" />
       <div className="hud-corner br" />
 
-      <header className="pub-header">
-        <nav className="pub-nav">
-          <Link href="/" className="pub-logo">Supercompute</Link>
-          <ul className="pub-nav-menu">
-            {NAV.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={`pub-nav-item${isActive(item.href, path) ? " active" : ""}`}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <div className="pub-nav-right">
-            <Link href="/auth" className="pub-auth-link">Sign in</Link>
-            <Link href="/auth" className="pub-auth-link primary">Join</Link>
-          </div>
-        </nav>
-      </header>
+      <div className="pub-scroll">
+        <header className="pub-header">
+          <nav className="pub-nav">
+            <Link href="/" className="pub-logo">Supercompute</Link>
+            <ul className="pub-nav-menu">
+              {NAV.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`pub-nav-item${isActive(item.href, path) ? " active" : ""}`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="pub-nav-right">
+              <Link href="/auth" className="pub-auth-link">Sign in</Link>
+              <Link href="/auth" className="pub-auth-link primary">Join</Link>
+            </div>
+          </nav>
+        </header>
 
-      <div className={wide ? "pub-wide" : undefined}>
-        <main className="pub-main">{children}</main>
+        <div className={wide ? "pub-wide" : undefined}>
+          <main className="pub-main">{children}</main>
+        </div>
       </div>
 
       <div className="vignette" />

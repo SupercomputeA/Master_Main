@@ -1,7 +1,7 @@
 import type { GetStaticProps } from "next"
 import { useState } from "react"
 import Link from "next/link"
-import Layout from "../components/Layout"
+import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 import { useAuth } from "../lib/auth"
 import { getAllSchoolModules, type SchoolModuleContent } from "../lib/content"
@@ -103,7 +103,7 @@ export default function SchoolPage({ modules }: { modules: SchoolModuleContent[]
   const memberModules = modules.filter(m => m.access === "member")
 
   return (
-    <Layout title="SUPERCOMPUTE · Web3 School">
+    <PublicLayout title="SUPERCOMPUTE · Web3 School">
       <section className="hero" id="school">
         <div className="hero-kicker">
           <div className="status-dot" />
@@ -154,7 +154,7 @@ export default function SchoolPage({ modules }: { modules: SchoolModuleContent[]
                 Connect your wallet with 100+ $SCOM to unlock advanced modules and assignments.
               </p>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--accent)" }}>
-                // Use the Connect button in the sidebar
+                // Sign in or Join from the top nav to unlock
               </div>
             </div>
           )}
@@ -184,6 +184,6 @@ export default function SchoolPage({ modules }: { modules: SchoolModuleContent[]
       )}
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

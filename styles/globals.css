@@ -256,7 +256,7 @@ body::after {
 
 .display-xl { font-size: clamp(44px, 7vw, 96px); font-weight: 700; line-height: 0.92; letter-spacing: -0.02em; }
 .display-lg { font-size: clamp(26px, 3.5vw, 48px); font-weight: 700; line-height: 1; }
-.display-md { font-size: clamp(16px, 2vw, 24px); font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+.display-md { font-size: clamp(16px, 2vw, 24px); font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; color: var(--cream); }
 .terminal { font-family: var(--font-mono); font-size: 13px; color: var(--cream); }
 
 /* ─── HERO ──────────────────────────────────────────────────────────────── */
@@ -428,6 +428,10 @@ footer { padding: 40px 48px 28px; }
    Used by public pages (landing, projects, publishing, school, community).
    Nav type bumped to 14px per site brief ("bigger nav typography").
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Scroll container — body is overflow:hidden for the app shell, so public
+   pages need their own full-height scroller (sticky header sticks within it). */
+.pub-scroll { height: 100vh; overflow-y: auto; position: relative; z-index: 2; }
 
 .pub-header {
   background: rgba(10, 19, 48, 0.95);

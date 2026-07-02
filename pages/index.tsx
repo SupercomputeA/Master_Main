@@ -1,162 +1,109 @@
 import Link from "next/link"
-import { useEffect, useState } from "react"
-import Layout from "../components/Layout"
-import Footer from "../components/Footer"
+import PublicLayout from "../components/PublicLayout"
 
-interface ArticlePreview {
-  id: string
-  slug: string | null
-  title: string
-  excerpt: string | null
-  author: string | null
-  published_at: string | null
-  category: string | null
-  status?: string | null
-}
+/* Landing — faithful port of templates/landing/LandingPage.dc.html.
+   Centered Phosphate hero, three value cards, dual journey progress.
+   Value-card links wired to real routes. */
 
-const API_BASE = ""
+const VALUES = [
+  {
+    icon: "🔓",
+    title: "Expansive Ideas",
+    desc: "Explore the full potential of Web3 — protocols, governance, economics, and community coordination at scale.",
+    link: "Learn more →",
+    href: "/projects",
+  },
+  {
+    icon: "🛠️",
+    title: "How to Build Them",
+    desc: "Hands-on education and practical guidance for implementing Web3 infrastructure, DAOs, and decentralized systems.",
+    link: "Explore school →",
+    href: "/school",
+  },
+  {
+    icon: "🤝",
+    title: "Unite & Scale",
+    desc: "Connect with builders, creators, and thinkers. Collaborate on projects that reshape how communities coordinate.",
+    link: "Join community →",
+    href: "/community",
+  },
+]
 
-function formatDate(iso: string | null | undefined): string {
-  if (!iso) return ""
-  const d = new Date(iso)
-  if (isNaN(d.getTime())) return iso
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+const BUILDER_PATH = [
+  { label: "Fundamentals", pct: 85 },
+  { label: "Smart Contracts", pct: 62 },
+  { label: "Protocol Design", pct: 38 },
+  { label: "Launch & Scale", pct: 15 },
+]
+
+const CREATOR_PATH = [
+  { label: "Web3 Literacy", pct: 78 },
+  { label: "Content Strategy", pct: 71 },
+  { label: "Community Building", pct: 56 },
+  { label: "Monetization", pct: 22 },
+]
+
+function Journey({ title, items }: { title: string; items: { label: string; pct: number }[] }) {
+  return (
+    <div className="journey-card">
+      <div className="journey-title">{title}</div>
+      {items.map((it) => (
+        <div key={it.label} className="progress-item">
+          <div className="progress-label">
+            <span>{it.label}</span>
+            <span>{it.pct}%</span>
+          </div>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${it.pct}%` }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 export default function Home() {
-  const [articles, setArticles] = useState<ArticlePreview[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    fetch(`${API_BASE}/api/articles`)
-      .then((r) => r.json())
-      .then((d: any) => {
-        if (cancelled) return
-        setArticles(d.articles || [])
-      })
-      .catch((e) => {
-        if (cancelled) return
-        setError(String(e))
-        setArticles([])
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
   return (
-    <Layout title="SUPERCOMPUTE · Publishing">
-      <section className="hero">
-        <div className="hero-kicker">
-          <div className="status-dot" />
-          <span className="label">// publishing · agent-powered</span>
-        </div>
-        <h1 style={{
-          fontFamily: "var(--font-mono)", fontSize: "clamp(48px, 10vw, 100px)",
-          fontWeight: 600, lineHeight: 1, marginBottom: 8, color: "var(--accent)", letterSpacing: "0.02em",
-        }}>
-          SUPERCOMPUTE
-        </h1>
-        <p style={{
-          fontFamily: "var(--font-mono)", fontSize: "clamp(28px, 5vw, 50px)",
-          fontWeight: 500, lineHeight: 1, marginBottom: 24, color: "var(--muted)", letterSpacing: "0.02em",
-        }}>
-          publishing
-        </p>
-        <p className="hero-sub" style={{ maxWidth: 600, fontSize: 14 }}>
-          Agent-powered news for the resistance. Write once, publish everywhere. Knowledge graphs that make complex stories navigable.
-        </p>
-        <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
-          <Link href="/compose" style={{
-            fontFamily: "var(--font-mono)", fontSize: 11, background: "var(--accent)",
-            color: "var(--bg)", padding: "10px 24px", textDecoration: "none",
-            textTransform: "uppercase", letterSpacing: "0.1em",
-          }}>
-            Compose
-          </Link>
-          <Link href="/newsdesk" style={{
-            fontFamily: "var(--font-mono)", fontSize: 11, background: "transparent",
-            color: "var(--muted)", padding: "10px 24px", textDecoration: "none",
-            border: "1px solid var(--border)", textTransform: "uppercase", letterSpacing: "0.1em",
-          }}>
-            Browse Feed
-          </Link>
-        </div>
-      </section>
+    <PublicLayout title="SUPERCOMPUTE · Design with liberation in mind">
+      <div className="landing">
+        <section className="l-hero">
+          <div className="l-eyebrow">
+            <span><span className="gold">./status</span> --supercompute</span>
+            <span className="l-caret" />
+          </div>
+          <h1 className="headline">Supercompute</h1>
+          <div className="subheader">Design with Liberation in mind</div>
+          <p className="hero-copy">
+            We're building the tools and knowledge infrastructure for Web3 communities to
+            expand beyond limitations, collaborate openly, and unite around shared vision.
+          </p>
+        </section>
 
-      {/* Platform targets */}
-      <section className="section">
-        <div className="section-header">
-          <div className="label">// one post, every platform</div>
-          <div><h2 className="display-md">Write Once</h2></div>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
-          {[
-            { icon: "𝕏", name: "X / Twitter", detail: "280 chars · auto-thread · hashtags" },
-            { icon: "⌐◨-◨", name: "Farcaster", detail: "1024 chars · frames · channels" },
-            { icon: "🌿", name: "Lens Protocol", detail: "Full markdown · on-chain · collectible" },
-            { icon: "✦", name: "Mirror", detail: "Long-form · on-chain · NFT entries" },
-          ].map(p => (
-            <div key={p.name} style={{ background: "var(--bg)", padding: "28px 20px", textAlign: "center" }}>
-              <div style={{ fontSize: 32, marginBottom: 12 }}>{p.icon}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: "var(--accent)", marginBottom: 8 }}>{p.name}</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)", lineHeight: 1.6 }}>{p.detail}</div>
-            </div>
+        <section className="value-sections">
+          {VALUES.map((v) => (
+            <Link key={v.title} href={v.href} className="value-card">
+              <div className="value-icon">{v.icon}</div>
+              <div className="value-title">{v.title}</div>
+              <div className="value-desc">{v.desc}</div>
+              <div className="value-link">{v.link}</div>
+            </Link>
           ))}
-        </div>
-      </section>
+        </section>
 
-      {/* Latest articles — runtime fetched from D1 */}
-      <section className="section">
-        <div className="section-header">
-          <div className="label">// latest</div>
-          <div><h2 className="display-md">Feed</h2></div>
-        </div>
-        {articles === null ? (
-          <div style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "40px 24px", textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
-            // loading feed…
+        <section className="progress-section">
+          <div className="l-section-header">
+            <div className="section-label">Your Journey</div>
+            <h2 className="section-title">How Far We Can Take You</h2>
+            <p className="section-desc">
+              Progress tracking across different paths through Supercompute's ecosystem and capabilities.
+            </p>
           </div>
-        ) : articles.length === 0 ? (
-          <div style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "40px 24px", textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
-            {error ? `// error: ${error}` : "// no articles yet — start the press"}
+          <div className="journey-grid">
+            <Journey title="The Builder Path" items={BUILDER_PATH} />
+            <Journey title="The Creator Path" items={CREATOR_PATH} />
           </div>
-        ) : (
-          <div style={{ display: "grid", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
-            {articles.slice(0, 8).map(article => (
-              <Link
-                key={article.id}
-                href={`/newsdesk/${article.slug || article.id}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <div style={{
-                  display: "grid", gridTemplateColumns: "1fr auto",
-                  background: "var(--bg)", padding: "20px 24px",
-                  cursor: "pointer",
-                }}>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                      <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: article.category === "PROTOCOL_EVAL" ? "var(--teal)" : "var(--accent)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                        {article.category || "—"}
-                      </span>
-                    </div>
-                    <h3 style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--fg)", marginBottom: 6 }}>{article.title}</h3>
-                    <p style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--muted)", lineHeight: 1.5 }}>
-                      {article.excerpt || ""}
-                    </p>
-                  </div>
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)", textAlign: "right", minWidth: 100 }}>
-                    <div>{article.author || ""}</div>
-                    <div style={{ marginTop: 4 }}>{formatDate(article.published_at)}</div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <Footer />
-    </Layout>
+        </section>
+      </div>
+    </PublicLayout>
   )
 }

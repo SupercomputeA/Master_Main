@@ -254,8 +254,8 @@ body::after {
   color: var(--mono-blue);
 }
 
-.display-xl { font-size: clamp(44px, 7vw, 96px); font-weight: 700; line-height: 0.92; letter-spacing: -0.02em; }
-.display-lg { font-size: clamp(26px, 3.5vw, 48px); font-weight: 700; line-height: 1; }
+.display-xl { font-size: clamp(44px, 7vw, 96px); font-weight: 700; line-height: 0.92; letter-spacing: -0.02em; color: var(--cream); }
+.display-lg { font-size: clamp(26px, 3.5vw, 48px); font-weight: 700; line-height: 1; color: var(--cream); }
 .display-md { font-size: clamp(16px, 2vw, 24px); font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; color: var(--cream); }
 .terminal { font-family: var(--font-mono); font-size: 13px; color: var(--cream); }
 

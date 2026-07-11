@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 const modules = [
   { num: "01", name: "Wallets and Self-Custody", duration: "12 lessons · FREE" },
   { num: "02", name: "L1 vs L2 — Base Chain", duration: "8 lessons · FREE" },
@@ -35,7 +37,7 @@ export default function School() {
             <div className="perk">Guild.xyz community role</div>
             <div className="perk">TradeDesk unlock</div>
           </div>
-          <a href="#" className="btn-school">// Start free</a>
+          <Link href="/school" className="btn-school">// Start free</Link>
         </div>
       </div>
     </section>

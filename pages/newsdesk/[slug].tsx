@@ -2,7 +2,7 @@ import Head from "next/head"
 import { useEffect, useMemo, useState } from "react"
 import type { GetStaticPaths, GetStaticProps } from "next"
 import { marked } from "marked"
-import Layout from "../../components/Layout"
+import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 import KnowledgeGraph from "../../components/KnowledgeGraph"
 
@@ -139,25 +139,25 @@ export default function ArticleDetail() {
 
   if (article === undefined) {
     return (
-      <Layout title="SUPERCOMPUTE · Article">
+      <PublicLayout title="SUPERCOMPUTE · Article">
         <section className="section">
           <div style={{ padding: "60px 24px", textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
             // loading article…
           </div>
         </section>
-      </Layout>
+      </PublicLayout>
     )
   }
 
   if (!article) {
     return (
-      <Layout title="SUPERCOMPUTE · Article">
+      <PublicLayout title="SUPERCOMPUTE · Article">
         <section className="section">
           <div style={{ padding: "60px 24px", textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
             {error ? `// error: ${error}` : `// article not found: ${slugParam}`}
           </div>
         </section>
-      </Layout>
+      </PublicLayout>
     )
   }
 
@@ -172,7 +172,7 @@ export default function ArticleDetail() {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
-      <Layout title={article.title}>
+      <PublicLayout title={article.title}>
         <section className="hero" id="article-detail">
           <div className="hero-kicker">
             <div className="status-dot" />
@@ -236,7 +236,7 @@ export default function ArticleDetail() {
         </section>
 
         <Footer />
-      </Layout>
+      </PublicLayout>
     </>
   )
 }

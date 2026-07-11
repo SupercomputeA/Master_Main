@@ -1,9 +1,9 @@
-import Layout from "../components/Layout"
+import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 
 export default function Social() {
   return (
-    <Layout title="SUPERCOMPUTE · Social">
+    <PublicLayout title="SUPERCOMPUTE · Social">
       <section className="hero" id="social">
         <div className="hero-kicker">
           <div className="status-dot"></div>
@@ -22,6 +22,6 @@ export default function Social() {
         </div>
       </section>
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

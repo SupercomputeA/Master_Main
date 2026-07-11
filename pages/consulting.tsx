@@ -1,4 +1,4 @@
-import Layout from "../components/Layout"
+import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 
 const inputStyle: React.CSSProperties = {
@@ -36,7 +36,7 @@ const salesTiles = [
 
 export default function Consulting() {
   return (
-    <Layout title="SUPERCOMPUTE · Consulting">
+    <PublicLayout title="SUPERCOMPUTE · Consulting">
       <section className="hero" id="consulting">
         <div className="hero-kicker">
           <div className="status-dot"></div>
@@ -107,6 +107,6 @@ export default function Consulting() {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

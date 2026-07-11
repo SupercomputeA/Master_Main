@@ -1,9 +1,9 @@
-import Layout from "../components/Layout"
+import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 
 export default function Staking() {
   return (
-    <Layout title="SUPERCOMPUTE · Staking">
+    <PublicLayout title="SUPERCOMPUTE · Staking">
       <section className="hero" id="staking">
         <div className="hero-kicker">
           <div className="status-dot" />
@@ -38,6 +38,6 @@ export default function Staking() {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

@@ -1,5 +1,5 @@
 import type { GetStaticProps } from "next"
-import Layout from "../../components/Layout"
+import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 import Link from "next/link"
 import { getAllProjects, type Project } from "../../lib/content"
@@ -11,7 +11,7 @@ export const getStaticProps: GetStaticProps = async () => {
 
 export default function ProjectBrowse({ projects }: { projects: Project[] }) {
   return (
-    <Layout title="SUPERCOMPUTE · Projects">
+    <PublicLayout title="SUPERCOMPUTE · Projects">
       <section className="hero" id="projects">
         <div className="hero-kicker">
           <div className="status-dot" />
@@ -71,6 +71,6 @@ export default function ProjectBrowse({ projects }: { projects: Project[] }) {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

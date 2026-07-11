@@ -1,4 +1,3 @@
-import Layout from "../../components/Layout"
 import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 import AuthGate from "../../components/AuthGate"
@@ -61,7 +60,7 @@ export default function SchoolBuilder() {
   }
 
   return (
-    <Layout title="SUPERCOMPUTE · Course Builder">
+    <PublicLayout title="SUPERCOMPUTE · Course Builder">
       <section className="hero" id="school-builder">
         <div className="hero-kicker"><div className="status-dot"></div><span className="label">// school · builder</span></div>
         <h1 className="display-xl hero-title">COURSE<br /><em>BUILDER</em></h1>
@@ -254,7 +253,7 @@ interface Lesson {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }
 

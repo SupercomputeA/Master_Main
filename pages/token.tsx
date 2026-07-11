@@ -1,6 +1,6 @@
 import type { GetStaticProps } from "next"
 import Link from "next/link"
-import Layout from "../components/Layout"
+import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 import { getAllProjects, type Project } from "../lib/content"
 
@@ -21,7 +21,7 @@ export default function Token({ projects }: { projects: Project[] }) {
   const totalInvestors = projects.reduce((sum, p) => sum + (p.investors || 0), 0)
 
   return (
-    <Layout title="SUPERCOMPUTE · $SCOM Token">
+    <PublicLayout title="SUPERCOMPUTE · Token">
       <section className="hero" id="token">
         <div className="hero-kicker">
           <div className="status-dot" />
@@ -143,6 +143,6 @@ export default function Token({ projects }: { projects: Project[] }) {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

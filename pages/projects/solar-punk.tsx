@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic"
-import Layout from "../../components/Layout"
+import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 
 const FarcasterFeed = dynamic(() => import("../../components/FarcasterFeed"), { ssr: false })
@@ -76,7 +76,7 @@ const features = [
 
 export default function SolarPunk() {
   return (
-    <Layout title="SUPERCOMPUTE · Solar Punk">
+    <PublicLayout title="SUPERCOMPUTE · Solar Punk">
       <section className="hero" style={{
         position: "relative",
         overflow: "hidden",
@@ -282,6 +282,6 @@ export default function SolarPunk() {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

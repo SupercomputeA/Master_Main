@@ -1,5 +1,6 @@
 import Link from "next/link"
 import PublicLayout from "../components/PublicLayout"
+import Footer from "../components/Footer"
 
 /* Landing — faithful port of templates/landing/LandingPage.dc.html.
    Centered Phosphate hero, three value cards, dual journey progress.
@@ -104,6 +105,7 @@ export default function Home() {
           </div>
         </section>
       </div>
+      <Footer />
     </PublicLayout>
   )
 }

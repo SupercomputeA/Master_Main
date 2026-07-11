@@ -1,5 +1,6 @@
 import Link from "next/link"
 import PublicLayout from "../components/PublicLayout"
+import Footer from "../components/Footer"
 
 /* Projects — faithful port of templates/projects/Projects.dc.html.
    Portfolio showcase across 3 categories; featured cards span 2 columns. */
@@ -97,6 +98,7 @@ export default function Projects() {
           </div>
         ))}
       </div>
+      <Footer />
     </PublicLayout>
   )
 }

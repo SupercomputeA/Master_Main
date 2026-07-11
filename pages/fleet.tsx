@@ -1,10 +1,10 @@
-import Layout from "../components/Layout"
+import PublicLayout from "../components/PublicLayout"
 import AgentFleetComponent from "../components/AgentFleet"
 import Footer from "../components/Footer"
 
 export default function Fleet() {
   return (
-    <Layout title="SUPERCOMPUTE · Agent Fleet">
+    <PublicLayout title="SUPERCOMPUTE · Fleet">
       <section className="hero" id="fleet">
         <div className="hero-kicker">
           <div className="status-dot"></div>
@@ -20,6 +20,6 @@ export default function Fleet() {
       </section>
       <AgentFleetComponent />
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

@@ -1,5 +1,5 @@
 import type { GetStaticPaths, GetStaticProps } from "next"
-import Layout from "../../components/Layout"
+import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 import { useAuth } from "../../lib/auth"
 import { getAllProjects, getProject, type Project } from "../../lib/content"
@@ -24,7 +24,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
   const sortedUpdates = [...project.updates].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   return (
-    <Layout title={`SUPERCOMPUTE · ${project.title}`}>
+    <PublicLayout title={`SUPERCOMPUTE · ${project.title}`}>
       <section className="hero" id="project-detail">
         <div className="hero-kicker"><div className="status-dot" /><span className="label">// {project.slug}</span></div>
         <h1 className="display-xl hero-title">{project.title}<br /><em>{project.tokenSymbol}</em></h1>
@@ -146,6 +146,6 @@ export default function ProjectDetail({ project }: { project: Project }) {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

@@ -1,4 +1,4 @@
-import Layout from "../../components/Layout"
+import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
@@ -70,7 +70,7 @@ export default function NewsDesk() {
       : allPosts.filter((a) => (a.category || "").toUpperCase() === filter.toUpperCase())
 
   return (
-    <Layout title="SUPERCOMPUTE · NewsDesk">
+    <PublicLayout title="SUPERCOMPUTE · NewsDesk">
       <section className="hero" id="newsdesk">
         <div className="hero-kicker"><div className="status-dot"></div><span className="label">// newsdesk</span></div>
         <h1 className="display-xl hero-title">NEWS<br /><em>DESK</em></h1>
@@ -230,7 +230,7 @@ export default function NewsDesk() {
       )}
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }
 

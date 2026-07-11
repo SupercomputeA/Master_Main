@@ -7,20 +7,10 @@
 
 @import url('./colors_and_type.css');
 
-/* ─── Display face — Phosphate Solid (designed templates use it for headlines) ─── */
-@font-face {
-  font-family: 'Phosphate';
-  src: url('/fonts/PhosphateSolid.ttf') format('truetype');
-  font-weight: 400 700;
-  font-display: swap;
-}
-
 /* ─── Site-specific aliases (canonical vars take precedence when used) ─── */
+/* @font-face + --font-display now defined in colors_and_type.css (token layer) */
 
 :root {
-  /* Display face for hero/section headlines (per designed templates) */
-  --font-display: 'Phosphate', 'Phosphate Solid', impact, sans-serif;
-
   /* Convenience aliases for legacy class names in this layout shell */
   --bg:        var(--site-bg);
   --fg:        var(--cream);
@@ -733,7 +723,7 @@ footer { padding: 40px 48px 28px; }
 .tpl-member .article-title { font-size: 16px; font-weight: 700; color: var(--cream); margin-bottom: 8px; }
 .tpl-member .article-excerpt { font-size: 12px; color: rgba(244,236,216,0.70); line-height: 1.5; margin-bottom: 12px; }
 .tpl-member .article-meta { display: flex; gap: 16px; align-items: center; font-size: 11px; color: var(--mono-blue); }
-.tpl-member .article-status { padding: 4px 10px; background: rgba(255,184,0,0.1); border: 1px solid #FFB800; color: #FFB800; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.tpl-member .article-status { padding: 4px 10px; background: rgba(201,163,58,0.1); border: 1px solid var(--gold-warm); color: var(--gold-warm); font-size: 10px; font-weight: 700; text-transform: uppercase; }
 
 @media (max-width: 900px) {
   .mem-sidebar { width: 72px; padding: 20px 8px; }
@@ -895,7 +885,7 @@ footer { padding: 40px 48px 28px; }
 .tpl-admin .content-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 12px; }
 .tpl-admin .content-title { font-size: 16px; font-weight: 700; color: var(--cream); }
 .tpl-admin .content-title::before { content: '> '; color: var(--mono-blue); font-weight: 500; }
-.tpl-admin .content-status { padding: 4px 10px; background: rgba(255,184,0,0.1); border: 1px solid #FFB800; color: #FFB800; font-size: 10px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+.tpl-admin .content-status { padding: 4px 10px; background: rgba(201,163,58,0.1); border: 1px solid var(--gold-warm); color: var(--gold-warm); font-size: 10px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
 .tpl-admin .content-meta { font-size: 11px; color: var(--mono-blue); margin-bottom: 8px; display: flex; gap: 16px; }
 .tpl-admin .content-desc { font-size: 12px; color: rgba(244,236,216,0.70); line-height: 1.5; margin-bottom: 12px; }
 .tpl-admin .content-flags { font-size: 11px; color: #FF6B6B; margin-bottom: 12px; }

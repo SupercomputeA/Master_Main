@@ -189,7 +189,7 @@ export default function LessonPage({ ctx }: { ctx: LessonContext }) {
           {mod.access === "member" ? (
             <TokenGate
               requirements={[
-                { token: "$SCOM", minBalance: "100", label: "Hold 100 $SCOM for this lesson" },
+                { token: "0x5ACDC563450cC35055d7344287C327fafB2b371A", minBalance: "100000000000000000000", label: "Hold 100 $QUANTA for this lesson" },
               ]}
             >
               <LessonBody ctx={ctx} />

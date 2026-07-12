@@ -14,6 +14,11 @@ id = "031b7cbbfed44d478d7d7c4abe67c666"
 
 [vars]
 CORS_ORIGIN = "https://supercompute.io"
+QUANTA_TOKEN = "0x5ACDC563450cC35055d7344287C327fafB2b371A"
+# SCOM_STAKING — not deployed yet; zero-address makes staking API return defaults
+SCOM_STAKING = "0x0000000000000000000000000000000000000000"
+# Uniswap V4 Quoter on Base — not deployed yet; zero-address falls back to simulated quote
+UNISWAP_QUOTER = "0x0000000000000000000000000000000000000000"
 
 # NOTE: Cloudflare Pages only supports the named environments "preview" and
 # "production" — a custom [env.staging] block fails Pages config validation and

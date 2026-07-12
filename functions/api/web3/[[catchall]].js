@@ -269,10 +269,23 @@ export async function onRequest({ request, env }) {
     const token = url.searchParams.get("token")
     const wallet = url.searchParams.get("wallet")
     if (!token || !wallet) return j({ error: "token and wallet required" }, 400)
+
+    // Resolve token symbol to contract address
+    const TOKEN_MAP = {
+      "QUANTA": env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "$QUANTA": env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "SCOM": env?.SCOM_TOKEN || env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "$SCOM": env?.SCOM_TOKEN || env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+    }
+    let tokenAddr = token
+    if (!token.startsWith("0x")) {
+      tokenAddr = TOKEN_MAP[token.toUpperCase()] || TOKEN_MAP[token] || token
+    }
+
     const [balance, decimals, symbol] = await Promise.all([
-      erc20Balance(token, wallet),
-      erc20Decimals(token),
-      erc20Symbol(token),
+      erc20Balance(tokenAddr, wallet),
+      erc20Decimals(tokenAddr),
+      erc20Symbol(tokenAddr),
     ])
     return j({ balance: formatUnits(balance, decimals), decimals, symbol })
   }
@@ -281,14 +294,52 @@ export async function onRequest({ request, env }) {
     const body = await request.json().catch(() => ({}))
     const { wallet, requirements } = body
     if (!wallet || !requirements) return j({ error: "wallet and requirements required" }, 400)
+
+    // Resolve token symbols to contract addresses via env vars
+    const TOKEN_MAP = {
+      "QUANTA": env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "$QUANTA": env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "SCOM": env?.SCOM_TOKEN || env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "$SCOM": env?.SCOM_TOKEN || env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+    }
+
     const results = await Promise.all(
       requirements.map(async (req) => {
-        if (req.token && req.minBalance) return checkTokenGate(wallet, req.token, req.minBalance)
+        let tokenAddr = req.token
+        // If token is a symbol (not 0x...), resolve from map
+        if (tokenAddr && !tokenAddr.startsWith("0x")) {
+          tokenAddr = TOKEN_MAP[tokenAddr.toUpperCase()] || TOKEN_MAP[tokenAddr] || tokenAddr
+        }
+        if (tokenAddr && req.minBalance) return checkTokenGate(wallet, tokenAddr, req.minBalance)
         if (req.ens) return checkEnsGate(wallet, req.ens)
         return { label: "unknown", passed: false }
       }),
     )
     return j({ passed: results.every(r => r.passed), gates: results })
+  }
+
+  if (method === "GET" && path === "/profile") {
+    const wallet = url.searchParams.get("wallet")
+    if (!wallet) return j({ error: "wallet required" }, 400)
+
+    const quantaToken = env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A"
+    const [ens, balanceResult] = await Promise.all([
+      lookupENS(wallet),
+      (async () => {
+        try {
+          const [bal, dec, sym] = await Promise.all([
+            erc20Balance(quantaToken, wallet),
+            erc20Decimals(quantaToken),
+            erc20Symbol(quantaToken),
+          ])
+          return { balance: formatUnits(bal, dec), symbol: sym }
+        } catch {
+          return { balance: "0", symbol: "QUANTA" }
+        }
+      })(),
+    ])
+
+    return j({ ens, ...balanceResult })
   }
 
   if (method === "GET" && path === "/staking") {
@@ -316,8 +367,9 @@ export async function onRequest({ request, env }) {
     endpoints: {
       "GET /api/web3/resolve": "ENS name → address",
       "GET /api/web3/lookup": "address → ENS name",
-      "GET /api/web3/balance": "ERC20 token balance",
-      "POST /api/web3/gate": "Check token/ENS gating",
+      "GET /api/web3/balance": "ERC20 token balance (accepts symbol or address)",
+      "POST /api/web3/gate": "Check token/ENS gating (accepts symbol or address)",
+      "GET /api/web3/profile": "Wallet profile — ENS name + QUANTA balance",
       "GET /api/web3/staking": "Staking pool stats",
       "GET /api/web3/staking/position": "User staking position",
       "GET /api/web3/swap/quote": "Swap quote from DEX",

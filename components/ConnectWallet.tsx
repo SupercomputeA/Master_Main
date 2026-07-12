@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "../lib/auth"
 import { useUserProfile } from "../lib/useNeynar"
-import { lookupAddress, shortenAddress } from "../lib/web3-utils"
+import { lookupAddress, shortenAddress, getWalletProfile } from "../lib/web3-utils"
 
 export default function ConnectWallet() {
   const { profile, authing, connect, disconnect } = useAuth()
   const { user: neynarUser } = useUserProfile()
   const [mounted, setMounted] = useState(false)
   const [ensName, setEnsName] = useState<string | null>(null)
+  const [tokenBalance, setTokenBalance] = useState<string | null>(null)
 
   const walletAddress = profile?.address || profile?.wallet_address || (profile?.name?.startsWith("0x") ? profile.name : null)
 
@@ -17,9 +18,13 @@ export default function ConnectWallet() {
 
   useEffect(() => {
     if (walletAddress) {
-      lookupAddress(walletAddress).then(setEnsName).catch(() => {})
+      getWalletProfile(walletAddress).then((p) => {
+        setEnsName(p.ens)
+        setTokenBalance(p.balance)
+      }).catch(() => {})
     } else {
       setEnsName(null)
+      setTokenBalance(null)
     }
   }, [walletAddress])
 
@@ -71,6 +76,16 @@ export default function ConnectWallet() {
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--muted)", textAlign: "center" }}>
           {profile.role === "admin" ? "● ADMIN" : "● MEMBER"}
         </div>
+
+        {tokenBalance !== null && (
+          <div style={{
+            fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--gold-warm)",
+            textAlign: "center", padding: "4px 10px", border: "1px solid var(--border)",
+            marginTop: 4,
+          }}>
+            {tokenBalance} $QUANTA
+          </div>
+        )}
 
         <button
           onClick={disconnect}

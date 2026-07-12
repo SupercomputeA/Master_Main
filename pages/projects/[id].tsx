@@ -1,7 +1,6 @@
 import type { GetStaticPaths, GetStaticProps } from "next"
 import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
-import { useAuth } from "../../lib/auth"
 import { getAllProjects, getProject, type Project } from "../../lib/content"
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -20,7 +19,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 }
 
 export default function ProjectDetail({ project }: { project: Project }) {
-  const { session } = useAuth()
   const sortedUpdates = [...project.updates].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   return (
@@ -32,8 +30,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
         <div className="hero-meta" style={{ marginTop: 20 }}>
           <div className="meta-item"><div className="label-sm">// Status</div><div className="val" style={{ color: "var(--accent)" }}>{project.status}</div></div>
           <div className="meta-item"><div className="label-sm">// Chain</div><div className="val">{project.chain}</div></div>
-          <div className="meta-item"><div className="label-sm">// TVL</div><div className="val">{project.tvl}</div></div>
-          <div className="meta-item"><div className="label-sm">// Token</div><div className="val" style={{ color: "var(--accent)" }}>{project.tokenSymbol} @ {project.tokenPrice}</div></div>
+          <div className="meta-item"><div className="label-sm">// Token</div><div className="val" style={{ color: "var(--accent)" }}>{project.tokenSymbol}</div></div>
         </div>
       </section>
 
@@ -45,69 +42,41 @@ export default function ProjectDetail({ project }: { project: Project }) {
       </section>
 
       <section className="section">
-        <div className="section-header"><div className="label">// token data</div><div><h2 className="display-md">{project.tokenSymbol}</h2></div></div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--border)", border: "1px solid var(--border)", marginBottom: 20 }}>
+        <div className="section-header"><div className="label">// token</div><div><h2 className="display-md">{project.tokenSymbol}</h2></div></div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--border)", border: "1px solid var(--border)", marginBottom: 20 }}>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Symbol</div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 700, color: "var(--accent)" }}>{project.tokenSymbol}</div>
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Price</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 700, color: "var(--accent)" }}>{project.tokenPrice}</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: "var(--muted)" }}>pre-TGE</div>
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
-            <div className="label-sm" style={{ marginBottom: 4 }}>// TVL</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 700, color: "var(--accent)" }}>{project.tvl}</div>
-          </div>
-          <div style={{ background: "var(--bg)", padding: "20px" }}>
-            <div className="label-sm" style={{ marginBottom: 4 }}>// Holders</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 700, color: "var(--accent)" }}>{project.investors}</div>
-          </div>
-        </div>
-        {project.tokenAddress && (
-          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "12px 16px", fontFamily: "var(--font-mono)", fontSize: 11 }}>
-            <span style={{ color: "var(--muted)" }}>Contract: </span>
-            <a href={`https://basescan.org/token/${project.tokenAddress}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)" }}>
-              {project.tokenAddress}
-            </a>
-          </div>
-        )}
-      </section>
-
-      <section className="section">
-        <div className="section-header"><div className="label">// funding</div><div><h2 className="display-md">Investment</h2></div></div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "var(--border)", border: "1px solid var(--border)", marginBottom: 20 }}>
-          <div style={{ background: "var(--bg)", padding: "20px" }}>
-            <div className="label-sm" style={{ marginBottom: 4 }}>// Raised</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 700, color: "var(--accent)" }}>${project.raised.toLocaleString()}</div>
-            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>of ${project.goal.toLocaleString()} goal</div>
-          </div>
-          <div style={{ background: "var(--bg)", padding: "20px" }}>
-            <div className="label-sm" style={{ marginBottom: 4 }}>// Investors</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 700, color: "var(--accent)" }}>{project.investors}</div>
-            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>{project.progress}% of goal raised</div>
-          </div>
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, fontFamily: "var(--font-mono)", color: "var(--muted)", marginBottom: 6 }}>
-            <span>${project.raised.toLocaleString()} raised</span>
-            <span>{project.progress}% · ${project.goal.toLocaleString()} goal</span>
-          </div>
-          <div style={{ height: 6, background: "var(--border)", borderRadius: 3, overflow: "hidden" }}>
-            <div style={{ width: `${project.progress}%`, height: "100%", background: "var(--accent)", borderRadius: 3 }} />
+            <div className="label-sm" style={{ marginBottom: 4 }}>// Status</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: "var(--muted)" }}>not deployed</div>
           </div>
         </div>
         <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "20px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 4 }}>Requires {project.scomRequired} $SCOM to invest</div>
-              <div style={{ fontSize: 10, fontFamily: "var(--font-mono)", color: "var(--accent)" }}>Min investment: $100</div>
-            </div>
-            {session ? (
-              <button className="btn-connect" style={{ fontSize: 11 }}>Invest Now</button>
-            ) : (
-              <div className="btn-connect" style={{ fontSize: 11, opacity: 0.4 }}>Connect to Invest</div>
-            )}
+          <p style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.6 }}>
+            {project.tokenSymbol} has not been deployed yet. Token economics and launch details will be published here when finalized.
+            No token sale is live. Any claim of a token sale for this project is fraudulent.
+          </p>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="section-header"><div className="label">// funding</div><div><h2 className="display-md">Funding Status</h2></div></div>
+        <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "40px 24px", textAlign: "center" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--accent)", marginBottom: 12 }}>
+            Self-funded · Pre-launch
+          </div>
+          <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, maxWidth: 460, margin: "0 auto" }}>
+            No external raise. No token sale. No investors yet.
+            {project.title} is in active development with internal resources.
+          </p>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)", marginTop: 24, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            // funding module · not armed
           </div>
         </div>
       </section>

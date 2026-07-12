@@ -18,6 +18,11 @@
   "progress": 5,
   "scomRequired": 500,
   "updates": [
-    { "from": "Admin", "date": "2026-05-10T00:00:00.000Z", "text": "Closed beta opens June. 50 members will receive priority access.", "type": "milestone" }
+    {
+      "from": "Admin",
+      "date": "2026-05-10T00:00:00.000Z",
+      "text": "Closed beta opens June. 50 members will receive priority access.",
+      "type": "milestone"
+    }
   ]
 }

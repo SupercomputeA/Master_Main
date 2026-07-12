@@ -5,6 +5,8 @@ import { marked } from "marked"
 import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 import KnowledgeGraph from "../../components/KnowledgeGraph"
+import fs from "fs"
+import path from "path"
 
 interface Article {
   id: string
@@ -21,26 +23,77 @@ interface Article {
 
 const API_BASE = ""
 
-// Build a single static placeholder so the [slug] route has a generated HTML file.
-// Cloudflare Pages redirects /newsdesk/* → /newsdesk/article.html so any slug
-// serves the same HTML; the React app then resolves the actual slug at runtime
-// from useRouter().query.slug and fetches /api/articles?include=content&slug=<slug>.
-//
-// We deliberately use a non-bracket name for the placeholder because Cloudflare's
-// _redirects interprets `[slug]` as a wildcard substitution token, not a literal
-// filename.
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [{ params: { slug: "article" } }],
-    fallback: false,
+function parseFrontmatter(raw: string): { fm: Record<string, string>; body: string } {
+  const parts = raw.split("---", 2)
+  if (parts.length < 2) return { fm: {}, body: raw }
+  const fmText = parts[1]
+  const body = raw.split("---", 2)[2]?.trim() || ""
+  const fm: Record<string, string> = {}
+  for (const line of fmText.trim().split("\n")) {
+    const m = line.match(/^(\w+):\s*["']?(.+?)["']?\s*$/)
+    if (m) fm[m[1]] = m[2]
   }
+  return { fm, body }
 }
 
-// Stub getStaticProps required by Next.js when getStaticPaths is present.
-// All article data is fetched at runtime via /api/articles — this is purely
-// here to satisfy the static-export build, no Tina dependency remains.
-export const getStaticProps: GetStaticProps = async () => {
-  return { props: {} }
+// Pre-render all article slugs from content/posts/*.md at build time.
+// Each slug gets its own static HTML file with full article content —
+// SEO crawlers and social card previews see the real article immediately.
+// Client-side fetch from /api/articles supplements with D1-edited content.
+export const getStaticPaths: GetStaticPaths = async () => {
+  const postsDir = path.join(process.cwd(), "content", "posts")
+  const paths: Array<{ params: { slug: string } }> = []
+
+  try {
+    const files = fs.readdirSync(postsDir).filter((f) => f.endsWith(".md"))
+    for (const file of files) {
+      const raw = fs.readFileSync(path.join(postsDir, file), "utf-8")
+      const { fm } = parseFrontmatter(raw)
+      const slug = fm.slug || file.replace(".md", "")
+      paths.push({ params: { slug } })
+    }
+  } catch {
+    // content/posts may not exist in some build contexts
+  }
+
+  // Also include the placeholder for runtime-only D1 articles
+  paths.push({ params: { slug: "article" } })
+
+  return { paths, fallback: false }
+}
+
+export const getStaticProps: GetStaticProps = async (ctx) => {
+  const slug = ctx.params?.slug as string
+  const postsDir = path.join(process.cwd(), "content", "posts")
+  let staticArticle: Partial<Article> | null = null
+
+  try {
+    const files = fs.readdirSync(postsDir).filter((f) => f.endsWith(".md"))
+    for (const file of files) {
+      const raw = fs.readFileSync(path.join(postsDir, file), "utf-8")
+      const { fm, body } = parseFrontmatter(raw)
+      const fileSlug = fm.slug || file.replace(".md", "")
+      if (fileSlug === slug) {
+        staticArticle = {
+          id: `md_${slug}`,
+          slug: fileSlug,
+          title: fm.title || slug,
+          excerpt: fm.excerpt || "",
+          content: body,
+          category: fm.category || "SIGNAL",
+          author: fm.author || "Quanta S",
+          published_at: fm.date || null,
+          status: fm.status || "published",
+          views: 0,
+        }
+        break
+      }
+    }
+  } catch {
+    // content/posts may not exist
+  }
+
+  return { props: { staticArticle, slug } }
 }
 
 function formatDate(iso: string | null | undefined): string {
@@ -52,67 +105,53 @@ function formatDate(iso: string | null | undefined): string {
 
 function renderMarkdown(md: string | null | undefined): string {
   if (!md) return ""
-  // marked.parse is sync by default; cast as string to satisfy the overloaded return.
   return marked.parse(md, { async: false }) as string
 }
 
-export default function ArticleDetail() {
-  const [slugParam, setSlugParam] = useState<string>("")
-
-  const [article, setArticle] = useState<Article | null | undefined>(undefined) // undefined = loading
+export default function ArticleDetail({ staticArticle, slug: staticSlug }: { staticArticle: Partial<Article> | null; slug: string }) {
+  const [article, setArticle] = useState<Article | null | undefined>(
+    staticArticle ? (staticArticle as Article) : undefined
+  )
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Read the actual slug from the browser URL. We deliberately avoid
-    // useRouter().query.slug here: with output: "export" and a single
-    // placeholder path, the static HTML is built for the placeholder slug
-    // and useRouter() returns that build-time value at hydration. The URL
-    // bar always shows the user-requested path, so window.location is
-    // the source of truth.
+    // If we have static content, try to fetch the D1 version (may be newer)
+    // If we don't (placeholder slug), resolve the real slug from URL and fetch
     const path = typeof window !== "undefined" ? window.location.pathname : ""
     const match = path.match(/^\/newsdesk\/([^/?#]+)\/?$/)
-    const slug = match ? decodeURIComponent(match[1]) : ""
-    setSlugParam(slug)
+    const realSlug = match ? decodeURIComponent(match[1]) : staticSlug
 
-    if (!slug) {
-      setArticle(null)
+    if (!realSlug || realSlug === "article") {
+      if (!staticArticle) setArticle(null)
       return
     }
 
     let cancelled = false
-    setArticle(undefined)
-    setError(null)
-
-    const apiUrl = `${API_BASE}/api/articles?include=content&slug=${encodeURIComponent(slug)}`
-    fetch(apiUrl)
+    fetch(`${API_BASE}/api/articles?include=content&slug=${encodeURIComponent(realSlug)}`)
       .then((r) => r.json())
       .then((d: any) => {
         if (cancelled) return
         const list = d.articles || []
         if (list.length > 0) {
           setArticle(list[0] as Article)
-        } else {
+        } else if (!staticArticle) {
           setArticle(null)
         }
+        // If D1 has no article but we have static content, keep showing static
       })
       .catch((e) => {
         if (cancelled) return
         setError(String(e))
-        setArticle(null)
+        if (!staticArticle) setArticle(null)
       })
 
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [staticArticle, staticSlug])
 
   const htmlBody = useMemo(() => renderMarkdown(article?.content), [article?.content])
 
-  // Build a per-article knowledge graph from the article's metadata. This is
-  // a placeholder until Tina's `knowledgeGraph` field is wired into D1 (or
-  // until the article detail endpoint serves the structured KG). The graph
-  // is derived deterministically from category + author + status so the
-  // article page always renders a meaningful visualization.
   const articleKg = useMemo(() => {
     if (!article) return { nodes: [], edges: [] }
     const cat = article.category || "GENERAL"
@@ -154,7 +193,7 @@ export default function ArticleDetail() {
       <PublicLayout title="SUPERCOMPUTE · Article">
         <section className="section">
           <div style={{ padding: "60px 24px", textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
-            {error ? `// error: ${error}` : `// article not found: ${slugParam}`}
+            {error ? `// error: ${error}` : `// article not found`}
           </div>
         </section>
       </PublicLayout>

@@ -51,16 +51,7 @@ export default function ProjectBrowse({ projects }: { projects: Project[] }) {
                   <div style={{ display: "flex", gap: 12, marginBottom: 14, fontFamily: "var(--font-mono)", fontSize: 9 }}>
                     <span style={{ color: "var(--teal)" }}>// {p.status}</span>
                     <span style={{ color: "var(--muted)" }}>{p.agents || 0} agent{(p.agents || 0) === 1 ? "" : "s"}</span>
-                    {p.tvl && <span style={{ color: "var(--accent)" }}>{p.tvl}</span>}
-                  </div>
-                  <div style={{ marginBottom: 12 }}>
-                    <div style={{ height: 3, background: "var(--border)", overflow: "hidden" }}>
-                      <div style={{ width: `${p.progress || 0}%`, height: "100%", background: "var(--accent)" }} />
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", marginTop: 4 }}>
-                      <span>${(p.raised || 0).toLocaleString()}</span>
-                      <span>{p.progress || 0}% · {p.investors || 0} investors</span>
-                    </div>
+                    <span style={{ color: "var(--muted)" }}>pre-TGE</span>
                   </div>
                   <Link href={`/projects/${p.slug}`} className="btn-connect" style={{ fontSize: 10, padding: "6px 14px", textDecoration: "none" }}>View Details →</Link>
                 </div>

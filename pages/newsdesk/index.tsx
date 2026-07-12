@@ -3,6 +3,8 @@ import Footer from "../../components/Footer"
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import { useAuth } from "../../lib/auth"
+import fs from "fs"
+import path from "path"
 
 const allCategories: { key: string | "ALL"; label: string }[] = [
   { key: "ALL", label: "All" },
@@ -35,11 +37,62 @@ function formatDate(iso: string | null | undefined): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
-export default function NewsDesk() {
+// Parse simple YAML frontmatter from markdown files
+function parseFrontmatter(raw: string): { fm: Record<string, string>; body: string } {
+  const parts = raw.split("---", 2)
+  if (parts.length < 2) return { fm: {}, body: raw }
+  const fmText = parts[1]
+  const body = raw.split("---", 2)[2]?.trim() || ""
+  const fm: Record<string, string> = {}
+  for (const line of fmText.trim().split("\n")) {
+    const m = line.match(/^(\w+):\s*["']?(.+?)["']?\s*$/)
+    if (m) fm[m[1]] = m[2]
+  }
+  return { fm, body }
+}
+
+// Pre-render articles from content/posts/*.md at build time so the static
+// HTML includes real article cards (SEO + no blank page on slow JS).
+// Client-side fetch from /api/articles supplements with D1-stored articles.
+export async function getStaticProps() {
+  const postsDir = path.join(process.cwd(), "content", "posts")
+  const staticArticles: Article[] = []
+
+  try {
+    const files = fs.readdirSync(postsDir).filter((f) => f.endsWith(".md"))
+    for (const file of files) {
+      const raw = fs.readFileSync(path.join(postsDir, file), "utf-8")
+      const { fm } = parseFrontmatter(raw)
+      staticArticles.push({
+        id: `md_${file.replace(".md", "")}`,
+        slug: fm.slug || file.replace(".md", ""),
+        title: fm.title || file.replace(".md", ""),
+        excerpt: fm.excerpt || "",
+        author: fm.author || "Quanta S",
+        category: fm.category || "SIGNAL",
+        published_at: fm.date || null,
+        status: fm.status || "published",
+      })
+    }
+  } catch {
+    // content/posts may not exist in some build contexts
+  }
+
+  // Sort by date desc
+  staticArticles.sort((a, b) => {
+    const da = a.published_at ? new Date(a.published_at).getTime() : 0
+    const db = b.published_at ? new Date(b.published_at).getTime() : 0
+    return db - da
+  })
+
+  return { props: { staticArticles } }
+}
+
+export default function NewsDesk({ staticArticles }: { staticArticles: Article[] }) {
   const { session } = useAuth()
   const [filter, setFilter] = useState<string>("ALL")
   const [tab, setTab] = useState<"articles" | "builder">("articles")
-  const [articles, setArticles] = useState<Article[] | null>(null)
+  const [dynamicArticles, setDynamicArticles] = useState<Article[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -48,20 +101,30 @@ export default function NewsDesk() {
       .then((r) => r.json())
       .then((d: any) => {
         if (cancelled) return
-        setArticles(d.articles || [])
+        setDynamicArticles(d.articles || [])
       })
       .catch((e) => {
         if (cancelled) return
         setError(String(e))
-        setArticles([])
+        setDynamicArticles([])
       })
     return () => {
       cancelled = true
     }
   }, [])
 
+  // Merge static articles with dynamic D1 articles.
+  // D1 articles take precedence (they may have been edited via Tina webhook).
+  // Static articles fill in any that aren't in D1 yet.
+  const articles = useMemo(() => {
+    if (!dynamicArticles) return staticArticles // Still loading D1 — show static immediately
+    const d1Slugs = new Set(dynamicArticles.map((a) => a.slug))
+    const missingFromD1 = staticArticles.filter((a) => !d1Slugs.has(a.slug))
+    return [...dynamicArticles, ...missingFromD1]
+  }, [staticArticles, dynamicArticles])
+
   const allPosts = useMemo(
-    () => (articles || []).filter((a) => a.status === "published" || !a.status),
+    () => articles.filter((a) => a.status === "published" || !a.status),
     [articles]
   )
   const visible =
@@ -111,11 +174,7 @@ export default function NewsDesk() {
             ))}
           </div>
 
-          {articles === null ? (
-            <div style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "40px 24px", textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
-              // loading feed…
-            </div>
-          ) : visible.length === 0 ? (
+          {visible.length === 0 ? (
             <div style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "40px 24px", textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
               {error ? `// error: ${error}` : "// no articles in this category"}
             </div>

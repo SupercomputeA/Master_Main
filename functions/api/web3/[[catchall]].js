@@ -17,68 +17,90 @@ function bytesToHex(bytes) {
 }
 
 async function rpcCall(rpcUrl, method, params) {
-  const res = await fetch(rpcUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", method, params, id: 1 }),
-  })
-  const json = await res.json()
-  return json.result
+  try {
+    const res = await fetch(rpcUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", method, params, id: 1 }),
+    })
+    if (!res.ok) return null
+    const json = await res.json()
+    if (json.error) return null
+    return json.result
+  } catch {
+    return null
+  }
 }
 
 // ── ENS Resolution ────────────────────────────────────────────────────────────
 
-function namehashEncode(name) {
-  const crypto = require("crypto")
-  const labels = name.split(".").filter(Boolean)
-  let node = new Uint8Array(32)
-  for (let i = labels.length - 1; i >= 0; i--) {
-    const labelBytes = new TextEncoder().encode(labels[i])
-    const data = new Uint8Array(32 + 1 + labelBytes.length)
-    data.set(node, 0)
-    data[32] = labelBytes.length
-    data.set(labelBytes, 33)
-    const hash = crypto.createHash("sha3-256").update(Buffer.from(data)).digest()
-    node = new Uint8Array(hash)
-  }
-  return bytesToHex(node)
+// Web Crypto API (works in Cloudflare Workers — require("crypto") does NOT)
+async function sha3_256(data) {
+  const hashBuf = await crypto.subtle.digest("SHA-256", data)
+  // Note: Web Crypto doesn't support SHA3-256 directly. ENS namehash
+  // requires keccak-256, not SHA3-256. We implement keccak-256 manually
+  // since Web Crypto only provides SHA-1, SHA-256, SHA-384, SHA-512.
+  // For now, use a simplified approach: call the ENS resolver with the
+  // raw namehash computed via keccak. Since we can't do keccak in Web Crypto,
+  // we delegate ENS resolution to an external API.
+  return new Uint8Array(hashBuf)
 }
 
+// ENS namehash requires keccak-256, which Web Crypto API does not support.
+// Instead of computing namehash in-worker, we use the public ENS API
+// (https://ensdata.net or direct RPC with pre-computed namehash).
+// For name → address: use ethers-style resolution via public ENS RPC endpoint.
 async function resolveENS(name) {
   if (name.startsWith("0x") && name.length === 42) return name.toLowerCase()
   if (!name.includes(".")) return null
-  const nh = namehashEncode(name)
-  const data = ADDR_SELECTOR + nh
+
+  // Use Cloudflare's ENS resolver via public Ethereum RPC
+  // eth_call to ENS resolver with addr(namehash) selector
+  // Since we can't compute keccak256 in-worker, use an external ENS API
   try {
-    const result = await rpcCall(ETH_RPC, "eth_call", [{ to: ENS_RESOLVER, data }, "latest"])
-    if (result && result !== "0x" && result.length === 66) {
-      return "0x" + result.slice(-40)
+    const res = await fetch(`https://ensdata.net/api/resolve/${encodeURIComponent(name)}`, {
+      headers: { "Accept": "application/json" },
+    })
+    if (res.ok) {
+      const data = await res.json()
+      if (data.address) return data.address.toLowerCase()
     }
   } catch {}
+
+  // Fallback: try public ENS resolver API
+  try {
+    const res = await fetch(`https://api.ensideas.com/resolve/${encodeURIComponent(name)}`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.address) return data.address.toLowerCase()
+    }
+  } catch {}
+
   return null
 }
 
+// Old resolveENS removed — replaced by the API-based version above
+
 async function lookupENS(address) {
-  const REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
+  // Use public ENS API for reverse lookup (address → name)
+  // Direct RPC requires keccak-256 which Web Crypto doesn't support
   try {
-    const resolverData = "0178b8bf" + "0000000000000000000000000000000000000000000000000000000000000000"
-    const resolverRes = await rpcCall(ETH_RPC, "eth_call", [{ to: REGISTRY, data: resolverData }, "latest"])
-    if (!resolverRes || resolverRes === "0x") return null
-    const resolverAddr = "0x" + resolverRes.slice(-40)
-    const nameData = "691f3431" + "000000000000000000000000" + address.slice(2).toLowerCase()
-    const nameRes = await rpcCall(ETH_RPC, "eth_call", [{ to: resolverAddr, data: nameData }, "latest"])
-    if (nameRes && nameRes !== "0x") {
-      const hexStr = nameRes.slice(2)
-      const chars = []
-      for (let i = 0; i < hexStr.length; i += 2) {
-        const code = parseInt(hexStr.substr(i, 2), 16)
-        if (code === 0) break
-        chars.push(String.fromCharCode(code))
-      }
-      const name = chars.join("")
-      if (name.includes(".")) return name
+    const res = await fetch(`https://api.ensideas.com/lookup/${address}`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.name) return data.name
     }
   } catch {}
+
+  // Fallback: enstable API
+  try {
+    const res = await fetch(`https://ensdata.net/api/lookup/${address}`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.name) return data.name
+    }
+  } catch {}
+
   return null
 }
 
@@ -332,9 +354,13 @@ export async function onRequest({ request, env }) {
             erc20Decimals(quantaToken),
             erc20Symbol(quantaToken),
           ])
-          return { balance: formatUnits(bal, dec), symbol: sym }
+          // If symbol is UNK, token is not deployed yet — return pre-TGE state
+          if (sym === "UNK" && bal === "0") {
+            return { balance: "0", symbol: "QUANTA", deployed: false }
+          }
+          return { balance: formatUnits(bal, dec), symbol: sym, deployed: true }
         } catch {
-          return { balance: "0", symbol: "QUANTA" }
+          return { balance: "0", symbol: "QUANTA", deployed: false }
         }
       })(),
     ])

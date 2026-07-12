@@ -11,14 +11,6 @@ export const getStaticProps: GetStaticProps = async () => {
 
 export default function Token({ projects }: { projects: Project[] }) {
   const projectTokens = projects.filter(p => p.tokenSymbol)
-  const totalTVL = projects.reduce((sum, p) => {
-    const n = Number((p.tvl || "0").replace(/[^0-9.]/g, "")) || 0
-    const isM = (p.tvl || "").toLowerCase().includes("m")
-    const isK = (p.tvl || "").toLowerCase().includes("k")
-    return sum + n * (isM ? 1_000_000 : isK ? 1_000 : 1)
-  }, 0)
-  const totalRaised = projects.reduce((sum, p) => sum + (p.raised || 0), 0)
-  const totalInvestors = projects.reduce((sum, p) => sum + (p.investors || 0), 0)
 
   return (
     <PublicLayout title="SUPERCOMPUTE · Token">
@@ -28,11 +20,12 @@ export default function Token({ projects }: { projects: Project[] }) {
           <span className="label">// token</span>
         </div>
         <h1 className="display-xl hero-title">
-          $SCOM<br /><em>TOKEN</em>
+          $QUANTA<br /><em>TOKEN</em>
         </h1>
         <p className="hero-sub">
-          Builder coin on Base Chain. Rewards stakers from protocol revenue.
-          Live Q3 2026. Stake to earn a share of trading fees.
+          The builder coin on Base Chain. Not yet deployed — pre-TGE.
+          Token gating is live and reads on-chain balances. When QUANTA launches,
+          stakers earn from protocol revenue.
         </p>
         <div className="hero-meta">
           <div className="meta-item">
@@ -40,12 +33,12 @@ export default function Token({ projects }: { projects: Project[] }) {
             <div className="val">Base L2</div>
           </div>
           <div className="meta-item">
-            <div className="label-sm">// Est. APY</div>
-            <div className="val">~12%</div>
+            <div className="label-sm">// Contract</div>
+            <div className="val" style={{ fontSize: 10, fontFamily: "var(--font-mono)" }}>0x5ACD…371A</div>
           </div>
           <div className="meta-item">
-            <div className="label-sm">// Launch</div>
-            <div className="val">Q3 2026</div>
+            <div className="label-sm">// Status</div>
+            <div className="val">Pre-TGE</div>
           </div>
         </div>
       </section>
@@ -53,30 +46,28 @@ export default function Token({ projects }: { projects: Project[] }) {
       <section className="section">
         <div className="section-header">
           <div className="label">// ecosystem</div>
-          <div><h2 className="display-md">Ecosystem Stats</h2></div>
+          <div><h2 className="display-md">Ecosystem Status</h2></div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Projects</div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>{projects.length}</div>
-            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>active in ecosystem</div>
+            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>in development</div>
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Project Tokens</div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>{projectTokens.length}</div>
-            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>sub-tokens issued</div>
+            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>planned, none deployed</div>
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
-            <div className="label-sm" style={{ marginBottom: 4 }}>// Total Raised</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>${(totalRaised / 1000).toFixed(0)}K</div>
-            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>{totalInvestors} investors</div>
+            <div className="label-sm" style={{ marginBottom: 4 }}>// Capital Raised</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>$0</div>
+            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>self-funded, no external raise</div>
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
-            <div className="label-sm" style={{ marginBottom: 4 }}>// Ecosystem TVL</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>
-              ${totalTVL >= 1_000_000 ? (totalTVL / 1_000_000).toFixed(1) + "M" : (totalTVL / 1000).toFixed(0) + "K"}
-            </div>
-            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>across all projects</div>
+            <div className="label-sm" style={{ marginBottom: 4 }}>// TVL</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>$0</div>
+            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>pre-launch</div>
           </div>
         </div>
       </section>
@@ -92,24 +83,22 @@ export default function Token({ projects }: { projects: Project[] }) {
           </div>
         ) : (
           <div style={{ background: "var(--bg)", border: "1px solid var(--border)", overflow: "hidden" }}>
-            <div style={{ background: "var(--surface)", padding: "10px 16px", display: "grid", gridTemplateColumns: "100px 1fr 90px 90px 90px 80px", gap: 12, fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+            <div style={{ background: "var(--surface)", padding: "10px 16px", display: "grid", gridTemplateColumns: "100px 1fr 90px 90px 80px", gap: 12, fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
               <div>Token</div>
               <div>Project</div>
               <div>Price</div>
-              <div>TVL</div>
-              <div>Investors</div>
+              <div>Status</div>
               <div></div>
             </div>
             {projectTokens.map(p => (
-              <div key={p.slug} style={{ padding: "12px 16px", display: "grid", gridTemplateColumns: "100px 1fr 90px 90px 90px 80px", gap: 12, alignItems: "center", borderTop: "1px solid var(--border)" }}>
+              <div key={p.slug} style={{ padding: "12px 16px", display: "grid", gridTemplateColumns: "100px 1fr 90px 90px 80px", gap: 12, alignItems: "center", borderTop: "1px solid var(--border)" }}>
                 <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--accent)" }}>{p.tokenSymbol}</div>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{p.title}</div>
                   <div style={{ fontSize: 10, color: "var(--muted)" }}>{p.tagline}</div>
                 </div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--accent)" }}>{p.tokenPrice}</div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{p.tvl}</div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{p.investors}</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--muted)" }}>{p.tokenPrice || "pre-TGE"}</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)" }}>pre-TGE</div>
                 <Link href={`/projects/${p.slug}`} className="btn-connect" style={{ fontSize: 9, padding: "4px 10px", textDecoration: "none", textAlign: "center" }}>
                   View →
                 </Link>
@@ -127,10 +116,10 @@ export default function Token({ projects }: { projects: Project[] }) {
         <div style={{ background: "var(--surface)", border: "1px solid var(--border-accent)", padding: "60px 32px", textAlign: "center" }}>
           <div style={{ fontSize: 32, marginBottom: 16 }}>⏳</div>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--accent)", marginBottom: 12 }}>
-            Coming after $SCOM TGE
+            Coming after QUANTA TGE
           </div>
           <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, maxWidth: 460, margin: "0 auto" }}>
-            Staking opens after the $SCOM token generation event. Follow{" "}
+            Staking opens after the QUANTA token generation event. Follow{" "}
             <a href="https://twitter.com/supercompute_io" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)" }}>
               @supercompute_io
             </a>{" "}

@@ -24,10 +24,11 @@ interface Article {
 const API_BASE = ""
 
 function parseFrontmatter(raw: string): { fm: Record<string, string>; body: string } {
-  const parts = raw.split("---", 2)
-  if (parts.length < 2) return { fm: {}, body: raw }
+  const parts = raw.split("---")
+  // parts[0] = "" (before first ---), parts[1] = frontmatter, parts[2+] = body
+  if (parts.length < 3) return { fm: {}, body: raw }
   const fmText = parts[1]
-  const body = raw.split("---", 2)[2]?.trim() || ""
+  const body = parts.slice(2).join("---").trim()
   const fm: Record<string, string> = {}
   for (const line of fmText.trim().split("\n")) {
     const m = line.match(/^(\w+):\s*["']?(.+?)["']?\s*$/)
@@ -56,7 +57,10 @@ export const getStaticPaths: GetStaticPaths = async () => {
     // content/posts may not exist in some build contexts
   }
 
-  // Also include the placeholder for runtime-only D1 articles
+  // Fallback shell for D1-only articles (no markdown source).
+  // Cloudflare Pages serves static files before _redirects rewrites,
+  // so markdown articles get their own HTML. D1-only articles fall
+  // through to /newsdesk/article.html → client-side fetch from D1.
   paths.push({ params: { slug: "article" } })
 
   return { paths, fallback: false }

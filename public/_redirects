@@ -1,9 +1,18 @@
-# Article detail pages: every /newsdesk/<slug> is served by the single
-# generated placeholder shell (out/newsdesk/article.html); the React app
-# resolves the real slug at runtime from window.location and fetches
-# /api/articles?include=content&slug=<slug>. Must come BEFORE the /* SPA
-# catch-all (first match wins).
-/newsdesk/*    /newsdesk/article   200
+# NewsDesk article routing:
+# Markdown articles (aave, aerodrome, nypd, newsdesk-launch, token-gating,
+# on-chain-identity, welcome-to-supercompute) get their own pre-rendered HTML
+# files at /newsdesk/<slug>.html — Cloudflare Pages serves these directly.
+#
+# D1-only articles (no markdown source) fall through to the placeholder shell
+# at /newsdesk/article.html, which fetches content from /api/articles client-side.
+# List each D1-only slug explicitly. Must come BEFORE the /* SPA catch-all.
+/newsdesk/the-network-nobody-wanted-you-to-see    /newsdesk/article   200
+/newsdesk/decentralization-as-spectrum            /newsdesk/article   200
+/newsdesk/platform-phase-1-launch                 /newsdesk/article   200
+/newsdesk/ens-on-chain-identity                   /newsdesk/article   200
+/newsdesk/defi-yield-strategies-2026              /newsdesk/article   200
+/newsdesk/base-ecosystem-guide                    /newsdesk/article   200
+/newsdesk/refi-deep-dive                          /newsdesk/article   200
 
 # SPA fallback — route all remaining non-file, non-API 404s to index.html
 /*    /index.html   200

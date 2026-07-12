@@ -39,10 +39,10 @@ function formatDate(iso: string | null | undefined): string {
 
 // Parse simple YAML frontmatter from markdown files
 function parseFrontmatter(raw: string): { fm: Record<string, string>; body: string } {
-  const parts = raw.split("---", 2)
-  if (parts.length < 2) return { fm: {}, body: raw }
+  const parts = raw.split("---")
+  if (parts.length < 3) return { fm: {}, body: raw }
   const fmText = parts[1]
-  const body = raw.split("---", 2)[2]?.trim() || ""
+  const body = parts.slice(2).join("---").trim()
   const fm: Record<string, string> = {}
   for (const line of fmText.trim().split("\n")) {
     const m = line.match(/^(\w+):\s*["']?(.+?)["']?\s*$/)

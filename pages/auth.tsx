@@ -12,8 +12,7 @@ import { useAuth } from "../lib/auth"
 const WALLETS = [
   { id: "injected", ico: "🦊", name: "MetaMask" },
   { id: "coinbaseWallet", ico: "◈", name: "Coinbase Wallet" },
-  // WalletConnect removed — needs real projectId from cloud.walletconnect.com
-  // Will be re-enabled when NEXT_PUBLIC_WC_PROJECT_ID is configured
+  { id: "walletConnect", ico: "⧉", name: "WalletConnect" },
 ]
 
 export default function Auth() {

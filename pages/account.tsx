@@ -11,16 +11,17 @@ const modules = [
   { id: "M6", title: "Treasury Management", progress: 0, credential: null },
   { id: "M7", title: "Token Engineering", progress: 0, credential: null },
 ]
+const MOCK = { color: "#ef4444" } as const
 
 const comments = [
   { date: "2026-05-18", author: "0xmone.eth", text: "Great breakdown of the agent economics thesis. The fleet approach makes sense for scaling ops without overhead.", replies: 3 },
-  { date: "2026-05-16", author: "defi_maxi.eth", text: "When is the TradeDesk beta opening to stakers? Got 5k SCOM ready to deploy.", replies: 1 },
+  { date: "2026-05-16", author: "defi_maxi.eth", text: "When is the TradeDesk beta opening to stakers? Got 5k QUANTA ready to deploy.", replies: 1 },
   { date: "2026-05-14", author: "base_builder.eth", text: "The School module on autonomous agents is exactly what I needed. Clear, practical, with real code examples.", replies: 0 },
   { date: "2026-05-12", author: "anon_ops.eth", text: "Deployed the Base Agent config from StoreFront. Had it running in 20 minutes. Documentation is solid.", replies: 2 },
 ]
 
 const activityLog = [
-  { date: "2026-05-18", action: "Staked 500 $SCOM — 90d lock" },
+  { date: "2026-05-18", action: "Staked 500 $QUANTA — 90d lock" },
   { date: "2026-05-15", action: "Completed Module 4 · Solidity Intermediate" },
   { date: "2026-05-12", action: "Voted on Proposal SCP-042" },
   { date: "2026-05-10", action: "Published article: \"Agent Economics\"" },
@@ -74,16 +75,16 @@ export default function Account() {
                 <span style={{ fontSize: 13, color: "var(--fg)" }}>March 2024</span>
               </div>
               <div style={{ background: "var(--bg)", padding: "14px 20px", display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 12, color: "var(--muted)" }}>$SCOM Balance</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--accent)" }}>2,450 SCOM</span>
+                <span style={{ fontSize: 12, color: "var(--muted)" }}>$QUANTA Balance</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: MOCK.color }}>—</span>
               </div>
               <div style={{ background: "var(--bg)", padding: "14px 20px", display: "flex", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 12, color: "var(--muted)" }}>Staked</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--accent)" }}>1,200 SCOM (90d lock)</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: MOCK.color }}>—</span>
               </div>
               <div style={{ background: "var(--bg)", padding: "14px 20px", display: "flex", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 12, color: "var(--muted)" }}>Total Staking Rewards</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--accent)" }}>48.5 SCOM</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: MOCK.color }}>—</span>
               </div>
               <div style={{ background: "var(--bg)", padding: "14px 20px", display: "flex", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 12, color: "var(--muted)" }}>NFTs Held</span>

@@ -10,7 +10,7 @@ const timeline = [
   { year: "2022", event: "Base Chain launch. Migrated all operations to L2. Began agent development." },
   { year: "2024", event: "First autonomous agent (OpenClaw) deployed. Fleet expanded to 3 agents." },
   { year: "2025", event: "Quanta S launched on Virtuals Protocol. NewsDesk goes live." },
-  { year: "2026", event: "Phase 1 complete. $SCOM token, Web3 School, TradeDesk all operational." },
+  { year: "2026", event: "Phase 1 complete. $QUANTA token, Web3 School, TradeDesk all operational." },
 ]
 
 function GNode({ x, y, r, color, fill, label }: { x: number; y: number; r: number; color: string; fill: string; label: string }) {
@@ -33,7 +33,7 @@ function EcosystemGraph() {
     { x: 855, y: 405, r: 34, color: "#E0BE3F", fill: "rgba(224,190,63,.12)", label: "TradeDesk" },
     { x: 690, y: 590, r: 36, color: "#4ADE80", fill: "rgba(74,222,128,.1)", label: "School" },
     { x: 310, y: 590, r: 36, color: "#a78bfa", fill: "rgba(167,139,250,.13)", label: "Agents" },
-    { x: 145, y: 405, r: 34, color: "#C9A33A", fill: "rgba(201,163,58,.12)", label: "$SCOM" },
+    { x: 145, y: 405, r: 34, color: "#C9A33A", fill: "rgba(201,163,58,.12)", label: "$QUANTA" },
     { x: 225, y: 205, r: 34, color: "#6FA3E5", fill: "rgba(111,163,229,.12)", label: "Projects" },
   ]
   return (
@@ -150,9 +150,9 @@ export default function About() {
             { color: "#6FA3E5", label: "Projects", desc: "A portfolio of shipped Web3 tools and initiatives, owned by the communities they serve." },
             { color: "#C9A33A", label: "NewsDesk", desc: "The publishing hub — protocol evaluations, project releases, class subjects, and live streaming." },
             { color: "#4ADE80", label: "School", desc: "Principled Web3 education with on-chain NFT credentials. Start free, scale up." },
-            { color: "#E0BE3F", label: "TradeDesk", desc: "On-chain trading and desk automation. Coming soon, gated to $SCOM holders." },
+            { color: "#E0BE3F", label: "TradeDesk", desc: "On-chain trading and desk automation. Coming soon, gated to $QUANTA holders." },
             { color: "#a78bfa", label: "Agents", desc: "An autonomous agent fleet handling on-chain operations around the clock." },
-            { color: "#C9A33A", label: "$SCOM", desc: "The token. Stake to unlock member modules, desk tiers, and gated content." },
+            { color: "#C9A33A", label: "$QUANTA", desc: "The token. Stake to unlock member modules, desk tiers, and gated content." },
           ].map((n) => (
             <div key={n.label} style={{ background: "var(--site-bg)", padding: "18px 20px", display: "flex", gap: 12 }}>
               <span style={{ flexShrink: 0, width: 10, height: 10, borderRadius: "50%", marginTop: 4, background: n.color, boxShadow: `0 0 8px ${n.color}66` }} />

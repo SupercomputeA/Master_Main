@@ -104,10 +104,10 @@ export default function Token({ projects }: { projects: Project[] }) {
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Name</div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, color: "var(--accent)" }}>
-              {loading ? "—" : (tokenData?.name || "—")}
+              {loading ? "—" : "$QUANTA"}
             </div>
             <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
-              {tokenData?.symbol ? `$${tokenData.symbol}` : "—"}
+              {tokenData?.symbol ? `$${tokenData.symbol}` : "$QUANTA"}
             </div>
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>

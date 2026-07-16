@@ -15,8 +15,8 @@ const inventory: InventoryItem[] = [
   { sku: "AGENT-BASE-01", name: "Base Agent Deployment", price: "0.5 ETH", stock: 8, desc: "Pre-configured autonomous agent on Base chain.", image: "https://placehold.co/400x300/0a1330/C9A33A?text=Agent+Deployment" },
   { sku: "CONTRACT-AUDIT-01", name: "Smart Contract Audit", price: "2.0 ETH", stock: 3, desc: "Full audit with automated fuzz testing + report.", image: "https://placehold.co/400x300/0a1330/C9A33A?text=Contract+Audit" },
   { sku: "TREASURY-PRO-01", name: "Treasury Management Setup", price: "1.5 ETH", stock: 5, desc: "Multi-sig treasury with automated rebalancing.", image: "https://placehold.co/400x300/0a1330/C9A33A?text=Treasury+Mgmt" },
-  { sku: "SCOM-STAKE-01", name: "$SCOM Staking Vault", price: "100 SCOM", stock: 50, desc: "Stake $SCOM with tiered APY and lock options.", image: "https://placehold.co/400x300/0a1330/C9A33A?text=Staking+Vault" },
-  { sku: "FLEET-ACCESS-01", name: "Fleet Agent API Key", price: "0.1 ETH/mo", stock: 20, desc: "Access to all 3 agents via unified API.", image: "https://placehold.co/400x300/0a1330/C9A33A?text=Fleet+API" },
+  { sku: "SCOM-STAKE-01", name: "$QUANTA Staking Vault", price: "100 QUANTA", stock: 50, desc: "Stake $QUANTA with tiered APY and lock options.", image: "https://placehold.co/400x300/0a1330/C9A33A?text=Staking+Vault" },
+  { sku: "FLEET-ACCESS-01", name: "Fleet Agent API Key", price: "0.1 ETH/mo", stock: 20, desc: "Access to all 13 fleet agents via unified API.", image: "https://placehold.co/400x300/0a1330/C9A33A?text=Fleet+API" },
   { sku: "SCHOOL-MOD-01", name: "Web3 School Module Pass", price: "0.05 ETH", stock: 100, desc: "Single module access with certification.", image: "https://placehold.co/400x300/0a1330/C9A33A?text=School+Pass" },
 ]
 

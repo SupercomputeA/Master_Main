@@ -21,7 +21,7 @@ const EVALUATIONS: Post[] = [
 const RELEASES: Post[] = [
   { image: "📰", category: "Release", title: "NewsDesk v0.2", excerpt: "Multi-channel publishing — blog, project releases, class subjects, and live streaming in one feed.", meta: "shipped" },
   { image: "🧠", category: "Release", title: "Knowledge Graph viewer", excerpt: "Shared graph viewer across NewsDesk, ProjectDesk, and sGraph. Explore protocol relationships.", meta: "beta" },
-  { image: "📈", category: "Release", title: "TradeDesk private beta", excerpt: "On-chain execution and agent automation for $SCOM holders. Invites rolling out.", meta: "soon" },
+  { image: "📈", category: "Release", title: "TradeDesk private beta", excerpt: "On-chain execution and agent automation for $QUANTA holders. Invites rolling out.", meta: "soon" },
 ]
 
 type SchedType = "stream" | "ama" | "drop"

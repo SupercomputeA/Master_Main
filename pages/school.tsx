@@ -28,7 +28,7 @@ function TrackCard({ m, unlocked }: { m: SchoolModuleContent; unlocked: boolean 
       <div className="sz-track-desc">{m.description}</div>
       <div className="sz-track-meta">
         <span>{m.lessons.length} lessons · {m.duration} · {m.difficulty}</span>
-        <span className="sz-track-lock">{unlocked ? "open →" : (m.access === "member" ? "$SCOM 🔒" : "sign in →")}</span>
+        <span className="sz-track-lock">{unlocked ? "open →" : (m.access === "member" ? "$QUANTA 🔒" : "sign in →")}</span>
       </div>
     </>
   )
@@ -73,7 +73,7 @@ export default function SchoolPage({ modules }: { modules: SchoolModuleContent[]
 
       <section className="section">
         <div className="section-header">
-          <div className="label">// by the numbers</div>
+          <div className="label">// BY THE NUMBERS</div>
           <div><h2 className="display-md">What's Inside</h2></div>
         </div>
         <div className="sz-stats">

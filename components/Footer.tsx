@@ -22,7 +22,7 @@ export default function Footer() {
             <div className="label-sm">Network</div>
             <ul>
               <li><Link href="/publishing">Blog</Link></li>
-              <li><Link href="/token">$SCOM Token</Link></li>
+              <li><Link href="/token">$QUANTA Token</Link></li>
               <li><Link href="/fleet">Agent Fleet</Link></li>
               <li><Link href="/storefront">Shop</Link></li>
             </ul>

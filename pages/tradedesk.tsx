@@ -2,13 +2,13 @@ import Link from "next/link"
 import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 
-/* TradeDesk — coming soon. Sizzle only; the desk opens to $SCOM holders at launch. */
+/* TradeDesk — coming soon. Sizzle only; the desk opens to $QUANTA holders at launch. */
 
 const FEATURES = [
   { icon: "📊", title: "On-chain execution", desc: "Swap, LP, and rebalance across Base DEXs from one desk — no tab-hopping." },
   { icon: "🤖", title: "Agent automation", desc: "Hand routine strategies to the fleet: DCA, yield rotation, and risk guards." },
   { icon: "🛡️", title: "Risk controls", desc: "Position limits, slippage guards, and alerts tuned to your treasury." },
-  { icon: "🔑", title: "$SCOM gated", desc: "Early access for token holders. Stake to unlock desk tiers." },
+  { icon: "🔑", title: "$QUANTA gated", desc: "Early access for token holders. Stake to unlock desk tiers." },
 ]
 
 export default function TradeDesk() {
@@ -24,7 +24,7 @@ export default function TradeDesk() {
           <div className="subheader">Coming soon</div>
           <p className="hero-copy">
             On-chain trading, portfolio tooling, and desk automation for the Supercompute
-            fleet. Built on Base, gated to $SCOM holders at launch.
+            fleet. Built on Base, gated to $QUANTA holders at launch.
           </p>
           <div style={{ marginTop: 32, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <Link href="/auth" className="btn btn-primary">Get early access</Link>

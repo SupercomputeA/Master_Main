@@ -28,7 +28,7 @@ export interface Project {
   raised: number
   investors: number
   progress: number
-  scomRequired: number
+  quantaRequired: number
   updates: ProjectUpdate[]
 }
 

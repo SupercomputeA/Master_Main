@@ -26,8 +26,8 @@ knowledgeGraph:
     - id: eth
       label: ETH
       type: token
-    - id: scom
-      label: $SCOM Treasury
+    - id: quanta
+      label: $QUANTA Treasury
       type: token
     - id: knight
       label: KNIGHT Agent
@@ -42,7 +42,7 @@ knowledgeGraph:
     - from: aave
       to: eth
       label: supports
-    - from: scom
+    - from: quanta
       to: aave
       label: allocated to
     - from: knight

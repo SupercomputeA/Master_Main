@@ -1,7 +1,9 @@
 import type { GetStaticProps } from "next"
 import Link from "next/link"
+import { useState, useEffect } from "react"
 import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
+import { useAuth } from "../lib/auth"
 import { getAllProjects, type Project } from "../lib/content"
 
 export const getStaticProps: GetStaticProps = async () => {
@@ -9,8 +11,53 @@ export const getStaticProps: GetStaticProps = async () => {
   return { props: { projects } }
 }
 
+interface TokenData {
+  address: string
+  deployed: boolean
+  chain: string
+  name: string
+  symbol: string
+  decimals: number
+  totalSupply: number
+  totalSupplyFormatted: string
+  owner: string | null
+  explorer: string
+  timestamp: string
+  walletBalance?: number
+  walletBalanceFormatted?: string
+}
+
+function formatSupply(formatted: string): string {
+  const parts = formatted.split(".")
+  const intPart = parseInt(parts[0]).toLocaleString()
+  return parts[1] ? `${intPart}.${parts[1]}` : intPart
+}
+
+function shortAddr(addr: string): string {
+  if (!addr || addr.length < 42) return addr
+  return `${addr.slice(0, 6)}…${addr.slice(-4)}`
+}
+
 export default function Token({ projects }: { projects: Project[] }) {
   const projectTokens = projects.filter(p => p.tokenSymbol)
+  const { session } = useAuth()
+  const [tokenData, setTokenData] = useState<TokenData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const wallet = session
+    const url = wallet ? `/api/token?wallet=${wallet}` : "/api/token"
+    fetch(url)
+      .then((r) => r.json())
+      .then((d: unknown) => setTokenData(d as TokenData))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [session])
+
+  const supplyDisplay = tokenData?.totalSupplyFormatted
+    ? formatSupply(tokenData.totalSupplyFormatted)
+    : "—"
+  const deployed = tokenData?.deployed ?? false
 
   return (
     <PublicLayout title="SUPERCOMPUTE · Token">
@@ -23,9 +70,9 @@ export default function Token({ projects }: { projects: Project[] }) {
           $QUANTA<br /><em>TOKEN</em>
         </h1>
         <p className="hero-sub">
-          The builder coin on Base Chain. Not yet deployed — pre-TGE.
-          Token gating is live and reads on-chain balances. When QUANTA launches,
-          stakers earn from protocol revenue.
+          The builder coin on Base Chain. {deployed
+            ? "Contract deployed and verified. Token gating reads on-chain balances. Staking activates post-liquidity."
+            : "Contract address reserved. Token gating reads on-chain balances. Staking activates post-TGE."}
         </p>
         <div className="hero-meta">
           <div className="meta-item">
@@ -34,15 +81,91 @@ export default function Token({ projects }: { projects: Project[] }) {
           </div>
           <div className="meta-item">
             <div className="label-sm">// Contract</div>
-            <div className="val" style={{ fontSize: 10, fontFamily: "var(--font-mono)" }}>0x5ACD…371A</div>
+            <div className="val" style={{ fontSize: 10, fontFamily: "var(--font-mono)" }}>
+              {tokenData ? shortAddr(tokenData.address) : "0x5ACD…371A"}
+            </div>
           </div>
           <div className="meta-item">
             <div className="label-sm">// Status</div>
-            <div className="val">Pre-TGE</div>
+            <div className="val">
+              {loading ? "syncing…" : deployed ? "Deployed" : "Pre-TGE"}
+            </div>
           </div>
         </div>
       </section>
 
+      {/* On-chain data — live from Base RPC */}
+      <section className="section">
+        <div className="section-header">
+          <div className="label">// on-chain data</div>
+          <div><h2 className="display-md">Token State</h2></div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
+          <div style={{ background: "var(--bg)", padding: "20px" }}>
+            <div className="label-sm" style={{ marginBottom: 4 }}>// Name</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, color: "var(--accent)" }}>
+              {loading ? "—" : (tokenData?.name || "—")}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
+              {tokenData?.symbol ? `$${tokenData.symbol}` : "—"}
+            </div>
+          </div>
+          <div style={{ background: "var(--bg)", padding: "20px" }}>
+            <div className="label-sm" style={{ marginBottom: 4 }}>// Total Supply</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>
+              {loading ? "—" : supplyDisplay}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
+              {tokenData ? `${tokenData.decimals} decimals` : "—"}
+            </div>
+          </div>
+          <div style={{ background: "var(--bg)", padding: "20px" }}>
+            <div className="label-sm" style={{ marginBottom: 4 }}>// Deployed</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: deployed ? "var(--accent)" : "var(--muted)" }}>
+              {loading ? "—" : deployed ? "✓" : "○"}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
+              {loading ? "querying…" : deployed ? "bytecode live" : "no bytecode"}
+            </div>
+          </div>
+          <div style={{ background: "var(--bg)", padding: "20px" }}>
+            <div className="label-sm" style={{ marginBottom: 4 }}>// Owner</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600, color: "var(--accent)", wordBreak: "break-all" }}>
+              {loading ? "—" : (tokenData?.owner ? shortAddr(tokenData.owner) : "—")}
+            </div>
+            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>contract owner</div>
+          </div>
+        </div>
+
+        {/* Wallet balance for connected users */}
+        {session && (
+          <div style={{ marginTop: 12, background: "var(--surface)", border: "1px solid var(--border-warm)", padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div className="label-sm" style={{ marginBottom: 4 }}>// Your Balance</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: "var(--accent)" }}>
+                {tokenData?.walletBalanceFormatted ?? "0.000000"}
+              </div>
+            </div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)", textAlign: "right" }}>
+              {shortAddr(session)}
+            </div>
+          </div>
+        )}
+
+        {/* Explorer link */}
+        {tokenData && (
+          <div style={{ marginTop: 12, fontFamily: "var(--font-mono)", fontSize: 11 }}>
+            <a href={tokenData.explorer} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "none" }}>
+              → View on Basescan
+            </a>
+            <span style={{ color: "var(--muted)", marginLeft: 16 }}>
+              Last queried: {new Date(tokenData.timestamp).toLocaleTimeString("en-US", { hour12: false })}
+            </span>
+          </div>
+        )}
+      </section>
+
+      {/* Ecosystem status */}
       <section className="section">
         <div className="section-header">
           <div className="label">// ecosystem</div>
@@ -67,7 +190,7 @@ export default function Token({ projects }: { projects: Project[] }) {
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// TVL</div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>$0</div>
-            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>pre-launch</div>
+            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>pre-liquidity</div>
           </div>
         </div>
       </section>
@@ -111,22 +234,19 @@ export default function Token({ projects }: { projects: Project[] }) {
       <section className="section">
         <div className="section-header">
           <div className="label">// stake</div>
-          <div><h2 className="display-md">Stake $SCOM</h2></div>
+          <div><h2 className="display-md">Stake $QUANTA</h2></div>
         </div>
         <div style={{ background: "var(--surface)", border: "1px solid var(--border-accent)", padding: "60px 32px", textAlign: "center" }}>
           <div style={{ fontSize: 32, marginBottom: 16 }}>⏳</div>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--accent)", marginBottom: 12 }}>
-            Coming after QUANTA TGE
+            Staking activates post-liquidity
           </div>
           <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, maxWidth: 460, margin: "0 auto" }}>
-            Staking opens after the QUANTA token generation event. Follow{" "}
-            <a href="https://twitter.com/supercompute_io" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)" }}>
-              @supercompute_io
-            </a>{" "}
-            for the date.
+            QUANTA is deployed on Base. Staking opens after liquidity bootstrapping —
+            stakers earn from protocol revenue and agent operations.
           </p>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)", marginTop: 24, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-            // staking module · not yet armed
+            // staking module · awaiting liquidity
           </div>
         </div>
       </section>

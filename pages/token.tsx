@@ -103,7 +103,7 @@ export default function Token({ projects }: { projects: Project[] }) {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Name</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, color: "var(--accent)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 20, fontWeight: 700, color: "var(--accent)" }}>
               {loading ? "—" : "$QUANTA"}
             </div>
             <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
@@ -112,7 +112,7 @@ export default function Token({ projects }: { projects: Project[] }) {
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Total Supply</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>
               {loading ? "—" : supplyDisplay}
             </div>
             <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
@@ -121,7 +121,7 @@ export default function Token({ projects }: { projects: Project[] }) {
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Deployed</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: deployed ? "var(--accent)" : "var(--muted)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 28, fontWeight: 700, color: deployed ? "var(--accent)" : "var(--muted)" }}>
               {loading ? "—" : deployed ? "✓" : "○"}
             </div>
             <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
@@ -142,7 +142,7 @@ export default function Token({ projects }: { projects: Project[] }) {
           <div style={{ marginTop: 12, background: "var(--surface)", border: "1px solid var(--border-warm)", padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div className="label-sm" style={{ marginBottom: 4 }}>// Your Balance</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: "var(--accent)" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, color: "var(--accent)" }}>
                 {tokenData?.walletBalanceFormatted ?? "0.000000"}
               </div>
             </div>
@@ -174,22 +174,22 @@ export default function Token({ projects }: { projects: Project[] }) {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Projects</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>{projects.length}</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>{projects.length}</div>
             <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>in development</div>
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Project Tokens</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>{projectTokens.length}</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>{projectTokens.length}</div>
             <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>planned, none deployed</div>
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Capital Raised</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>$0</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>$0</div>
             <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>self-funded, no external raise</div>
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// TVL</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>$0</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 28, fontWeight: 700, color: "var(--accent)" }}>$0</div>
             <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>pre-liquidity</div>
           </div>
         </div>
@@ -215,7 +215,7 @@ export default function Token({ projects }: { projects: Project[] }) {
             </div>
             {projectTokens.map(p => (
               <div key={p.slug} style={{ padding: "12px 16px", display: "grid", gridTemplateColumns: "100px 1fr 90px 90px 80px", gap: 12, alignItems: "center", borderTop: "1px solid var(--border)" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--accent)" }}>{p.tokenSymbol}</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--accent)" }}>{p.tokenSymbol}</div>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{p.title}</div>
                   <div style={{ fontSize: 10, color: "var(--muted)" }}>{p.tagline}</div>
@@ -238,8 +238,8 @@ export default function Token({ projects }: { projects: Project[] }) {
         </div>
         <div style={{ background: "var(--surface)", border: "1px solid var(--border-accent)", padding: "60px 32px", textAlign: "center" }}>
           <div style={{ fontSize: 32, marginBottom: 16 }}>⏳</div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--accent)", marginBottom: 12 }}>
-            Staking activates post-liquidity
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, color: "var(--accent)", marginBottom: 12 }}>
+            Stake $QUANTA
           </div>
           <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, maxWidth: 460, margin: "0 auto" }}>
             QUANTA is deployed on Base. Staking opens after liquidity bootstrapping —

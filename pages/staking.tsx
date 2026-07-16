@@ -21,7 +21,7 @@ export default function Staking() {
       <section className="section">
         <div style={{ background: "var(--surface)", border: "1px solid var(--border-accent)", padding: "60px 32px", textAlign: "center" }}>
           <div style={{ fontSize: 32, marginBottom: 16 }}>⏳</div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--accent)", marginBottom: 12 }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, color: "var(--accent)", marginBottom: 12 }}>
             Staking activates post-liquidity
           </div>
           <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, maxWidth: 460, margin: "0 auto" }}>

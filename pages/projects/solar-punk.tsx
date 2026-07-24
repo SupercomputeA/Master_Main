@@ -4,236 +4,337 @@ import Footer from "../../components/Footer"
 
 const FarcasterFeed = dynamic(() => import("../../components/FarcasterFeed"), { ssr: false })
 
-const features = [
+// ──────────────────────────────────────────────────────────────────────────
+// INK_NOMAD — canonical specs
+//   • Solidity 0.8.24 / Foundry
+//   • ERC-721A (gas) + ERC-2981 (royalty) + ERC-4906 (metadata refresh)
+//   • One canonical silhouette, 4 modular trait slots:
+//       HAND · FOREARM · ELBOW · UPPER_ARM
+//   • On-chain: only baseHash (bytes4) + owner
+//   • Level + visuals composed off-chain at /api/metadata/[tokenId]
+//   • Level curve driven by Supercompute Guild Points (consume, never store)
+//   • Hard rules: no duplicate XP system, no on-chain art, OZ-only standards
+// ──────────────────────────────────────────────────────────────────────────
+
+const architectures = [
   {
-    id: "token",
-    label: "Custom Token",
-    title: "$QUANTA · $SCOM",
-    desc: "Dual-token economy. $QUANTA governs the ecosystem. $SCOM gates access to School, TradeDesk, and agent API — staked for security, earned for participation.",
+    id: "contract",
+    label: "01 · Contract",
+    title: "ERC-721A + 2981 + 4906",
+    tag: "SHIPPED",
+    tagColor: "var(--color-sage)",
+    desc: "Solidity 0.8.24, Foundry, OpenZeppelin. safeMint / safeMintBatch / packBaseHash / emitMetadataRefresh. 17/17 tests pass. Royalty default 5%, owner-tunable to 10%. Max supply owner-tunable until reveal. No level math on-chain.",
+    monogram: "0x4e1b…/InkNomad.sol",
+  },
+  {
+    id: "traits",
+    label: "02 · Modularity",
+    title: "4 Slot baseHash",
+    tag: "SHIPPED",
+    tagColor: "var(--color-sage)",
+    desc: "Packed bytes4 = HAND | FOREARM << 8 | ELBOW << 16 | UPPER_ARM << 24. Catalog: 6×4×4×3 = 288 valid combinations. Overflow silently clamps so the on-chain hash stays flexible without breaking display.",
+    monogram: "0x00010203",
+  },
+  {
+    id: "metadata",
+    label: "03 · Endpoint",
+    title: "/api/metadata/[tokenId]",
     tag: "LIVE",
-    color: "var(--accent)",
+    tagColor: "var(--color-teal)",
+    desc: "Reads owner + baseHash on-chain via viem. Fetches Guild Points from guild.xyz/supercompute server-side. Composes a 1024×1024 SVG with stable-per-token glitch scan lines and a level-driven aura. Returns ERC-721 JSON with data:image/svg+xml;base64 image.",
+    monogram: "GET /api/metadata/1",
   },
   {
-    id: "dao",
-    label: "Governance",
-    title: "On-Chain DAO",
-    desc: "Token-weighted proposals for treasury allocation, agent strategy, protocol investments, and platform parameters. Quorum-based voting on Base via Tally.",
-    tag: "BUILD",
-    color: "var(--accent)",
+    id: "level",
+    label: "04 · Level Curve",
+    title: "Guild Points → Level",
+    tag: "WIRED",
+    tagColor: "var(--color-teal)",
+    desc: "level = floor(sqrt(points / 100)). Stored nowhere on-chain — composed at metadata fetch. ERC-4906 BatchMetadataUpdate event lets OpenSea/Reservoir refresh on every level bump without burning gas.",
+    monogram: "level(4218) = 6",
   },
   {
-    id: "staking",
-    label: "Staking + Security",
-    title: "Community Staking",
-    desc: "Time-locked staking with escalating rewards. Lock $SCOM for 30/90/180 days to secure the network, earn yield, and unlock tiered access. Penalty-based early withdrawal.",
-    tag: "LIVE",
-    color: "var(--accent)",
+    id: "page",
+    label: "05 · Character Page",
+    title: "/character",
+    tag: "BUILT",
+    tagColor: "var(--color-sage)",
+    desc: "Wallet-gated (wagmi + RainbowKit). Reads balanceOf → tokenOfOwnerByIndex → /api/metadata. Renders PFP + trait breakdown panel. No holder → mint CTA. View on OpenSea deep link.",
+    monogram: "GET /character",
   },
   {
-    id: "virtuals-agent",
-    label: "Virtuals Protocol",
-    title: "Agent for Small Business",
-    desc: "Deploy a Virtuals Protocol agent on Base to automate treasury ops, manage LP positions, run social campaigns, and execute on-chain workflows — no code required.",
-    tag: "PROPOSED",
-    color: "var(--accent)",
-    link: "https://app.virtuals.io",
-  },
-  {
-    id: "splits",
-    label: "0xSplits",
-    title: "Streaming Splits",
-    desc: "Programmatic revenue splitting via 0xSplits. Automate distribution to contributors, DAO treasury, liquidity pools, and staking rewards — all in one contract.",
-    tag: "INTEGRATE",
-    color: "var(--accent)",
-    link: "https://splits.org",
-  },
-  {
-    id: "farcaster",
-    label: "Farcaster",
-    title: "Marketing on Farcaster",
-    desc: "Agent-published casts for protocol evaluations, governance proposals, and ecosystem updates. On-chain social with Farcaster frames for interactive treasury votes.",
-    tag: "ACTIVE",
-    color: "var(--accent)",
-    link: "https://warpcast.com/supercompute",
-  },
-  {
-    id: "rail",
-    label: "Stateside Rail",
-    title: "Default on Base",
-    desc: "Base Chain as the settlement layer. Coinbase L2 provides fiat on-ramp, institutional custody, and合规 rails — enabling real-world business flows on-chain.",
-    tag: "LIVE",
-    color: "var(--accent)",
-  },
-  {
-    id: "liquidity",
-    label: "Community Liquidity",
-    title: "Held Liquidity Pools",
-    desc: "Community-owned LP positions on Aerodrome. Yield from trading fees flows back to stakers and DAO treasury. Transparent, non-custodial, and governed by token holders.",
-    tag: "BUILD",
-    color: "var(--accent)",
+    id: "mcp",
+    label: "06 · MCP Server",
+    title: "Virtuals Agent Wallet",
+    tag: "NEXT",
+    tagColor: "var(--color-sienna)",
+    desc: "Tiny MCP server exposing mint_nft / get_balance / transfer_nft against InkNomad.sol. Lets the Virtuals agent drive mints with the user's wallet. Path: ~/2026/ink-nomad-mcp/.",
+    monogram: "tools: mint, balance, transfer",
   },
 ]
 
-export default function SolarPunk() {
+const milestones = [
+  {
+    phase: "Jul 2026",
+    title: "Contract + Tests shipped (17/17)",
+    desc: "Solidity scaffold, Foundry build, full test coverage. baseHash packing verified.",
+    status: "done",
+  },
+  {
+    phase: "Jul 2026",
+    title: "Anvil e2e (deploy + mint + readback)",
+    desc: "Deployed at 0x5fbdb2315678afecb367f032d93f642f64180aa3 on chain 31337. Token #1 minted to 0x7099…79C8. ownerOf/balanceOf/tokenURI/baseHashOf all verified via cast.",
+    status: "done",
+  },
+  {
+    phase: "Jul 2026",
+    title: "Metadata endpoint + SVG composer",
+    desc: "Dynamic ERC-721 JSON with composed SVG image. Guild Points reader against guild.xyz v2. Trait catalog (17 entries, 288 unique combinations).",
+    status: "done",
+  },
+  {
+    phase: "Jul 2026",
+    title: "/character page scaffold",
+    desc: "wagmi reads + RainbowKit connect. Mint CTA placeholder. OpenSea deep link.",
+    status: "done",
+  },
+  {
+    phase: "Aug 2026",
+    title: "Real art per slot (cyberpunk)",
+    desc: "Replace placeholder geometry with modular SVG <path> art per trait entry. Composer stays the same — contract unchanged.",
+    status: "next",
+  },
+  {
+    phase: "Aug 2026",
+    title: "Deploy Base Sepolia",
+    desc: "real PRIVATE_KEY + BASESCAN_API_KEY from Mone → public Basescan link → mainnet after audit.",
+    status: "next",
+  },
+  {
+    phase: "Aug 2026",
+    title: "MCP server → Virtuals launch",
+    desc: "Agent wallet mint flow. Public 'Powered by Virtuals' on the launch page.",
+    status: "next",
+  },
+]
+
+// 5 rendered SVG variants for the gallery — different baseHash + level
+// Each shows that the composer actually swings based on chain state.
+const galleryVariants = [
+  { id: 1, baseHash: "0x00010203", level: 7, palette: "Fingers · Chrome · Magnetic · Shoulder" },
+  { id: 2, baseHash: "0x04030201", level: 12, palette: "MechGrip · Plated · Pneumatic · Bulwark" },
+  { id: 3, baseHash: "0x01020300", level: 4, palette: "Solder · Cabled · Servo · Slim" },
+  { id: 4, baseHash: "0x05000000", level: 18, palette: "Holo · Carbon · Fixed · Shoulder" },
+  { id: 5, baseHash: "0x02010101", level: 9, palette: "Claw · Chrome · Servo · Bulwark" },
+]
+
+export default function SolarPunkInkNomad() {
   return (
-    <Layout title="SUPERCOMPUTE · Solar Punk">
-      <section className="hero" style={{
-        position: "relative",
-        overflow: "hidden",
-      }}>
+    <Layout title="SUPERCOMPUTE · Solar Punk · INK_NOMAD">
+      {/* ═══════════════════════════════════════════════════════════════════
+          HERO
+          ═══════════════════════════════════════════════════════════════════ */}
+      <section className="hero" id="solar-punk" style={{ position: "relative", overflow: "hidden" }}>
         <div style={{
           position: "absolute", top: "-40%", right: "-10%", width: "600px", height: "600px",
-          borderRadius: "50%", background: "radial-gradient(circle, rgba(212,175,55,0.12) 0%, transparent 70%)",
+          borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,184,0.12) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
         <div style={{
           position: "absolute", bottom: "-30%", left: "-5%", width: "400px", height: "400px",
-          borderRadius: "50%", background: "radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)",
+          borderRadius: "50%", background: "radial-gradient(circle, rgba(232,200,122,0.08) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
 
         <div style={{ position: "relative", zIndex: 1 }}>
           <div className="hero-kicker">
             <div className="status-dot"></div>
-            <span className="label" style={{ color: "var(--accent)" }}>// solar punk · proposal</span>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--accent)", border: "1px solid var(--accent-dim)", padding: "2px 8px", marginLeft: 8 }}>
-              PHASE 2
+            <span className="label" style={{ color: "var(--color-teal)" }}>// solar punk · build v0.1</span>
+            <span style={{
+              fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--color-sage)",
+              border: "1px solid var(--color-sage)", padding: "2px 8px", marginLeft: 8,
+            }}>
+              PHASE 1 · SHIPPED
             </span>
           </div>
           <h1 className="display-xl hero-title" style={{ fontSize: "clamp(48px, 10vw, 120px)", lineHeight: 0.85, marginBottom: 24 }}>
-            SOLAR<br /><em style={{ color: "var(--accent)" }}>PUNK</em>
+            INK<br /><em style={{ color: "var(--color-teal)" }}>NOMAD</em>
           </h1>
-          <p className="hero-sub" style={{ maxWidth: 600, fontSize: 14, color: "var(--fg)" }}>
-            Sovereign infrastructure meets regenerative finance. Tokenized governance, community-owned liquidity,
-            and autonomous agents building the on-chain economy on Base.
+          <p className="hero-sub" style={{ maxWidth: 620, fontSize: 14, color: "var(--color-text-primary)" }}>
+            Modular cyberpunk character. 1 canonical silhouette, 4 modular limbs.
+            Level curves from Supercompute Guild Points. ERC-721A + 2981 + 4906 on Base.
+            Composed off-chain at request time.
           </p>
-          <div className="hero-actions" style={{ marginTop: 32 }}>
-            <a href="#proposal" className="btn btn-primary" style={{ background: "var(--accent)", borderColor: "var(--accent)" }}>→ View Proposal</a>
-            <a href="https://warpcast.com/supercompute" className="btn btn-outline">Follow on Farcaster</a>
+
+          <div className="hero-actions" style={{ marginTop: 32, display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <a href="#architecture" className="btn btn-primary" style={{ background: "var(--color-gold)", borderColor: "var(--color-gold)", color: "var(--color-bg-primary)" }}>→ Architecture</a>
+            <a href="#gallery" className="btn btn-outline">Rendered Variants</a>
+            <a href="#milestones" className="btn btn-outline">Build Log</a>
+            <a href="/character" className="btn btn-outline">/character ↗</a>
+          </div>
+
+          <div style={{ marginTop: 40, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
+            {[
+              { k: "Standards", v: "ERC-721A · 2981 · 4906" },
+              { k: "Tests", v: "17 / 17 passing" },
+              { k: "Slots", v: "4 modular limbs" },
+              { k: "Combos", v: "288 valid" },
+              { k: "Network", v: "Base (Chain ID 8453)" },
+              { k: "Royalty", v: "5% default · 10% max" },
+            ].map(m => (
+              <div key={m.k} style={{
+                border: "1px solid var(--color-border)",
+                background: "var(--color-bg-secondary)",
+                padding: "14px 16px",
+              }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-text-muted)" }}>
+                  {m.k}
+                </div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--color-gold)", marginTop: 4 }}>
+                  {m.v}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="section" id="proposal">
+      {/* ═══════════════════════════════════════════════════════════════════
+          ARCHITECTURE — what we built
+          ═══════════════════════════════════════════════════════════════════ */}
+      <section className="section" id="architecture">
         <div className="section-header">
-          <div className="label" style={{ color: "var(--accent)" }}>// features</div>
-          <div><h2 className="display-md">Solar Punk Proposal</h2></div>
+          <div className="label" style={{ color: "var(--color-teal)" }}>// architecture</div>
+          <div><h2 className="display-md">Solar Punk / INK_NOMAD Stack</h2></div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
-          {features.map((f) => (
-            <div key={f.id} style={{
-              background: "var(--bg)", padding: "28px 24px",
-              display: "flex", flexDirection: "column",
-              transition: "background 0.2s",
-            }}>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 1, background: "var(--color-border)", border: "1px solid var(--color-border)" }}>
+          {architectures.map((a) => (
+            <div key={a.id} style={{ background: "var(--color-bg-primary)", padding: "28px 24px", display: "flex", flexDirection: "column" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <div className="label-sm" style={{ color: f.color }}>// {f.label}</div>
+                <div className="label-sm" style={{ color: "var(--color-teal)" }}>// {a.label}</div>
                 <span style={{
-                  fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.1em", textTransform: "uppercase",
-                  padding: "2px 8px", border: `1px solid ${f.color}33`, color: f.color,
+                  fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.1em",
+                  textTransform: "uppercase", padding: "2px 8px",
+                  border: `1px solid ${a.tagColor}55`, color: a.tagColor,
                 }}>
-                  {f.tag}
+                  {a.tag}
                 </span>
               </div>
               <div style={{
-                fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700, textTransform: "uppercase",
-                letterSpacing: "0.02em", marginBottom: 10, color: f.color,
+                fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700,
+                textTransform: "uppercase", letterSpacing: "0.02em",
+                marginBottom: 10, color: "var(--color-gold)",
               }}>
-                {f.title}
+                {a.title}
               </div>
-              <p style={{ fontSize: 12, color: "var(--fg)", lineHeight: 1.7, flex: 1, marginBottom: 16 }}>
-                {f.desc}
+              <p style={{ fontSize: 12, color: "var(--color-text-primary)", lineHeight: 1.7, flex: 1, marginBottom: 16 }}>
+                {a.desc}
               </p>
-              {f.link && (
-                <a href={f.link} target="_blank" rel="noopener noreferrer" style={{
-                  fontFamily: "var(--font-mono)", fontSize: 10, color: f.color,
-                  textDecoration: "none", borderBottom: `1px solid ${f.color}44`,
-                  alignSelf: "flex-start", paddingBottom: 2,
-                }}>
-                  → {f.link.replace("https://", "")}
-                </a>
-              )}
+              <div style={{
+                fontFamily: "var(--font-mono)", fontSize: 10,
+                color: "var(--color-teal)", borderTop: "1px solid var(--color-border-subtle)",
+                paddingTop: 10,
+              }}>
+                {a.monogram}
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="section">
+      {/* ═══════════════════════════════════════════════════════════════════
+          GALLERY — rendered characters from the composer
+          ═══════════════════════════════════════════════════════════════════ */}
+      <section className="section" id="gallery">
         <div className="section-header">
-          <div className="label" style={{ color: "var(--accent)" }}>// roadmap</div>
-          <div><h2 className="display-md">Phase 2 Milestones</h2></div>
+          <div className="label" style={{ color: "var(--color-teal)" }}>// rendered</div>
+          <div><h2 className="display-md">Composer Output · 5 Variants</h2></div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
-          {[
-            { phase: "Q3 2026", title: "Token Launch + DAO Genesis", desc: "$QUANTA TGE on Base. DAO constitution vote. Initial staking pools open.", status: "planned" },
-            { phase: "Q3 2026", title: "Virtuals Agent Deployment", desc: "Small business agent template on Virtuals Protocol. No-code agent deployment.", status: "planned" },
-            { phase: "Q4 2026", title: "Community Liquidity Pools", desc: "Aerodrome LP positions governed by DAO. Yield distribution to stakers.", status: "planned" },
-            { phase: "Q4 2026", title: "0xSplits Integration", desc: "Automated revenue splitting for DAO contributors and liquidity providers.", status: "planned" },
-            { phase: "Q1 2027", title: "Stateside Compliance Rail", desc: "Full合规 on-ramp/off-ramp via Coinbase. Institutional custody integration.", status: "planned" },
-          ].map((m, i) => (
+        <p style={{ fontSize: 12, color: "var(--color-text-secondary)", marginBottom: 24, maxWidth: 720, lineHeight: 1.7 }}>
+          These SVGs are produced by <code style={{ color: "var(--color-teal)" }}>composeCharacterSvg({`{ tokenId, traits, level }`})</code> in
+          <code style={{ color: "var(--color-teal)" }}> lib/inkNomadTraits.ts</code>. Each variant shows a different
+          baseHash combination at a different level — the aura opacity scales with level, the glitch scan lines
+          are seeded by tokenId, and the limb geometry swaps color per trait choice.
+        </p>
+
+        <div style={{
+          display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
+          gap: 16, border: "1px solid var(--color-border)",
+        }}>
+          {galleryVariants.map((v) => (
+            <div key={v.id} style={{
+              background: "var(--color-bg-secondary)",
+              border: "1px solid var(--color-border-subtle)",
+              padding: 16,
+            }}>
+              <div style={{ position: "relative", aspectRatio: "1 / 1", marginBottom: 12, overflow: "hidden", border: "1px solid var(--color-border-subtle)" }}>
+                <img
+                  src={`/solar-punk/ink_nomad_${v.id}.svg`}
+                  alt={`INK_NOMAD #${v.id}`}
+                  style={{ width: "100%", height: "100%", display: "block" }}
+                />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--color-gold)" }}>
+                  INK_NOMAD #{String(v.id).padStart(4, "0")}
+                </div>
+                <div style={{
+                  fontFamily: "var(--font-mono)", fontSize: 9,
+                  letterSpacing: "0.1em", padding: "2px 6px",
+                  border: "1px solid var(--color-teal)", color: "var(--color-teal)",
+                }}>
+                  LEVEL {v.level}
+                </div>
+              </div>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--color-teal-dim)" }}>
+                baseHash {v.baseHash}
+              </div>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--color-text-secondary)", marginTop: 4, fontStyle: "italic" }}>
+                {v.palette}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          MILESTONES — build log
+          ═══════════════════════════════════════════════════════════════════ */}
+      <section className="section" id="milestones">
+        <div className="section-header">
+          <div className="label" style={{ color: "var(--color-teal)" }}>// build log</div>
+          <div><h2 className="display-md">Milestones</h2></div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "var(--color-border)", border: "1px solid var(--color-border)" }}>
+          {milestones.map((m, i) => (
             <div key={i} style={{
-              background: "var(--bg)", padding: "18px 24px",
-              display: "grid", gridTemplateColumns: "80px 1fr", gap: 20, alignItems: "start",
+              background: "var(--color-bg-primary)", padding: "18px 24px",
+              display: "grid", gridTemplateColumns: "100px 1fr 100px", gap: 20, alignItems: "start",
             }}>
               <div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--accent)", marginBottom: 2 }}>{m.phase}</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--color-teal)", marginBottom: 2 }}>
+                  {m.phase}
+                </div>
                 <span style={{
                   fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.1em",
-                  padding: "2px 6px", border: "1px solid var(--border)", color: "var(--fg)",
+                  padding: "2px 6px",
+                  border: `1px solid ${m.status === "done" ? "var(--color-sage)" : "var(--color-sienna)"}`,
+                  color: m.status === "done" ? "var(--color-sage)" : "var(--color-sienna)",
                 }}>
                   {m.status}
                 </span>
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{m.title}</div>
-                <p style={{ fontSize: 11, color: "var(--fg)", lineHeight: 1.6 }}>{m.desc}</p>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4, color: "var(--color-text-primary)" }}>{m.title}</div>
+                <p style={{ fontSize: 11, color: "var(--color-text-secondary)", lineHeight: 1.6 }}>{m.desc}</p>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="section-header">
-          <div className="label" style={{ color: "var(--accent)" }}>// timeline</div>
-          <div><h2 className="display-md">Funding Timeline</h2></div>
-        </div>
-        <div style={{ position: "relative", paddingLeft: 32 }}>
-          <div style={{
-            position: "absolute", left: 10, top: 0, bottom: 0, width: 2,
-            background: "var(--accent-dim)",
-          }} />
-          {[
-            { name: "NFT", type: "Profile Photo", raise: "Conviction Raise", color: "var(--accent)" },
-            { name: "T-Shirt", type: "Community", raise: "Conviction Raise", color: "var(--accent)" },
-            { name: "Nomad", type: "Small Business", raise: "Wellbeing Vending", color: "var(--accent)" },
-            { name: "HomeSchool", type: "Education", raise: "Conviction Raise", color: "var(--accent)" },
-            { name: "OSE", type: "Open Source Ecology", raise: "Serious Raise", color: "var(--accent)" },
-            { name: "Vertical Farming", type: "Infrastructure", raise: "Serious Raise", color: "var(--accent)" },
-            { name: "DAO", type: "Governance", raise: "A DAO", color: "var(--accent)" },
-            { name: "Roaming", type: "Afropunk / Solar Punk", raise: "Final Boss Raise", color: "var(--accent)" },
-          ].map((item, i) => (
-            <div key={i} style={{
-              position: "relative", padding: "20px 0 20px 32px",
-              borderBottom: i < 7 ? "1px solid var(--border)" : "none",
-            }}>
-              <div style={{
-                position: "absolute", left: -26, top: 24, width: 14, height: 14,
-                borderRadius: "50%", background: "var(--bg)", border: "2px solid var(--accent)",
-              }} />
-              <div style={{ display: "grid", gridTemplateColumns: "140px 1fr auto", gap: 16, alignItems: "center" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 700, color: "var(--accent)" }}>
-                  {item.name}
-                </div>
-                <div>
-                  <div style={{ fontSize: 12, color: "var(--fg)", lineHeight: 1.5 }}>{item.type}</div>
-                </div>
+              <div style={{ textAlign: "right" }}>
                 <span style={{
-                  fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase",
-                  padding: "4px 10px", border: "1px solid var(--accent-dim)", color: "var(--accent)",
-                  whiteSpace: "nowrap",
+                  fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--color-text-muted)",
+                  letterSpacing: "0.05em",
                 }}>
-                  {item.raise}
+                  {String(i + 1).padStart(2, "0")} / {String(milestones.length).padStart(2, "0")}
                 </span>
               </div>
             </div>
@@ -241,41 +342,75 @@ export default function SolarPunk() {
         </div>
       </section>
 
+      {/* ═══════════════════════════════════════════════════════════════════
+          PRINCIPLES — what we don't do
+          ═══════════════════════════════════════════════════════════════════ */}
       <section className="section">
         <div className="section-header">
-          <div className="label" style={{ color: "var(--accent)" }}>// farcaster</div>
-          <div><h2 className="display-md">Live Feed</h2></div>
+          <div className="label" style={{ color: "var(--color-teal)" }}>// principles</div>
+          <div><h2 className="display-md">Hard Rules, Respected</h2></div>
         </div>
-        <div style={{ marginBottom: 16 }}>
-          <p style={{ fontSize: 12, color: "var(--fg)", lineHeight: 1.6 }}>
-            Latest from the Supercompute channel. Powered by Neynar + Snapchain.
-          </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 1, background: "var(--color-border)", border: "1px solid var(--color-border)" }}>
+          {[
+            { num: "01", t: "No duplicate XP", d: "Level comes from guild.xyz/supercompute. The contract stores zero level math. ERC-4906 refreshes marketplace metadata when Guild Points change." },
+            { num: "02", t: "No on-chain art", d: "Art is IPFS / endpoint-served SVG. Contract stores only the bytes4 baseHash pointing into the trait catalog." },
+            { num: "03", t: "OZ-only standards", d: "ERC-721A (gas), ERC-2981 (royalty), ERC-4906 (metadata refresh). No proprietary shadows of token standards." },
+            { num: "04", t: "Royalty capped", d: "5% default, max 10%. Owner-tunable at any time via setRoyaltyInfo(receiver, bps)." },
+            { num: "05", t: "Clean code first", d: "Art deferred until final assets land. Composer stays the only art-touching surface — zero contract changes for art swaps." },
+            { num: "06", t: "One canonical silhouette", d: "288 modular combos but 1 body. Modular at the limb slots, canonical at the figure — same visual fingerprint, different limbs." },
+          ].map((p) => (
+            <div key={p.num} style={{ background: "var(--color-bg-primary)", padding: "20px" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--color-text-muted)", letterSpacing: "0.1em" }}>
+                RULE {p.num}
+              </div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 14, color: "var(--color-gold)", marginTop: 6, marginBottom: 8, textTransform: "uppercase" }}>
+                {p.t}
+              </div>
+              <p style={{ fontSize: 11, color: "var(--color-text-secondary)", lineHeight: 1.6 }}>
+                {p.d}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          FARCASTER feed (keep parity with old page)
+          ═══════════════════════════════════════════════════════════════════ */}
+      <section className="section">
+        <div className="section-header">
+          <div className="label" style={{ color: "var(--color-teal)" }}>// farcaster</div>
+          <div><h2 className="display-md">Live Feed</h2></div>
         </div>
         <FarcasterFeed fid="" />
       </section>
 
+      {/* ═══════════════════════════════════════════════════════════════════
+          LINKS
+          ═══════════════════════════════════════════════════════════════════ */}
       <section className="section">
         <div className="section-header">
-          <div className="label" style={{ color: "var(--accent)" }}>// links</div>
+          <div className="label" style={{ color: "var(--color-teal)" }}>// links</div>
           <div><h2 className="display-md">Ecosystem</h2></div>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {[
-            { label: "Virtuals Protocol", href: "https://app.virtuals.io", desc: "Deploy agents on Base" },
-            { label: "0xSplits", href: "https://splits.org", desc: "Streaming revenue splits" },
-            { label: "Farcaster", href: "https://warpcast.com/supercompute", desc: "On-chain social" },
-            { label: "Aerodrome", href: "https://aerodrome.finance", desc: "Community LP pools" },
+            { label: "Virtuals Protocol", href: "https://app.virtuals.io", desc: "Agent wallet · MCP target" },
+            { label: "Guild.xyz", href: "https://guild.xyz/supercompute", desc: "Level source (no duplicate XP)" },
             { label: "Base Chain", href: "https://base.org", desc: "Settlement layer" },
-            { label: "Tally", href: "https://tally.xyz", desc: "DAO governance" },
+            { label: "OpenZeppelin", href: "https://docs.openzeppelin.com", desc: "Contract standards" },
+            { label: "Chiru Labs · ERC-721A", href: "https://github.com/chiru-labs/ERC721A", desc: "Gas-optimized batch mint" },
+            { label: "Foundry", href: "https://getfoundry.sh", desc: "Solidity toolchain" },
           ].map((link) => (
             <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" style={{
-              background: "var(--surface)", border: "1px solid var(--border)", padding: "14px 18px",
-              textDecoration: "none", display: "flex", flexDirection: "column", gap: 4,
-              minWidth: 180, flex: 1,
+              background: "var(--color-bg-secondary)", border: "1px solid var(--color-border)",
+              padding: "14px 18px", textDecoration: "none",
+              display: "flex", flexDirection: "column", gap: 4,
+              minWidth: 200, flex: 1,
             }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--accent)" }}>{link.label}</div>
-              <div style={{ fontSize: 11, color: "var(--fg)" }}>{link.desc}</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--accent)", marginTop: 4 }}>→</div>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--color-teal)" }}>{link.label}</div>
+              <div style={{ fontSize: 11, color: "var(--color-text-secondary)" }}>{link.desc}</div>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--color-gold)", marginTop: 4 }}>→</div>
             </a>
           ))}
         </div>

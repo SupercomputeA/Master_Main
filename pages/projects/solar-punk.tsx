@@ -99,9 +99,15 @@ const milestones = [
     status: "done",
   },
   {
+    phase: "Jul 2026",
+    title: "Real character art (canonical INK_NOMAD)",
+    desc: "Generated against OpenDesign cyberpunk-game-trailer-script prompt body. Athletic Black male with chest tattoos, gold hoop, cigarette, four modular prosthetic arm compositions (CYAN PULSE / MAGENTA SERVO / AMBER BULWARK / TEAL HOLO). baseHash drives which composition renders.",
+    status: "done",
+  },
+  {
     phase: "Aug 2026",
-    title: "Real art per slot (cyberpunk)",
-    desc: "Replace placeholder geometry with modular SVG <path> art per trait entry. Composer stays the same — contract unchanged.",
+    title: "Modular limb layering (SVG <g> per trait entry)",
+    desc: "Move from one image per baseHash to procedurally layered prosthetic arms drawn as SVG <g> paths. Composer signature stays the same.",
     status: "next",
   },
   {
@@ -118,15 +124,14 @@ const milestones = [
   },
 ]
 
-// 5 rendered SVG variants for the gallery — different baseHash + level
-// Each shows that the composer actually swings based on chain state.
+// 4 rendered INK_NOMAD variants — same canonical character body, modular limbs.
+// baseHash drives which composition is shown: identical bodies, different prosthetics.
 const galleryVariants = [
-  { id: 1, baseHash: "0x00010203", level: 7, palette: "Fingers · Chrome · Magnetic · Shoulder" },
-  { id: 2, baseHash: "0x04030201", level: 12, palette: "MechGrip · Plated · Pneumatic · Bulwark" },
-  { id: 3, baseHash: "0x01020300", level: 4, palette: "Solder · Cabled · Servo · Slim" },
-  { id: 4, baseHash: "0x05000000", level: 18, palette: "Holo · Carbon · Fixed · Shoulder" },
-  { id: 5, baseHash: "0x02010101", level: 9, palette: "Claw · Chrome · Servo · Bulwark" },
-]
+  { id: 1, file: "ink_nomad_1.png", baseHash: "0x00010203", level: 7, palette: "Fingers · Carbon · Magnetic · Shoulder", label: "CYAN PULSE", accent: "#00F0FF", tier: "VETERAN" },
+  { id: 2, file: "ink_nomad_2.png", baseHash: "0x04030201", level: 12, palette: "Claw · Plated · Servo · Slim", label: "MAGENTA SERVO", accent: "#B026FF", tier: "ELITE" },
+  { id: 3, file: "ink_nomad_3.png", baseHash: "0x05000000", level: 18, palette: "MechGrip · Cabled · Pneumatic · Bulwark", label: "AMBER BULWARK", accent: "#FF6B6B", tier: "LEGENDARY" },
+  { id: 4, file: "ink_nomad_4.png", baseHash: "0x02010101", level: 9, palette: "Holo · Carbon · Magnetic · Slim", label: "TEAL HOLO", accent: "#39FF14", tier: "VETERAN" },
+] as const
 
 export default function SolarPunkInkNomad() {
   return (
@@ -252,10 +257,11 @@ export default function SolarPunkInkNomad() {
           <div><h2 className="display-md">Composer Output · 5 Variants</h2></div>
         </div>
         <p style={{ fontSize: 12, color: "var(--color-text-secondary)", marginBottom: 24, maxWidth: 720, lineHeight: 1.7 }}>
-          These SVGs are produced by <code style={{ color: "var(--color-teal)" }}>composeCharacterSvg({`{ tokenId, traits, level }`})</code> in
-          <code style={{ color: "var(--color-teal)" }}> lib/inkNomadTraits.ts</code>. Each variant shows a different
-          baseHash combination at a different level — the aura opacity scales with level, the glitch scan lines
-          are seeded by tokenId, and the limb geometry swaps color per trait choice.
+          These renders are the canonical INK_NOMAD character from the OpenDesign
+          <code style={{ color: "var(--color-teal)" }}> cyberpunk-game-trailer-script</code> prompt body — same body
+          every time, modular prosthetic arms driven by <code style={{ color: "var(--color-teal)" }}>baseHash</code>.
+          The composition happens in <code style={{ color: "var(--color-teal)" }}>composeCharacterSvg()</code> at request time;
+          the contract only stores 4 bytes. Swap trait variants → swap the arm art, no contract change.
         </p>
 
         <div style={{
@@ -270,9 +276,9 @@ export default function SolarPunkInkNomad() {
             }}>
               <div style={{ position: "relative", aspectRatio: "1 / 1", marginBottom: 12, overflow: "hidden", border: "1px solid var(--color-border-subtle)" }}>
                 <img
-                  src={`/solar-punk/ink_nomad_${v.id}.svg`}
-                  alt={`INK_NOMAD #${v.id}`}
-                  style={{ width: "100%", height: "100%", display: "block" }}
+                  src={`/solar-punk/${v.file}`}
+                  alt={`INK_NOMAD #${v.id} — ${v.label}`}
+                  style={{ width: "100%", height: "100%", display: "block", objectFit: "cover" }}
                 />
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
@@ -282,13 +288,13 @@ export default function SolarPunkInkNomad() {
                 <div style={{
                   fontFamily: "var(--font-mono)", fontSize: 9,
                   letterSpacing: "0.1em", padding: "2px 6px",
-                  border: "1px solid var(--color-teal)", color: "var(--color-teal)",
+                  border: `1px solid ${v.accent}`, color: v.accent,
                 }}>
-                  LEVEL {v.level}
+                  {v.tier}
                 </div>
               </div>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--color-teal-dim)" }}>
-                baseHash {v.baseHash}
+                baseHash {v.baseHash} · L{v.level} · {v.label}
               </div>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--color-text-secondary)", marginTop: 4, fontStyle: "italic" }}>
                 {v.palette}

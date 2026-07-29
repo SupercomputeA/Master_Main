@@ -7,16 +7,12 @@
 /newsdesk/base-ecosystem-guide                    /newsdesk/article   200
 /newsdesk/refi-deep-dive                          /newsdesk/article   200
 
-# Legal + demo pages — serve static HTML files at canonical URLs.
-# Cloudflare Pages auto-redirects /demo → /demo/ → /demo (infinite loop with the rule below).
-# Workaround: serve the .html directly for both with- and without-trailing-slash.
-# The /* catch-all below still handles non-existent routes.
-/demo         /demo.html     200
-/demo/        /demo.html     200
-/terms        /terms.html    200
-/terms/       /terms.html    200
-/privacy      /privacy.html  200
-/privacy/     /privacy.html  200
+# Legal + demo pages — served via index.html inside subdirectories so Cloudflare's
+# native directory resolution handles them (no redirect loop). The /* catch-all
+# below still handles non-existent routes.
+/terms/    /terms/index.html    200
+/privacy/  /privacy/index.html  200
+/demo/     /demo/index.html     200
 
 # SPA fallback — route all remaining non-file, non-API 404s to index.html
 /*    /index.html   200

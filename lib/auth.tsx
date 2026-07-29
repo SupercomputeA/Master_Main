@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { connect: wagmiConnect, connectors } = useConnect()
   const { disconnect: wagmiDisconnect } = useDisconnect()
   const { signMessageAsync } = useSignMessage()
-  const { data: ensName } = useEnsName({ address, chainId: base.id })
+  const { data: ensName } = useEnsName({ address, chainId: mainnet.id })
 
   const [session, setSession] = useState<string | null>(null)
   const [profile, setProfile] = useState<Profile>(null)

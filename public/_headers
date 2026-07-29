@@ -14,6 +14,13 @@ Cross-Origin-Embedder-Policy: require-corp
 *.png: Cache-Control: public, max-age=31536000, immutable
 *.svg: Cache-Control: public, max-age=31536000, immutable
 
+/* ENS resolver — short browser cache, longer CDN edge cache.
+ * Server-side KV handles the heavy lifting (1h TTL); these headers
+ * just spare the edge from re-hitting the Worker for repeat reads. */
+/api/ens/*
+  Cache-Control: public, max-age=60, s-maxage=300
+  Access-Control-Allow-Origin: *
+
 /* Security headers */
 X-Content-Type-Options: nosniff
 X-Frame-Options: DENY

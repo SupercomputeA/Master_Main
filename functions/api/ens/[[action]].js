@@ -24,6 +24,13 @@
 const DEFAULT_RPC = "https://ethereum-rpc.publicnode.com"
 const CACHE_TTL = 3600 // 1 hour — ENS state can change; never cache longer
 
+// ENS_RPC_URL is set in wrangler.toml [vars]; per-env override via Cloudflare
+// dashboard. The endpoint never throws if ENS_RPC_URL is unset — it just
+// falls back to the public RPC below.
+function getRpcUrl(env) {
+  return env?.ENS_RPC_URL || DEFAULT_RPC
+}
+
 // ── ENS Contract ABI fragments (text records, addr reverse) ────────────────
 //
 // addr(node) — public ENS resolver ABI fragment (canonical function signature)

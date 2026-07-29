@@ -14,14 +14,30 @@ Cross-Origin-Embedder-Policy: require-corp
 *.png: Cache-Control: public, max-age=31536000, immutable
 *.svg: Cache-Control: public, max-age=31536000, immutable
 
-/* ENS resolver — short browser cache, longer CDN edge cache.
- * Server-side KV handles the heavy lifting (1h TTL); these headers
- * just spare the edge from re-hitting the Worker for repeat reads. */
+/* ENS resolver — short browser cache, longer CDN edge cache (KV TTL 1h) */
 /api/ens/*
   Cache-Control: public, max-age=60, s-maxage=300
   Access-Control-Allow-Origin: *
 
-/* Security headers */
+/* Security headers — applied to all responses */
+/*
+ * Content-Security-Policy
+ * - default-src 'self' — same-origin by default
+ * - script-src 'self' 'unsafe-inline' 'unsafe-eval' — Next.js requires inline + eval for hydration
+ *   (acceptable for static export; tighten with nonce-based CSP after Next 16 upgrade)
+ * - style-src 'self' 'unsafe-inline' — same; CSS-in-JS for the Terminal Dossier
+ * - img-src 'self' data: https: — R2 + IPFS + data URIs for NFT metadata
+ * - connect-src 'self' https: wss: — public RPCs (Base, mainnet) + Cloudflare WS
+ * - frame-ancestors 'none' — clickjacking
+ * - form-action 'self' — no third-party form posts
+ * - base-uri 'self' — no <base> tag injection
+ * - object-src 'none' — no <object>/<embed>
+ * - upgrade-insecure-requests — auto-upgrade any accidental http://
+ */
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https: wss:; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests
+
 X-Content-Type-Options: nosniff
 X-Frame-Options: DENY
 Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload

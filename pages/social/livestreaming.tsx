@@ -1,4 +1,4 @@
-import Layout from "../../components/Layout"
+import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 
 const streams = [
@@ -34,7 +34,7 @@ const streams = [
 
 export default function LiveStreaming() {
   return (
-    <Layout title="SUPERCOMPUTE · LiveStream">
+    <PublicLayout title="SUPERCOMPUTE · LiveStream">
       <section className="hero" id="livestream">
         <div className="hero-kicker">
           <div className="status-dot"></div>
@@ -119,6 +119,6 @@ export default function LiveStreaming() {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

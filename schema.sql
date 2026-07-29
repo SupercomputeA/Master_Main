@@ -21,8 +21,10 @@ CREATE TABLE articles (
   author TEXT,
   icon TEXT,
   views INTEGER DEFAULT 0,
+  status TEXT DEFAULT 'published', -- draft, review, published
   published_at INTEGER,
-  created_at INTEGER DEFAULT (unixepoch())
+  created_at INTEGER DEFAULT (unixepoch()),
+  updated_at INTEGER DEFAULT (unixepoch())
 );
 
 -- Staking positions

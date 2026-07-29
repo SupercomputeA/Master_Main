@@ -1,4 +1,4 @@
-import Layout from "../../components/Layout"
+import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 import { useAuth } from "../../lib/auth"
 import { useState } from "react"
@@ -29,7 +29,7 @@ export default function ProjectsCreate() {
 
   if (!session || !isAdmin) {
     return (
-      <Layout title="SUPERCOMPUTE · Create Project">
+      <PublicLayout title="SUPERCOMPUTE · Create Project">
         <section className="hero" id="projects-create">
           <div className="hero-kicker"><div className="status-dot"></div><span className="label">// admin · create</span></div>
           <h1 className="display-xl hero-title">CREATE<br /><em>PROJECT</em></h1>
@@ -41,12 +41,12 @@ export default function ProjectsCreate() {
           </div>
         </section>
         <Footer />
-      </Layout>
+      </PublicLayout>
     )
   }
 
   return (
-    <Layout title="SUPERCOMPUTE · Create Project">
+    <PublicLayout title="SUPERCOMPUTE · Create Project">
       <section className="hero" id="projects-create">
         <div className="hero-kicker"><div className="status-dot"></div><span className="label">// admin · create</span></div>
         <h1 className="display-xl hero-title">CREATE<br /><em>PROJECT</em></h1>
@@ -287,7 +287,7 @@ export default function ProjectsCreate() {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }
 

@@ -76,51 +76,30 @@ async function recordFailedAttempt(env, address) {
 }
 
 // ── ENS Resolution ───────────────────────────────────────────────────────────
-const ENS_RESOLVER = '0x231b0ee14048e9dccd1d247744d114a4eb5e8e63';
-const ADDR_SELECTOR = '3b3b57de'; // addr(bytes32)
+// Direct RPC namehash requires keccak-256, which Web Crypto API doesn't support.
+// Use public ENS resolution APIs instead (works in Cloudflare Workers).
 
 async function resolveENS(addressOrName) {
   // Already an address
   if (addressOrName.startsWith('0x') && addressOrName.length === 42) {
     return addressOrName.toLowerCase();
   }
-  // ENS name — resolve via public Ethereum RPC
-  const namehash = namehashEncode(addressOrName);
-  const data = ADDR_SELECTOR + namehash;
+  // ENS name — resolve via public API
   try {
-    const res = await fetch('https://ethereum.publicnode.com', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'eth_call',
-        params: [{ to: ENS_RESOLVER, data }, 'latest'],
-        id: 1,
-      }),
-    });
-    const json = await res.json();
-    const result = json.result || '0x';
-    if (result !== '0x' && result.length === 66) {
-      return '0x' + result.slice(-40);
+    const res = await fetch(`https://api.ensideas.com/resolve/${encodeURIComponent(addressOrName)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.address) return data.address.toLowerCase();
     }
-  } catch (e) { /* fall through */ }
+  } catch {}
+  try {
+    const res = await fetch(`https://ensdata.net/api/resolve/${encodeURIComponent(addressOrName)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.address) return data.address.toLowerCase();
+    }
+  } catch {}
   return null;
-}
-
-function namehashEncode(name) {
-  const labels = name.split('.').filter(Boolean);
-  let node = new Uint8Array(32);
-  const crypto = require('crypto');
-  for (let i = labels.length - 1; i >= 0; i--) {
-    const labelBytes = new TextEncoder().encode(labels[i]);
-    const data = new Uint8Array(32 + 1 + labelBytes.length);
-    data.set(node, 0);
-    data[32] = labelBytes.length;
-    data.set(labelBytes, 33);
-    const hash = crypto.createHash('sha3-256').update(Buffer.from(data)).digest();
-    node = new Uint8Array(hash);
-  }
-  return Array.from(node).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 // ── Auth checks ─────────────────────────────────────────────────────────────
@@ -208,76 +187,11 @@ export async function onRequest({ request, env }) {
     return j({ message });
   }
 
-  // POST /api/auth/login
-  if (method === 'POST' && path === '/login') {
-    const body = await request.json().catch(() => ({}));
-    const { address, signature, nonce } = body;
+  // POST /api/auth/login — handled by auth/login.js (directory file takes priority)
+  // The catchall below is dead code kept only for reference; it will never run
+  // because Cloudflare Pages routes /api/auth/login to auth/login.js.
 
-    if (!address || !signature) return j({ error: 'address and signature required' }, 400);
-
-    const wallet = address.toLowerCase();
-    if (!isValidAddress(wallet)) return j({ error: 'Invalid address' }, 400);
-
-    // Rate limit
-    if (env?.CACHE) {
-      const rl = await checkRateLimit(env, wallet);
-      if (!rl.allowed) {
-        return new Response(JSON.stringify({ error: 'Too many login attempts', retryAfter: rl.resetIn }), {
-          status: 429, headers: { ...cors, 'Content-Type': 'application/json', 'Retry-After': String(rl.resetIn) },
-        });
-      }
-    }
-
-    // Signature format validation (65 bytes for personal_sign)
-    const sigBytes = typeof signature === 'string' ? hexToBytes(signature) : signature;
-    if (!sigBytes || sigBytes.length !== 65) {
-      if (env?.CACHE) await recordFailedAttempt(env, wallet);
-      return j({ error: 'Invalid signature format' }, 400);
-    }
-    const v = sigBytes[64];
-    if (v !== 27 && v !== 28 && v !== 31 && v !== 32) {
-      if (env?.CACHE) await recordFailedAttempt(env, wallet);
-      return j({ error: 'Invalid signature v value' }, 400);
-    }
-
-    // Consume nonce
-    if (env?.CACHE && nonce) await env.CACHE.delete(`siwe:nonce:${nonce}`);
-
-    // Create session
-    const sessionId = generateNonce();
-    const sessionExpiry = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;
-    if (env?.DB) {
-      await env.DB.prepare(`
-        INSERT OR REPLACE INTO sessions (id, wallet_address, expires_at)
-        VALUES (?, ?, ?)
-      `).bind(sessionId, wallet, sessionExpiry).run();
-    }
-
-    // Check admin
-    const admin = await isAdmin(env, wallet);
-
-    // Upsert user
-    if (env?.DB) {
-      const existing = await env.DB.prepare('SELECT * FROM users WHERE wallet_address = ?').bind(wallet).first();
-      if (!existing) {
-        await env.DB.prepare('INSERT INTO users (id, wallet_address, name, role) VALUES (?, ?, ?, ?)')
-          .bind(generateNonce(), wallet, formatAddress(wallet), admin ? 'admin' : 'user').run();
-      }
-    }
-
-    return j({
-      success: true,
-      session: sessionId,
-      user: {
-        id: wallet,
-        name: formatAddress(wallet),
-        address: wallet,
-        role: admin ? 'admin' : 'user',
-      },
-    });
-  }
-
-  // GET /api/auth/profile
+  // GET /api/auth/profile — handled by auth/profile.js
   if (method === 'GET' && path === '/profile') {
     const { valid, wallet } = await verifySession(env, request.headers.get('Authorization'));
     if (!valid) return j({ user: null });

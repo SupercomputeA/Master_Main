@@ -1,5 +1,5 @@
 import { useState } from "react"
-import Layout from "../../components/Layout"
+import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 
 const tabs = [
@@ -17,7 +17,7 @@ export default function ProjectGuide() {
   const [tab, setTab] = useState("setup")
 
   return (
-    <Layout title="SUPERCOMPUTE · Project Guide">
+    <PublicLayout title="SUPERCOMPUTE · Project Guide">
       <section className="hero" id="project-guide">
         <div className="hero-kicker">
           <div className="status-dot"></div>
@@ -211,6 +211,6 @@ export default function ProjectGuide() {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

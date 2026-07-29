@@ -1,4 +1,4 @@
-import Layout from "../components/Layout"
+import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 import { useAuth } from "../lib/auth"
 
@@ -31,7 +31,7 @@ export default function Account() {
   const { session, profile } = useAuth()
 
   return (
-    <Layout title="SUPERCOMPUTE · Profile">
+    <PublicLayout title="SUPERCOMPUTE · Profile">
       <section className="hero" id="account">
         <div className="hero-kicker">
           <div className="status-dot"></div>
@@ -166,6 +166,6 @@ export default function Account() {
       )}
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

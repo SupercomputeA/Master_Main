@@ -112,7 +112,7 @@ export const modules: SchoolModule[] = [
     duration: "4 hours",
     credential: "Agent Systems Graduate",
     icon: "🤖",
-    color: "#7c3aed",
+    color: "#C9A33A",
     lessons: [
       { id: "AS-01-01", title: "Agent Architecture", description: "Core components of autonomous agents — perception, reasoning, action loops.", duration: "25 min", topics: ["Agent loops", "LLM integration", "Tool use", "Memory systems"] },
       { id: "AS-01-02", title: "On-Chain Identity for Agents", description: "Giving agents wallets, signing capabilities, and on-chain reputation.", duration: "30 min", topics: ["Agent wallets", "Delegated signing", "On-chain attestations", "Reputation tracking"] },

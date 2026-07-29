@@ -17,68 +17,90 @@ function bytesToHex(bytes) {
 }
 
 async function rpcCall(rpcUrl, method, params) {
-  const res = await fetch(rpcUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", method, params, id: 1 }),
-  })
-  const json = await res.json()
-  return json.result
+  try {
+    const res = await fetch(rpcUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", method, params, id: 1 }),
+    })
+    if (!res.ok) return null
+    const json = await res.json()
+    if (json.error) return null
+    return json.result
+  } catch {
+    return null
+  }
 }
 
 // ── ENS Resolution ────────────────────────────────────────────────────────────
 
-function namehashEncode(name) {
-  const crypto = require("crypto")
-  const labels = name.split(".").filter(Boolean)
-  let node = new Uint8Array(32)
-  for (let i = labels.length - 1; i >= 0; i--) {
-    const labelBytes = new TextEncoder().encode(labels[i])
-    const data = new Uint8Array(32 + 1 + labelBytes.length)
-    data.set(node, 0)
-    data[32] = labelBytes.length
-    data.set(labelBytes, 33)
-    const hash = crypto.createHash("sha3-256").update(Buffer.from(data)).digest()
-    node = new Uint8Array(hash)
-  }
-  return bytesToHex(node)
+// Web Crypto API (works in Cloudflare Workers — require("crypto") does NOT)
+async function sha3_256(data) {
+  const hashBuf = await crypto.subtle.digest("SHA-256", data)
+  // Note: Web Crypto doesn't support SHA3-256 directly. ENS namehash
+  // requires keccak-256, not SHA3-256. We implement keccak-256 manually
+  // since Web Crypto only provides SHA-1, SHA-256, SHA-384, SHA-512.
+  // For now, use a simplified approach: call the ENS resolver with the
+  // raw namehash computed via keccak. Since we can't do keccak in Web Crypto,
+  // we delegate ENS resolution to an external API.
+  return new Uint8Array(hashBuf)
 }
 
+// ENS namehash requires keccak-256, which Web Crypto API does not support.
+// Instead of computing namehash in-worker, we use the public ENS API
+// (https://ensdata.net or direct RPC with pre-computed namehash).
+// For name → address: use ethers-style resolution via public ENS RPC endpoint.
 async function resolveENS(name) {
   if (name.startsWith("0x") && name.length === 42) return name.toLowerCase()
   if (!name.includes(".")) return null
-  const nh = namehashEncode(name)
-  const data = ADDR_SELECTOR + nh
+
+  // Use Cloudflare's ENS resolver via public Ethereum RPC
+  // eth_call to ENS resolver with addr(namehash) selector
+  // Since we can't compute keccak256 in-worker, use an external ENS API
   try {
-    const result = await rpcCall(ETH_RPC, "eth_call", [{ to: ENS_RESOLVER, data }, "latest"])
-    if (result && result !== "0x" && result.length === 66) {
-      return "0x" + result.slice(-40)
+    const res = await fetch(`https://ensdata.net/api/resolve/${encodeURIComponent(name)}`, {
+      headers: { "Accept": "application/json" },
+    })
+    if (res.ok) {
+      const data = await res.json()
+      if (data.address) return data.address.toLowerCase()
     }
   } catch {}
+
+  // Fallback: try public ENS resolver API
+  try {
+    const res = await fetch(`https://api.ensideas.com/resolve/${encodeURIComponent(name)}`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.address) return data.address.toLowerCase()
+    }
+  } catch {}
+
   return null
 }
 
+// Old resolveENS removed — replaced by the API-based version above
+
 async function lookupENS(address) {
-  const REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
+  // Use public ENS API for reverse lookup (address → name)
+  // Direct RPC requires keccak-256 which Web Crypto doesn't support
   try {
-    const resolverData = "0178b8bf" + "0000000000000000000000000000000000000000000000000000000000000000"
-    const resolverRes = await rpcCall(ETH_RPC, "eth_call", [{ to: REGISTRY, data: resolverData }, "latest"])
-    if (!resolverRes || resolverRes === "0x") return null
-    const resolverAddr = "0x" + resolverRes.slice(-40)
-    const nameData = "691f3431" + "000000000000000000000000" + address.slice(2).toLowerCase()
-    const nameRes = await rpcCall(ETH_RPC, "eth_call", [{ to: resolverAddr, data: nameData }, "latest"])
-    if (nameRes && nameRes !== "0x") {
-      const hexStr = nameRes.slice(2)
-      const chars = []
-      for (let i = 0; i < hexStr.length; i += 2) {
-        const code = parseInt(hexStr.substr(i, 2), 16)
-        if (code === 0) break
-        chars.push(String.fromCharCode(code))
-      }
-      const name = chars.join("")
-      if (name.includes(".")) return name
+    const res = await fetch(`https://api.ensideas.com/lookup/${address}`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.name) return data.name
     }
   } catch {}
+
+  // Fallback: enstable API
+  try {
+    const res = await fetch(`https://ensdata.net/api/lookup/${address}`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.name) return data.name
+    }
+  } catch {}
+
   return null
 }
 
@@ -269,10 +291,23 @@ export async function onRequest({ request, env }) {
     const token = url.searchParams.get("token")
     const wallet = url.searchParams.get("wallet")
     if (!token || !wallet) return j({ error: "token and wallet required" }, 400)
+
+    // Resolve token symbol to contract address
+    const TOKEN_MAP = {
+      "QUANTA": env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "$QUANTA": env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "SCOM": env?.SCOM_TOKEN || env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "$SCOM": env?.SCOM_TOKEN || env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+    }
+    let tokenAddr = token
+    if (!token.startsWith("0x")) {
+      tokenAddr = TOKEN_MAP[token.toUpperCase()] || TOKEN_MAP[token] || token
+    }
+
     const [balance, decimals, symbol] = await Promise.all([
-      erc20Balance(token, wallet),
-      erc20Decimals(token),
-      erc20Symbol(token),
+      erc20Balance(tokenAddr, wallet),
+      erc20Decimals(tokenAddr),
+      erc20Symbol(tokenAddr),
     ])
     return j({ balance: formatUnits(balance, decimals), decimals, symbol })
   }
@@ -281,14 +316,56 @@ export async function onRequest({ request, env }) {
     const body = await request.json().catch(() => ({}))
     const { wallet, requirements } = body
     if (!wallet || !requirements) return j({ error: "wallet and requirements required" }, 400)
+
+    // Resolve token symbols to contract addresses via env vars
+    const TOKEN_MAP = {
+      "QUANTA": env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "$QUANTA": env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "SCOM": env?.SCOM_TOKEN || env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "$SCOM": env?.SCOM_TOKEN || env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+    }
+
     const results = await Promise.all(
       requirements.map(async (req) => {
-        if (req.token && req.minBalance) return checkTokenGate(wallet, req.token, req.minBalance)
+        let tokenAddr = req.token
+        // If token is a symbol (not 0x...), resolve from map
+        if (tokenAddr && !tokenAddr.startsWith("0x")) {
+          tokenAddr = TOKEN_MAP[tokenAddr.toUpperCase()] || TOKEN_MAP[tokenAddr] || tokenAddr
+        }
+        if (tokenAddr && req.minBalance) return checkTokenGate(wallet, tokenAddr, req.minBalance)
         if (req.ens) return checkEnsGate(wallet, req.ens)
         return { label: "unknown", passed: false }
       }),
     )
     return j({ passed: results.every(r => r.passed), gates: results })
+  }
+
+  if (method === "GET" && path === "/profile") {
+    const wallet = url.searchParams.get("wallet")
+    if (!wallet) return j({ error: "wallet required" }, 400)
+
+    const quantaToken = env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A"
+    const [ens, balanceResult] = await Promise.all([
+      lookupENS(wallet),
+      (async () => {
+        try {
+          const [bal, dec, sym] = await Promise.all([
+            erc20Balance(quantaToken, wallet),
+            erc20Decimals(quantaToken),
+            erc20Symbol(quantaToken),
+          ])
+          // If symbol is UNK, token is not deployed yet — return pre-TGE state
+          if (sym === "UNK" && bal === "0") {
+            return { balance: "0", symbol: "QUANTA", deployed: false }
+          }
+          return { balance: formatUnits(bal, dec), symbol: sym, deployed: true }
+        } catch {
+          return { balance: "0", symbol: "QUANTA", deployed: false }
+        }
+      })(),
+    ])
+
+    return j({ ens, ...balanceResult })
   }
 
   if (method === "GET" && path === "/staking") {
@@ -316,8 +393,9 @@ export async function onRequest({ request, env }) {
     endpoints: {
       "GET /api/web3/resolve": "ENS name → address",
       "GET /api/web3/lookup": "address → ENS name",
-      "GET /api/web3/balance": "ERC20 token balance",
-      "POST /api/web3/gate": "Check token/ENS gating",
+      "GET /api/web3/balance": "ERC20 token balance (accepts symbol or address)",
+      "POST /api/web3/gate": "Check token/ENS gating (accepts symbol or address)",
+      "GET /api/web3/profile": "Wallet profile — ENS name + QUANTA balance",
       "GET /api/web3/staking": "Staking pool stats",
       "GET /api/web3/staking/position": "User staking position",
       "GET /api/web3/swap/quote": "Swap quote from DEX",

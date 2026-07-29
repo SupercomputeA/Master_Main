@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
-import Layout from "../components/Layout"
+import PublicLayout from "../components/PublicLayout"
+import Footer from "../components/Footer"
 
 const GRAPH_CATEGORIES: Record<string, string> = {
   // Terminal Dossier palette only
@@ -217,7 +218,7 @@ export default function KnowledgeGraphPage() {
   }, [graphData, hoveredNode])
 
   return (
-    <Layout title="SUPERCOMPUTE · Knowledge Graph">
+    <PublicLayout title="SUPERCOMPUTE · Knowledge Graph" wide>
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
         {/* Header */}
@@ -339,6 +340,7 @@ export default function KnowledgeGraphPage() {
         )}
 
       </div>
-    </Layout>
+      <Footer />
+    </PublicLayout>
   )
 }

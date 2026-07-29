@@ -75,8 +75,8 @@ function GraphSvg() {
       <text x="250" y="184" fontSize="10" fontWeight="600" textAnchor="middle" fill="#6FA3E5">Keys</text>
       <circle cx="780" cy="200" r="34" fill="rgba(74,222,128,.1)" stroke="#4ADE80" strokeWidth={1.5} />
       <text x="780" y="204" fontSize="10" fontWeight="600" textAnchor="middle" fill="#4ADE80">Custody</text>
-      <circle cx="200" cy="500" r="34" fill="rgba(255,184,0,.1)" stroke="#FFB800" strokeWidth={1.5} />
-      <text x="200" y="504" fontSize="10" fontWeight="600" textAnchor="middle" fill="#FFB800">Wallets</text>
+      <circle cx="200" cy="500" r="34" fill="rgba(201,163,58,.1)" stroke="#C9A33A" strokeWidth={1.5} />
+      <text x="200" y="504" fontSize="10" fontWeight="600" textAnchor="middle" fill="#C9A33A">Wallets</text>
       <circle cx="760" cy="520" r="34" fill="rgba(167,139,250,.13)" stroke="#a78bfa" strokeWidth={1.5} />
       <text x="760" y="524" fontSize="10" fontWeight="600" textAnchor="middle" fill="#a78bfa">Recovery</text>
       <circle cx="500" cy="600" r="34" fill="rgba(201,163,58,.12)" stroke="#C9A33A" strokeWidth={1.5} />

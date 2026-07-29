@@ -1,4 +1,4 @@
-import Layout from "../components/Layout"
+import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 import { useState } from "react"
 
@@ -52,7 +52,7 @@ export default function StoreFront() {
   const cartCount = cart.reduce((sum, c) => sum + c.quantity, 0)
 
   return (
-    <Layout title="SUPERCOMPUTE · StoreFront">
+    <PublicLayout title="SUPERCOMPUTE · Storefront">
       <section className="hero" id="storefront">
         <div className="hero-kicker">
           <div className="status-dot"></div>
@@ -242,6 +242,6 @@ export default function StoreFront() {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

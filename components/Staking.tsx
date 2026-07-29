@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { getStakingStats } from "../lib/web3-utils"
 
 export default function Staking() {
@@ -30,7 +31,7 @@ export default function Staking() {
           <div className="stake-label">Stakers</div>
         </div>
         <div className="stake-cell" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <a href="#" className="btn-school">Stake</a>
+          <Link href="/staking" className="btn-school">Stake</Link>
         </div>
       </div>
       <p className="terminal" style={{ marginTop: 16, fontSize: 10, letterSpacing: "0.08em" }}>

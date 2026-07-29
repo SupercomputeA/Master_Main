@@ -1,7 +1,10 @@
 import { defineConfig } from "tinacms"
 
 export default defineConfig({
-  branch: process.env.TINA_BRANCH || process.env.VERCEL_GIT_COMMIT_REF || process.env.HEAD || "main",
+  // Always use "main" for content branch — Tina client ID is authorized for main only.
+  // Using the deploy branch (e.g. "rebuild") causes 403s on the Tina GraphQL API.
+  // Content is always authored on main; staging branches read from D1 via /api/articles.
+  branch: "main",
   clientId: process.env.NEXT_PUBLIC_TINA_CLIENT_ID || "b77cb4b2-e33c-47ed-a714-7a7613e614bc",
   token: process.env.TINA_TOKEN || process.env.NEXT_PUBLIC_TINA_TOKEN || "x",
 

@@ -1,71 +1,83 @@
 /* Supercompute Design System — colors_and_type.css
- * Token layer extracted from public/sc.css.
- * Two layers: raw palette/type tokens, then semantic aliases.
- */
+ * ═══════════════════════════════════════════════════════════════════════════
+ * X-MEN + BLUE & GOLD — the single, locked visual language.
+ * Deep-navy ground · brass-gold accent · cream display ·
+ * mono-blue body · HUD-yellow brackets · JetBrains Mono everywhere.
+ *
+ * This file is the token layer consumed by globals.css.
+ * Source of truth: ~/open-design/.od/design-systems/supercompute-web3-company-design-system/tokens.css
+ * Locked: 2026-07-02. Do not reintroduce pink (#E91E8C), cyan (#00D4FF),
+ * violet (#7c3aed), the cream/Inter light surface, or pink→gold gradients.
+ * ═══════════════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
 
-/* Phosphate @font-face + --font-display removed from this deployed copy.
- * The canonical DesignDesk specimen (SupercomputeA/DesignDesk) keeps the
- * @font-face block. The brief says Phosphate is for specimen artifacts
- * only and `--font-display` must not appear in any shipped component's
- * CSS. Caveat is also specimen-only. */
+@font-face {
+    /* Phosphate is a SPECIMEN-ONLY display face (wordmark artifacts).
+     * It must not appear in shipped component CSS. */
+    font-family: 'Phosphate';
+    src: url('/fonts/PhosphateSolid.ttf') format('truetype');
+    font-weight: 400 900;
+    font-style: normal;
+    font-display: swap;
+}
 
 :root {
-    /* ─── RAW PALETTE ─────────────────────────────────────── */
-    --navy:       #0A0E1A;   /* primary dark — sidebar, hero, footer  */
-    --navy-2:     #111827;   /* navy elevated                         */
-    --navy-3:     #1a2235;   /* navy 3 (cards on dark)                */
-    --pink:       #E91E8C;   /* primary brand accent                  */
-    --pink-2:     #c4197a;   /* pink hover/press                      */
-    --gold:       #FFB800;   /* secondary accent                      */
-    --gold-2:     #e6a500;   /* gold pressed                          */
-    --cyan:       #00D4FF;   /* data / system signal                  */
-    --cyan-2:     #00b8db;   /* cyan pressed                          */
-    --violet:     #7c3aed;   /* logo ring + agent gradient stop       */
-    --indigo:     #6366f1;   /* category: signal                      */
+    /* ─── RAW PALETTE · X-Men (Blue & Gold) ─────────────────── */
+    --site-bg:      #0a1330;   /* deep navy ground — the one background   */
+    --navy:         #0a1330;   /* alias of ground (legacy var name)       */
+    --surface-1:    #0d1f3d;   /* elevated navy — cards, rows on hover    */
+    --surface-2:    #0a1e3d;   /* elevated navy — panels                  */
+    --site-grid:    rgba(255,255,255,.035);   /* dot/line grid overlay    */
 
-    --bg:         #F8F4F0;   /* warm cream app surface                */
-    --card:       #ffffff;   /* card surface                          */
-    --text:       #1a1a2e;   /* primary text                          */
-    --muted:      #6b7280;   /* secondary text                        */
-    --border:     #e5e7eb;   /* hairline border                       */
+    --cream:        #F4ECD8;   /* off-white display + primary text        */
+    --gold-warm:    #C9A33A;   /* brass — headings, primary CTA, accents  */
+    --gold-warm-2:  #b8902c;   /* brass pressed                           */
+    --mono-blue:    #6FA3E5;   /* body monospace / secondary text         */
+    --hud-yellow:   #E0BE3F;   /* HUD corner brackets, live beacons       */
 
-    --success:    #16a34a;
-    --warning:    #b45309;
-    --danger:     #dc2626;
-    --green:      #4ade80;   /* on-dark green (status dot)            */
+    /* Status (on-dark) */
+    --green:        #4ADE80;   /* published / live / ok                   */
+    --danger:       #dc2626;   /* failed / destructive                    */
+    --danger-soft:  #fca5a5;
 
-    /* On-dark alphas — sidebar text, glass overlays */
-    --white-90:   rgba(255,255,255,.90);
-    --white-70:   rgba(255,255,255,.70);
-    --white-55:   rgba(255,255,255,.55);
-    --white-35:   rgba(255,255,255,.35);
-    --white-12:   rgba(255,255,255,.12);
-    --white-08:   rgba(255,255,255,.08);
-    --white-04:   rgba(255,255,255,.04);
+    /* Brass / mono / cream tints — badge + tile fills, hairlines */
+    --brass-06:     rgba(201,163,58,.06);
+    --brass-08:     rgba(201,163,58,.08);
+    --brass-10:     rgba(201,163,58,.10);
+    --brass-30:     rgba(201,163,58,.30);
+    --brass-55:     rgba(201,163,58,.55);
+    --mono-08:      rgba(111,163,229,.08);
+    --mono-10:      rgba(111,163,229,.10);
+    --cream-06:     rgba(244,236,216,.06);
+    --cream-10:     rgba(244,236,216,.10);
+    --cream-18:     rgba(244,236,216,.18);
 
-    /* Tinted accent fills (for badge backgrounds) */
-    --pink-08:    rgba(233,30,140,.08);
-    --pink-12:    rgba(233,30,140,.12);
-    --gold-10:    rgba(255,184,0,.10);
-    --gold-12:    rgba(255,184,0,.12);
-    --cyan-10:    rgba(0,212,255,.10);
-    --cyan-12:    rgba(0,212,255,.12);
+    /* On-dark neutral alphas (glass, dividers, disabled) */
+    --white-90:     rgba(255,255,255,.90);
+    --white-70:     rgba(255,255,255,.70);
+    --white-55:     rgba(255,255,255,.55);
+    --white-35:     rgba(255,255,255,.35);
+    --white-12:     rgba(255,255,255,.12);
+    --white-08:     rgba(255,255,255,.08);
+    --white-04:     rgba(255,255,255,.04);
+
+    /* ─── SEMANTIC ALIASES ───────────────────────────────── */
+    /* Everything is navy-dark; there is no light surface. */
+    --bg:           var(--site-bg);   /* app / body ground               */
+    --card:         var(--surface-1); /* card surface (navy, not white)  */
+    --text:         var(--cream);     /* primary text                    */
+    --muted:        var(--mono-blue); /* secondary text                  */
+    --accent:       var(--gold-warm); /* primary accent                  */
+    --border:       #1E3A5F;          /* cool navy hairline              */
+    --border-warm:  var(--brass-30);  /* brass hairline                  */
 
     /* ─── TYPE ───────────────────────────────────────────── */
-    --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+    /* Mono everywhere. --font-sans is kept as an alias that also
+     * resolves to JetBrains Mono so nothing can fall back to Inter. */
     --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-
-    /* Marketing-site palette (real supercompute.io)
-     * The site uses a warmer brass-gold, deep navy, and mono-blue body. */
-    --site-bg:      #0a1330;          /* deep navy, slight blue cast */
-    --site-grid:    rgba(255,255,255,.035);
-    --gold-warm:    #C9A33A;          /* brass — heading accent + primary CTA */
-    --gold-warm-2: #b8902c;
-    --cream:        #F4ECD8;          /* off-white display text */
-    --mono-blue:    #6FA3E5;          /* body monospace */
-    --hud-yellow:   #E0BE3F;          /* HUD corner brackets */
+    --font-sans:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    --font-display: 'Phosphate', Impact, sans-serif;   /* SPECIMEN-ONLY wordmark */
 
     --fs-9:   9px;     --fs-10: 10px;   --fs-11: 11px;
     --fs-12:  12px;    --fs-13: 13px;   --fs-14: 14px;   /* body default */
@@ -83,7 +95,7 @@
     --lh-body:  1.6;
     --lh-prose: 1.8;
 
-    --tr-eyebrow: 1.5px;   /* tracked uppercase eyebrows */
+    --tr-eyebrow: 1.5px;   /* tracked uppercase eyebrows / command-line labels */
     --tr-display: -.5px;
 
     /* ─── SPACING ────────────────────────────────────────── */
@@ -94,68 +106,74 @@
     --topbar-h: 52px;
 
     /* ─── RADII ──────────────────────────────────────────── */
-    --r-xs: 6px;       /* chips, category tags          */
-    --r-sm: 8px;       /* inputs, small buttons         */
-    --r-md: 10px;      /* small cards, alerts           */
-    --r-lg: 12px;      /* default card                  */
-    --r-xl: 14px;      /* service cards                 */
-    --r-2xl: 16px;     /* token hero                    */
-    --r-3xl: 20px;     /* modal, auth                   */
-    --r-pill: 999px;
+    /* X-Men (Blue & Gold) is sharp-cornered. Radii kept minimal;
+     * default to flat sheets with brass hairlines, not pills. */
+    --r-xs: 2px;
+    --r-sm: 2px;
+    --r-md: 2px;       /* specimen swatch corner — near-square */
+    --r-lg: 3px;
+    --r-pill: 999px;   /* status dots only */
 
-    /* ─── SHADOWS ────────────────────────────────────────── */
-    --sh-card-hover:    0 4px 16px rgba(233,30,140,.08);
-    --sh-stat-hover:    0 2px 8px rgba(0,0,0,.06);
-    --sh-blog-hover:    0 8px 24px rgba(233,30,140,.08);
-    --sh-service-hover: 0 12px 32px rgba(233,30,140,.10);
-    --sh-modal:         0 24px 80px rgba(0,0,0,.30);
-    --sh-glow-green:    0 0 6px rgba(74,222,128,.50);
-    --sh-glow-gold:     0 0 6px rgba(255,184,0,.40);
+    /* ─── SHADOWS · brass glow + flat depth (no pink) ────── */
+    --sh-flat:       0 1px 0 rgba(0,0,0,.35);
+    --sh-panel:      0 8px 24px rgba(0,0,0,.35);
+    --sh-modal:      0 24px 80px rgba(0,0,0,.45);
+    --sh-glow-gold:  0 0 6px rgba(201,163,58,.40);
+    --sh-glow-green: 0 0 6px rgba(74,222,128,.50);
 
     /* ─── MOTION ─────────────────────────────────────────── */
     --t-fast:   .15s ease;
     --t-base:   .20s ease;
     --t-slow:   .60s ease;
     --t-spring: 1.2s cubic-bezier(.34, 1.56, .64, 1);
+    --ease-ui:  cubic-bezier(0.23, 1, 0.32, 1);   /* default UI ease-out */
 
-    /* ─── SIGNATURE GRADIENTS ───────────────────────────── */
-    --grad-brand:   linear-gradient(135deg, var(--pink), var(--gold));
-    --grad-agent:   linear-gradient(135deg, var(--violet), var(--cyan));
-    --grad-trade:   linear-gradient(135deg, var(--cyan), var(--pink));
-    --grad-pink:    linear-gradient(135deg, var(--pink), var(--pink-2));
-    --grad-progress: linear-gradient(90deg, var(--pink), var(--gold));
-    --grad-hero-quanta: linear-gradient(135deg, var(--navy) 0%, #14042e 100%);
-    --grad-blob-pink: radial-gradient(circle, rgba(233,30,140,.18) 0%, transparent 70%);
-    --grad-blob-cyan: radial-gradient(circle, rgba(0,212,255,.12) 0%, transparent 70%);
+    /* ─── SIGNATURE FIELDS · CRT phosphor (no smooth blends) ─
+     * The system reads as a 1986 amber-CRT readout: deep navy +
+     * scanlines + off-center brass/mono/HUD phosphor. Never
+     * pink/violet/cyan hero gradients. */
+    --grad-brass:  radial-gradient(circle at 32% 38%, rgba(201,163,58,.55) 0%, rgba(201,163,58,.18) 22%, transparent 55%), var(--site-bg);
+    --grad-signal: radial-gradient(circle at 68% 62%, rgba(111,163,229,.50) 0%, rgba(111,163,229,.15) 28%, transparent 60%), var(--site-bg);
+    --grad-hud:    radial-gradient(circle at 80% 22%, rgba(224,190,63,.60) 0%, rgba(224,190,63,.10) 18%, transparent 48%), var(--site-bg);
+    --grad-scan:   linear-gradient(90deg, rgba(201,163,58,0) 0%, rgba(201,163,58,.65) 35%, rgba(224,190,63,.85) 50%, rgba(111,163,229,.55) 70%, rgba(111,163,229,0) 100%), var(--site-bg);
+    --grad-deep-field: radial-gradient(ellipse at center, rgba(15,32,68,.95) 0%, var(--site-bg) 60%, #050a1c 100%);
+
+    /* CRT scanline + dot-grid overlays (compose over --site-bg) */
+    --crt-scanlines: repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0, rgba(0,0,0,.18) 1px, transparent 1px, transparent 3px);
+    --crt-dotgrid:   linear-gradient(0deg, rgba(255,255,255,.030) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.030) 1px, transparent 1px);
 }
 
-/* ─── SEMANTIC ELEMENT DEFAULTS ──────────────────────────── */
-html { font-family: var(--font-sans); }
+/* ─── SEMANTIC ELEMENT DEFAULTS · X-Men (Blue & Gold) ───────── */
+html { font-family: var(--font-mono); background: var(--site-bg); }
 body {
-    font-family: var(--font-sans);
+    font-family: var(--font-mono);
     font-size: var(--fs-base);
     line-height: var(--lh-body);
-    color: var(--text);
-    background: var(--bg);
+    color: var(--cream);
+    background: var(--site-bg);
     -webkit-font-smoothing: antialiased;
 }
-h1 { font-size: var(--fs-h1);    font-weight: var(--fw-800); line-height: var(--lh-snug); color: var(--text); }
-h2 { font-size: var(--fs-h2);    font-weight: var(--fw-800); line-height: var(--lh-snug); color: var(--text); }
-h3 { font-size: var(--fs-h3);    font-weight: var(--fw-800); line-height: var(--lh-snug); color: var(--text); }
-.display { font-size: var(--fs-display); font-weight: var(--fw-900); line-height: var(--lh-tight); letter-spacing: var(--tr-display); }
+h1 { font-size: var(--fs-h1); font-weight: var(--fw-700); line-height: var(--lh-snug); color: var(--cream); }
+h2 { font-size: var(--fs-h2); font-weight: var(--fw-700); line-height: var(--lh-snug); color: var(--cream); }
+h3 { font-size: var(--fs-h3); font-weight: var(--fw-700); line-height: var(--lh-snug); color: var(--cream); }
+.display { font-size: var(--fs-display); font-weight: var(--fw-700); line-height: var(--lh-tight); letter-spacing: var(--tr-display); color: var(--cream); }
+
+/* Command-line eyebrow — the signature `// label` label form */
 .eyebrow {
+    font-family: var(--font-mono);
     font-size: var(--fs-10); font-weight: var(--fw-700);
     letter-spacing: var(--tr-eyebrow); text-transform: uppercase;
-    color: var(--muted);
+    color: var(--mono-blue);
 }
-.eyebrow.pink { color: var(--pink); }
-.eyebrow.cyan { color: var(--cyan); }
-p     { font-size: var(--fs-13); line-height: var(--lh-prose); color: var(--text); text-wrap: pretty; }
-small { font-size: var(--fs-11); color: var(--muted); }
-code  { font-family: var(--font-mono); font-size: .92em; background: var(--white-08); padding: .1em .4em; border-radius: var(--r-xs); }
+.eyebrow::before { content: '// '; color: var(--gold-warm); }
 
-/* Brand wordmark */
+p     { font-size: var(--fs-13); line-height: var(--lh-prose); color: var(--cream); text-wrap: pretty; }
+small { font-size: var(--fs-11); color: var(--mono-blue); }
+code  { font-family: var(--font-mono); font-size: .92em; color: var(--gold-warm); background: var(--brass-06); border: 1px solid var(--brass-30); padding: .1em .4em; }
+
+/* Brand wordmark (Phosphate specimen artifact only) */
 .brand-wordmark {
+    font-family: var(--font-display);
     font-weight: var(--fw-900); letter-spacing: 1.2px;
-    text-transform: uppercase;
+    text-transform: uppercase; color: var(--cream);
 }

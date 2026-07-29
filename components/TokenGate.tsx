@@ -19,19 +19,21 @@ export default function TokenGate({
   const [status, setStatus] = useState<"loading" | "passed" | "failed">("loading")
   const [gates, setGates] = useState<{ label: string; passed: boolean }[]>([])
 
+  const walletAddress = profile?.address || profile?.wallet_address || (profile?.name?.startsWith("0x") && profile.name.length === 42 ? profile.name : null)
+
   useEffect(() => {
-    if (!profile?.name) {
+    if (!walletAddress) {
       setStatus("failed")
       return
     }
     setStatus("loading")
-    checkGate(profile.name, requirements.map(r => ({ token: r.token, minBalance: r.minBalance, ens: r.ens })))
+    checkGate(walletAddress, requirements.map(r => ({ token: r.token, minBalance: r.minBalance, ens: r.ens })))
       .then((result) => {
         setGates(result.gates)
         setStatus(result.passed ? "passed" : "failed")
       })
       .catch(() => setStatus("failed"))
-  }, [profile, requirements])
+  }, [walletAddress, requirements])
 
   if (status === "loading") {
     return (

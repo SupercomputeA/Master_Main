@@ -1,6 +1,8 @@
 import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 import { useAuth } from "../lib/auth"
+import { useAccount } from "wagmi"
+import { formatAddress } from "../lib/ens"
 
 const modules = [
   { id: "M1", title: "Blockchain Fundamentals", progress: 100, credential: "NFT #001" },
@@ -29,6 +31,12 @@ const activityLog = [
 
 export default function Account() {
   const { session, profile } = useAuth()
+  const { address } = useAccount()
+
+  // Display priority: ENS name (e.g. supercompute.eth) > truncated wallet
+  const displayWallet = profile?.ensName
+    ? profile.ensName
+    : formatAddress(address || profile?.address || profile?.wallet_address || "")
 
   return (
     <PublicLayout title="SUPERCOMPUTE · Profile">
@@ -38,7 +46,7 @@ export default function Account() {
           <span className="label">// account</span>
         </div>
         <h1 className="display-xl hero-title">
-          {profile ? profile.name.toUpperCase() : "CONNECTED"}<br /><em>PROFILE</em>
+          {profile ? (profile.ensName || profile.name).toUpperCase() : "CONNECTED"}<br /><em>PROFILE</em>
         </h1>
         <p className="hero-sub">
           Your on-chain identity, activity, and membership across the Supercompute ecosystem.
@@ -65,8 +73,19 @@ export default function Account() {
               </div>
               <div style={{ background: "var(--bg)", padding: "14px 20px", display: "flex", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 12, color: "var(--muted)" }}>Wallet</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--muted)" }}>
-                  {session?.startsWith("dev_") ? "0xDev...0000" : "0x742d...f44e"}
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 11,
+                    color: profile?.ensName ? "var(--accent)" : "var(--muted)",
+                  }}
+                  title={address || profile?.address || profile?.wallet_address || ""}
+                >
+                  {session?.startsWith("dev_")
+                    ? "0xDev...0000"
+                    : profile?.ensName
+                      ? profile.ensName
+                      : displayWallet || "—"}
                 </span>
               </div>
               <div style={{ background: "var(--bg)", padding: "14px 20px", display: "flex", justifyContent: "space-between" }}>

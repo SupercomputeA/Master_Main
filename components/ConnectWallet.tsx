@@ -3,27 +3,27 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "../lib/auth"
 import { useUserProfile } from "../lib/useNeynar"
-import { lookupAddress, shortenAddress, getWalletProfile } from "../lib/web3-utils"
+import { shortenAddress, getWalletProfile } from "../lib/web3-utils"
+import { formatAddress } from "../lib/ens"
 
 export default function ConnectWallet() {
   const { profile, authing, connect, disconnect } = useAuth()
   const { user: neynarUser } = useUserProfile()
   const [mounted, setMounted] = useState(false)
-  const [ensName, setEnsName] = useState<string | null>(null)
   const [tokenBalance, setTokenBalance] = useState<string | null>(null)
 
   const walletAddress = profile?.address || profile?.wallet_address || (profile?.name?.startsWith("0x") ? profile.name : null)
+  // ENS name comes from auth context (wagmi useEnsName, already cached per address+chainId).
+  const ensName = profile?.ensName ?? null
 
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     if (walletAddress) {
       getWalletProfile(walletAddress).then((p) => {
-        setEnsName(p.ens)
         setTokenBalance(p.balance)
       }).catch(() => {})
     } else {
-      setEnsName(null)
       setTokenBalance(null)
     }
   }, [walletAddress])
@@ -37,7 +37,7 @@ export default function ConnectWallet() {
   }
 
   if (profile) {
-    const displayName = ensName || profile.name
+    const displayName = ensName || formatAddress(walletAddress || "") || profile.name
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {ensName && (

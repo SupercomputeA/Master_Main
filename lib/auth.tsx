@@ -38,6 +38,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile>(null)
   const [authing, setAuthing] = useState(false)
 
+  // Keep profile.ensName reactive to wagmi's cached ENS resolution.
+  // wagmi internally caches by (address, chainId) so we don't hit RPC repeatedly.
+  useEffect(() => {
+    setProfile((prev) => {
+      if (!prev) return prev
+      const next = ensName || undefined
+      if (prev.ensName === next) return prev
+      return { ...prev, ensName: next }
+    })
+  }, [ensName])
+
   useEffect(() => {
     const s = localStorage.getItem("session")
     if (s) {
@@ -45,8 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ;(async () => {
         try {
           const r = await fetch(`/api/auth/profile`, { headers: { Authorization: `Bearer ${s}` } })
-          const d = (await r.json()) as { user?: { name: string; role: string } }
-          if (d.user) setProfile(d.user)
+          const d = (await r.json()) as { user?: { name: string; role: string; address?: string; wallet_address?: string } }
+          if (d.user) setProfile({ ...d.user, ensName: ensName || undefined })
           else localStorage.removeItem("session")
         } catch { localStorage.removeItem("session") }
       })()
@@ -67,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (result.session) {
         setSession(result.session)
         localStorage.setItem("session", result.session)
-        if (result.user) setProfile({ ...result.user as { name: string; role: string }, ensName: ensName || undefined })
+        if (result.user) setProfile({ ...result.user as { name: string; role: string }, address: addr, ensName: ensName || undefined })
       }
     } catch { wagmiDisconnect() }
     setAuthing(false)

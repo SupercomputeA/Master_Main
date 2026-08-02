@@ -13,6 +13,7 @@
 /terms/    /terms/index.html    200
 /privacy/  /privacy/index.html  200
 /demo/     /demo/index.html     200
+/solar-theme-demo/   /solar-theme-demo/index.html   200
 
 # SPA fallback — route all remaining non-file, non-API 404s to index.html
 /*    /index.html   200

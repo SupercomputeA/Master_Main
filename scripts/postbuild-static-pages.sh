@@ -11,7 +11,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/../out"
 
-STATIC_PAGES=("demo" "terms" "privacy")
+STATIC_PAGES=("demo" "terms" "privacy" "solar-theme-demo")
 
 for page in "${STATIC_PAGES[@]}"; do
   if [ -f "${page}.html" ]; then

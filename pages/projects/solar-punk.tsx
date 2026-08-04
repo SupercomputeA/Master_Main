@@ -55,7 +55,10 @@ export default function SolarPunk() {
           }}>
             <div className="solar-card" style={{ padding: 0, overflow: "hidden" }}>
               <img
-                src="/projects/solar-punk/spb-sheet-male-full-range.png"
+                src="/projects/solar-punk/spb-sheet-male-full-range.jpg"
+                width={608}
+                height={1088}
+                loading="lazy"
                 alt="SPB Male Character Sheet — Full Range"
                 style={{ width: "100%", height: "auto", display: "block" }}
               />
@@ -65,7 +68,10 @@ export default function SolarPunk() {
             </div>
             <div className="solar-card" style={{ padding: 0, overflow: "hidden" }}>
               <img
-                src="/projects/solar-punk/spb-sheet-female-full-range.png"
+                src="/projects/solar-punk/spb-sheet-female-full-range.jpg"
+                width={608}
+                height={1088}
+                loading="lazy"
                 alt="SPB Female Character Sheet — Full Range"
                 style={{ width: "100%", height: "auto", display: "block" }}
               />
@@ -89,7 +95,10 @@ export default function SolarPunk() {
           </p>
           <div className="bianco-card" style={{ padding: "32px", marginBottom: 32 }}>
             <img
-              src="/projects/solar-punk/spb-rare-star-crossed-lovers.png"
+              src="/projects/solar-punk/spb-rare-star-crossed-lovers.jpg"
+              width={768}
+              height={1360}
+              loading="lazy"
               alt="Star-Crossed Lovers — Rare NFT"
               style={{ width: "100%", height: "auto", display: "block", borderRadius: "var(--radius-sm)" }}
             />
@@ -105,7 +114,10 @@ export default function SolarPunk() {
           }}>
             <div className="solar-card" style={{ padding: 0, overflow: "hidden" }}>
               <img
-                src="/projects/solar-punk/spb-lovers-1-first-glance.png"
+                src="/projects/solar-punk/spb-lovers-1-first-glance.jpg"
+                width={768}
+                height={1360}
+                loading="lazy"
                 alt="SPB Lovers — First Glance"
                 style={{ width: "100%", height: "auto", display: "block" }}
               />
@@ -115,7 +127,10 @@ export default function SolarPunk() {
             </div>
             <div className="solar-card" style={{ padding: 0, overflow: "hidden" }}>
               <img
-                src="/projects/solar-punk/spb-lovers-2-secret-rendezvous.png"
+                src="/projects/solar-punk/spb-lovers-2-secret-rendezvous.jpg"
+                width={768}
+                height={1360}
+                loading="lazy"
                 alt="SPB Lovers — Secret Rendezvous"
                 style={{ width: "100%", height: "auto", display: "block" }}
               />

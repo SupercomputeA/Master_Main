@@ -1,0 +1,37 @@
+#!/bin/bash
+# SUPERCOMPUTE branch guard — pre-push hook (free-tier trunk protection)
+# Enforces the fleet branch strategy (supercompute-devops/docs/branch-strategy.md):
+#   - NO direct pushes to main or develop (PR-only lanes)
+#   - Branch names must match: (feature|design|project|test|security|hotfix|fix|docs|ci|chore|refactor)/<scope>-<desc>
+# Install: ln -sf ../../.githooks/pre-push .git/hooks/pre-push  (or copy)
+
+TRUNK="refs/heads/main refs/heads/develop"
+VALID_PREFIX="^(feature|design|project|test|security|hotfix|fix|docs|ci|chore|refactor)/[a-z0-9][a-z0-9._/-]*$"
+
+while read local_ref local_sha remote_ref remote_sha; do
+  # Skip deletions and non-branch refs
+  case "$local_ref" in
+    refs/heads/*) ;;
+    *) continue ;;
+  esac
+  [ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
+
+  for trunk in $TRUNK; do
+    if [ "$remote_ref" = "$trunk" ]; then
+      echo "✗ BLOCKED: direct push to $remote_ref is not allowed."
+      echo "  Branch off 'develop' ($(git branch --show-current) -> feature/<scope>-<desc>) and open a PR."
+      echo "  See docs/branch-strategy.md (supercompute-devops)."
+      exit 1
+    fi
+  done
+
+  branch="${local_ref#refs/heads/}"
+  if ! echo "$branch" | grep -qE "$VALID_PREFIX"; then
+    echo "✗ BLOCKED: branch name '$branch' does not match the fleet convention."
+    echo "  Use one of: feature|design|project|test|security|hotfix|fix|docs|ci|chore|refactor"
+    echo "  Pattern: <type>/<scope>-<desc>  e.g. feature/school-matriculation-flow"
+    exit 1
+  fi
+done
+
+exit 0

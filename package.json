@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20250430.0",
-    "@supercompute/tradedesk": "github:SupercomputeA/supercompute-tradedesk#develop",
+    "@supercompute/tradedesk": "https://github.com/SupercomputeA/supercompute-tradedesk.git#develop",
     "@tanstack/react-query": "^5.100.11",
     "@tinacms/cli": "^2.3.1",
     "fs-extra": "^11.3.5",

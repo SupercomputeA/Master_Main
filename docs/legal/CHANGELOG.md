@@ -4,6 +4,27 @@ Track every change to the published Terms of Service and Privacy Policy. When yo
 publish a new version, bump `POLICY_VERSION` and `LAST_UPDATED` in the corresponding
 `.tsx` file under `pages/`, add an entry below, and re-deploy.
 
+## v1.1 — 2026-08-06
+
+Mission-driven framing pass. Adds a "Why we exist" (Terms) / "Why we collect so
+little" (Privacy) section as Section 0 above the existing v1.0 structure.
+Also bumps `POLICY_VERSION` from v1.0 → v1.1 in both `.tsx` files.
+
+- `pages/terms.tsx` — Section 0: positions the product against "disaster
+  capitalism and greed," affirms non-custodial core value ("your keys stay
+  yours, your data stays yours"), and adds a pro-AI transparency clause
+  ("AI is a tool for human empowerment — openly, not hidden"). TikTok
+  Content Posting API requires the public Terms URL to be on file; this
+  pass was driven by that compliance gap.
+- `pages/privacy.tsx` — Section 0: same mission framing; binds data
+  collection to it ("we collect the minimum required to run the service,
+  keep it for the shortest time we need it, and never sell it") and
+  re-states the pro-AI posture under the same minimal-data rule.
+
+No legal substance changed in Sections 1–15 (Terms) or 1–13 (Privacy). All
+inline `FLAG FOR LEGAL REVIEW` markers and `(proposed; confirm with C2)`
+inbox choices remain and are still pending counsel sign-off.
+
 ## v1.0 — 2026-08-06
 
 Initial publication.

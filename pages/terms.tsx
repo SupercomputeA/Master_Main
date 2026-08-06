@@ -7,7 +7,7 @@ import Footer from "../components/Footer"
    Last updated: 2026-08-06 — bump LAST_UPDATED below when this file changes. */
 const LAST_UPDATED = "2026-08-06"
 const EFFECTIVE_DATE = "2026-08-06"
-const POLICY_VERSION = "v1.0"
+const POLICY_VERSION = "v1.1"
 const TREASURY = "0x1a828cd220559479e2f761805da4ee722683323B"
 const USDC_BASE = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
 
@@ -40,6 +40,17 @@ export default function Terms() {
               Supercompute (&ldquo;Supercompute,&rdquo; &ldquo;we,&rdquo; &ldquo;us&rdquo;). By
               connecting a wallet, signing in, or otherwise using the service, you agree to
               these Terms.
+            </p>
+
+            <h2 className="display-md">0. Why we exist</h2>
+            <p>
+              Supercompute is a web3 company built to empower people to protect themselves
+              from disaster capitalism and greed. We are here to realign with the earth and
+              to support ourselves while we do it. Everything in these Terms serves that
+              purpose: your keys stay yours, your data stays yours, and the systems we build
+              are honest about what they are. We build with AI as a tool for human
+              empowerment — openly, not hidden — and we expect the same honesty from every
+              surface we operate.
             </p>
 
             <h2 className="display-md">1. Operator identity</h2>

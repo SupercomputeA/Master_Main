@@ -7,7 +7,7 @@ import Footer from "../components/Footer"
    Last updated: 2026-08-06 — bump LAST_UPDATED below when this file changes. */
 const LAST_UPDATED = "2026-08-06"
 const EFFECTIVE_DATE = "2026-08-06"
-const POLICY_VERSION = "v1.0"
+const POLICY_VERSION = "v1.1"
 const TREASURY = "0x1a828cd220559479e2f761805da4ee722683323B"
 
 export default function Privacy() {
@@ -38,6 +38,16 @@ export default function Privacy() {
               with it, and what choices you have. The short version: we collect the minimum
               needed to run a non-custodial, wallet-first service, we don&rsquo;t sell your
               data, and we don&rsquo;t track you across the web.
+            </p>
+
+            <h2 className="display-md">0. Why we collect so little</h2>
+            <p>
+              Supercompute is built to empower people to protect themselves from disaster
+              capitalism and greed. A company that respects you does not vacuum up your data
+              and sell it. We collect the minimum required to run the service, keep it for
+              the shortest time we need it, and never sell it. We are a pro-AI company — AI
+              is a tool for human empowerment — but every use of it is bound by the same
+              rule: minimal data, brief retention, no resale. Full stop.
             </p>
 
             <h2 className="display-md">1. Operator identity</h2>

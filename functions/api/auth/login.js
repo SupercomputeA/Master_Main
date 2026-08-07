@@ -1,5 +1,41 @@
 import { generateNonce, hexToBytes, isValidAddress, json } from '../auth.js';
 import { recoverMessageAddress } from 'viem/utils';
+
+// ── SIWE message-content contract (nonce-omission fix, t_09e0dbd1) ─────────
+// The only messages accepted are ones matching what /api/auth/message issues.
+// This blocks forged CACHE entries (evil domain/URI/chain, wrong nonce binding)
+// even when the signature itself is valid.
+const SIWE_DOMAIN = 'supercompute.io';
+const SIWE_URI = 'https://supercompute.io';
+const SIWE_VERSION = '1';
+const SIWE_CHAIN_ID = '8453';
+
+// Parses the canonical SIWE header block and returns null if valid,
+// otherwise a human-readable reason string.
+function validateSiweMessage(message, nonce) {
+  if (typeof message !== 'string') return 'Message must be a string';
+  const lines = message.split('\n');
+  const domainLine = (lines[0] || '').trim();
+  if (domainLine !== `${SIWE_DOMAIN} wants you to sign in with your Ethereum account.`) {
+    return 'Wrong SIWE domain';
+  }
+  const fields = {};
+  for (const line of lines) {
+    const m = line.match(/^([A-Za-z ]+): (.*)$/);
+    if (m) fields[m[1].trim()] = m[2].trim();
+  }
+  if (fields['URI'] !== SIWE_URI) return 'Wrong SIWE URI';
+  if (fields['Version'] !== SIWE_VERSION) return 'Wrong SIWE version';
+  if (fields['Chain ID'] !== SIWE_CHAIN_ID) return 'Wrong SIWE chain';
+  if (fields['Nonce'] !== nonce) return 'Nonce mismatch in SIWE message';
+  const expRaw = fields['Expiration Time'];
+  if (!expRaw) return 'Missing Expiration Time';
+  const exp = new Date(expRaw).getTime();
+  if (Number.isNaN(exp)) return 'Invalid Expiration Time';
+  if (exp <= Date.now()) return 'SIWE message expired';
+  return null;
+}
+
 const ADMIN_QUERY = 'SELECT role FROM admin_wallets WHERE wallet_address = ?';
 async function isAdmin(env, wallet) {
   if (!env?.DB) return false;
@@ -36,8 +72,16 @@ export async function onRequest({ request, env }) {
   let allowedOrigin = 'https://supercompute.io';
   if (reqOrigin) {
     try {
-      const host = new URL(reqOrigin).hostname;
-      const allowed = host === 'supercompute.io' || host === 'supercompute.pages.dev' || host === 'localhost' || host === '127.0.0.1' || host.endsWith('.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app');
+      const u = new URL(reqOrigin);
+      const host = u.hostname;
+      const devHost = host === 'localhost' || host === '127.0.0.1';
+      // Only exact owned HTTPS origins are reflected; no wildcard *.pages.dev
+      // (would reflect attacker.pages.dev). Preview branches are
+      // <branch>.supercompute.pages.dev, covered by the owned suffix below.
+      const httpsOk = u.protocol === 'https:' && (u.port === '' || u.port === '443');
+      const allowed =
+        (httpsOk && (host === 'supercompute.io' || host === 'staging.supercompute.io' || host === 'supercompute.pages.dev' || host.endsWith('.supercompute.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app'))) ||
+        devHost; // local dev servers run over http on arbitrary ports
       if (allowed) allowedOrigin = reqOrigin;
     } catch {}
   }
@@ -48,42 +92,48 @@ export async function onRequest({ request, env }) {
     if (request.method !== 'POST') return j({ error: 'POST required' }, 405);
     const body = await request.json().catch(() => ({}));
     const { address, signature, nonce } = body;
-    if (!address || !signature) return j({ error: 'address and signature required' }, 400);
+    // Security contract (t_09e0dbd1): nonce is REQUIRED. Omitting it used to
+    // skip verification entirely and mint a session — the critical bypass.
+    if (!address || !signature || !nonce) return j({ error: 'address, signature and nonce are required' }, 400);
     const wallet = address.toLowerCase();
     if (!isValidAddress(wallet)) return j({ error: 'Invalid address' }, 400);
-    if (env?.CACHE) {
-      const rl = await checkRateLimit(env, wallet);
-      if (!rl.allowed) return j({ error: 'Too many login attempts', retryAfter: rl.resetIn }, 429);
-    }
+    // CACHE binding is mandatory — without it there is no stored-message
+    // contract to verify against, so login must fail closed.
+    if (!env?.CACHE) return j({ error: 'Server misconfigured: CACHE binding missing' }, 500);
+    const rl = await checkRateLimit(env, wallet);
+    if (!rl.allowed) return j({ error: 'Too many login attempts', retryAfter: rl.resetIn }, 429);
     const sigBytes = typeof signature === 'string' ? hexToBytes(signature) : signature;
-    if (!sigBytes || sigBytes.length !== 65) { if (env?.CACHE) await recordFailedAttempt(env, wallet); return j({ error: 'Invalid signature format' }, 400); }
+    if (!sigBytes || sigBytes.length !== 65) { await recordFailedAttempt(env, wallet); return j({ error: 'Invalid signature format' }, 400); }
     const v = sigBytes[64];
     // Normalize EIP-155 v values (chain_id * 2 + 35/36) to 27/28
     const normalizedV = v >= 35 ? (v % 2 === 0 ? 28 : 27) : v;
-    if (normalizedV !== 27 && normalizedV !== 28 && normalizedV !== 31 && normalizedV !== 32) { if (env?.CACHE) await recordFailedAttempt(env, wallet); return j({ error: 'Invalid signature v value' }, 400); }
-    if (env?.CACHE && nonce) {
-      // Retrieve the exact SIWE message that was signed
-      const storedMessage = await env.CACHE.get(`siwe:msg:${nonce}`);
-      if (!storedMessage) { await recordFailedAttempt(env, wallet); return j({ error: 'Expired or invalid session. Request a new nonce.' }, 400); }
-      // Verify the signature by recovering the address from the stored message
-      try {
-        const recoveredAddress = await recoverMessageAddress({
-          message: storedMessage,
-          signature,
-        });
-        if (recoveredAddress.toLowerCase() !== wallet) {
-          await recordFailedAttempt(env, wallet);
-          return j({ error: 'Signature does not match address' }, 401);
-        }
-      } catch (verifyErr) {
-        const errMsg = verifyErr instanceof Error ? verifyErr.message : String(verifyErr);
+    if (normalizedV !== 27 && normalizedV !== 28 && normalizedV !== 31 && normalizedV !== 32) { await recordFailedAttempt(env, wallet); return j({ error: 'Invalid signature v value' }, 400); }
+    // Stored-message contract: retrieve the exact SIWE message that was issued.
+    // This branch is unconditional — no nonce, no message, no login.
+    const storedMessage = await env.CACHE.get(`siwe:msg:${nonce}`);
+    if (!storedMessage) { await recordFailedAttempt(env, wallet); return j({ error: 'Expired or invalid session. Request a new nonce.' }, 400); }
+    // Content validation: reject forged messages (evil domain/URI/chain, wrong
+    // nonce binding, expired) even when the signature recovers correctly.
+    const contentError = validateSiweMessage(storedMessage, nonce);
+    if (contentError) { await recordFailedAttempt(env, wallet); return j({ error: `Invalid SIWE message: ${contentError}` }, 401); }
+    // Verify the signature by recovering the address from the stored message
+    try {
+      const recoveredAddress = await recoverMessageAddress({
+        message: storedMessage,
+        signature,
+      });
+      if (recoveredAddress.toLowerCase() !== wallet) {
         await recordFailedAttempt(env, wallet);
-        return j({ error: 'Signature verification failed', detail: errMsg }, 401);
+        return j({ error: 'Signature does not match address' }, 401);
       }
-      // Clean up
-      await env.CACHE.delete(`siwe:msg:${nonce}`);
-      await env.CACHE.delete(`siwe:nonce:${nonce}`);
+    } catch (verifyErr) {
+      const errMsg = verifyErr instanceof Error ? verifyErr.message : String(verifyErr);
+      await recordFailedAttempt(env, wallet);
+      return j({ error: 'Signature verification failed', detail: errMsg }, 401);
     }
+    // Clean up (single-use nonce + message)
+    await env.CACHE.delete(`siwe:msg:${nonce}`);
+    await env.CACHE.delete(`siwe:nonce:${nonce}`);
     const sessionId = generateNonce();
     const sessionExpiry = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;
     if (env?.DB) {

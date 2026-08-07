@@ -149,8 +149,16 @@ export async function onRequest({ request, env }) {
   let allowedOrigin = 'https://supercompute.io';
   if (reqOrigin) {
     try {
-      const host = new URL(reqOrigin).hostname;
-      const allowed = host === 'supercompute.io' || host === 'supercompute.pages.dev' || host === 'localhost' || host === '127.0.0.1' || host.endsWith('.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app');
+      const u = new URL(reqOrigin);
+      const host = u.hostname;
+      const devHost = host === 'localhost' || host === '127.0.0.1';
+      // Only exact owned HTTPS origins are reflected; no wildcard *.pages.dev
+      // (would reflect attacker.pages.dev). Preview branches are
+      // <branch>.supercompute.pages.dev, covered by the owned suffix below.
+      const httpsOk = u.protocol === 'https:' && (u.port === '' || u.port === '443');
+      const allowed =
+        (httpsOk && (host === 'supercompute.io' || host === 'staging.supercompute.io' || host === 'supercompute.pages.dev' || host.endsWith('.supercompute.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app'))) ||
+        devHost; // local dev servers run over http on arbitrary ports
       if (allowed) allowedOrigin = reqOrigin;
     } catch {}
   }

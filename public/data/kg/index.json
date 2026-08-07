@@ -1,0 +1,7 @@
+{
+  "graphs": [
+    { "id": "school", "label": "Web3 School",  "icon": "📚", "description": "School module prerequisite chains and credential paths on SUPERCOMPUTE" },
+    { "id": "police", "label": "Police Data",  "icon": "🚔", "description": "NYPD misconduct knowledge graph — officers, incidents, complaints" },
+    { "id": "defi",   "label": "DeFi / ReFi",   "icon": "🏦", "description": "DeFi protocols, tokens, agents, and their relationships on Base Chain" }
+  ]
+}

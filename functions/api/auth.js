@@ -243,4 +243,4 @@ export async function onRequest({ request, env }) {
   });
 }
 
-export { verifySession, isAdmin, generateNonce, json, hexToBytes, isValidAddress };
+export { verifySession, isAdmin, generateNonce, json, hexToBytes, isValidAddress, resolveENS };

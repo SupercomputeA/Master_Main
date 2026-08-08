@@ -33,17 +33,22 @@ async function rpcCall(rpcUrl, method, params) {
 }
 
 // ── ENS Resolution ────────────────────────────────────────────────────────────
+// Use viem/ens for namehash — Node's `crypto.createHash("sha3-256")` is NIST SHA-3,
+// NOT Ethereum's Keccak-256. Previous local namehashEncode produced garbage hashes
+// that matched no ENS node, so /api/web3/resolve?name=supercompute.eth always
+// returned null. viem ships a battle-tested keccak256 implementation.
+import { namehash as viemNamehash, normalize as viemNormalize } from "viem/ens"
 
-// Web Crypto API (works in Cloudflare Workers — require("crypto") does NOT)
-async function sha3_256(data) {
-  const hashBuf = await crypto.subtle.digest("SHA-256", data)
-  // Note: Web Crypto doesn't support SHA3-256 directly. ENS namehash
-  // requires keccak-256, not SHA3-256. We implement keccak-256 manually
-  // since Web Crypto only provides SHA-1, SHA-256, SHA-384, SHA-512.
-  // For now, use a simplified approach: call the ENS resolver with the
-  // raw namehash computed via keccak. Since we can't do keccak in Web Crypto,
-  // we delegate ENS resolution to an external API.
-  return new Uint8Array(hashBuf)
+const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
+
+function strip0x(h) {
+  return h.startsWith("0x") ? h.slice(2) : h
+}
+
+function namehashEncode(name) {
+  // viem's namehash returns a hex string with 0x prefix
+  const nh = viemNamehash(name)
+  return strip0x(nh)
 }
 
 // ENS namehash requires keccak-256, which Web Crypto API does not support.
@@ -53,10 +58,8 @@ async function sha3_256(data) {
 async function resolveENS(name) {
   if (name.startsWith("0x") && name.length === 42) return name.toLowerCase()
   if (!name.includes(".")) return null
-
-  // Use Cloudflare's ENS resolver via public Ethereum RPC
-  // eth_call to ENS resolver with addr(namehash) selector
-  // Since we can't compute keccak256 in-worker, use an external ENS API
+  const nh = namehashEncode(name)
+  const data = "0x" + ADDR_SELECTOR + nh
   try {
     const res = await fetch(`https://ensdata.net/api/resolve/${encodeURIComponent(name)}`, {
       headers: { "Accept": "application/json" },
@@ -79,17 +82,43 @@ async function resolveENS(name) {
   return null
 }
 
-// Old resolveENS removed — replaced by the API-based version above
-
+// Reverse ENS lookup: address → primary name.
+// Flow: namehash("<addr>.addr.reverse") → resolver(bytes32) on registry →
+//        name(bytes32) on that resolver.
+// Previous implementation queried resolver(0x000...000) (root node) which returns
+// the default public resolver, then called name(addr) on it — but addr here is
+// the raw address, not a node hash, so the call always returned empty bytes.
 async function lookupENS(address) {
-  // Use public ENS API for reverse lookup (address → name)
-  // Direct RPC requires keccak-256 which Web Crypto doesn't support
+  if (!address || !address.startsWith("0x") || address.length !== 42) return null
   try {
-    const res = await fetch(`https://api.ensideas.com/lookup/${address}`)
-    if (res.ok) {
-      const data = await res.json()
-      if (data.name) return data.name
+    const reverseLabel = address.slice(2).toLowerCase() + ".addr.reverse"
+    const reverseNh = viemNamehash(reverseLabel)
+    // resolver(bytes32) selector = 0x0178b8bf
+    const resolverData = "0x0178b8bf" + strip0x(reverseNh)
+    const resolverRes = await rpcCall(ETH_RPC, "eth_call", [
+      { to: ENS_REGISTRY, data: resolverData },
+      "latest",
+    ])
+    if (!resolverRes || resolverRes === "0x" || resolverRes.length !== 66) return null
+    const resolverAddr = "0x" + resolverRes.slice(-40)
+    // name(bytes32) selector = 0x691f3431
+    const nameData = "0x691f3431" + strip0x(reverseNh)
+    const nameRes = await rpcCall(ETH_RPC, "eth_call", [
+      { to: resolverAddr, data: nameData },
+      "latest",
+    ])
+    if (!nameRes || nameRes === "0x") return null
+    // ABI: (bytes32 node) returns string — offset(32) + length(32) + data
+    const hex = strip0x(nameRes)
+    if (hex.length < 128) return null
+    const len = parseInt(hex.slice(64, 128), 16)
+    if (len === 0) return null
+    const nameHex = hex.slice(128, 128 + len * 2)
+    let name = ""
+    for (let i = 0; i < nameHex.length; i += 2) {
+      name += String.fromCharCode(parseInt(nameHex.slice(i, i + 2), 16))
     }
+    if (name && name.includes(".")) return name
   } catch {}
 
   // Fallback: enstable API

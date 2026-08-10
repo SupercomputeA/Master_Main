@@ -1,0 +1,19 @@
+# One-shot D1 article seed — dispatch only, never auto-runs.
+# Usage: gh workflow run d1-seed-articles.yml --ref <branch>
+name: d1-seed-articles
+
+on:
+  workflow_dispatch:
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Seed real articles into D1
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node scripts/d1-seed-articles.mjs

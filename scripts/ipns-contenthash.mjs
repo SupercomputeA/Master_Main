@@ -17,7 +17,23 @@
 import { execSync } from 'node:child_process'
 import { CID } from 'multiformats/cid'
 import { base58btc } from 'multiformats/bases/base58'
-import { namehash } from 'viem/ens'
+import jsSha3 from 'js-sha3'
+const { keccak256 } = jsSha3
+
+// ENS namehash (EIP-137): keccak256 of the sequence of label hashes
+function ensNamehash(name) {
+  let node = new Uint8Array(32)
+  if (!name) return '0x' + Buffer.from(node).toString('hex')
+  const labels = name.split('.')
+  for (let i = labels.length - 1; i >= 0; i--) {
+    const labelHash = keccak256.array(labels[i])
+    const concat = new Uint8Array(64)
+    concat.set(node, 0)
+    concat.set(labelHash, 32)
+    node = keccak256.array(concat)
+  }
+  return '0x' + Buffer.from(node).toString('hex')
+}
 
 const KEY_NAME = process.env.IPNS_KEY || 'supercompute-content'
 
@@ -87,7 +103,7 @@ try {
 console.log(`\n[ens] owner (0x5056a0729a7860a0c6f63575e74a51d5c2b85cf1) signs one tx via`)
 console.log(`  ENS PublicResolver (0x231b0Ee14048e9dCcD1d247744d114aBCEB5E8E8):`)
 console.log(`  setContenthash(bytes32 node, bytes calldata hash)`)
-console.log(`  node = namehash('supercompute.eth') = ${namehash('supercompute.eth')}`)
+console.log(`  node = namehash('supercompute.eth') = ${ensNamehash('supercompute.eth')}`)
 console.log(`  hash = ${contenthash}`)
 
 console.log(`\n[ens] custody: back up the IPNS key (security/Bitwarden):`)

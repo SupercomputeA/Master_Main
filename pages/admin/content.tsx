@@ -77,6 +77,7 @@ export async function getStaticProps() {
 
 interface ModItem {
   key: string
+  id: string | null          // D1 article id (null for static md_ posts — not API-managed)
   thumb: string
   title: string
   status: string
@@ -84,7 +85,7 @@ interface ModItem {
   when: string
   desc: string
   flags?: string
-  actions: { label: string; kind?: "approve" | "reject" }[]
+  actions: { label: string; kind?: "approve" | "reject"; op?: "publish" | "review" | "delete" | "unpublish" | "flag" }[]
 }
 
 function fmtDate(iso: string | null | undefined): string {
@@ -101,24 +102,25 @@ function statusBadge(status: string | null): string {
   return "Published"
 }
 
-function actionSet(status: string | null): { label: string; kind?: "approve" | "reject" }[] {
+function actionSet(status: string | null): { label: string; kind?: "approve" | "reject"; op?: "publish" | "review" | "delete" | "unpublish" | "flag" }[] {
   const s = (status || "published").toLowerCase()
   if (s === "draft" || s === "review" || s === "pending") {
     return [
-      { label: "Approve", kind: "approve" },
-      { label: "Reject", kind: "reject" },
-      { label: "Request Changes" },
+      { label: "Approve", kind: "approve", op: "publish" },
+      { label: "Reject", kind: "reject", op: "delete" },
+      { label: "Request Changes", op: "review" },
     ]
   }
   if (s === "flagged") {
-    return [{ label: "Review Flags" }, { label: "Hide" }, { label: "Remove", kind: "reject" }]
+    return [{ label: "Review Flags", op: "flag" }, { label: "Hide", op: "review" }, { label: "Remove", kind: "reject", op: "delete" }]
   }
-  return [{ label: "Edit" }, { label: "Unpublish", kind: "reject" }]
+  return [{ label: "Unpublish", kind: "reject", op: "unpublish" }]
 }
 
 function toItems(articles: Article[]): ModItem[] {
   return articles.map((a, i) => ({
     key: a.id || `${i}`,
+    id: a.id && !String(a.id).startsWith("md_") ? a.id : null,
     thumb: a.category === "TECHNOLOGY" ? "🔧" : a.category === "EDUCATION" ? "🎓" : a.category === "COMMUNITY" ? "💬" : "📝",
     title: a.title || a.slug || "Untitled",
     status: statusBadge(a.status),
@@ -131,13 +133,56 @@ function toItems(articles: Article[]): ModItem[] {
 
 export default function AdminContent({ staticArticles }: { staticArticles: Article[] }) {
   const [dynamicArticles, setDynamicArticles] = useState<Article[] | null>(null)
+  const [busy, setBusy] = useState<string | null>(null)
+  const [flash, setFlash] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetch(`${API_BASE}/api/articles`)
-      .then((r) => r.json())
+  async function refresh() {
+    const session = typeof window !== "undefined" ? localStorage.getItem("session") : null
+    const headers: Record<string, string> = {}
+    if (session) headers.Authorization = `Bearer ${session}`
+    fetch(`${API_BASE}/api/articles?status=all`, { headers })
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((d: any) => setDynamicArticles(Array.isArray(d.articles) ? d.articles : []))
       .catch(() => setDynamicArticles([]))
-  }, [])
+  }
+
+  useEffect(() => { refresh() }, [])
+
+  // Moderation ops: Approve → publish, Request Changes → review, Unpublish → draft,
+  // Reject/Remove → delete. All admin-gated server-side; session sent as Bearer.
+  async function act(item: ModItem, op: string) {
+    if (!item.id) return
+    setBusy(item.id)
+    setFlash(null)
+    const session = typeof window !== "undefined" ? localStorage.getItem("session") : null
+    if (!session) { setFlash("// connect wallet + sign in to moderate"); setBusy(null); return }
+    try {
+      let ok = false
+      if (op === "delete") {
+        const r = await fetch(`${API_BASE}/api/articles/${item.id}`, { method: "DELETE", headers: { Authorization: `Bearer ${session}` } })
+        ok = r.ok
+        if (ok) setFlash(`// removed "${item.title}"`)
+      } else {
+        const body: Record<string, unknown> = {}
+        if (op === "publish") { body.status = "published"; body.published_at = Math.floor(Date.now() / 1000) }
+        if (op === "review") body.status = "review"
+        if (op === "unpublish") body.status = "draft"
+        const r = await fetch(`${API_BASE}/api/articles/${item.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${session}` },
+          body: JSON.stringify(body),
+        })
+        ok = r.ok
+        if (ok) setFlash(`// ${op === "publish" ? "published" : op === "review" ? "changes requested" : "unpublished"}: "${item.title}"`)
+      }
+      if (ok) refresh()
+      else setFlash(`// action failed (${op})`)
+    } catch {
+      setFlash(`// action failed (${op})`)
+    } finally {
+      setBusy(null)
+    }
+  }
 
   const items: ModItem[] = useMemo(() => {
     if (dynamicArticles === null) return toItems(staticArticles)
@@ -165,6 +210,7 @@ export default function AdminContent({ staticArticles }: { staticArticles: Artic
               </div>
             </div>
           )}
+          {flash && <div className="ed-msg" style={{ margin: "0 0 16px" }}>{flash}</div>}
           {items.map((item) => (
             <div key={item.key} className="content-item term-card">
               <div className="content-thumbnail">{item.thumb}</div>
@@ -181,8 +227,16 @@ export default function AdminContent({ staticArticles }: { staticArticles: Artic
                 {item.flags && <div className="content-flags">{item.flags}</div>}
                 <div className="content-actions">
                   {item.actions.map((a) => (
-                    <button key={a.label} className={`mod-btn${a.kind ? " " + a.kind : ""}`}>{a.label}</button>
+                    <button
+                      key={a.label}
+                      className={`mod-btn${a.kind ? " " + a.kind : ""}`}
+                      disabled={!item.id || busy === item.id}
+                      onClick={() => a.op && act(item, a.op)}
+                    >
+                      {busy === item.id ? "…" : a.label}
+                    </button>
                   ))}
+                  {!item.id && <span style={{ fontSize: 11, opacity: 0.6, marginLeft: 8 }}>static</span>}
                 </div>
               </div>
             </div>

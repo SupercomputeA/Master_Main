@@ -8,8 +8,11 @@ import { execSync } from 'node:child_process'
 
 const DRY = process.argv.includes('--dry-run')
 
-const TOKEN = execSync('grep oauth_token ~/.wrangler/config/default.toml | sed -E \'s/oauth_token = "([^"]+)"/\\1/\'')
-  .toString().trim()
+// Token precedence: CLOUDFLARE_API_TOKEN env (CI / non-interactive) → wrangler OAuth
+const ENV_TOKEN = (process.env.CLOUDFLARE_API_TOKEN || '').trim()
+const TOKEN = ENV_TOKEN ||
+  execSync('grep oauth_token ~/.wrangler/config/default.toml | sed -E \'s/oauth_token = "([^"]+)"/\\1/\'')
+    .toString().trim()
 const ACCT_ID = 'c830485ab81a0f5c9ccece564e9b74c5'
 const DB_ID = 'e3c7c7f9-df4a-4e1b-9bc7-97f1faadf282'
 

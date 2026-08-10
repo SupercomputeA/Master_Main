@@ -1,4 +1,4 @@
-// eas-attest.mjs — EAS authorship rail for SUPERCOMPUTE articles.
+// eas-attest.mjs — EAS authorship rail for SUPERCOMPUTE articles (SDK version).
 //
 // D (authorship rail): every article carries an on-chain attestation
 // "published by supercompute.eth, authored by Quanta Sovereigna".
@@ -8,75 +8,52 @@
 //   query      → list recent authorship attestations (read-only, no key)
 //
 // EAS on Base (official deploy): SchemaRegistry 0x4200...0020, EAS 0x4200...0021
-// Signer key comes from env (SECURITY: PRIVATE_KEY — custody via security profile /
-// Bitwarden; never hardcode, never commit).
-import { createWalletClient, createPublicClient, http, getContract } from 'viem'
+// Signer = fleet GATEWAY_WALLET_UNRESTRICTED (0xa3f4...7365). Key from vault:
+//   source ~/.hermes/profiles/supercompute/bin/bw-unlock
+//   PK=$(bw-audit list items --search imported_top_level --session "$BW_SESSION" \
+//       | python3 -c "import sys,json;d=json.load(sys.stdin);a=d['data'] if isinstance(d,dict) and 'data' in d else d;print([f.get('value','').strip().lstrip('=') for x in a for f in (x.get('fields') or []) if f.get('name')=='GATEWAY_WALLET_UNRESTRICTED_KEY'][0])")
+import { createWalletClient, createPublicClient, http, encodeAbiParameters, parseAbiParameters, keccak256 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { base } from 'viem/chains'
+import { EAS, SchemaRegistry } from '@ethereum-attestation-service/eas-sdk'
 
 const EAS_ADDR = '0x4200000000000000000000000000000000000021'
 const REG_ADDR = '0x4200000000000000000000000000000000000020'
 const PUBLISHER_NAME = 'supercompute.eth'
-
-// Article authorship schema (string slug, string title, uint64 published_at,
-// address author, string authorName). resolve: true — recipient is the author.
 const SCHEMA = 'string slug,string title,uint64 published_at,address author,string authorName'
 
 const [cmd, ...rest] = process.argv.slice(2)
-const publicClient = createPublicClient({ chain: base, transport: http() })
 
-function signerClient() {
-  const pk = process.env.PRIVATE_KEY
-  if (!pk) throw new Error('PRIVATE_KEY env required (security custody). Run: infisical run --env=dev -- node scripts/eas-attest.mjs …')
-  const account = privateKeyToAccount(pk.startsWith('0x') ? pk : `0x${pk}`)
-  return createWalletClient({ account, chain: base, transport: http() })
-}
-
-// Minimal EAS ABI slices (register + attest + uid lookup)
-const REG_ABI = [
-  { type: 'function', name: 'register', stateMutability: 'nonpayable', inputs: [{ name: 'schema', type: 'string' }, { name: 'resolverAddress', type: 'address' }, { name: 'revocable', type: 'bool' }], outputs: [{ name: '', type: 'bytes32' }] },
-  { type: 'function', name: 'getSchema', stateMutability: 'view', inputs: [{ name: 'schema', type: 'bytes32' }], outputs: [{ type: 'tuple', components: [{ name: 'uid', type: 'bytes32' }, { name: 'resolver', type: 'address' }, { name: 'revocable', type: 'bool' }, { name: 'schema', type: 'string' }], name: '' }] },
-]
-const EAS_ABI = [
-  { type: 'function', name: 'attest', stateMutability: 'payable', inputs: [{ name: 'request', type: 'tuple', components: [{ name: 'schema', type: 'bytes32' }, { name: 'data', type: 'tuple', components: [{ name: 'recipient', type: 'address' }, { name: 'expirationTime', type: 'uint64' }, { name: 'revocable', type: 'bool' }, { name: 'refUID', type: 'bytes32' }, { name: 'data', type: 'bytes' }, { name: 'value', type: 'uint256' }] }] }], outputs: [{ name: '', type: 'bytes32' }] },
-  { type: 'function', name: 'getAttestation', stateMutability: 'view', inputs: [{ name: 'uid', type: 'bytes32' }], outputs: [{ type: 'tuple', components: [{ name: 'uid', type: 'bytes32' }, { name: 'schema', type: 'bytes32' }, { name: 'time', type: 'uint64' }, { name: 'expirationTime', type: 'uint64' }, { name: 'revocationTime', type: 'uint64' }, { name: 'refUID', type: 'bytes32' }, { name: 'recipient', type: 'address' }, { name: 'attester', type: 'address' }, { name: 'revocable', type: 'bool' }, { name: 'data', type: 'bytes' }], name: '' }] },
-]
-
-// abi.encode for the schema's data tuple
-import { encodeAbiParameters, parseAbiParameters } from 'viem'
-function encodeArticle(slug, title, publishedAt, author, authorName) {
-  return encodeAbiParameters(
-    parseAbiParameters('string,string,uint64,address,string'),
-    [slug, title, BigInt(publishedAt), author, authorName]
-  )
+function signer() {
+  const pk = process.env.PK
+  if (!pk) throw new Error('PK env required — GATEWAY_WALLET_UNRESTRICTED_KEY from vault')
+  return privateKeyToAccount(pk.startsWith('0x') ? pk : `0x${pk}`)
 }
 
 async function run() {
   if (!cmd) {
     console.log('usage: node scripts/eas-attest.mjs <register|attest|query>')
-    console.log('  register                     — register authorship schema (one-time, needs PRIVATE_KEY)')
-    console.log('  attest <slug> <title> <ts>   — attest an article (needs PRIVATE_KEY)')
+    console.log('  register                     — register authorship schema (one-time, needs PK)')
+    console.log('  attest <slug> <title> <ts>   — attest an article (needs PK)')
     console.log('  query <uid>                  — read an attestation (no key)')
     process.exit(0)
   }
 
-  if (cmd === 'query') {
-    const uid = rest[0]
-    if (!uid) throw new Error('query needs an attestation uid')
-    const eas = getContract({ address: EAS_ADDR, abi: EAS_ABI, client: { public: publicClient } })
-    const a = await eas.read.getAttestation([uid])
-    console.log('attestation:', JSON.stringify({ uid, schema: a.schema, time: a.time.toString(), recipient: a.recipient, attester: a.attester, data: a.data }, null, 2))
-    return
-  }
-
-  const wallet = signerClient()
-  const account = wallet.account
+  const account = signer()
+  const wallet = createWalletClient({ account, chain: base, transport: http('https://mainnet.base.org') })
+  const publicClient = createPublicClient({ chain: base, transport: http('https://mainnet.base.org') })
   console.log(`[eas] signer: ${account.address} (Base)`)
 
   if (cmd === 'register') {
-    const reg = getContract({ address: REG_ADDR, abi: REG_ABI, client: { public: publicClient, wallet } })
-    const schemaId = await reg.write.register([SCHEMA, '0x0000000000000000000000000000000000000000', true])
-    console.log(`[eas] schema registered: ${schemaId}`)
+    const reg = new SchemaRegistry(REG_ADDR)
+    reg.connect({ signer: account, chain: base, address: REG_ADDR } )
+    // SDK connect expects a signer; use the low-level wallet-signer bridge
+    const sdkSigner = { signMessage: (m) => wallet.signMessage(m), getAddress: async () => account.address }
+    reg.connect(sdkSigner)
+    const tx = await reg.register({ schema: SCHEMA, resolverAddress: '0x0000000000000000000000000000000000000000', revocable: true })
+    console.log(`[eas] tx: ${tx.tx.hash}`)
+    const uid = await tx.wait()
+    console.log(`[eas] schema registered: ${uid}`)
     console.log(`[eas] schema: ${SCHEMA}`)
     return
   }
@@ -84,30 +61,47 @@ async function run() {
   if (cmd === 'attest') {
     const [slug, title, ts] = rest
     if (!slug || !title || !ts) throw new Error('attest needs: slug title unix-ts')
-    const eas = getContract({ address: EAS_ADDR, abi: EAS_ABI, client: { public: publicClient, wallet } })
-    // recipient = signer (the publishing account); author field = supercompute.eth owner
-    const data = encodeArticle(slug, title, Number(ts), account.address, PUBLISHER_NAME)
-    const uid = await eas.write.attest([{
-      schema: process.env.SCHEMA_ID || (await schemaId()),
-      data: { recipient: account.address, expirationTime: 0n, revocable: true, refUID: '0x' + '0'.repeat(64), data, value: 0n },
-    }])
-    console.log(`[eas] attestation: ${uid}`)
+    const uid = process.env.SCHEMA_ID
+    if (!uid) throw new Error('SCHEMA_ID env required (the schema uid from register)')
+    const eas = new EAS(EAS_ADDR)
+    const sdkSigner = { signMessage: (m) => wallet.signMessage(m), getAddress: async () => account.address }
+    eas.connect(sdkSigner)
+    const data = encodeAbiParameters(
+      parseAbiParameters('string,string,uint64,address,string'),
+      [slug, title, BigInt(ts), account.address, PUBLISHER_NAME]
+    )
+    const tx = await eas.attest({
+      schema: uid,
+      data: {
+        recipient: account.address,
+        expirationTime: 0n,
+        revocable: true,
+        refUID: '0x' + '0'.repeat(64),
+        data,
+        value: 0n,
+      },
+    })
+    console.log(`[eas] tx: ${tx.tx.hash}`)
+    const attUid = await tx.wait()
+    console.log(`[eas] attestation: ${attUid}`)
     console.log(`[eas] slug: ${slug} | title: ${title} | published_at: ${ts}`)
-    console.log(`[eas] verify: node scripts/eas-attest.mjs query ${uid}`)
+    console.log(`[eas] verify: node scripts/eas-attest.mjs query ${attUid}`)
+    return
+  }
+
+  if (cmd === 'query') {
+    const attUid = rest[0]
+    if (!attUid) throw new Error('query needs an attestation uid')
+    const eas = new EAS(EAS_ADDR)
+    const attestation = await eas.getAttestation(attUid)
+    console.log('attestation:', JSON.stringify({
+      uid: attestation.uid, schema: attestation.schema, time: attestation.time.toString(),
+      recipient: attestation.recipient, attester: attestation.attester, data: attestation.data,
+    }, null, 2))
     return
   }
 
   throw new Error(`unknown command: ${cmd}`)
-}
-
-async function schemaId() {
-  // deterministic schema uid per EAS spec: keccak256(schema, resolver, revocable)
-  const { keccak256, encodeAbiParameters, parseAbiParameters } = await import('viem')
-  const reg = getContract({ address: REG_ADDR, abi: REG_ABI, client: { public: publicClient } })
-  // getSchema needs a uid; we must derive it. EAS uid = keccak256(abi.encode(schema, resolver, revocable))
-  const hash = keccak256(encodeAbiParameters(parseAbiParameters('string,address,bool'), [SCHEMA, '0x0000000000000000000000000000000000000000', true]))
-  try { await reg.read.getSchema([hash]); console.log(`[eas] schema exists: ${hash}`) } catch { console.log(`[eas] schema NOT registered yet — run register first: ${hash}`) }
-  return hash
 }
 
 run().catch((e) => { console.error('ERR:', e.message); process.exit(1) })

@@ -57,9 +57,13 @@ const MOCK_SLUG_SQL = MOCK_SLUGS.map((s) => `'${s}'`).join(', ')
 async function main() {
   console.log(`\n=== D1 Articles Seed (${DRY ? 'DRY RUN' : 'LIVE'}) ===`)
 
-  // 1. Count current articles
-  const cur = await d1Query('SELECT COUNT(*) AS n FROM articles;')
-  console.log('Current articles in D1:', cur.result?.[0]?.results?.[0]?.n ?? '?')
+  // 1. Count current articles (skip in dry-run — dry-run is fully offline)
+  if (!DRY) {
+    const cur = await d1Query('SELECT COUNT(*) AS n FROM articles;')
+    console.log('Current articles in D1:', cur.result?.[0]?.results?.[0]?.n ?? '?')
+  } else {
+    console.log('[dry] offline — no D1 calls; showing planned mutations only')
+  }
 
   // 2. Purge mock rows (dry-run: report only)
   if (DRY) {

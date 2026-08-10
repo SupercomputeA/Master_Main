@@ -14,5 +14,11 @@
 /newsdesk/base-ecosystem-guide                    /newsdesk/article   200
 /newsdesk/refi-deep-dive                          /newsdesk/article   200
 
+# Dynamic article templates — map any slug to the [id] shell (client-side fetch).
+# Must come BEFORE the /* SPA catch-all.
+/app/article/regular/*    /app/article/regular/[id]    200
+/app/article/kg/*         /app/article/kg/[id]         200
+/app/publishing/*/edit    /app/publishing/[id]/edit    200
+
 # SPA fallback — route all remaining non-file, non-API 404s to index.html
 /*    /index.html   200

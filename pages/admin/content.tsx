@@ -1,5 +1,6 @@
 import fs from "fs"
 import path from "path"
+import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import MemberLayout from "../../components/MemberLayout"
 
@@ -230,13 +231,17 @@ export default function AdminContent({ staticArticles }: { staticArticles: Artic
                     <button
                       key={a.label}
                       className={`mod-btn${a.kind ? " " + a.kind : ""}`}
-                      disabled={!item.id || busy === item.id}
+                      disabled={!item.id || (busy !== null && busy === item.id)}
                       onClick={() => a.op && act(item, a.op)}
                     >
-                      {busy === item.id ? "…" : a.label}
+                      {busy !== null && busy === item.id ? "…" : a.label}
                     </button>
                   ))}
-                  {!item.id && <span style={{ fontSize: 11, opacity: 0.6, marginLeft: 8 }}>static</span>}
+                  {item.id ? (
+                    <Link href={`/app/publishing/${item.id}/edit`} className="mod-btn" style={{ textDecoration: "none" }}>Edit</Link>
+                  ) : (
+                    <span style={{ fontSize: 11, opacity: 0.6, marginLeft: 8 }}>static</span>
+                  )}
                 </div>
               </div>
             </div>

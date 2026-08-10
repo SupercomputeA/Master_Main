@@ -1,0 +1,26 @@
+# One-shot Pages project diagnostic — dispatch only.
+# Prints the project's production_branch + latest deployments so we can see
+# why the custom domain serves a stale build.
+name: pages-project-diagnostic
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install wrangler
+        run: npm install -g wrangler@4
+      - name: Project info
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler pages project list 2>&1 | head -30 || true
+          echo "=== deployment list ==="
+          npx wrangler pages deployment list --project-name=supercompute 2>&1 | head -30 || true

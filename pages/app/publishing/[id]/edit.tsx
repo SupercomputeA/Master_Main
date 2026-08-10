@@ -54,13 +54,15 @@ export default function ArticleEdit() {
 
   async function save(status: "draft" | "published") {
     setMsg(null)
+    const session = typeof window !== "undefined" ? localStorage.getItem("session") : null
+    if (!session) { setMsg("// connect wallet + sign in to save"); return }
     try {
       const r = await fetch(`${API_BASE}/api/articles/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session}` },
         body: JSON.stringify({ title, category, excerpt, content: body, status }),
       })
-      setMsg(r.ok ? (status === "published" ? "// published — live on the NewsDesk" : "// draft saved") : "// save failed")
+      setMsg(r.ok ? (status === "published" ? "// published — live on the NewsDesk" : "// draft saved") : `// save failed (${r.status})`)
     } catch {
       setMsg("// save failed")
     }

@@ -90,26 +90,36 @@ async function resolveENS(addressOrName) {
   if (addressOrName.startsWith('0x') && addressOrName.length === 42) {
     return addressOrName.toLowerCase();
   }
-  // ENS name — resolve via public Ethereum RPC (eth_call to ENS resolver)
+  // ENS name — resolve via public Ethereum RPC (eth_call to ENS resolver),
+  // trying multiple RPCs in order (publicnode blocks Workers egress).
   const namehash = namehashEncode(addressOrName);
   const data = '0x' + ADDR_SELECTOR + namehash;
-  try {
-    const res = await fetch('https://ethereum.publicnode.com', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'eth_call',
-        params: [{ to: ENS_RESOLVER, data }, 'latest'],
-        id: 1,
-      }),
-    });
-    const json = await res.json();
-    const result = json.result || '0x';
-    if (result !== '0x' && result.length === 66) {
-      return '0x' + result.slice(-40);
-    }
-  } catch (e) { /* fall through */ }
+  const ETH_RPCS = [
+    'https://ethereum-rpc.publicnode.com',
+    'https://ethereum.publicnode.com',
+    'https://cloudflare-eth.com',
+    'https://eth.llamarpc.com',
+    'https://1rpc.io/eth',
+  ];
+  for (const rpc of ETH_RPCS) {
+    try {
+      const res = await fetch(rpc, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_call',
+          params: [{ to: ENS_RESOLVER, data }, 'latest'],
+          id: 1,
+        }),
+      });
+      const json = await res.json();
+      const result = json.result || '0x';
+      if (result !== '0x' && result.length === 66) {
+        return '0x' + result.slice(-40);
+      }
+    } catch (e) { /* try next RPC */ }
+  }
   return null;
 }
 // ── Auth checks ─────────────────────────────────────────────────────────────

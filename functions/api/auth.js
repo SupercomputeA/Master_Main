@@ -76,32 +76,52 @@ async function recordFailedAttempt(env, address) {
 }
 
 // ── ENS Resolution ───────────────────────────────────────────────────────────
-// Direct RPC namehash requires keccak-256, which Web Crypto API doesn't support.
-// Use public ENS resolution APIs instead (works in Cloudflare Workers).
+// Node's `crypto.createHash('sha3-256')` is NIST SHA-3, NOT Ethereum's Keccak-256.
+// The previous local implementation produced garbage hashes, breaking the
+// `isAdmin` ENS-name path. viem ships a battle-tested keccak256 implementation.
+import { namehash as viemNamehash } from 'viem/ens';
+
+function namehashEncode(name) {
+  return viemNamehash(name).slice(2); // strip 0x
+}
 
 async function resolveENS(addressOrName) {
   // Already an address
   if (addressOrName.startsWith('0x') && addressOrName.length === 42) {
     return addressOrName.toLowerCase();
   }
-  // ENS name — resolve via public API
-  try {
-    const res = await fetch(`https://api.ensideas.com/resolve/${encodeURIComponent(addressOrName)}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.address) return data.address.toLowerCase();
-    }
-  } catch {}
-  try {
-    const res = await fetch(`https://ensdata.net/api/resolve/${encodeURIComponent(addressOrName)}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.address) return data.address.toLowerCase();
-    }
-  } catch {}
+  // ENS name — resolve via public Ethereum RPC (eth_call to ENS resolver),
+  // trying multiple RPCs in order (publicnode blocks Workers egress).
+  const namehash = namehashEncode(addressOrName);
+  const data = '0x' + ADDR_SELECTOR + namehash;
+  const ETH_RPCS = [
+    'https://ethereum-rpc.publicnode.com',
+    'https://ethereum.publicnode.com',
+    'https://cloudflare-eth.com',
+    'https://eth.llamarpc.com',
+    'https://1rpc.io/eth',
+  ];
+  for (const rpc of ETH_RPCS) {
+    try {
+      const res = await fetch(rpc, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_call',
+          params: [{ to: ENS_RESOLVER, data }, 'latest'],
+          id: 1,
+        }),
+      });
+      const json = await res.json();
+      const result = json.result || '0x';
+      if (result !== '0x' && result.length === 66) {
+        return '0x' + result.slice(-40);
+      }
+    } catch (e) { /* try next RPC */ }
+  }
   return null;
 }
-
 // ── Auth checks ─────────────────────────────────────────────────────────────
 async function isAdmin(env, wallet) {
   if (!env?.DB) return false;
@@ -233,4 +253,4 @@ export async function onRequest({ request, env }) {
   });
 }
 
-export { verifySession, isAdmin, generateNonce, json, hexToBytes, isValidAddress };
+export { verifySession, isAdmin, generateNonce, json, hexToBytes, isValidAddress, resolveENS };

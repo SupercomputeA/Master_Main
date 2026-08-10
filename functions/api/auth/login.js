@@ -1,4 +1,4 @@
-import { generateNonce, hexToBytes, isValidAddress, json } from '../auth.js';
+import { generateNonce, hexToBytes, isValidAddress, json, resolveENS } from '../auth.js';
 import { recoverMessageAddress } from 'viem/utils';
 
 // ── SIWE message-content contract (nonce-omission fix, t_09e0dbd1) ─────────
@@ -36,11 +36,33 @@ function validateSiweMessage(message, nonce) {
   return null;
 }
 
-const ADMIN_QUERY = 'SELECT role FROM admin_wallets WHERE wallet_address = ?';
+const ADMIN_QUERY = 'SELECT role FROM admin_wallets WHERE wallet_address = ? OR wallet_address = ?';
+// ENS names seeded as admins. Resolving these to addresses lets a raw-address
+// signer (e.g. wallet that owns supercompute.eth signing in with 0x5056...)
+// still match the seed row.
+const ADMIN_ENS_NAMES = ['supercompute.eth', 'orami.eth'];
 async function isAdmin(env, wallet) {
   if (!env?.DB) return false;
   try {
-    const r = await env.DB.prepare(ADMIN_QUERY).bind(wallet.toLowerCase()).first();
+    let resolved = wallet;
+    if (!wallet.startsWith('0x')) {
+      // Signer provided ENS name → resolve to address for the dual-check
+      resolved = await resolveENS(wallet);
+      if (!resolved) return false;
+    } else {
+      // Signer provided address → resolve known admin ENS names to addresses
+      // and pick the matching one so the seed row matches.
+      for (const ens of ADMIN_ENS_NAMES) {
+        const addr = await resolveENS(ens).catch(() => null);
+        if (addr && addr.toLowerCase() === wallet.toLowerCase()) {
+          resolved = ens;
+          break;
+        }
+      }
+    }
+    const r = await env.DB.prepare(ADMIN_QUERY)
+      .bind(wallet.toLowerCase(), resolved.toLowerCase())
+      .first();
     return r?.role === 'admin';
   } catch { return false; }
 }

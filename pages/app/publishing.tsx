@@ -34,8 +34,11 @@ export default function MemberPublishing() {
   const [articles, setArticles] = useState<Article[] | null>(null)
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/articles`)
-      .then((r) => r.json())
+    const session = typeof window !== "undefined" ? localStorage.getItem("session") : null
+    const headers: Record<string, string> = {}
+    if (session) headers.Authorization = `Bearer ${session}`
+    fetch(`${API_BASE}/api/articles?status=all`, { headers })
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((d: any) => setArticles(Array.isArray(d.articles) ? d.articles : []))
       .catch(() => setArticles([]))
   }, [])

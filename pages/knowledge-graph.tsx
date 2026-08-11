@@ -31,9 +31,9 @@ const GRAPHS = [
 ]
 
 type KgNode = { id: string; label: string; type: string; description?: string; level?: string }
-type KgEdge = [string, string]
-type KgGraph = { nodes: KgNode[]; edges: KgEdge[]; meta?: unknown }
-type KgResponse = { graph: KgGraph; mcp?: boolean }
+type KgEdge = [string, string, string?]
+type KgGraph = { nodes: KgNode[]; edges: KgEdge[]; meta?: unknown; source?: "d1" | "static" }
+type KgResponse = { graph: KgGraph; mcp?: boolean; source?: "d1" | "static" }
 
 export default function KnowledgeGraphPage() {
   const [graphId, setGraphId] = useState("school")
@@ -43,6 +43,15 @@ export default function KnowledgeGraphPage() {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null)
   const [selectedNode, setSelectedNode] = useState<KgNode | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  // Server-side search hits: when present, these override the client-side
+  // filter so the query actually hits D1 (or the static fallback). Null
+  // until the debounce fires, and null when the query is empty.
+  const [serverHits, setServerHits] = useState<KgNode[] | null>(null)
+  const [searchSource, setSearchSource] = useState<"d1" | "static" | null>(null)
+  // Where the active graph payload came from ("d1" | "static"); displayed
+  // in the stats footer so operators can see whether D1 is wired without
+  // opening devtools.
+  const [graphSource, setGraphSource] = useState<"d1" | "static" | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const animRef = useRef(null)
   const positionsRef = useRef(new Map())
@@ -52,18 +61,51 @@ export default function KnowledgeGraphPage() {
     setLoading(true)
     setError(null)
     setSelectedNode(null)
+    setServerHits(null)
+    setSearchSource(null)
+    setGraphSource(null)
     fetch(`/api/kg/graph?graph=${graphId}`)
       .then(r => r.json() as Promise<KgResponse>)
       .then(d => {
         setGraphData(d.graph)
+        setGraphSource(d.source || null)
         positionsRef.current = new Map()
         setLoading(false)
       })
       .catch((e: unknown) => { setError(e instanceof Error ? e.message : String(e)); setLoading(false) })
   }, [graphId])
 
+  // Debounced server-side search. Hits /api/kg/search (D1, with static
+  // fallback) so the entity count and labels come from real data — not
+  // a hard-coded seed. Empty query clears serverHits so the full graph
+  // re-displays.
+  useEffect(() => {
+    const q = searchQuery.trim()
+    if (!q) {
+      setServerHits(null)
+      setSearchSource(null)
+      return
+    }
+    const handle = setTimeout(() => {
+      const ctrl = new AbortController()
+      fetch(`/api/kg/search?graph=${graphId}&q=${encodeURIComponent(q)}`, { signal: ctrl.signal })
+        .then(r => r.json() as Promise<{ results?: KgNode[]; source?: "d1" | "static" }>)
+        .then(d => {
+          setServerHits(d.results || [])
+          setSearchSource(d.source || null)
+        })
+        .catch(() => { /* swallow — keep client filter as fallback */ })
+    }, 200)
+    return () => clearTimeout(handle)
+  }, [graphId, searchQuery])
+
   const filteredNodes = useMemo(() => {
     if (!graphData) return []
+    // Prefer server results when present — these are the D1 / static
+    // truth and matter for the acceptance bar ("search filters real
+    // entities"). The client filter remains for instant keystroke
+    // feedback before the debounce fires.
+    if (serverHits) return serverHits
     if (!searchQuery.trim()) return graphData.nodes
     const q = searchQuery.toLowerCase()
     return graphData.nodes.filter(n =>
@@ -71,7 +113,7 @@ export default function KnowledgeGraphPage() {
       n.type?.toLowerCase().includes(q) ||
       (n.description || "").toLowerCase().includes(q)
     )
-  }, [graphData, searchQuery])
+  }, [graphData, searchQuery, serverHits])
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current
@@ -259,7 +301,7 @@ export default function KnowledgeGraphPage() {
         {/* Search */}
         <input
           type="text"
-          placeholder="// search nodes..."
+          placeholder="// search nodes (server-side, D1)..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           style={{
@@ -268,6 +310,11 @@ export default function KnowledgeGraphPage() {
             padding: "10px 14px", outline: "none", width: "100%", boxSizing: "border-box",
           }}
         />
+        {searchSource && (
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--mono-blue)", marginTop: -16, marginBottom: 12 }}>
+            // search source: {searchSource === "d1" ? "D1" : "static fallback"} · {filteredNodes.length} hits
+          </div>
+        )}
 
         {/* Error state */}
         {error && (
@@ -332,10 +379,15 @@ export default function KnowledgeGraphPage() {
 
         {/* Stats */}
         {graphData && graphData.nodes.length > 0 && (
-          <div style={{ display: "flex", gap: 24, fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--mono-blue)", borderTop: "1px solid var(--border)", paddingTop: 16 }}>
+          <div style={{ display: "flex", gap: 24, fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--mono-blue)", borderTop: "1px solid var(--border)", paddingTop: 16, flexWrap: "wrap" }}>
             <span>{graphData.nodes.length} entities</span>
             <span>{graphData.edges.length} relationships</span>
             <span>{new Set(graphData.nodes.map(n => n.type)).size} types</span>
+            {graphData && graphData.nodes.length > 0 && graphSource && (
+              <span style={{ color: graphSource === 'd1' ? 'var(--gold-warm)' : 'var(--mono-blue)' }}>
+                // source: {graphSource}
+              </span>
+            )}
           </div>
         )}
 

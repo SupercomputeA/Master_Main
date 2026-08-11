@@ -49,7 +49,7 @@ export default function RegularArticle() {
 
   useEffect(() => {
     if (!slug) return
-    fetch(`${API_BASE}/api/articles?slug=${encodeURIComponent(slug)}`)
+    fetch(`${API_BASE}/api/articles?slug=${encodeURIComponent(slug)}&include=content`)
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((d: any) => {
         const list: Article[] = d.articles || []

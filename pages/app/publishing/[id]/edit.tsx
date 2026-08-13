@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import MemberLayout from "../../../../components/MemberLayout"
@@ -30,6 +30,25 @@ export default function ArticleEdit() {
   const [excerpt, setExcerpt] = useState("")
   const [body, setBody] = useState("")
   const [msg, setMsg] = useState<string | null>(null)
+  const bodyRef = useRef<HTMLTextAreaElement>(null)
+
+  // Auto-grow the body editor so the full article text is visible — no hidden
+  // truncation inside the textarea. Grows on load, on edit, and on window resize.
+  useEffect(() => {
+    const el = bodyRef.current
+    if (!el) return
+    const grow = () => {
+      el.style.height = "auto"
+      el.style.height = `${el.scrollHeight + 2}px`
+    }
+    grow()
+    const t = setTimeout(grow, 60)
+    window.addEventListener("resize", grow)
+    return () => {
+      clearTimeout(t)
+      window.removeEventListener("resize", grow)
+    }
+  }, [body, loaded])
 
   useEffect(() => {
     if (!id) return
@@ -102,6 +121,7 @@ export default function ArticleEdit() {
                 placeholder="Article title"
               />
               <textarea
+                ref={bodyRef}
                 className="ed-body"
                 value={body}
                 onChange={(e) => setBody(e.target.value)}

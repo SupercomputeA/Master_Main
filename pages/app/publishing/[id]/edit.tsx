@@ -47,6 +47,8 @@ export default function ArticleEdit() {
         setNotFound(true)
         setLoaded(true)
       })
+    // Start scrolled to top so the article opens at its beginning, not mid-body
+    window.scrollTo({ top: 0, behavior: "auto" })
   }, [id])
 
   const words = body.trim() ? body.trim().split(/\s+/).length : 0

@@ -49,10 +49,48 @@ const resolveOut = sh(`ipfs name resolve ${ipns}`)
 const ok = resolveOut.includes(addOut)
 console.log(`[ipfs] resolve check: ${ok ? 'PASS' : 'CHECK ' + resolveOut}`)
 
-console.log(`
-Pinning note: the local ipfs daemon must stay online for the content to remain
-available. For always-on pinning, add a remote service and mirror:
-  - nft.storage (free):  nft.storage.upload with the CAR of out/
-  - pinata:               pinata.add with the CID
-  - OR run 'ipfs pin remote service add' for a pinning partner.
-`)
+// 4. Remote pin — always-on availability without the local daemon.
+//    Two free CID-preserving paths (either one suffices):
+//      A) nft.storage:  NFT_STORAGE_API_KEY env (free, CAR upload keeps the exact CID)
+//      B) Pinata:        PINATA_JWT env (pinFileToIPFS wraps → NOT our CID; pinByHash
+//                        is paid-only; kept for compat but prints the caveat)
+//    No key → warn but continue (local pin still works).
+const nftKey = (process.env.NFT_STORAGE_API_KEY || '').trim()
+const pinataJwt = (process.env.PINATA_JWT || '').trim()
+if (nftKey) {
+  try {
+    // Build the CID-exact CAR once, upload to nft.storage (preserves root CID)
+    const car = sh(`ipfs dag export ${addOut}`)
+    const upload = await fetch('https://api.nft.storage/upload', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${nftKey}`, 'Content-Type': 'application/car' },
+      body: new Blob([car], { type: 'application/car' }),
+    })
+    const body = await upload.json()
+    if (upload.ok && body.ok) console.log(`[ipfs] nft.storage pin OK: ${body.value.cid}`)
+    else console.log(`[ipfs] nft.storage warn: ${JSON.stringify(body).slice(0, 120)}`)
+  } catch (e) {
+    console.log(`[ipfs] nft.storage warn: ${e.message}`)
+  }
+} else if (pinataJwt) {
+  try {
+    const res = await fetch(`https://api.pinata.cloud/pinning/pinByHash`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${pinataJwt}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hashToPin: addOut }),
+    })
+    const body = await res.json()
+    if (res.ok) console.log(`[ipfs] Pinata pin OK: ${addOut}`)
+    else console.log(`[ipfs] Pinata pin warn: ${JSON.stringify(body).slice(0, 120)} (pinByHash is paid-only on free plans)`)
+  } catch (e) {
+    console.log(`[ipfs] Pinata pin warn: ${e.message}`)
+  }
+} else {
+  console.log('[ipfs] no NFT_STORAGE_API_KEY / PINATA_JWT env — skipping remote pin (local pin only)')
+}
+
+console.log(`\nIPNS published: ipns://${ipns} → /ipfs/${addOut}`)
+console.log(`Remote pinning: nft.storage (NFT_STORAGE_API_KEY) or Pinata (PINATA_JWT).`)
+console.log(`With a remote pin the content stays available even when the local daemon is offline.`)
+
+

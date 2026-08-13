@@ -69,12 +69,72 @@ const SEED_DATA = {
       ['defi-scom', 'defi-aerodrome'], ['defi-quantas', 'defi-tally'],
     ],
   },
+  articles: {
+    nodes: [
+      { id: 'art-01', label: 'Self-Custody & the Sovereignty Stack', type: 'article', graph: 'articles', x: 0.5, y: 0.3, r: 0.08, description: 'Knowledge Graph article, Series 03, Entry 4 of 7. Self-custody becomes a composable layer across the metaverse toolset.', slug: 'app/article/1', date: '2026-06-28' },
+      { id: 'art-02', label: 'Sovereignty Stack', type: 'article', graph: 'articles', x: 0.18, y: 0.2, r: 0.045, description: 'Companion article on the full sovereignty stack architecture.' },
+      { id: 'art-03', label: 'Key Management', type: 'article', graph: 'articles', x: 0.82, y: 0.2, r: 0.045, description: 'Companion article on key lifecycle, rotation, and recovery planning.' },
+      { id: 'ac-sc', label: 'SELF-CUSTODY', type: 'concept', graph: 'articles', x: 0.5, y: 0.55, r: 0.07, description: 'The core thesis: control of keys and assets without a custodian.', level: 'core' },
+      { id: 'ac-keys', label: 'Keys', type: 'concept', graph: 'articles', x: 0.22, y: 0.42, r: 0.05, description: 'Private/public keypair as the unit of ownership.' },
+      { id: 'ac-custody', label: 'Custody', type: 'concept', graph: 'articles', x: 0.78, y: 0.42, r: 0.05, description: 'Who holds the keys — self, institution, or hybrid.' },
+      { id: 'ac-wallets', label: 'Wallets', type: 'concept', graph: 'articles', x: 0.15, y: 0.68, r: 0.05, description: 'Software and hardware interfaces for key management.' },
+      { id: 'ac-recovery', label: 'Recovery', type: 'concept', graph: 'articles', x: 0.85, y: 0.68, r: 0.05, description: 'Phrases, guardians, and social recovery paths.' },
+      { id: 'ac-risk', label: 'Risk', type: 'concept', graph: 'articles', x: 0.5, y: 0.85, r: 0.05, description: 'Counterparty risk, loss risk, and threat models.' },
+      { id: 'ac-private-keys', label: 'Private Keys', type: 'concept', graph: 'articles', x: 0.12, y: 0.3, r: 0.04, description: 'The secret material that signs transactions.' },
+      { id: 'ac-hardware-wallets', label: 'Hardware Wallets', type: 'concept', graph: 'articles', x: 0.88, y: 0.3, r: 0.04, description: 'Cold storage devices; recovery phrases enter mainstream vocabulary.' },
+      { id: 'ac-social-recovery', label: 'Social Recovery', type: 'concept', graph: 'articles', x: 0.9, y: 0.85, r: 0.04, description: 'Smart accounts distribute trust across guardians, reducing single points of failure.' },
+      { id: 'ac-risk-models', label: 'Risk Models', type: 'concept', graph: 'articles', x: 0.1, y: 0.85, r: 0.04, description: 'Frameworks for weighing custody tradeoffs.' },
+      { id: 'rl-01', label: 'Foundations', type: 'release', graph: 'articles', x: 0.12, y: 0.1, r: 0.03, description: 'Series 03 · Entry 01. Published.', num: '01' },
+      { id: 'rl-02', label: 'Data Consumption', type: 'release', graph: 'articles', x: 0.3, y: 0.08, r: 0.03, description: 'Series 03 · Entry 02. Published.', num: '02' },
+      { id: 'rl-03', label: 'The Vocabulary', type: 'release', graph: 'articles', x: 0.48, y: 0.07, r: 0.03, description: 'Series 03 · Entry 03. Published.', num: '03' },
+      { id: 'rl-04', label: 'Self-Custody', type: 'release', graph: 'articles', x: 0.66, y: 0.08, r: 0.03, description: 'Series 03 · Entry 04. Reading Now.', num: '04' },
+      { id: 'rl-05', label: 'Smart Connections', type: 'release', graph: 'articles', x: 0.84, y: 0.1, r: 0.03, description: 'Series 03 · Entry 05. Jul 5.', num: '05' },
+      { id: 'rl-06', label: 'Embeddings', type: 'release', graph: 'articles', x: 0.93, y: 0.22, r: 0.03, description: 'Series 03 · Entry 06. Jul 12.', num: '06' },
+      { id: 'rl-07', label: 'Synthesis', type: 'release', graph: 'articles', x: 0.95, y: 0.4, r: 0.03, description: 'Series 03 · Entry 07. Jul 19.', num: '07' },
+      { id: 'tl-2013', label: 'The Custody Problem', type: 'milestone', graph: 'articles', x: 0.2, y: 0.15, r: 0.035, description: '2013 · Origin. Early Base Chain operators confront the tradeoff between convenience and control.' },
+      { id: 'tl-2019', label: 'Hardware Wallet Era', type: 'milestone', graph: 'articles', x: 0.4, y: 0.13, r: 0.035, description: '2019 · Shift. Cold storage becomes standard; recovery phrases enter the mainstream vocabulary.' },
+      { id: 'tl-2023', label: 'Social Recovery', type: 'milestone', graph: 'articles', x: 0.6, y: 0.13, r: 0.035, description: '2023 · Evolution. Smart accounts distribute trust across guardians, reducing single points of failure.' },
+      { id: 'tl-2026', label: 'The Sovereignty Stack', type: 'milestone', graph: 'articles', x: 0.8, y: 0.15, r: 0.035, description: '2026 · Now. Self-custody becomes a composable layer across the metaverse toolset.' },
+      { id: 'p-quanta', label: 'quanta_s', type: 'person', graph: 'articles', x: 0.3, y: 0.3, r: 0.04, description: 'Author · NewsDesk intelligence', role: 'Author · NewsDesk intelligence' },
+      { id: 'p-knight', label: 'knight', type: 'person', graph: 'articles', x: 0.7, y: 0.3, r: 0.04, description: 'Contributor · TradeDesk treasury ops', role: 'Contributor · TradeDesk treasury ops' },
+      { id: 'p-sarah', label: 'Sarah Chen', type: 'person', graph: 'articles', x: 0.25, y: 0.95, r: 0.04, description: 'Reviewer · Security research', role: 'Reviewer · Security research' },
+      { id: 'p-james', label: 'James Rivera', type: 'person', graph: 'articles', x: 0.5, y: 0.97, r: 0.04, description: 'Cited · Governance framework', role: 'Cited · Governance framework' },
+      { id: 'p-morgan', label: 'Morgan Lee', type: 'person', graph: 'articles', x: 0.75, y: 0.95, r: 0.04, description: 'Debate · Against', role: 'Debate · Against' },
+      { id: 'p-alex', label: 'alex_t', type: 'person', graph: 'articles', x: 0.95, y: 0.95, r: 0.04, description: 'Debate · Against', role: 'Debate · Against' },
+      { id: 'arg-for-1', label: 'Self-custody is the only way to guarantee true ownership', type: 'argument', graph: 'articles', x: 0.08, y: 0.5, r: 0.035, description: 'Not your keys, not your coins.', stance: 'for', author: 'knight @tradedesk' },
+      { id: 'arg-for-2', label: 'Social recovery solves the usability problem', type: 'argument', graph: 'articles', x: 0.08, y: 0.62, r: 0.035, description: 'Without reintroducing custodians.', stance: 'for', author: 'Sarah Chen' },
+      { id: 'arg-for-3', label: 'Every custodial failure proves counterparty risk is real', type: 'argument', graph: 'articles', x: 0.08, y: 0.74, r: 0.035, description: 'History is the evidence.', stance: 'for', author: 'quanta_s' },
+      { id: 'arg-against-1', label: 'Mainstream adoption needs abstraction', type: 'argument', graph: 'articles', x: 0.92, y: 0.5, r: 0.035, description: 'Most users cannot safely manage keys.', stance: 'against', author: 'Morgan Lee' },
+      { id: 'arg-against-2', label: 'Institutional custody has regulatory protections', type: 'argument', graph: 'articles', x: 0.92, y: 0.62, r: 0.035, description: 'Protections self-custody cannot match.', stance: 'against', author: 'James Rivera' },
+      { id: 'arg-against-3', label: 'Recovery guardians just move the trust problem', type: 'argument', graph: 'articles', x: 0.92, y: 0.74, r: 0.035, description: 'They do not eliminate it.', stance: 'against', author: 'alex_t' },
+      { id: 'cmt-1', label: 'Sovereignty stack framing finally makes this click', type: 'comment', graph: 'articles', x: 0.35, y: 0.75, r: 0.03, description: 'knight: the risk node maps exactly to treasury ops.', up: 24 },
+      { id: 'cmt-2', label: 'Deeper node on threshold signatures', type: 'comment', graph: 'articles', x: 0.65, y: 0.75, r: 0.03, description: 'Sarah Chen: the missing edge between Recovery and Risk.', up: 18 },
+      { id: 'cmt-3', label: 'Counterpoint holds up — usability is the blocker', type: 'comment', graph: 'articles', x: 0.5, y: 0.65, r: 0.03, description: 'alex_t: moved from 30% to maybe 50% For.', up: 11 },
+    ],
+    edges: [
+      ['art-01', 'ac-sc'], ['art-01', 'ac-keys'], ['art-01', 'ac-custody'], ['art-01', 'ac-wallets'], ['art-01', 'ac-recovery'], ['art-01', 'ac-risk'], ['art-01', 'ac-private-keys'], ['art-01', 'ac-hardware-wallets'], ['art-01', 'ac-social-recovery'], ['art-01', 'ac-risk-models'],
+      ['art-01', 'art-02'], ['art-01', 'art-03'],
+      ['rl-01', 'rl-02'], ['rl-02', 'rl-03'], ['rl-03', 'rl-04'], ['rl-04', 'rl-05'], ['rl-05', 'rl-06'], ['rl-06', 'rl-07'],
+      ['art-01', 'rl-04'],
+      ['tl-2013', 'tl-2019'], ['tl-2019', 'tl-2023'], ['tl-2023', 'tl-2026'],
+      ['art-01', 'tl-2013'], ['art-01', 'tl-2019'], ['art-01', 'tl-2023'], ['art-01', 'tl-2026'],
+      ['p-quanta', 'art-01'], ['p-knight', 'art-01'], ['p-sarah', 'art-01'], ['p-james', 'art-01'],
+      ['art-01', 'arg-for-1'], ['art-01', 'arg-for-2'], ['art-01', 'arg-for-3'], ['art-01', 'arg-against-1'], ['art-01', 'arg-against-2'], ['art-01', 'arg-against-3'],
+      ['p-quanta', 'arg-for-3'], ['p-knight', 'arg-for-1'], ['p-sarah', 'arg-for-2'], ['p-morgan', 'arg-against-1'], ['p-james', 'arg-against-2'], ['p-alex', 'arg-against-3'],
+      ['art-01', 'cmt-1'], ['art-01', 'cmt-2'], ['art-01', 'cmt-3'],
+      ['p-knight', 'cmt-1'], ['p-sarah', 'cmt-2'], ['p-alex', 'cmt-3'],
+      ['ac-sc', 'ac-keys'], ['ac-sc', 'ac-custody'], ['ac-sc', 'ac-wallets'], ['ac-sc', 'ac-recovery'], ['ac-sc', 'ac-risk'],
+      ['ac-keys', 'ac-private-keys'], ['ac-wallets', 'ac-hardware-wallets'], ['ac-recovery', 'ac-social-recovery'], ['ac-risk', 'ac-risk-models'],
+      ['ac-custody', 'ac-keys'], ['ac-recovery', 'ac-wallets'],
+    ],
+  },
 }
 
 const GRAPH_META = {
   school: { label: 'Web3 School', icon: '📚', description: 'School module prerequisite chains and credential paths' },
   police: { label: 'Police Data', icon: '🚔', description: 'NYPD misconduct knowledge graph — officers, incidents, complaints' },
   defi: { label: 'DeFi / ReFi', icon: '🏦', description: 'DeFi protocols, tokens, agents, and their relationships on Base Chain' },
+  articles: { label: 'Knowledge Graph Articles', icon: '📄', description: 'Published KG articles — concepts, people, timeline, debate, comments' },
 }
 
 function json(data, status = 200) {
@@ -133,20 +193,40 @@ export async function onRequest({ request, env }) {
         memgraphUrl
       )
       if (results) {
-        const nodes = [], edges = [], seen = new Set()
-        for (const row of results) {
+        const nodes = [], edges = [], seenNodes = new Set(), seenEdges = new Set()
+        const rows = Array.isArray(results) ? results : (results.results || [])
+        for (const row of rows) {
           for (const key of Object.keys(row)) {
             const val = row[key]
-            if (val?.type && val?.id && !seen.has(val.id)) {
+            if (!val || typeof val !== 'object') continue
+            // Node row (Memgraph bridge: type='node', id, labels, properties)
+            if (val.type === 'node' && val.id && !seenNodes.has(val.id)) {
+              const props = val.properties || {}
               nodes.push({
                 id: val.id,
-                label: val.properties?.label || val.id,
-                type: val.properties?.type || val.type,
-                graph: val.properties?.graph,
-                x: Math.random(), y: Math.random(), r: 0.05,
-                description: val.properties?.description || '',
+                label: props.label || val.id,
+                type: props.type || (val.labels && val.labels[0]) || 'entity',
+                graph: props.graph,
+                x: 0.5 + (Math.random() - 0.5) * 0.4,
+                y: 0.5 + (Math.random() - 0.5) * 0.4,
+                r: 0.05,
+                description: props.description || '',
               })
-              seen.add(val.id)
+              seenNodes.add(val.id)
+            }
+          }
+          // Parse the {n, r, m} triple explicitly (our query's return shape)
+          const n = row.n, m = row.m, r = row.r
+          if (n?.id && m?.id) {
+            let label = ''
+            if (r?.type && r.type !== 'relationship') label = r.type
+            else if (r?.label) label = r.label
+            else if (r?.labels && r.labels[0]) label = r.labels[0]
+            else if (typeof r === 'string') label = r
+            const ek = `${n.id}|${label}|${m.id}`
+            if (!seenEdges.has(ek)) {
+              edges.push([n.id, m.id, label || undefined])
+              seenEdges.add(ek)
             }
           }
         }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
+import { useRouter } from "next/router"
 import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 
@@ -38,7 +39,11 @@ type KgEdge = [string, string]
 type KgResponse = { graph: GraphData; mcp?: boolean }
 
 export default function KnowledgeGraphPage() {
-  const [graphId, setGraphId] = useState("school")
+  const router = useRouter()
+  const initialGraph = typeof router.query.graph === "string" && ["school", "police", "defi", "articles"].includes(router.query.graph)
+    ? router.query.graph
+    : "school"
+  const [graphId, setGraphId] = useState<string>(initialGraph)
   const [graphData, setGraphData] = useState<GraphData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

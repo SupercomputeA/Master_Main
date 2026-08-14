@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
-import Layout from "../components/Layout"
+import { useRouter } from "next/router"
+import PublicLayout from "../components/PublicLayout"
+import Footer from "../components/Footer"
 
 interface KGNode {
   id: string
@@ -8,6 +10,7 @@ interface KGNode {
   description?: string
   connections?: number
   level?: string
+  datetime?: string
 }
 
 interface GraphData {
@@ -33,32 +36,67 @@ const GRAPHS = [
   { id: "articles", label: "KG Articles", icon: "📄" },
 ]
 
+type KgEdge = [string, string]
+type KgResponse = { graph: GraphData; mcp?: boolean }
+
+type PhysicsSettings = {
+  repulsion: number      // charge force: 2000 / dist^2
+  linkStrength: number   // spring pull: dist * k
+  gravity: number        // center pull: pos * g
+  damping: number        // velocity decay per frame
+}
+
 export default function KnowledgeGraphPage() {
-  const [graphId, setGraphId] = useState("school")
+  const router = useRouter()
+  const [graphId, setGraphId] = useState<string>("school")
   const [graphData, setGraphData] = useState<GraphData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [hoveredNode, setHoveredNode] = useState(null)
+  const [error, setError] = useState<string | null>(null)
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null)
   const [selectedNode, setSelectedNode] = useState<KGNode | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [physics, setPhysics] = useState<PhysicsSettings>({
+    repulsion: 2000,
+    linkStrength: 0.008,
+    gravity: 0.003,
+    damping: 0.85,
+  })
+  const [showSettings, setShowSettings] = useState(false)
+  const [timelineMode, setTimelineMode] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const animRef = useRef(null)
   const positionsRef = useRef(new Map())
   const dragRef = useRef(null)
+  const requestedGraphRef = useRef<string>("school")
 
   useEffect(() => {
+    requestedGraphRef.current = graphId
     setLoading(true)
     setError(null)
     setSelectedNode(null)
     fetch(`/api/kg/graph?graph=${graphId}`)
-      .then(r => r.json())
+      .then(r => r.json() as Promise<KgResponse>)
       .then(d => {
+        // Ignore stale responses: a later graph switch may have superseded this fetch.
+        if (requestedGraphRef.current !== graphId) return
         setGraphData((d as { graph: GraphData }).graph)
         positionsRef.current = new Map()
         setLoading(false)
       })
-      .catch(e => { setError(e.message); setLoading(false) })
+      .catch((e: unknown) => {
+        if (requestedGraphRef.current !== graphId) return
+        setError(e instanceof Error ? e.message : String(e)); setLoading(false)
+      })
   }, [graphId])
+
+  // Honor ?graph= URL param once the router is ready (static export hydrates query late).
+  useEffect(() => {
+    if (!router.isReady) return
+    const q = router.query.graph
+    if (typeof q === "string" && ["school", "police", "defi", "articles"].includes(q)) {
+      setGraphId(q)
+    }
+  }, [router.isReady, router.query.graph])
 
   const filteredNodes = useMemo(() => {
     if (!graphData) return []
@@ -71,6 +109,27 @@ export default function KnowledgeGraphPage() {
     )
   }, [graphData, searchQuery])
 
+  // Story Timeline: temporal nodes (milestones/dates/events/incidents) sorted chronologically.
+  const temporalNodes = useMemo(() => {
+    if (!graphData) return []
+    const TEMPORAL = new Set(["milestone", "date", "event", "incident", "misconduct", "complaint"])
+    const parsed = graphData.nodes
+      .filter(n => TEMPORAL.has(n.type || "") || n.datetime)
+      .map(n => {
+        let t: number | null = null
+        if (n.datetime) t = new Date(n.datetime).getTime()
+        else if (n.type === "milestone") {
+          // Milestone descriptions carry a leading year: "2013 · Origin. ..."
+          const m = (n.description || "").match(/(19|20)\d{2}/)
+          if (m) t = new Date(`${m[0]}-01-01`).getTime()
+        }
+        return { node: n, time: t }
+      })
+      .filter(x => x.time !== null)
+      .sort((a, b) => (a.time as number) - (b.time as number))
+    return parsed
+  }, [graphData])
+
   const draw = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas || !graphData) return
@@ -81,8 +140,8 @@ export default function KnowledgeGraphPage() {
     ctx.fillStyle = "#0a1330"
     ctx.fillRect(0, 0, w, h)
 
-    // Grid
-    ctx.strokeStyle = "rgba(30,58,95,0.15)"
+    // Grid (Terminal Dossier hairline)
+    ctx.strokeStyle = "rgba(30,58,95,0.20)"
     ctx.lineWidth = 1
     for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke() }
     for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke() }
@@ -90,12 +149,60 @@ export default function KnowledgeGraphPage() {
     const pos = positionsRef.current
     const isFiltering = searchQuery.trim().length > 0
 
-    // Edges
+    // Timeline mode: draw the chronological spine through temporal nodes.
+    if (timelineMode) {
+      const temporal = temporalNodes
+      if (temporal.length >= 2) {
+        ctx.beginPath()
+        temporal.forEach(({ node }, i) => {
+          const p = pos.get(node.id)
+          if (!p) return
+          if (i === 0) ctx.moveTo(p.x, p.y)
+          else ctx.lineTo(p.x, p.y)
+        })
+        ctx.strokeStyle = "rgba(201,163,58,0.45)"
+        ctx.lineWidth = 2
+        ctx.stroke()
+      }
+      // Temporal nodes: gold dots + date labels above
+      temporal.forEach(({ node, time }) => {
+        const p = pos.get(node.id)
+        if (!p) return
+        const isSel = selectedNode?.id === node.id
+        ctx.globalAlpha = isSel ? 1 : 0.9
+        ctx.beginPath(); ctx.arc(p.x, p.y, isSel ? 13 : 10, 0, Math.PI * 2)
+        ctx.fillStyle = "#C9A33A"; ctx.fill()
+        ctx.strokeStyle = isSel ? "#E0BE3F" : "rgba(244,236,216,0.35)"
+        ctx.lineWidth = isSel ? 2 : 1; ctx.stroke()
+        ctx.globalAlpha = 1
+        const year = time ? String(new Date(time).getUTCFullYear()) : ""
+        ctx.fillStyle = "#E0BE3F"
+        ctx.font = "bold 11px 'JetBrains Mono', monospace"
+        ctx.textAlign = "center"
+        ctx.fillText(year, p.x, p.y - 18)
+        ctx.fillStyle = "#F4ECD8"
+        ctx.font = "9px 'JetBrains Mono', monospace"
+        ctx.fillText((node.label.length > 14 ? node.label.split(" ")[0] : node.label), p.x, p.y + 24)
+      })
+      // Non-temporal footer nodes dimmed
+      graphData.nodes.forEach(node => {
+        if (temporal.some(t => t.node.id === node.id)) return
+        const p = pos.get(node.id)
+        if (!p) return
+        ctx.globalAlpha = 0.35
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2)
+        ctx.fillStyle = "#6FA3E5"; ctx.fill()
+        ctx.globalAlpha = 1
+      })
+      return
+    }
+
+    // Edges (brass-warm, low opacity)
     graphData.edges.forEach(([from, to]) => {
       const p1 = pos.get(from), p2 = pos.get(to)
       if (!p1 || !p2) return
       ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y)
-      ctx.strokeStyle = "rgba(201,163,58,0.08)"
+      ctx.strokeStyle = "rgba(201,163,58,0.18)"
       ctx.lineWidth = 1; ctx.stroke()
     })
 
@@ -110,10 +217,10 @@ export default function KnowledgeGraphPage() {
       const isVisible = !isFiltering || filteredNodes.some(n => n.id === node.id)
       if (isFiltering && !isVisible) return
 
-      ctx.globalAlpha = isSel ? 1 : isHover ? 0.9 : 0.6
+      ctx.globalAlpha = isSel ? 1 : isHover ? 0.95 : 0.75
       ctx.beginPath(); ctx.arc(p.x, p.y, r * (isHover || isSel ? 1.3 : 1), 0, Math.PI * 2)
       ctx.fillStyle = color; ctx.fill()
-      ctx.strokeStyle = isSel ? "#C9A33A" : "rgba(255,255,255,0.15)"
+      ctx.strokeStyle = isSel ? "#C9A33A" : "rgba(244,236,216,0.25)"
       ctx.lineWidth = isSel ? 2 : 1; ctx.stroke()
       ctx.globalAlpha = 1
 
@@ -122,7 +229,7 @@ export default function KnowledgeGraphPage() {
       ctx.textAlign = "center"
       ctx.fillText(node.label, p.x, p.y + r + 12)
     })
-  }, [graphData, hoveredNode, selectedNode, filteredNodes, searchQuery])
+  }, [graphData, hoveredNode, selectedNode, filteredNodes, searchQuery, timelineMode, temporalNodes])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -133,6 +240,30 @@ export default function KnowledgeGraphPage() {
     canvas.width = rect.width
     canvas.height = rect.height
     const w = canvas.width, h = canvas.height
+
+    // Timeline mode: linear chronological spine, no force physics.
+    if (timelineMode) {
+      positionsRef.current = new Map()
+      const temporal = temporalNodes
+      const n = temporal.length
+      temporal.forEach(({ node }, i) => {
+        const x = n <= 1 ? w / 2 : (i / (n - 1)) * w
+        positionsRef.current.set(node.id, { x, y: h / 2, vx: 0, vy: 0, connections: 1 })
+      })
+      // Non-temporal nodes dimmed along a footer strip
+      graphData.nodes.forEach((node, i) => {
+        if (positionsRef.current.has(node.id)) return
+        const col = i % 9
+        positionsRef.current.set(node.id, {
+          x: 60 + (col / 8) * (w - 120),
+          y: h - 26 - Math.floor(i / 9) * 20,
+          vx: 0, vy: 0,
+          connections: 0,
+        })
+      })
+      draw()
+      return
+    }
 
     // Initialize positions
     graphData.nodes.forEach((n, i) => {
@@ -150,6 +281,7 @@ export default function KnowledgeGraphPage() {
     let animId: number
     const simulate = () => {
       const pos = positionsRef.current
+      const { repulsion, linkStrength, gravity, damping } = physics
       graphData.nodes.forEach(n1 => {
         const p1 = pos.get(n1.id)
         if (!p1) return
@@ -159,7 +291,7 @@ export default function KnowledgeGraphPage() {
           if (!p2) return
           const dx = p2.x - p1.x, dy = p2.y - p1.y
           const dist = Math.sqrt(dx * dx + dy * dy) || 1
-          const f = 2000 / (dist * dist)
+          const f = repulsion / (dist * dist)
           p1.vx -= dx / dist * f; p1.vy -= dy / dist * f
           p2.vx += dx / dist * f; p2.vy += dy / dist * f
         })
@@ -169,18 +301,19 @@ export default function KnowledgeGraphPage() {
         if (!p1 || !p2) return
         const dx = p2.x - p1.x, dy = p2.y - p1.y
         const dist = Math.sqrt(dx * dx + dy * dy) || 1
-        const f = dist * 0.008
+        const f = dist * linkStrength
         p1.vx += dx / dist * f; p1.vy += dy / dist * f
         p2.vx -= dx / dist * f; p2.vy -= dy / dist * f
       })
-      pos.forEach(p => { p.vx -= p.x * 0.003; p.vy -= p.y * 0.003 })
-      pos.forEach(p => { if (!dragRef.current) { p.vx *= 0.85; p.vy *= 0.85; p.x += p.vx; p.y += p.vy } })
+      const w2 = w / 2, h2 = h / 2
+      pos.forEach(p => { p.vx -= (p.x - w2) * gravity; p.vy -= (p.y - h2) * gravity })
+      pos.forEach(p => { if (!dragRef.current) { p.vx *= damping; p.vy *= damping; p.x += p.vx; p.y += p.vy } })
       draw()
       animId = requestAnimationFrame(simulate)
     }
     animId = requestAnimationFrame(simulate)
     return () => cancelAnimationFrame(animId)
-  }, [graphData, draw])
+  }, [graphData, draw, physics, timelineMode, temporalNodes])
 
   // Mouse handlers
   useEffect(() => {
@@ -216,7 +349,7 @@ export default function KnowledgeGraphPage() {
   }, [graphData, hoveredNode])
 
   return (
-    <Layout title="SUPERCOMPUTE · Knowledge Graph">
+    <PublicLayout title="SUPERCOMPUTE · Knowledge Graph">
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
         {/* Header */}
@@ -267,6 +400,65 @@ export default function KnowledgeGraphPage() {
           }}
         />
 
+        {/* Physics tuning */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button
+            onClick={() => setShowSettings(s => !s)}
+            className="cmd-btn"
+            style={{
+              background: "transparent", color: "var(--mono-blue)",
+              border: "1px solid var(--border)", fontFamily: "var(--font-mono)", fontSize: 10,
+              letterSpacing: "0.1em", textTransform: "uppercase",
+            }}
+          >
+            {showSettings ? "▾ physics tuning" : "▸ physics tuning"}
+          </button>
+          <button
+            onClick={() => setTimelineMode(t => !t)}
+            className="cmd-btn"
+            style={timelineMode ? {
+              background: "var(--gold-warm)", color: "var(--site-bg)",
+              border: "1px solid var(--gold-warm)", fontFamily: "var(--font-mono)", fontSize: 10,
+              letterSpacing: "0.1em", textTransform: "uppercase",
+            } : {
+              background: "transparent", color: "var(--cream)",
+              border: "1px solid var(--border)", fontFamily: "var(--font-mono)", fontSize: 10,
+              letterSpacing: "0.1em", textTransform: "uppercase",
+            }}
+          >
+            {timelineMode ? "▾ story timeline: on" : "▸ story timeline"}
+          </button>
+        </div>
+        {showSettings && (
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16,
+            border: "1px solid var(--border)", padding: "16px 18px",
+            background: "rgba(255,255,255,0.02)",
+          }}>
+            {([
+              ["repulsion", "Repulsion", 200, 8000, 100],
+              ["linkStrength", "Link pull", 0.001, 0.05, 0.001],
+              ["gravity", "Center gravity", 0, 0.02, 0.0005],
+              ["damping", "Damping", 0.7, 0.99, 0.01],
+            ] as [keyof PhysicsSettings, string, number, number, number][]).map(([key, label, min, max, step]) => (
+              <label key={key} style={{ display: "flex", flexDirection: "column", gap: 6, fontFamily: "var(--font-mono)" }}>
+                <span style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--mono-blue)" }}>
+                  {label} · {physics[key]}
+                </span>
+                <input
+                  type="range"
+                  min={min}
+                  max={max}
+                  step={step}
+                  value={physics[key]}
+                  onChange={e => setPhysics(p => ({ ...p, [key]: Number(e.target.value) }))}
+                  style={{ width: "100%", accentColor: "var(--gold-warm)" }}
+                />
+              </label>
+            ))}
+          </div>
+        )}
+
         {/* Error state */}
         {error && (
           <div style={{ padding: 24, border: "1px solid var(--danger)", color: "var(--danger)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
@@ -293,36 +485,83 @@ export default function KnowledgeGraphPage() {
 
         {/* Canvas */}
         {!loading && graphData && graphData.nodes.length > 0 && (
-          <div style={{ display: "flex", gap: 16 }}>
-            <div style={{ flex: 1, height: 500, border: "1px solid var(--border)", position: "relative", overflow: "hidden" }}>
-              <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", gap: 16 }}>
+              <div style={{ flex: 1, height: 500, border: "1px solid var(--border)", position: "relative", overflow: "hidden" }}>
+                <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
+              </div>
+
+              {/* Detail panel */}
+              {selectedNode && (
+                <div style={{
+                  width: 260, border: "1px solid var(--border-warm)", padding: 20,
+                  display: "flex", flexDirection: "column", gap: 12, alignSelf: "flex-start",
+                }}>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--gold-warm)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
+                    [{selectedNode.type}]
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "var(--cream)" }}>
+                    {selectedNode.label}
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--mono-blue)", lineHeight: 1.6 }}>
+                    {selectedNode.description || "No description"}
+                  </div>
+                  {selectedNode.level && (
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--gold-warm)", border: "1px solid var(--border-warm)", padding: "4px 8px", alignSelf: "flex-start" }}>
+                      {selectedNode.level.toUpperCase()}
+                    </div>
+                  )}
+                  {graphId === "school" && (
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--mono-blue)", marginTop: 8 }}>
+                      // {selectedNode.id}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Detail panel */}
-            {selectedNode && (
-              <div style={{
-                width: 260, border: "1px solid var(--border-warm)", padding: 20,
-                display: "flex", flexDirection: "column", gap: 12, alignSelf: "flex-start",
-              }}>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--gold-warm)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
-                  [{selectedNode.type}]
+            {/* Story Timeline panel — click any entry to select its node */}
+            {timelineMode && temporalNodes.length > 0 && (
+              <div style={{ border: "1px solid var(--border-warm)" }}>
+                <div style={{
+                  padding: "12px 18px", borderBottom: "1px solid var(--border)",
+                  fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.15em",
+                  textTransform: "uppercase", color: "var(--gold-warm)",
+                }}>
+                  // Story Timeline · {temporalNodes.length} entries
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--cream)" }}>
-                  {selectedNode.label}
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  {temporalNodes.map(({ node, time }, i) => {
+                    const isSel = selectedNode?.id === node.id
+                    const year = time ? new Date(time).getUTCFullYear() : "—"
+                    return (
+                      <button
+                        key={node.id}
+                        onClick={() => setSelectedNode(node)}
+                        className="cmd-btn"
+                        style={{
+                          display: "flex", gap: 18, alignItems: "baseline", textAlign: "left",
+                          padding: "12px 18px", borderBottom: i < temporalNodes.length - 1 ? "1px solid var(--border)" : "none",
+                          background: isSel ? "rgba(201,163,58,0.10)" : "transparent",
+                          color: "var(--cream)", cursor: "pointer", borderRadius: 0,
+                        }}
+                      >
+                        <span style={{
+                          fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--gold-warm)",
+                          minWidth: 56, letterSpacing: "0.05em",
+                        }}>
+                          {year}
+                        </span>
+                        <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: isSel ? "var(--gold-warm)" : "var(--cream)" }}>
+                          {node.label}
+                        </span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--mono-blue)", maxWidth: 420, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {node.description || ""}
+                        </span>
+                      </button>
+                    )
+                  })}
                 </div>
-                <div style={{ fontSize: 12, color: "var(--mono-blue)", lineHeight: 1.6 }}>
-                  {selectedNode.description || "No description"}
-                </div>
-                {selectedNode.level && (
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--gold-warm)", border: "1px solid var(--border-warm)", padding: "4px 8px", alignSelf: "flex-start" }}>
-                    {selectedNode.level.toUpperCase()}
-                  </div>
-                )}
-                {graphId === "school" && (
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--mono-blue)", marginTop: 8 }}>
-                    // {selectedNode.id}
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -338,6 +577,7 @@ export default function KnowledgeGraphPage() {
         )}
 
       </div>
-    </Layout>
+      <Footer />
+    </PublicLayout>
   )
 }

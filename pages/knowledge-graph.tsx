@@ -40,10 +40,7 @@ type KgResponse = { graph: GraphData; mcp?: boolean }
 
 export default function KnowledgeGraphPage() {
   const router = useRouter()
-  const initialGraph = typeof router.query.graph === "string" && ["school", "police", "defi", "articles"].includes(router.query.graph)
-    ? router.query.graph
-    : "school"
-  const [graphId, setGraphId] = useState<string>(initialGraph)
+  const [graphId, setGraphId] = useState<string>("school")
   const [graphData, setGraphData] = useState<GraphData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -68,6 +65,15 @@ export default function KnowledgeGraphPage() {
       })
       .catch((e: unknown) => { setError(e instanceof Error ? e.message : String(e)); setLoading(false) })
   }, [graphId])
+
+  // Honor ?graph= URL param once the router is ready (static export hydrates query late).
+  useEffect(() => {
+    if (!router.isReady) return
+    const q = router.query.graph
+    if (typeof q === "string" && ["school", "police", "defi", "articles"].includes(q)) {
+      setGraphId(q)
+    }
+  }, [router.isReady, router.query.graph])
 
   const filteredNodes = useMemo(() => {
     if (!graphData) return []

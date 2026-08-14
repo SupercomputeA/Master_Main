@@ -229,13 +229,13 @@ async function run() {
     CREATE (rl7:Entity:Article {id:'rl-07', graph:'articles', label:'Synthesis', type:'release', num:'07', status:'Jul 19'})
 
     // Story timeline milestones
-    CREATE (tl1:Entity:Article {id:'tl-2013', graph:'articles', label:'The Custody Problem', type:'milestone',
+    CREATE (tl1:Entity:Article {id:'tl-2013', graph:'articles', label:'The Custody Problem', type:'milestone', datetime:'2013-01-01',
       description:'2013 · Origin. Early Base Chain operators confront the tradeoff between convenience and control.'})
-    CREATE (tl2:Entity:Article {id:'tl-2019', graph:'articles', label:'Hardware Wallet Era', type:'milestone',
+    CREATE (tl2:Entity:Article {id:'tl-2019', graph:'articles', label:'Hardware Wallet Era', type:'milestone', datetime:'2019-01-01',
       description:'2019 · Shift. Cold storage becomes standard; recovery phrases enter the mainstream vocabulary.'})
-    CREATE (tl3:Entity:Article {id:'tl-2023', graph:'articles', label:'Social Recovery', type:'milestone',
+    CREATE (tl3:Entity:Article {id:'tl-2023', graph:'articles', label:'Social Recovery', type:'milestone', datetime:'2023-01-01',
       description:'2023 · Evolution. Smart accounts distribute trust across guardians, reducing single points of failure.'})
-    CREATE (tl4:Entity:Article {id:'tl-2026', graph:'articles', label:'The Sovereignty Stack', type:'milestone',
+    CREATE (tl4:Entity:Article {id:'tl-2026', graph:'articles', label:'The Sovereignty Stack', type:'milestone', datetime:'2026-01-01',
       description:'2026 · Now. Self-custody becomes a composable layer across the metaverse toolset.'})
 
     // People

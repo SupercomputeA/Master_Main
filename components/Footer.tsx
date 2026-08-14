@@ -36,6 +36,13 @@ export default function Footer() {
               <li><Link href="/community">supercompute.eth</Link></li>
             </ul>
           </div>
+          <div className="link-col">
+            <div className="label-sm">Legal</div>
+            <ul>
+              <li><a href="/terms">Terms of Service</a></li>
+              <li><a href="/privacy">Privacy Policy</a></li>
+            </ul>
+          </div>
         </div>
       </div>
       <div className="footer-bottom">

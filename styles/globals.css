@@ -244,9 +244,9 @@ body::after {
   color: var(--mono-blue);
 }
 
-.display-xl { font-size: clamp(44px, 7vw, 96px); font-weight: 700; line-height: 0.92; letter-spacing: -0.02em; color: var(--cream); }
-.display-lg { font-size: clamp(26px, 3.5vw, 48px); font-weight: 700; line-height: 1; color: var(--cream); }
-.display-md { font-size: clamp(16px, 2vw, 24px); font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; color: var(--cream); }
+.display-xl { font-size: clamp(38px, 6vw, 72px); font-weight: 700; line-height: 0.95; letter-spacing: -0.02em; font-family: var(--font-display); }
+.display-md { font-size: clamp(20px, 2.4vw, 28px); font-weight: 700; line-height: 1.1; margin-bottom: 12px; color: var(--cream); }
+.display-lg { font-size: clamp(26px, 3.5vw, 48px); font-weight: 700; line-height: 1; }
 .terminal { font-family: var(--font-mono); font-size: 13px; color: var(--cream); }
 
 /* ─── HERO ──────────────────────────────────────────────────────────────── */
@@ -383,6 +383,37 @@ footer { padding: 40px 48px 28px; }
 .article-body pre code { background: transparent; border: none; padding: 0; color: var(--cream); }
 .article-body hr { border: none; border-top: 1px dashed var(--border); margin: 2em 0; }
 .article-body img { max-width: 100%; height: auto; border: 1px solid var(--border-warm); }
+
+/* ─── PUBLIC SHELL (legal pages: /terms, /privacy) ──────────────────────── */
+
+.public-shell { min-height: 100vh; }
+.public-main {
+  margin-left: 0;
+  padding: 48px;
+  max-width: 1100px;
+  height: auto;
+  overflow-y: visible;
+}
+@media (max-width: 900px) {
+  .public-main { padding: 32px 20px; }
+}
+
+.legal-stub { max-width: 760px; }
+.legal-stub h2 { margin-top: 32px; margin-bottom: 14px; }
+.legal-stub h2:first-of-type { margin-top: 8px; }
+.legal-stub p, .legal-stub li { font-size: 13px; line-height: 1.7; color: var(--fg); }
+.legal-stub ul { padding-left: 22px; margin: 12px 0 20px; }
+.legal-stub li { margin-bottom: 6px; }
+.legal-stub code { font-family: var(--font-mono); font-size: 12px; color: var(--gold-warm); background: var(--surface-0); padding: 2px 6px; border: 1px solid var(--border); }
+.legal-stub a { color: var(--gold-warm); text-decoration: underline; text-underline-offset: 2px; }
+.legal-stub a:hover { color: var(--cream); }
+.legal-stub table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 12px; }
+.legal-stub th, .legal-stub td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+.legal-stub th { background: var(--surface-0); font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1rem; color: var(--mono-blue); }
+.legal-stub hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+.legal-stub blockquote { border-left: 2px solid var(--gold-warm); padding: 6px 14px; margin: 14px 0; color: var(--mono-blue); font-family: var(--font-mono); font-size: 11px; }
+.legal-flag { background: var(--surface-0); border: 1px solid var(--border); border-left: 2px solid var(--gold-warm); padding: 12px 14px; margin: 14px 0; font-size: 11px; color: var(--mono-blue); font-family: var(--font-mono); }
+.legal-stub .updated-line { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12rem; text-transform: uppercase; color: var(--mono-blue); margin-top: 10px; }
 
 /* ─── RESPONSIVE ────────────────────────────────────────────────────────── */
 

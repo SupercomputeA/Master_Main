@@ -2,46 +2,48 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 
+interface KGNode {
+  id: string
+  label: string
+  type?: string
+  description?: string
+  connections?: number
+  level?: string
+}
+
+interface GraphData {
+  nodes: KGNode[]
+  edges: [string, string][]
+}
+
 const GRAPH_CATEGORIES: Record<string, string> = {
-  // Terminal Dossier palette only
-  protocol: "#C9A33A",     // --gold-warm
-  token: "#6FA3E5",        // --mono-blue
-  agent: "#E0BE3F",        // --hud-yellow
-  module: "#6FA3E5",       // --mono-blue
-  concept: "#F4ECD8",      // --cream
-  term: "#6FA3E5",         // --mono-blue
-  person: "#C9A33A",       // --gold-warm
-  date: "#E0BE3F",         // --hud-yellow
-  event: "#E0BE3F",        // --hud-yellow
-  narrative: "#F4ECD8",    // --cream
-  image: "#C9A33A",        // --gold-warm
-  officer: "#dc2626",      // --danger
-  incident: "#E0BE3F",     // --hud-yellow
-  misconduct: "#dc2626",   // --danger
-  department: "#6FA3E5",   // --mono-blue
-  complaint: "#C9A33A",    // --gold-warm
-  chain: "#F4ECD8",        // --cream
-  default: "#6FA3E5",      // --mono-blue
+  protocol: "#10b981", token: "#fbbf24", agent: "#ff6b35",
+  module: "#6FA3E5", officer: "#f59e0b", incident: "#0ea5e9",
+  misconduct: "#ef4444", department: "#8b5cf6", complaint: "#06b6d4",
+  chain: "#627EEA",
+  concept: "#F4ECD8", term: "#6FA3E5", person: "#C9A33A",
+  article: "#E0BE3F", release: "#6FA3E5", milestone: "#F4ECD8",
+  argument: "#C9A33A", comment: "#6FA3E5",
+  default: "#64748b",
 }
 
 const GRAPHS = [
   { id: "school", label: "Web3 School KG", icon: "📚" },
   { id: "police", label: "Police Data KG", icon: "🚔" },
   { id: "defi", label: "DeFi / ReFi KG", icon: "🏦" },
+  { id: "articles", label: "KG Articles", icon: "📄" },
 ]
 
-type KgNode = { id: string; label: string; type: string; description?: string; level?: string }
 type KgEdge = [string, string]
-type KgGraph = { nodes: KgNode[]; edges: KgEdge[]; meta?: unknown }
-type KgResponse = { graph: KgGraph; mcp?: boolean }
+type KgResponse = { graph: GraphData; mcp?: boolean }
 
 export default function KnowledgeGraphPage() {
   const [graphId, setGraphId] = useState("school")
-  const [graphData, setGraphData] = useState<KgGraph | null>(null)
+  const [graphData, setGraphData] = useState<GraphData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [hoveredNode, setHoveredNode] = useState<string | null>(null)
-  const [selectedNode, setSelectedNode] = useState<KgNode | null>(null)
+  const [selectedNode, setSelectedNode] = useState<KGNode | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const animRef = useRef(null)
@@ -55,7 +57,7 @@ export default function KnowledgeGraphPage() {
     fetch(`/api/kg/graph?graph=${graphId}`)
       .then(r => r.json() as Promise<KgResponse>)
       .then(d => {
-        setGraphData(d.graph)
+        setGraphData((d as { graph: GraphData }).graph)
         positionsRef.current = new Map()
         setLoading(false)
       })
@@ -105,7 +107,7 @@ export default function KnowledgeGraphPage() {
     graphData.nodes.forEach(node => {
       const p = pos.get(node.id)
       if (!p) return
-      const color = GRAPH_CATEGORIES[node.type] || GRAPH_CATEGORIES.default
+      const color = (node.type ? GRAPH_CATEGORIES[node.type] : undefined) || GRAPH_CATEGORIES.default
       const r = (pos.get(node.id)?.connections || 0) > 3 ? 10 : 7
       const isHover = hoveredNode === node.id
       const isSel = selectedNode?.id === node.id

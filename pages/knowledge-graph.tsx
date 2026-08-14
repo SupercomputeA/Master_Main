@@ -65,19 +65,26 @@ export default function KnowledgeGraphPage() {
   const animRef = useRef(null)
   const positionsRef = useRef(new Map())
   const dragRef = useRef(null)
+  const requestedGraphRef = useRef<string>("school")
 
   useEffect(() => {
+    requestedGraphRef.current = graphId
     setLoading(true)
     setError(null)
     setSelectedNode(null)
     fetch(`/api/kg/graph?graph=${graphId}`)
       .then(r => r.json() as Promise<KgResponse>)
       .then(d => {
+        // Ignore stale responses: a later graph switch may have superseded this fetch.
+        if (requestedGraphRef.current !== graphId) return
         setGraphData((d as { graph: GraphData }).graph)
         positionsRef.current = new Map()
         setLoading(false)
       })
-      .catch((e: unknown) => { setError(e instanceof Error ? e.message : String(e)); setLoading(false) })
+      .catch((e: unknown) => {
+        if (requestedGraphRef.current !== graphId) return
+        setError(e instanceof Error ? e.message : String(e)); setLoading(false)
+      })
   }, [graphId])
 
   // Honor ?graph= URL param once the router is ready (static export hydrates query late).

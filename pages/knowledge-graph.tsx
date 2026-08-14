@@ -19,13 +19,18 @@ const GRAPH_CATEGORIES: Record<string, string> = {
   protocol: "#10b981", token: "#fbbf24", agent: "#ff6b35",
   module: "#6FA3E5", officer: "#f59e0b", incident: "#0ea5e9",
   misconduct: "#ef4444", department: "#8b5cf6", complaint: "#06b6d4",
-  chain: "#627EEA", default: "#64748b",
+  chain: "#627EEA",
+  concept: "#F4ECD8", term: "#6FA3E5", person: "#C9A33A",
+  article: "#E0BE3F", release: "#6FA3E5", milestone: "#F4ECD8",
+  argument: "#C9A33A", comment: "#6FA3E5",
+  default: "#64748b",
 }
 
 const GRAPHS = [
   { id: "school", label: "Web3 School KG", icon: "📚" },
   { id: "police", label: "Police Data KG", icon: "🚔" },
   { id: "defi", label: "DeFi / ReFi KG", icon: "🏦" },
+  { id: "articles", label: "KG Articles", icon: "📄" },
 ]
 
 export default function KnowledgeGraphPage() {

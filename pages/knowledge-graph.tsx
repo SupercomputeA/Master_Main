@@ -38,6 +38,13 @@ const GRAPHS = [
 type KgEdge = [string, string]
 type KgResponse = { graph: GraphData; mcp?: boolean }
 
+type PhysicsSettings = {
+  repulsion: number      // charge force: 2000 / dist^2
+  linkStrength: number   // spring pull: dist * k
+  gravity: number        // center pull: pos * g
+  damping: number        // velocity decay per frame
+}
+
 export default function KnowledgeGraphPage() {
   const router = useRouter()
   const [graphId, setGraphId] = useState<string>("school")
@@ -47,6 +54,13 @@ export default function KnowledgeGraphPage() {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null)
   const [selectedNode, setSelectedNode] = useState<KGNode | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [physics, setPhysics] = useState<PhysicsSettings>({
+    repulsion: 2000,
+    linkStrength: 0.008,
+    gravity: 0.003,
+    damping: 0.85,
+  })
+  const [showSettings, setShowSettings] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const animRef = useRef(null)
   const positionsRef = useRef(new Map())
@@ -165,6 +179,7 @@ export default function KnowledgeGraphPage() {
     let animId: number
     const simulate = () => {
       const pos = positionsRef.current
+      const { repulsion, linkStrength, gravity, damping } = physics
       graphData.nodes.forEach(n1 => {
         const p1 = pos.get(n1.id)
         if (!p1) return
@@ -174,7 +189,7 @@ export default function KnowledgeGraphPage() {
           if (!p2) return
           const dx = p2.x - p1.x, dy = p2.y - p1.y
           const dist = Math.sqrt(dx * dx + dy * dy) || 1
-          const f = 2000 / (dist * dist)
+          const f = repulsion / (dist * dist)
           p1.vx -= dx / dist * f; p1.vy -= dy / dist * f
           p2.vx += dx / dist * f; p2.vy += dy / dist * f
         })
@@ -184,18 +199,19 @@ export default function KnowledgeGraphPage() {
         if (!p1 || !p2) return
         const dx = p2.x - p1.x, dy = p2.y - p1.y
         const dist = Math.sqrt(dx * dx + dy * dy) || 1
-        const f = dist * 0.008
+        const f = dist * linkStrength
         p1.vx += dx / dist * f; p1.vy += dy / dist * f
         p2.vx -= dx / dist * f; p2.vy -= dy / dist * f
       })
-      pos.forEach(p => { p.vx -= p.x * 0.003; p.vy -= p.y * 0.003 })
-      pos.forEach(p => { if (!dragRef.current) { p.vx *= 0.85; p.vy *= 0.85; p.x += p.vx; p.y += p.vy } })
+      const w2 = w / 2, h2 = h / 2
+      pos.forEach(p => { p.vx -= (p.x - w2) * gravity; p.vy -= (p.y - h2) * gravity })
+      pos.forEach(p => { if (!dragRef.current) { p.vx *= damping; p.vy *= damping; p.x += p.vx; p.y += p.vy } })
       draw()
       animId = requestAnimationFrame(simulate)
     }
     animId = requestAnimationFrame(simulate)
     return () => cancelAnimationFrame(animId)
-  }, [graphData, draw])
+  }, [graphData, draw, physics])
 
   // Mouse handlers
   useEffect(() => {
@@ -281,6 +297,48 @@ export default function KnowledgeGraphPage() {
             padding: "10px 14px", outline: "none", width: "100%", boxSizing: "border-box",
           }}
         />
+
+        {/* Physics tuning */}
+        <button
+          onClick={() => setShowSettings(s => !s)}
+          className="cmd-btn"
+          style={{
+            alignSelf: "flex-start", background: "transparent", color: "var(--mono-blue)",
+            border: "1px solid var(--border)", fontFamily: "var(--font-mono)", fontSize: 10,
+            letterSpacing: "0.1em", textTransform: "uppercase",
+          }}
+        >
+          {showSettings ? "▾ physics tuning" : "▸ physics tuning"}
+        </button>
+        {showSettings && (
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16,
+            border: "1px solid var(--border)", padding: "16px 18px",
+            background: "rgba(255,255,255,0.02)",
+          }}>
+            {([
+              ["repulsion", "Repulsion", 200, 8000, 100],
+              ["linkStrength", "Link pull", 0.001, 0.05, 0.001],
+              ["gravity", "Center gravity", 0, 0.02, 0.0005],
+              ["damping", "Damping", 0.7, 0.99, 0.01],
+            ] as [keyof PhysicsSettings, string, number, number, number][]).map(([key, label, min, max, step]) => (
+              <label key={key} style={{ display: "flex", flexDirection: "column", gap: 6, fontFamily: "var(--font-mono)" }}>
+                <span style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--mono-blue)" }}>
+                  {label} · {physics[key]}
+                </span>
+                <input
+                  type="range"
+                  min={min}
+                  max={max}
+                  step={step}
+                  value={physics[key]}
+                  onChange={e => setPhysics(p => ({ ...p, [key]: Number(e.target.value) }))}
+                  style={{ width: "100%", accentColor: "var(--gold-warm)" }}
+                />
+              </label>
+            ))}
+          </div>
+        )}
 
         {/* Error state */}
         {error && (

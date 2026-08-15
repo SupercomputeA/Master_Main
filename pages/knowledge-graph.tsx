@@ -89,14 +89,17 @@ export default function KnowledgeGraphPage() {
       })
   }, [graphId])
 
-  // Honor ?graph= URL param once the router is ready (static export hydrates query late).
+  // Honor ?graph= and ?timeline= URL params once the router is ready (static export hydrates query late).
   useEffect(() => {
     if (!router.isReady) return
     const q = router.query.graph
     if (typeof q === "string" && ["school", "police", "defi", "articles"].includes(q)) {
       setGraphId(q)
     }
-  }, [router.isReady, router.query.graph])
+    if (router.query.timeline === "1") {
+      setTimelineMode(true)
+    }
+  }, [router.isReady, router.query.graph, router.query.timeline])
 
   const filteredNodes = useMemo(() => {
     if (!graphData) return []
@@ -491,31 +494,69 @@ export default function KnowledgeGraphPage() {
                 <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
               </div>
 
-              {/* Detail panel */}
+              {/* Vocabulary panel — select a node → its term, definition, and related terms */}
               {selectedNode && (
                 <div style={{
-                  width: 260, border: "1px solid var(--border-warm)", padding: 20,
+                  width: 280, border: "1px solid var(--border-warm)", padding: 20,
                   display: "flex", flexDirection: "column", gap: 12, alignSelf: "flex-start",
                 }}>
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--gold-warm)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
-                    [{selectedNode.type}]
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--gold-warm)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
+                      [vocabulary]
+                    </div>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--mono-blue)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                      {selectedNode.type}
+                    </div>
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "var(--cream)" }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: "var(--cream)", lineHeight: 1.3 }}>
                     {selectedNode.label}
                   </div>
-                  <div style={{ fontSize: 12, color: "var(--mono-blue)", lineHeight: 1.6 }}>
-                    {selectedNode.description || "No description"}
+                  <div style={{ fontSize: 12, color: "var(--mono-blue)", lineHeight: 1.7 }}>
+                    {selectedNode.description || "No definition yet for this term."}
                   </div>
                   {selectedNode.level && (
-                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--gold-warm)", border: "1px solid var(--border-warm)", padding: "4px 8px", alignSelf: "flex-start" }}>
-                      {selectedNode.level.toUpperCase()}
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--gold-warm)", border: "1px solid var(--border-warm)", padding: "4px 8px" }}>
+                        LEVEL · {selectedNode.level.toUpperCase()}
+                      </div>
                     </div>
                   )}
-                  {graphId === "school" && (
-                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--mono-blue)", marginTop: 8 }}>
-                      // {selectedNode.id}
-                    </div>
-                  )}
+                  {(() => {
+                    // Related terms via graph edges
+                    const related = graphData
+                      ? graphData.edges
+                          .filter(e => e[0] === selectedNode.id || e[1] === selectedNode.id)
+                          .map(e => {
+                            const otherId = e[0] === selectedNode.id ? e[1] : e[0]
+                            return graphData.nodes.find(n => n.id === otherId)
+                          })
+                          .filter((n): n is KGNode => !!n)
+                          .slice(0, 6)
+                      : []
+                    if (related.length === 0) return null
+                    return (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6, borderTop: "1px solid var(--border)", paddingTop: 12 }}>
+                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--gold-warm)" }}>
+                          // related terms
+                        </div>
+                        {related.map(r => (
+                          <button
+                            key={r.id}
+                            onClick={() => setSelectedNode(r)}
+                            className="cmd-btn"
+                            style={{
+                              display: "flex", alignItems: "baseline", gap: 8, textAlign: "left",
+                              background: "transparent", color: "var(--cream)", cursor: "pointer",
+                              border: "none", padding: "2px 0", fontFamily: "var(--font-mono)", fontSize: 11,
+                            }}
+                          >
+                            <span style={{ color: "var(--mono-blue)" }}>→</span>
+                            <span>{r.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )
+                  })()}
                 </div>
               )}
             </div>

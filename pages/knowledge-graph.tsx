@@ -62,7 +62,7 @@ export default function KnowledgeGraphPage() {
     damping: 0.85,
   })
   const [showSettings, setShowSettings] = useState(false)
-  const [timelineMode, setTimelineMode] = useState(false)
+  const [mode, setMode] = useState<"map" | "timeline" | "levels">("map")
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const animRef = useRef(null)
   const positionsRef = useRef(new Map())
@@ -89,17 +89,21 @@ export default function KnowledgeGraphPage() {
       })
   }, [graphId])
 
-  // Honor ?graph= and ?timeline= URL params once the router is ready (static export hydrates query late).
+  // Honor ?graph= and ?mode= URL params once the router is ready (static export hydrates query late).
   useEffect(() => {
     if (!router.isReady) return
     const q = router.query.graph
     if (typeof q === "string" && ["school", "police", "defi", "articles"].includes(q)) {
       setGraphId(q)
     }
-    if (router.query.timeline === "1") {
-      setTimelineMode(true)
+    const m = router.query.mode
+    if (m === "timeline" || m === "levels" || m === "map") {
+      setMode(m)
+    } else if (router.query.timeline === "1") {
+      // Legacy alias
+      setMode("timeline")
     }
-  }, [router.isReady, router.query.graph, router.query.timeline])
+  }, [router.isReady, router.query.graph, router.query.mode, router.query.timeline])
 
   const filteredNodes = useMemo(() => {
     if (!graphData) return []
@@ -133,6 +137,24 @@ export default function KnowledgeGraphPage() {
     return parsed
   }, [graphData])
 
+  // Levels mode: group nodes by their level property (school ladder, etc.)
+  const leveledGroups = useMemo(() => {
+    if (!graphData) return []
+    const groups = new Map<string, KGNode[]>()
+    graphData.nodes.forEach(n => {
+      const lvl = n.level || (n.type === "module" ? "unleveled" : "unleveled")
+      if (!groups.has(lvl)) groups.set(lvl, [])
+      groups.get(lvl)!.push(n)
+    })
+    const order = ["beginner", "intermediate", "advanced", "core", "unleveled"]
+    return Array.from(groups.entries())
+      .sort((a, b) => {
+        const ia = order.indexOf(a[0]), ib = order.indexOf(b[0])
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
+      })
+      .map(([level, nodes]) => ({ level, nodes }))
+  }, [graphData])
+
   const draw = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas || !graphData) return
@@ -152,8 +174,8 @@ export default function KnowledgeGraphPage() {
     const pos = positionsRef.current
     const isFiltering = searchQuery.trim().length > 0
 
-    // Timeline mode: draw the chronological spine through temporal nodes.
-    if (timelineMode) {
+    // Timeline mode: compact chronological spine through temporal nodes (centered band).
+    if (mode === "timeline") {
       const temporal = temporalNodes
       if (temporal.length >= 2) {
         ctx.beginPath()
@@ -200,6 +222,40 @@ export default function KnowledgeGraphPage() {
       return
     }
 
+    // Levels mode: nodes arranged in horizontal bands by level.
+    if (mode === "levels") {
+      const bands = leveledGroups
+      const bandCount = bands.length
+      const bandH = bandCount > 0 ? h / (bandCount + 1) : h
+      bands.forEach((group, bi) => {
+        const cy = bandH * (bi + 1)
+        // Band label
+        ctx.fillStyle = "#E0BE3F"
+        ctx.font = "bold 10px 'JetBrains Mono', monospace"
+        ctx.textAlign = "left"
+        ctx.fillText(group.level.toUpperCase(), 30, cy - 26)
+        // Nodes spread across the band
+        const n = group.nodes.length
+        group.nodes.forEach((node, ni) => {
+          const p = pos.get(node.id)
+          if (!p) return
+          const isSel = selectedNode?.id === node.id
+          ctx.globalAlpha = isSel ? 1 : 0.9
+          ctx.beginPath(); ctx.arc(p.x, p.y, isSel ? 13 : 9, 0, Math.PI * 2)
+          ctx.fillStyle = isSel ? "#C9A33A" : "#6FA3E5"
+          ctx.fill()
+          ctx.strokeStyle = isSel ? "#E0BE3F" : "rgba(244,236,216,0.3)"
+          ctx.lineWidth = isSel ? 2 : 1; ctx.stroke()
+          ctx.globalAlpha = 1
+          ctx.fillStyle = "#F4ECD8"
+          ctx.font = "9px 'JetBrains Mono', monospace"
+          ctx.textAlign = "center"
+          ctx.fillText(node.label, p.x, p.y + 22)
+        })
+      })
+      return
+    }
+
     // Edges (brass-warm, low opacity)
     graphData.edges.forEach(([from, to]) => {
       const p1 = pos.get(from), p2 = pos.get(to)
@@ -232,7 +288,7 @@ export default function KnowledgeGraphPage() {
       ctx.textAlign = "center"
       ctx.fillText(node.label, p.x, p.y + r + 12)
     })
-  }, [graphData, hoveredNode, selectedNode, filteredNodes, searchQuery, timelineMode, temporalNodes])
+  }, [graphData, hoveredNode, selectedNode, filteredNodes, searchQuery, mode, temporalNodes, leveledGroups])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -244,13 +300,16 @@ export default function KnowledgeGraphPage() {
     canvas.height = rect.height
     const w = canvas.width, h = canvas.height
 
-    // Timeline mode: linear chronological spine, no force physics.
-    if (timelineMode) {
+    // Timeline mode: compact chronological spine — centered band, not full width.
+    if (mode === "timeline") {
       positionsRef.current = new Map()
       const temporal = temporalNodes
       const n = temporal.length
+      // Compact band: max 68% of width, centered
+      const bandLeft = w * 0.16, bandRight = w * 0.84
+      const span = bandRight - bandLeft
       temporal.forEach(({ node }, i) => {
-        const x = n <= 1 ? w / 2 : (i / (n - 1)) * w
+        const x = n <= 1 ? w / 2 : bandLeft + (i / (n - 1)) * span
         positionsRef.current.set(node.id, { x, y: h / 2, vx: 0, vy: 0, connections: 1 })
       })
       // Non-temporal nodes dimmed along a footer strip
@@ -262,6 +321,24 @@ export default function KnowledgeGraphPage() {
           y: h - 26 - Math.floor(i / 9) * 20,
           vx: 0, vy: 0,
           connections: 0,
+        })
+      })
+      draw()
+      return
+    }
+
+    // Levels mode: nodes arranged in horizontal bands by level.
+    if (mode === "levels") {
+      positionsRef.current = new Map()
+      const bands = leveledGroups
+      const bandCount = bands.length
+      const bandH = bandCount > 0 ? h / (bandCount + 1) : h
+      bands.forEach((group, bi) => {
+        const cy = bandH * (bi + 1)
+        const n = group.nodes.length
+        group.nodes.forEach((node, ni) => {
+          const x = n <= 1 ? w / 2 : 80 + (ni / (n - 1)) * (w - 160)
+          positionsRef.current.set(node.id, { x, y: cy, vx: 0, vy: 0, connections: 1 })
         })
       })
       draw()
@@ -316,7 +393,7 @@ export default function KnowledgeGraphPage() {
     }
     animId = requestAnimationFrame(simulate)
     return () => cancelAnimationFrame(animId)
-  }, [graphData, draw, physics, timelineMode, temporalNodes])
+  }, [graphData, draw, physics, mode, temporalNodes, leveledGroups])
 
   // Mouse handlers
   useEffect(() => {
@@ -403,33 +480,36 @@ export default function KnowledgeGraphPage() {
           }}
         />
 
-        {/* Physics tuning */}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {/* Mode switcher + physics tuning */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          {(["map", "timeline", "levels"] as const).map(m => (
+            <button
+              key={m}
+              onClick={() => { setMode(m); setSelectedNode(null) }}
+              className="cmd-btn"
+              style={mode === m ? {
+                background: "var(--gold-warm)", color: "var(--site-bg)",
+                border: "1px solid var(--gold-warm)", fontFamily: "var(--font-mono)", fontSize: 10,
+                letterSpacing: "0.1em", textTransform: "uppercase",
+              } : {
+                background: "transparent", color: "var(--cream)",
+                border: "1px solid var(--border)", fontFamily: "var(--font-mono)", fontSize: 10,
+                letterSpacing: "0.1em", textTransform: "uppercase",
+              }}
+            >
+              {m === "map" ? "◈ map" : m === "timeline" ? "▸ timeline" : "≡ levels"}
+            </button>
+          ))}
           <button
             onClick={() => setShowSettings(s => !s)}
             className="cmd-btn"
             style={{
-              background: "transparent", color: "var(--mono-blue)",
+              marginLeft: "auto", background: "transparent", color: "var(--mono-blue)",
               border: "1px solid var(--border)", fontFamily: "var(--font-mono)", fontSize: 10,
               letterSpacing: "0.1em", textTransform: "uppercase",
             }}
           >
-            {showSettings ? "▾ physics tuning" : "▸ physics tuning"}
-          </button>
-          <button
-            onClick={() => setTimelineMode(t => !t)}
-            className="cmd-btn"
-            style={timelineMode ? {
-              background: "var(--gold-warm)", color: "var(--site-bg)",
-              border: "1px solid var(--gold-warm)", fontFamily: "var(--font-mono)", fontSize: 10,
-              letterSpacing: "0.1em", textTransform: "uppercase",
-            } : {
-              background: "transparent", color: "var(--cream)",
-              border: "1px solid var(--border)", fontFamily: "var(--font-mono)", fontSize: 10,
-              letterSpacing: "0.1em", textTransform: "uppercase",
-            }}
-          >
-            {timelineMode ? "▾ story timeline: on" : "▸ story timeline"}
+            {showSettings ? "▾ physics" : "▸ physics"}
           </button>
         </div>
         {showSettings && (
@@ -561,8 +641,8 @@ export default function KnowledgeGraphPage() {
               )}
             </div>
 
-            {/* Story Timeline panel — click any entry to select its node */}
-            {timelineMode && temporalNodes.length > 0 && (
+            {/* Story Timeline panel — each entry IS a node: click selects it (vocab + related terms fire) */}
+            {mode === "timeline" && temporalNodes.length > 0 && (
               <div style={{ border: "1px solid var(--border-warm)" }}>
                 <div style={{
                   padding: "12px 18px", borderBottom: "1px solid var(--border)",

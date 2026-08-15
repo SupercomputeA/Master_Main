@@ -602,6 +602,36 @@ export default function KnowledgeGraphPage() {
                     </div>
                   )}
                   {(() => {
+                    // Type roster: ALL nodes of the same type as the selected node.
+                    const roster = graphData
+                      ? graphData.nodes
+                          .filter(n => n.type === selectedNode.type && n.id !== selectedNode.id)
+                      : []
+                    if (roster.length === 0) return null
+                    return (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6, borderTop: "1px solid var(--border)", paddingTop: 12 }}>
+                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--gold-warm)" }}>
+                          // {selectedNode.type}s · {roster.length + 1}
+                        </div>
+                        {roster.map(r => (
+                          <button
+                            key={r.id}
+                            onClick={() => setSelectedNode(r)}
+                            className="cmd-btn"
+                            style={{
+                              display: "flex", alignItems: "baseline", gap: 8, textAlign: "left",
+                              background: "transparent", color: "var(--cream)", cursor: "pointer",
+                              border: "none", padding: "2px 0", fontFamily: "var(--font-mono)", fontSize: 11,
+                            }}
+                          >
+                            <span style={{ color: "var(--mono-blue)" }}>→</span>
+                            <span>{r.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )
+                  })()}
+                  {(() => {
                     // Related terms via graph edges
                     const related = graphData
                       ? graphData.edges

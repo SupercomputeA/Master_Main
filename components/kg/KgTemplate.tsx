@@ -22,6 +22,7 @@ export type KgNode = {
   num?: string
   stance?: string
   up?: number
+  datetime?: string
   properties?: Record<string, unknown>
 }
 export type KgEdge = [string, string, string?]
@@ -138,7 +139,13 @@ export default function KgTemplate({ config }: { config: KgTemplateConfig }) {
   }, [graphId])
 
   const releases = graph.nodes.filter(n => n.type === "release").sort((a, b) => (a.num || "").localeCompare(b.num || ""))
-  const milestones = graph.nodes.filter(n => n.type === "milestone")
+  const milestones = graph.nodes
+    .filter(n => n.type === "milestone")
+    .sort((a, b) => {
+      const ta = a.datetime ? new Date(a.datetime).getTime() : (a.description || "").match(/(19|20)\d{2}/) ? new Date(`${(a.description || "").match(/(19|20)\d{2}/)![0]}-01-01`).getTime() : 0
+      const tb = b.datetime ? new Date(b.datetime).getTime() : (b.description || "").match(/(19|20)\d{2}/) ? new Date(`${(b.description || "").match(/(19|20)\d{2}/)![0]}-01-01`).getTime() : 0
+      return ta - tb
+    })
   const people = graph.nodes.filter(n => n.type === "person")
   const forArgs = graph.nodes.filter(n => n.type === "argument" && n.stance === "for")
   const againstArgs = graph.nodes.filter(n => n.type === "argument" && n.stance === "against")

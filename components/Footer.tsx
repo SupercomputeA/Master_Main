@@ -23,17 +23,17 @@ export default function Footer() {
             <ul>
               <li><Link href="/publishing">Blog</Link></li>
               <li><Link href="/token">$QUANTA Token</Link></li>
-              <li><Link href="/fleet">Agent Fleet</Link></li>
+              <li><a href="https://github.com/SupercomputeA" target="_blank" rel="noopener noreferrer">GitHub</a></li>
               <li><Link href="/storefront">Shop</Link></li>
             </ul>
           </div>
           <div className="link-col">
             <div className="label-sm">Connect</div>
             <ul>
-              <li><Link href="/consulting">Consulting</Link></li>
+              <li><a href="https://calendly.com/ora_mi" target="_blank" rel="noopener noreferrer">Calendly</a></li>
               <li><a href="https://x.com/supercompute_io" target="_blank" rel="noopener noreferrer">@supercompute_io</a></li>
               <li><a href="https://warpcast.com/supercompute" target="_blank" rel="noopener noreferrer">Farcaster</a></li>
-              <li><Link href="/community">supercompute.eth</Link></li>
+              <li><a href="https://app.ens.domains/supercompute.eth" target="_blank" rel="noopener noreferrer">supercompute.eth</a></li>
             </ul>
           </div>
         </div>
@@ -43,7 +43,7 @@ export default function Footer() {
         <div className="footer-social">
           <a href="https://x.com/supercompute_io" target="_blank" rel="noopener noreferrer">X</a>
           <a href="https://warpcast.com/supercompute" target="_blank" rel="noopener noreferrer">Farcaster</a>
-          <Link href="/consulting">Consulting</Link>
+          <a href="https://github.com/SupercomputeA" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </div>
     </footer>

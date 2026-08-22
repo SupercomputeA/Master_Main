@@ -10,7 +10,7 @@
  * violet (#7c3aed), the cream/Inter light surface, or pink→gold gradients.
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @font-face {
     /* Phosphate is a SPECIMEN-ONLY display face (wordmark artifacts).
@@ -87,6 +87,11 @@
     --fs-h1:  1.6rem;  /* 25.6 — section hero  */
     --fs-display: clamp(1.9rem, 4.5vw, 3.4rem);
 
+    /* Landing role scale (homepage) — wordmark → sub-readout → section headline */
+    --fs-wordmark:      clamp(3rem, 9vw, 5.625rem);   /* Phosphate wordmark ONLY */
+    --fs-hero-sub:      clamp(1rem, 2.4vw, 1.4rem);   /* mono sub-readout */
+    --fs-section-title: clamp(1.45rem, 3.8vw, 2.25rem); /* mono section headline */
+
     --fw-400: 400; --fw-500: 500; --fw-600: 600;
     --fw-700: 700; --fw-800: 800; --fw-900: 900;
 
@@ -95,8 +100,14 @@
     --lh-body:  1.6;
     --lh-prose: 1.8;
 
-    --tr-eyebrow: 1.5px;   /* tracked uppercase eyebrows / command-line labels */
+    --tr-eyebrow: .18em;   /* tracked uppercase eyebrows / command-line labels */
     --tr-display: -.5px;
+
+    /* Role tracking — em-based so it scales with face and size */
+    --tr-wordmark: .015em; /* display wordmark (Phosphate, uppercase) */
+    --tr-cta:      .12em;  /* buttons + CTA links (uppercase) */
+    --tr-label:    .18em;  /* `//` section labels / eyebrows */
+    --tr-mono:     .02em;  /* mono readouts: subhead, data rows, mono headlines */
 
     /* ─── SPACING ────────────────────────────────────────── */
     --s-1: 4px;   --s-2: 8px;   --s-3: 12px;
@@ -125,7 +136,7 @@
     --t-fast:   .15s ease;
     --t-base:   .20s ease;
     --t-slow:   .60s ease;
-    --t-spring: 1.2s cubic-bezier(.34, 1.56, .64, 1);
+    --t-spring: 1.2s cubic-bezier(0.16, 1, 0.3, 1); /* ease-out-expo — no bounce (was overshoot) */
     --ease-ui:  cubic-bezier(0.23, 1, 0.32, 1);   /* default UI ease-out */
 
     /* ─── SIGNATURE FIELDS · CRT phosphor (no smooth blends) ─

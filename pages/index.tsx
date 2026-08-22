@@ -10,14 +10,14 @@ const VALUES = [
   {
     icon: "🔓",
     title: "Expansive Ideas",
-    desc: "Explore the full potential of Web3 — protocols, governance, economics, and community coordination at scale.",
-    link: "Learn more →",
+    desc: "Web3's full potential — protocols, governance, economics, and community coordination at scale.",
+    link: "Explore projects →",
     href: "/projects",
   },
   {
     icon: "🛠️",
     title: "How to Build Them",
-    desc: "Hands-on education and practical guidance for implementing Web3 infrastructure, DAOs, and decentralized systems.",
+    desc: "Hands-on education and practical guidance for building Web3 infrastructure, DAOs, and decentralized systems.",
     link: "Explore school →",
     href: "/school",
   },
@@ -25,7 +25,7 @@ const VALUES = [
     icon: "🤝",
     title: "Unite & Scale",
     desc: "Connect with builders, creators, and thinkers. Collaborate on projects that reshape how communities coordinate.",
-    link: "Join community →",
+    link: "Explore community →",
     href: "/community",
   },
 ]
@@ -48,17 +48,19 @@ function Journey({ title, items }: { title: string; items: { label: string; pct:
   return (
     <div className="journey-card">
       <div className="journey-title">{title}</div>
-      {items.map((it) => (
-        <div key={it.label} className="progress-item">
-          <div className="progress-label">
-            <span>{it.label}</span>
-            <span>{it.pct}%</span>
+      <div className="journey-list">
+        {items.map((it) => (
+          <div key={it.label} className="progress-item">
+            <div className="progress-label">
+              <span>{it.label}</span>
+              <span>{it.pct}%</span>
+            </div>
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${it.pct}%` }} />
+            </div>
           </div>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${it.pct}%` }} />
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
@@ -73,11 +75,15 @@ export default function Home() {
             <span className="l-caret" />
           </div>
           <h1 className="headline">Supercompute</h1>
-          <div className="subheader">Design with Liberation in mind</div>
+          <div className="subheader">Design with liberation in mind</div>
           <p className="hero-copy">
-            We're building the tools and knowledge infrastructure for Web3 communities to
-            expand beyond limitations, collaborate openly, and unite around shared vision.
+            We build the tools and knowledge infrastructure Web3 communities need to
+            expand beyond limits, collaborate openly, and unite around shared vision.
           </p>
+          <div className="l-hero-actions">
+            <Link href="/projects" className="btn btn-primary">// Explore projects</Link>
+            <Link href="/school" className="btn btn-outline">→ Start learning</Link>
+          </div>
         </section>
 
         <section className="value-sections">
@@ -93,15 +99,15 @@ export default function Home() {
 
         <section className="progress-section">
           <div className="l-section-header">
-            <div className="section-label">Your Journey</div>
-            <h2 className="section-title">How Far We Can Take You</h2>
+            <div className="section-label">Build Status</div>
+            <h2 className="section-title">How Far We've Built</h2>
             <p className="section-desc">
-              Progress tracking across different paths through Supercompute's ecosystem and capabilities.
+              How much of each track's curriculum is built and live — path by path.
             </p>
           </div>
           <div className="journey-grid">
-            <Journey title="The Builder Path" items={BUILDER_PATH} />
-            <Journey title="The Creator Path" items={CREATOR_PATH} />
+            <Journey title="Builder Path" items={BUILDER_PATH} />
+            <Journey title="Creator Path" items={CREATOR_PATH} />
           </div>
         </section>
       </div>

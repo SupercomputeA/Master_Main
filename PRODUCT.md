@@ -10,6 +10,8 @@ Supercompute is an **AI operator for Web3**. A fleet of autonomous agents on Bas
 
 Crypto's power is locked behind complexity: wallets, gas, protocols, governance, tokenomics. AI is the simplification layer — agents translate, execute, and guard on the user's behalf. Supercompute exists to **reduce the technical debt of crypto for everyday users**. That is the whole reason the operator path and Hermes exist: one operator, AI in the loop, humans liberated from the machinery.
 
+**The non-negotiable invariant: trustlessness is never broken.** The agent works for the user, never in place of them, and never becomes the trusted party. Keys stay with the user; guarantees stay on-chain; the AI is the interface, not the intermediary. Empowering users and enabling communities to work together — without surrendering the trustless foundation that makes crypto worth using.
+
 **The bridge in one line:** *Crypto is complex. Your AI operator makes it simple.*
 
 ## Audience

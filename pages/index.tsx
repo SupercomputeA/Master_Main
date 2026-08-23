@@ -24,7 +24,7 @@ const VALUES = [
   {
     icon: "🤝",
     title: "Unite & Scale",
-    desc: "Connect with builders, creators, and thinkers reshaping how communities coordinate — and ship alongside the fleet.",
+    desc: "Bring a community together — coordinate, collaborate, and ship without surrendering trustlessness.",
     link: "Explore community →",
     href: "/community",
   },
@@ -78,8 +78,8 @@ export default function Home() {
           <div className="subheader">Crypto is complex. Your AI operator makes it simple.</div>
           <p className="hero-copy">
             Wallets, gas, protocols, governance — Web3 asks too much before you can use it.
-            Supercompute runs a fleet of AI agents on Base that handles the complexity for you:
-            research, trade, publish, build. You stay in control — the machinery is ours.
+            Supercompute's AI agents on Base do the heavy lifting: research, trade, publish, build.
+            You keep the keys. Trustlessness stays intact — the agent works for you, never between you and the chain.
           </p>
           <div className="l-hero-actions">
             <Link href="/projects" className="btn btn-primary">// Explore projects</Link>

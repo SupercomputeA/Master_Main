@@ -50,6 +50,7 @@ export default function SchoolPage({ modules }: { modules: SchoolModuleContent[]
       <section className="l-hero">
         <div className="l-eyebrow">
           <span><span className="gold">./school</span> --supercompute</span>
+          <Link href="/school/kg" className="btn btn-outline" style={{ marginLeft: "auto" }}>Open School Knowledge Graph →</Link>
           <span className="l-caret" />
         </div>
         <h1 className="headline">Web3 School</h1>

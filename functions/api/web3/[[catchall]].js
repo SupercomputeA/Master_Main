@@ -1,8 +1,18 @@
 // functions/api/web3.js — Web3 API (ENS, Balances, Staking, Swap)
 // Cloudflare Pages Function with direct RPC calls
 
-const ETH_RPC = "https://ethereum.publicnode.com"
-const BASE_RPC = "https://mainnet.base.org"
+const ETH_RPCS = [
+  "https://ethereum-rpc.publicnode.com",
+  "https://ethereum.publicnode.com",
+  "https://cloudflare-eth.com",
+  "https://eth.llamarpc.com",
+  "https://1rpc.io/eth",
+]
+const BASE_RPCS = [
+  "https://mainnet.base.org",
+  "https://base-rpc.publicnode.com",
+  "https://1rpc.io/base",
+]
 
 const ENS_RESOLVER = "0x231b0ee14048e9dccd1d247744d114a4eb5e8e63"
 const ADDR_SELECTOR = "3b3b57de"
@@ -16,34 +26,44 @@ function bytesToHex(bytes) {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("")
 }
 
-async function rpcCall(rpcUrl, method, params) {
-  try {
-    const res = await fetch(rpcUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ jsonrpc: "2.0", method, params, id: 1 }),
-    })
-    if (!res.ok) return null
-    const json = await res.json()
-    if (json.error) return null
-    return json.result
-  } catch {
-    return null
+async function rpcCall(rpcUrls, method, params) {
+  const urls = Array.isArray(rpcUrls) ? rpcUrls : [rpcUrls]
+  let lastErr = null
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", method, params, id: 1 }),
+      })
+      if (!res.ok) { lastErr = new Error(`HTTP ${res.status} from ${url}`); continue }
+      const json = await res.json()
+      if (json.error) { lastErr = new Error(`${url}: ${JSON.stringify(json.error)}`); continue }
+      return json.result
+    } catch (e) {
+      lastErr = e
+    }
   }
+  throw lastErr || new Error("all RPCs failed")
 }
 
 // ── ENS Resolution ────────────────────────────────────────────────────────────
+// Use viem/ens for namehash — Node's `crypto.createHash("sha3-256")` is NIST SHA-3,
+// NOT Ethereum's Keccak-256. Previous local namehashEncode produced garbage hashes
+// that matched no ENS node, so /api/web3/resolve?name=supercompute.eth always
+// returned null. viem ships a battle-tested keccak256 implementation.
+import { namehash as viemNamehash, normalize as viemNormalize } from "viem/ens"
 
-// Web Crypto API (works in Cloudflare Workers — require("crypto") does NOT)
-async function sha3_256(data) {
-  const hashBuf = await crypto.subtle.digest("SHA-256", data)
-  // Note: Web Crypto doesn't support SHA3-256 directly. ENS namehash
-  // requires keccak-256, not SHA3-256. We implement keccak-256 manually
-  // since Web Crypto only provides SHA-1, SHA-256, SHA-384, SHA-512.
-  // For now, use a simplified approach: call the ENS resolver with the
-  // raw namehash computed via keccak. Since we can't do keccak in Web Crypto,
-  // we delegate ENS resolution to an external API.
-  return new Uint8Array(hashBuf)
+const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
+
+function strip0x(h) {
+  return h.startsWith("0x") ? h.slice(2) : h
+}
+
+function namehashEncode(name) {
+  // viem's namehash returns a hex string with 0x prefix
+  const nh = viemNamehash(name)
+  return strip0x(nh)
 }
 
 // ENS namehash requires keccak-256, which Web Crypto API does not support.
@@ -53,43 +73,54 @@ async function sha3_256(data) {
 async function resolveENS(name) {
   if (name.startsWith("0x") && name.length === 42) return name.toLowerCase()
   if (!name.includes(".")) return null
-
-  // Use Cloudflare's ENS resolver via public Ethereum RPC
-  // eth_call to ENS resolver with addr(namehash) selector
-  // Since we can't compute keccak256 in-worker, use an external ENS API
+  const nh = namehashEncode(name)
+  const data = "0x" + ADDR_SELECTOR + nh
   try {
-    const res = await fetch(`https://ensdata.net/api/resolve/${encodeURIComponent(name)}`, {
-      headers: { "Accept": "application/json" },
-    })
-    if (res.ok) {
-      const data = await res.json()
-      if (data.address) return data.address.toLowerCase()
+    const result = await rpcCall(ETH_RPCS, "eth_call", [{ to: ENS_RESOLVER, data }, "latest"])
+    if (result && result !== "0x" && result.length === 66) {
+      return "0x" + result.slice(-40)
     }
   } catch {}
-
-  // Fallback: try public ENS resolver API
-  try {
-    const res = await fetch(`https://api.ensideas.com/resolve/${encodeURIComponent(name)}`)
-    if (res.ok) {
-      const data = await res.json()
-      if (data.address) return data.address.toLowerCase()
-    }
-  } catch {}
-
   return null
 }
 
-// Old resolveENS removed — replaced by the API-based version above
-
+// Reverse ENS lookup: address → primary name.
+// Flow: namehash("<addr>.addr.reverse") → resolver(bytes32) on registry →
+//        name(bytes32) on that resolver.
+// Previous implementation queried resolver(0x000...000) (root node) which returns
+// the default public resolver, then called name(addr) on it — but addr here is
+// the raw address, not a node hash, so the call always returned empty bytes.
 async function lookupENS(address) {
-  // Use public ENS API for reverse lookup (address → name)
-  // Direct RPC requires keccak-256 which Web Crypto doesn't support
+  if (!address || !address.startsWith("0x") || address.length !== 42) return null
   try {
-    const res = await fetch(`https://api.ensideas.com/lookup/${address}`)
-    if (res.ok) {
-      const data = await res.json()
-      if (data.name) return data.name
+    const reverseLabel = address.slice(2).toLowerCase() + ".addr.reverse"
+    const reverseNh = viemNamehash(reverseLabel)
+    // resolver(bytes32) selector = 0x0178b8bf
+    const resolverData = "0x0178b8bf" + strip0x(reverseNh)
+    const resolverRes = await rpcCall(ETH_RPCS, "eth_call", [
+      { to: ENS_REGISTRY, data: resolverData },
+      "latest",
+    ])
+    if (!resolverRes || resolverRes === "0x" || resolverRes.length !== 66) return null
+    const resolverAddr = "0x" + resolverRes.slice(-40)
+    // name(bytes32) selector = 0x691f3431
+    const nameData = "0x691f3431" + strip0x(reverseNh)
+    const nameRes = await rpcCall(ETH_RPCS, "eth_call", [
+      { to: resolverAddr, data: nameData },
+      "latest",
+    ])
+    if (!nameRes || nameRes === "0x") return null
+    // ABI: (bytes32 node) returns string — offset(32) + length(32) + data
+    const hex = strip0x(nameRes)
+    if (hex.length < 128) return null
+    const len = parseInt(hex.slice(64, 128), 16)
+    if (len === 0) return null
+    const nameHex = hex.slice(128, 128 + len * 2)
+    let name = ""
+    for (let i = 0; i < nameHex.length; i += 2) {
+      name += String.fromCharCode(parseInt(nameHex.slice(i, i + 2), 16))
     }
+    if (name && name.includes(".")) return name
   } catch {}
 
   // Fallback: enstable API
@@ -108,20 +139,20 @@ async function lookupENS(address) {
 
 async function erc20Balance(token, wallet) {
   const data = "70a08231" + "000000000000000000000000" + wallet.slice(2).toLowerCase()
-  const result = await rpcCall(BASE_RPC, "eth_call", [{ to: token.toLowerCase(), data }, "latest"])
+  const result = await rpcCall(BASE_RPCS, "eth_call", [{ to: token.toLowerCase(), data }, "latest"])
   if (!result || result === "0x") return "0"
   return String(BigInt(result))
 }
 
 async function erc20Decimals(token) {
   const data = "313ce567"
-  const result = await rpcCall(BASE_RPC, "eth_call", [{ to: token.toLowerCase(), data }, "latest"])
+  const result = await rpcCall(BASE_RPCS, "eth_call", [{ to: token.toLowerCase(), data }, "latest"])
   return result ? Number(BigInt(result)) : 18
 }
 
 async function erc20Symbol(token) {
   const data = "95d89b41"
-  const result = await rpcCall(BASE_RPC, "eth_call", [{ to: token.toLowerCase(), data }, "latest"])
+  const result = await rpcCall(BASE_RPCS, "eth_call", [{ to: token.toLowerCase(), data }, "latest"])
   if (!result || result === "0x") return "UNK"
   const hex = result.slice(2).replace(/00+$/, "")
   try {
@@ -165,10 +196,10 @@ async function getStakingStats(env) {
   }
   try {
     const [totalStaked, rewardRate, stakers, totalDistributed] = await Promise.all([
-      rpcCall(BASE_RPC, "eth_call", [{ to: stakingAddr, data: "817b1cd2" }, "latest"]),
-      rpcCall(BASE_RPC, "eth_call", [{ to: stakingAddr, data: "7b0a47ee" }, "latest"]),
-      rpcCall(BASE_RPC, "eth_call", [{ to: stakingAddr, data: "b0af3080" }, "latest"]),
-      rpcCall(BASE_RPC, "eth_call", [{ to: stakingAddr, data: "e8d4e4c2" }, "latest"]),
+      rpcCall(BASE_RPCS, "eth_call", [{ to: stakingAddr, data: "817b1cd2" }, "latest"]),
+      rpcCall(BASE_RPCS, "eth_call", [{ to: stakingAddr, data: "7b0a47ee" }, "latest"]),
+      rpcCall(BASE_RPCS, "eth_call", [{ to: stakingAddr, data: "b0af3080" }, "latest"]),
+      rpcCall(BASE_RPCS, "eth_call", [{ to: stakingAddr, data: "e8d4e4c2" }, "latest"]),
     ])
 
     const total = totalStaked ? Number(BigInt(totalStaked)) / 1e18 : 0
@@ -195,8 +226,8 @@ async function getStakingPosition(wallet, env) {
   try {
     const balanceData = "70a08231" + "000000000000000000000000" + wallet.slice(2).toLowerCase()
     const [staked, rewards] = await Promise.all([
-      rpcCall(BASE_RPC, "eth_call", [{ to: stakingAddr, data: balanceData }, "latest"]),
-      rpcCall(BASE_RPC, "eth_call", [{ to: stakingAddr, data: "e8d4e4c2" + "000000000000000000000000" + wallet.slice(2).toLowerCase() }, "latest"]),
+      rpcCall(BASE_RPCS, "eth_call", [{ to: stakingAddr, data: balanceData }, "latest"]),
+      rpcCall(BASE_RPCS, "eth_call", [{ to: stakingAddr, data: "e8d4e4c2" + "000000000000000000000000" + wallet.slice(2).toLowerCase() }, "latest"]),
     ])
     return {
       stakedAmount: staked ? formatUnits(staked, 18) : "0",
@@ -225,7 +256,7 @@ async function getSwapQuote(fromToken, toToken, amount, env) {
   }
   try {
     const quoteData = "cdca1753" + fromToken.slice(2).toLowerCase() + toToken.slice(2).toLowerCase() + "0000000000000000000000000000000000000000000000000000000000000001"
-    const result = await rpcCall(BASE_RPC, "eth_call", [{ to: QUOTER, data: quoteData }, "latest"])
+    const result = await rpcCall(BASE_RPCS, "eth_call", [{ to: QUOTER, data: quoteData }, "latest"])
     if (!result || result === "0x") return null
     return {
       fromAmount: amount,

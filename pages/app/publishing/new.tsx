@@ -21,9 +21,11 @@ export default function ArticleBuilder() {
 
   async function save(status: "draft" | "published") {
     setMsg(null)
+    const session = typeof window !== "undefined" ? localStorage.getItem("session") : null
+    if (!session) { setMsg("// connect wallet + sign in to save"); return }
     await fetch("/api/articles", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session}` },
       body: JSON.stringify({ title, category, cover, excerpt, content: body, status }),
     }).catch(() => {})
     setMsg(status === "published" ? "// published — live on the NewsDesk" : "// draft saved")

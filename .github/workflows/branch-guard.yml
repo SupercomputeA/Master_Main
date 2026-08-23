@@ -1,0 +1,25 @@
+name: branch-guard
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check head branch naming
+        if: github.event_name == 'pull_request'
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          echo "$BRANCH" | grep -qE '^(feature|design|project|test|security|hotfix|fix|docs|ci|chore|refactor)/' \
+            || { echo "✗ Branch '$BRANCH' violates fleet naming (see supercompute-devops/docs/branch-strategy.md)"; exit 1; }
+
+      - name: Fail closed on direct trunk push
+        if: github.event_name == 'push'
+        run: |
+          echo "✗ Direct push to ${{ github.ref_name }} is not allowed — PR-only lane."
+          echo "  See supercompute-devops/docs/branch-strategy.md"
+          exit 1

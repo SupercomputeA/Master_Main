@@ -35,7 +35,7 @@ export default function PublicLayout({
     <>
       <Head>
         <title>{title}</title>
-        <meta name="description" content="Design with liberation in mind — Web3 tools and knowledge infrastructure for communities." />
+        <meta name="description" content="Crypto is complex. Your AI operator makes it simple — Supercompute's AI agents on Base handle research, trading, publishing, and building for everyday users." />
       </Head>
 
       {/* HUD corners bracket the full viewport on public pages */}

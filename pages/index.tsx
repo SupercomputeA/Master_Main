@@ -10,21 +10,21 @@ const VALUES = [
   {
     icon: "🔓",
     title: "Expansive Ideas",
-    desc: "Web3's full potential — protocols, governance, economics, and community coordination at scale.",
+    desc: "AI agents decode protocols, governance, and economics into plain language. Web3's full potential, without the jargon wall.",
     link: "Explore projects →",
     href: "/projects",
   },
   {
     icon: "🛠️",
     title: "How to Build Them",
-    desc: "Hands-on education and practical guidance for building Web3 infrastructure, DAOs, and decentralized systems.",
+    desc: "Hands-on tracks with an agent at your side. Build Web3 infrastructure at your own pace, from fundamentals to launch.",
     link: "Explore school →",
     href: "/school",
   },
   {
     icon: "🤝",
     title: "Unite & Scale",
-    desc: "Connect with builders, creators, and thinkers. Collaborate on projects that reshape how communities coordinate.",
+    desc: "Connect with builders, creators, and thinkers reshaping how communities coordinate — and ship alongside the fleet.",
     link: "Explore community →",
     href: "/community",
   },
@@ -75,10 +75,11 @@ export default function Home() {
             <span className="l-caret" />
           </div>
           <h1 className="headline">Supercompute</h1>
-          <div className="subheader">Design with liberation in mind</div>
+          <div className="subheader">Crypto is complex. Your AI operator makes it simple.</div>
           <p className="hero-copy">
-            We build the tools and knowledge infrastructure Web3 communities need to
-            expand beyond limits, collaborate openly, and unite around shared vision.
+            Wallets, gas, protocols, governance — Web3 asks too much before you can use it.
+            Supercompute runs a fleet of AI agents on Base that handles the complexity for you:
+            research, trade, publish, build. You stay in control — the machinery is ours.
           </p>
           <div className="l-hero-actions">
             <Link href="/projects" className="btn btn-primary">// Explore projects</Link>
@@ -99,10 +100,10 @@ export default function Home() {
 
         <section className="progress-section">
           <div className="l-section-header">
-            <div className="section-label">Build Status</div>
-            <h2 className="section-title">How Far We've Built</h2>
+            <div className="section-label">Your path</div>
+            <h2 className="section-title">From curious to capable</h2>
             <p className="section-desc">
-              How much of each track's curriculum is built and live — path by path.
+              AI-guided tracks take you from fundamentals to launch. Percentages show how much of each path is built and live.
             </p>
           </div>
           <div className="journey-grid">

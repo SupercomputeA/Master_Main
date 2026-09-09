@@ -1,20 +1,48 @@
-/*!
- * SUPERCOMPUTE Frontend Static Assets
- * Served from Cloudflare Workers
- */
+# SUPERCOMPUTE — Cloudflare Pages headers
+# Static export output (public/ -> out/ on build).
+# NOTE: COEP require-corp was previously declared but never applied (missing
+# path section). Intentionally NOT re-added: it would block cross-origin
+# images/media that lack CORP headers. COOP same-origin kept (no render impact).
 
-/* Cross-origin isolation for SharedArrayBuffer */
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Embedder-Policy: require-corp
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://fonts.gstatic.com; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Cross-Origin-Opener-Policy: same-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
 
-/* Cache policies */
-*.html: Cache-Control: public, max-age=0, must-revalidate
-*.css: Cache-Control: public, max-age=31536000, immutable
-*.js: Cache-Control: public, max-age=31536000, immutable
-*.png: Cache-Control: public, max-age=31536000, immutable
-*.svg: Cache-Control: public, max-age=31536000, immutable
+# Immutable hashed build assets
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
 
-/* Security headers */
-X-Content-Type-Options: nosniff
-X-Frame-Options: DENY
-Referrer-Policy: strict-origin-when-cross-origin
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML — never cache stale
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/
+  Cache-Control: public, max-age=0, must-revalidate

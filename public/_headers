@@ -18,3 +18,15 @@ Cross-Origin-Embedder-Policy: require-corp
 X-Content-Type-Options: nosniff
 X-Frame-Options: DENY
 Referrer-Policy: strict-origin-when-cross-origin
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+
+/*
+ * Content-Security-Policy — pass 1 hardening (2026-09-09, closes launch-audit
+ * blocker #1). Allow-list derived from a scan of lib/ components/ functions/
+ * pages/ for runtime origins. KNOWN LOOSENING: 'unsafe-inline' in script-src
+ * covers the Next.js inline bootstrap chunk — tighten to a nonce or
+ * 'strict-dynamic' after a preview test on staging. connect-src is strict:
+ * RPC/ENS/WalletConnect/Neynar/Splits/Virtuals only — no exfil origin.
+ */
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://supercompute.io https://*.supercompute.io wss://*.supercompute.io https://api.neynar.com https://snapchain-api.neynar.com https://app.virtuals.io https://splits.org https://common.xyz https://ensdata.net https://1rpc.io https://mainnet.base.org https://base.publicnode.com https://base-rpc.publicnode.com https://base.llamarpc.com https://base.public.blastapi.io https://ethereum.publicnode.com https://ethereum-rpc.publicnode.com https://eth.llamarpc.com https://cloudflare-eth.com https://relay.walletconnect.com wss://relay.walletconnect.com https://*.walletconnect.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests

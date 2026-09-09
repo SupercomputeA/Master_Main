@@ -13,6 +13,7 @@ type AuthContextType = {
   session: string | null
   profile: Profile
   authing: boolean
+  authError: string | null
   connect: () => void
   disconnect: () => void
   isAdmin: boolean
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   authing: false,
+  authError: null,
   connect: () => {},
   disconnect: () => {},
   isAdmin: false,
@@ -37,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<string | null>(null)
   const [profile, setProfile] = useState<Profile>(null)
   const [authing, setAuthing] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
 
   useEffect(() => {
     const s = localStorage.getItem("session")
@@ -59,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signIn(addr: string) {
     setAuthing(true)
+    setAuthError(null)
     try {
       const nonce = await getNonce()
       const message = await getMessage(addr, nonce)
@@ -69,7 +73,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("session", result.session)
         if (result.user) setProfile({ ...result.user as { name: string; role: string }, ensName: ensName || undefined })
       }
-    } catch { wagmiDisconnect() }
+    } catch (e) {
+      wagmiDisconnect()
+      const reason = e instanceof Error ? e.message : String(e)
+      // Surface the real failure (backend unreachable, rejected signature, 401/403)
+      // instead of silently returning to a stale "connecting…" state.
+      setAuthError(reason.includes("denied") || reason.includes("rejected") || reason.includes("UserRejected")
+        ? "// signature not approved — try again and confirm in the wallet"
+        : `// sign-in failed — ${reason}`)
+    }
     setAuthing(false)
   }
 
@@ -89,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [session, wagmiDisconnect])
 
   return (
-    <AuthContext.Provider value={{ session, profile, authing, connect, disconnect, isAdmin: profile?.role === "admin" }}>
+    <AuthContext.Provider value={{ session, profile, authing, authError, connect, disconnect, isAdmin: profile?.role === "admin" }}>
       {children}
     </AuthContext.Provider>
   )

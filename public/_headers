@@ -5,7 +5,7 @@
 # images/media that lack CORP headers. COOP same-origin kept (no render impact).
 
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://fonts.gstatic.com; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://fonts.gstatic.com https://mainnet.base.org https://eth.llamarpc.com https://ethereum-rpc.publicnode.com https://cloudflare-eth.com https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin

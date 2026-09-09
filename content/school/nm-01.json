@@ -1,0 +1,57 @@
+{
+  "moduleId": "NM-01",
+  "title": "NFTs & Digital Ownership",
+  "subtitle": "Beyond JPEGs \u2014 Utility, Credentials, and Rights",
+  "description": "Understand NFTs as more than collectibles \u2014 soul-bound tokens, on-chain credentials, access passes, and digital rights management. Build with ERC-721 and ERC-1155.",
+  "difficulty": "Intermediate",
+  "access": "free",
+  "duration": "3 hours",
+  "credential": "",
+  "icon": "\ud83d\uddbc\ufe0f",
+  "color": "#C9A33A",
+  "done": true,
+  "lessons": [
+    {
+      "id": "NM-01-01",
+      "title": "NFT Standards",
+      "description": "ERC-721, ERC-1155, and ERC-404 \u2014 what each does and when to use them.",
+      "duration": "25 min",
+      "topics": "ERC-721, ERC-1155, ERC-404, Standard selection"
+    },
+    {
+      "id": "NM-01-02",
+      "title": "Soul-Bound Tokens",
+      "description": "Non-transferable NFTs for credentials, identity, and achievements.",
+      "duration": "30 min",
+      "topics": "SBTs, Credential design, On-chain identity, Attestations"
+    },
+    {
+      "id": "NM-01-03",
+      "title": "Metadata & Storage",
+      "description": "How NFT metadata works \u2014 IPFS, Arweave, on-chain vs off-chain storage.",
+      "duration": "25 min",
+      "topics": "IPFS, Arweave, On-chain metadata, Permanent storage"
+    },
+    {
+      "id": "NM-01-04",
+      "title": "NFT Access Systems",
+      "description": "Token-gating with NFTs \u2014 access passes, membership tiers, and gating strategies.",
+      "duration": "30 min",
+      "topics": "Token gating, Access control, Membership tiers, Balance checks"
+    },
+    {
+      "id": "NM-01-05",
+      "title": "Dynamic NFTs",
+      "description": "NFTs that change based on on-chain or off-chain data \u2014 use cases and implementation.",
+      "duration": "25 min",
+      "topics": "Dynamic metadata, Oracle integration, Evolving NFTs, Game state"
+    },
+    {
+      "id": "NM-01-06",
+      "title": "Deploying an NFT",
+      "description": "Step-by-step: deploy, mint, and verify an NFT contract on Base.",
+      "duration": "35 min",
+      "topics": "Contract deployment, Minting, Verification, Basescan"
+    }
+  ]
+}

@@ -1,8 +1,18 @@
 // functions/api/web3.js — Web3 API (ENS, Balances, Staking, Swap)
 // Cloudflare Pages Function with direct RPC calls
 
-const ETH_RPC = "https://ethereum.publicnode.com"
-const BASE_RPC = "https://mainnet.base.org"
+const ETH_RPCS = [
+  "https://ethereum-rpc.publicnode.com",
+  "https://ethereum.publicnode.com",
+  "https://cloudflare-eth.com",
+  "https://eth.llamarpc.com",
+  "https://1rpc.io/eth",
+]
+const BASE_RPCS = [
+  "https://mainnet.base.org",
+  "https://base-rpc.publicnode.com",
+  "https://1rpc.io/base",
+]
 
 const ENS_RESOLVER = "0x231b0ee14048e9dccd1d247744d114a4eb5e8e63"
 const ADDR_SELECTOR = "3b3b57de"
@@ -16,41 +26,57 @@ function bytesToHex(bytes) {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("")
 }
 
-async function rpcCall(rpcUrl, method, params) {
-  const res = await fetch(rpcUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", method, params, id: 1 }),
-  })
-  const json = await res.json()
-  return json.result
+async function rpcCall(rpcUrls, method, params) {
+  const urls = Array.isArray(rpcUrls) ? rpcUrls : [rpcUrls]
+  let lastErr = null
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", method, params, id: 1 }),
+      })
+      if (!res.ok) { lastErr = new Error(`HTTP ${res.status} from ${url}`); continue }
+      const json = await res.json()
+      if (json.error) { lastErr = new Error(`${url}: ${JSON.stringify(json.error)}`); continue }
+      return json.result
+    } catch (e) {
+      lastErr = e
+    }
+  }
+  throw lastErr || new Error("all RPCs failed")
 }
 
 // ── ENS Resolution ────────────────────────────────────────────────────────────
+// Use viem/ens for namehash — Node's `crypto.createHash("sha3-256")` is NIST SHA-3,
+// NOT Ethereum's Keccak-256. Previous local namehashEncode produced garbage hashes
+// that matched no ENS node, so /api/web3/resolve?name=supercompute.eth always
+// returned null. viem ships a battle-tested keccak256 implementation.
+import { namehash as viemNamehash, normalize as viemNormalize } from "viem/ens"
 
-function namehashEncode(name) {
-  const crypto = require("crypto")
-  const labels = name.split(".").filter(Boolean)
-  let node = new Uint8Array(32)
-  for (let i = labels.length - 1; i >= 0; i--) {
-    const labelBytes = new TextEncoder().encode(labels[i])
-    const data = new Uint8Array(32 + 1 + labelBytes.length)
-    data.set(node, 0)
-    data[32] = labelBytes.length
-    data.set(labelBytes, 33)
-    const hash = crypto.createHash("sha3-256").update(Buffer.from(data)).digest()
-    node = new Uint8Array(hash)
-  }
-  return bytesToHex(node)
+const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
+
+function strip0x(h) {
+  return h.startsWith("0x") ? h.slice(2) : h
 }
 
+function namehashEncode(name) {
+  // viem's namehash returns a hex string with 0x prefix
+  const nh = viemNamehash(name)
+  return strip0x(nh)
+}
+
+// ENS namehash requires keccak-256, which Web Crypto API does not support.
+// Instead of computing namehash in-worker, we use the public ENS API
+// (https://ensdata.net or direct RPC with pre-computed namehash).
+// For name → address: use ethers-style resolution via public ENS RPC endpoint.
 async function resolveENS(name) {
   if (name.startsWith("0x") && name.length === 42) return name.toLowerCase()
   if (!name.includes(".")) return null
   const nh = namehashEncode(name)
-  const data = ADDR_SELECTOR + nh
+  const data = "0x" + ADDR_SELECTOR + nh
   try {
-    const result = await rpcCall(ETH_RPC, "eth_call", [{ to: ENS_RESOLVER, data }, "latest"])
+    const result = await rpcCall(ETH_RPCS, "eth_call", [{ to: ENS_RESOLVER, data }, "latest"])
     if (result && result !== "0x" && result.length === 66) {
       return "0x" + result.slice(-40)
     }
@@ -58,27 +84,54 @@ async function resolveENS(name) {
   return null
 }
 
+// Reverse ENS lookup: address → primary name.
+// Flow: namehash("<addr>.addr.reverse") → resolver(bytes32) on registry →
+//        name(bytes32) on that resolver.
+// Previous implementation queried resolver(0x000...000) (root node) which returns
+// the default public resolver, then called name(addr) on it — but addr here is
+// the raw address, not a node hash, so the call always returned empty bytes.
 async function lookupENS(address) {
-  const REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
+  if (!address || !address.startsWith("0x") || address.length !== 42) return null
   try {
-    const resolverData = "0178b8bf" + "0000000000000000000000000000000000000000000000000000000000000000"
-    const resolverRes = await rpcCall(ETH_RPC, "eth_call", [{ to: REGISTRY, data: resolverData }, "latest"])
-    if (!resolverRes || resolverRes === "0x") return null
+    const reverseLabel = address.slice(2).toLowerCase() + ".addr.reverse"
+    const reverseNh = viemNamehash(reverseLabel)
+    // resolver(bytes32) selector = 0x0178b8bf
+    const resolverData = "0x0178b8bf" + strip0x(reverseNh)
+    const resolverRes = await rpcCall(ETH_RPCS, "eth_call", [
+      { to: ENS_REGISTRY, data: resolverData },
+      "latest",
+    ])
+    if (!resolverRes || resolverRes === "0x" || resolverRes.length !== 66) return null
     const resolverAddr = "0x" + resolverRes.slice(-40)
-    const nameData = "691f3431" + "000000000000000000000000" + address.slice(2).toLowerCase()
-    const nameRes = await rpcCall(ETH_RPC, "eth_call", [{ to: resolverAddr, data: nameData }, "latest"])
-    if (nameRes && nameRes !== "0x") {
-      const hexStr = nameRes.slice(2)
-      const chars = []
-      for (let i = 0; i < hexStr.length; i += 2) {
-        const code = parseInt(hexStr.substr(i, 2), 16)
-        if (code === 0) break
-        chars.push(String.fromCharCode(code))
-      }
-      const name = chars.join("")
-      if (name.includes(".")) return name
+    // name(bytes32) selector = 0x691f3431
+    const nameData = "0x691f3431" + strip0x(reverseNh)
+    const nameRes = await rpcCall(ETH_RPCS, "eth_call", [
+      { to: resolverAddr, data: nameData },
+      "latest",
+    ])
+    if (!nameRes || nameRes === "0x") return null
+    // ABI: (bytes32 node) returns string — offset(32) + length(32) + data
+    const hex = strip0x(nameRes)
+    if (hex.length < 128) return null
+    const len = parseInt(hex.slice(64, 128), 16)
+    if (len === 0) return null
+    const nameHex = hex.slice(128, 128 + len * 2)
+    let name = ""
+    for (let i = 0; i < nameHex.length; i += 2) {
+      name += String.fromCharCode(parseInt(nameHex.slice(i, i + 2), 16))
+    }
+    if (name && name.includes(".")) return name
+  } catch {}
+
+  // Fallback: enstable API
+  try {
+    const res = await fetch(`https://ensdata.net/api/lookup/${address}`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.name) return data.name
     }
   } catch {}
+
   return null
 }
 
@@ -86,20 +139,20 @@ async function lookupENS(address) {
 
 async function erc20Balance(token, wallet) {
   const data = "70a08231" + "000000000000000000000000" + wallet.slice(2).toLowerCase()
-  const result = await rpcCall(BASE_RPC, "eth_call", [{ to: token.toLowerCase(), data }, "latest"])
+  const result = await rpcCall(BASE_RPCS, "eth_call", [{ to: token.toLowerCase(), data }, "latest"])
   if (!result || result === "0x") return "0"
   return String(BigInt(result))
 }
 
 async function erc20Decimals(token) {
   const data = "313ce567"
-  const result = await rpcCall(BASE_RPC, "eth_call", [{ to: token.toLowerCase(), data }, "latest"])
+  const result = await rpcCall(BASE_RPCS, "eth_call", [{ to: token.toLowerCase(), data }, "latest"])
   return result ? Number(BigInt(result)) : 18
 }
 
 async function erc20Symbol(token) {
   const data = "95d89b41"
-  const result = await rpcCall(BASE_RPC, "eth_call", [{ to: token.toLowerCase(), data }, "latest"])
+  const result = await rpcCall(BASE_RPCS, "eth_call", [{ to: token.toLowerCase(), data }, "latest"])
   if (!result || result === "0x") return "UNK"
   const hex = result.slice(2).replace(/00+$/, "")
   try {
@@ -143,10 +196,10 @@ async function getStakingStats(env) {
   }
   try {
     const [totalStaked, rewardRate, stakers, totalDistributed] = await Promise.all([
-      rpcCall(BASE_RPC, "eth_call", [{ to: stakingAddr, data: "817b1cd2" }, "latest"]),
-      rpcCall(BASE_RPC, "eth_call", [{ to: stakingAddr, data: "7b0a47ee" }, "latest"]),
-      rpcCall(BASE_RPC, "eth_call", [{ to: stakingAddr, data: "b0af3080" }, "latest"]),
-      rpcCall(BASE_RPC, "eth_call", [{ to: stakingAddr, data: "e8d4e4c2" }, "latest"]),
+      rpcCall(BASE_RPCS, "eth_call", [{ to: stakingAddr, data: "817b1cd2" }, "latest"]),
+      rpcCall(BASE_RPCS, "eth_call", [{ to: stakingAddr, data: "7b0a47ee" }, "latest"]),
+      rpcCall(BASE_RPCS, "eth_call", [{ to: stakingAddr, data: "b0af3080" }, "latest"]),
+      rpcCall(BASE_RPCS, "eth_call", [{ to: stakingAddr, data: "e8d4e4c2" }, "latest"]),
     ])
 
     const total = totalStaked ? Number(BigInt(totalStaked)) / 1e18 : 0
@@ -173,8 +226,8 @@ async function getStakingPosition(wallet, env) {
   try {
     const balanceData = "70a08231" + "000000000000000000000000" + wallet.slice(2).toLowerCase()
     const [staked, rewards] = await Promise.all([
-      rpcCall(BASE_RPC, "eth_call", [{ to: stakingAddr, data: balanceData }, "latest"]),
-      rpcCall(BASE_RPC, "eth_call", [{ to: stakingAddr, data: "e8d4e4c2" + "000000000000000000000000" + wallet.slice(2).toLowerCase() }, "latest"]),
+      rpcCall(BASE_RPCS, "eth_call", [{ to: stakingAddr, data: balanceData }, "latest"]),
+      rpcCall(BASE_RPCS, "eth_call", [{ to: stakingAddr, data: "e8d4e4c2" + "000000000000000000000000" + wallet.slice(2).toLowerCase() }, "latest"]),
     ])
     return {
       stakedAmount: staked ? formatUnits(staked, 18) : "0",
@@ -203,7 +256,7 @@ async function getSwapQuote(fromToken, toToken, amount, env) {
   }
   try {
     const quoteData = "cdca1753" + fromToken.slice(2).toLowerCase() + toToken.slice(2).toLowerCase() + "0000000000000000000000000000000000000000000000000000000000000001"
-    const result = await rpcCall(BASE_RPC, "eth_call", [{ to: QUOTER, data: quoteData }, "latest"])
+    const result = await rpcCall(BASE_RPCS, "eth_call", [{ to: QUOTER, data: quoteData }, "latest"])
     if (!result || result === "0x") return null
     return {
       fromAmount: amount,
@@ -269,10 +322,23 @@ export async function onRequest({ request, env }) {
     const token = url.searchParams.get("token")
     const wallet = url.searchParams.get("wallet")
     if (!token || !wallet) return j({ error: "token and wallet required" }, 400)
+
+    // Resolve token symbol to contract address
+    const TOKEN_MAP = {
+      "QUANTA": env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "$QUANTA": env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "SCOM": env?.SCOM_TOKEN || env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "$SCOM": env?.SCOM_TOKEN || env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+    }
+    let tokenAddr = token
+    if (!token.startsWith("0x")) {
+      tokenAddr = TOKEN_MAP[token.toUpperCase()] || TOKEN_MAP[token] || token
+    }
+
     const [balance, decimals, symbol] = await Promise.all([
-      erc20Balance(token, wallet),
-      erc20Decimals(token),
-      erc20Symbol(token),
+      erc20Balance(tokenAddr, wallet),
+      erc20Decimals(tokenAddr),
+      erc20Symbol(tokenAddr),
     ])
     return j({ balance: formatUnits(balance, decimals), decimals, symbol })
   }
@@ -281,14 +347,56 @@ export async function onRequest({ request, env }) {
     const body = await request.json().catch(() => ({}))
     const { wallet, requirements } = body
     if (!wallet || !requirements) return j({ error: "wallet and requirements required" }, 400)
+
+    // Resolve token symbols to contract addresses via env vars
+    const TOKEN_MAP = {
+      "QUANTA": env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "$QUANTA": env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "SCOM": env?.SCOM_TOKEN || env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+      "$SCOM": env?.SCOM_TOKEN || env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A",
+    }
+
     const results = await Promise.all(
       requirements.map(async (req) => {
-        if (req.token && req.minBalance) return checkTokenGate(wallet, req.token, req.minBalance)
+        let tokenAddr = req.token
+        // If token is a symbol (not 0x...), resolve from map
+        if (tokenAddr && !tokenAddr.startsWith("0x")) {
+          tokenAddr = TOKEN_MAP[tokenAddr.toUpperCase()] || TOKEN_MAP[tokenAddr] || tokenAddr
+        }
+        if (tokenAddr && req.minBalance) return checkTokenGate(wallet, tokenAddr, req.minBalance)
         if (req.ens) return checkEnsGate(wallet, req.ens)
         return { label: "unknown", passed: false }
       }),
     )
     return j({ passed: results.every(r => r.passed), gates: results })
+  }
+
+  if (method === "GET" && path === "/profile") {
+    const wallet = url.searchParams.get("wallet")
+    if (!wallet) return j({ error: "wallet required" }, 400)
+
+    const quantaToken = env?.QUANTA_TOKEN || "0x5ACDC563450cC35055d7344287C327fafB2b371A"
+    const [ens, balanceResult] = await Promise.all([
+      lookupENS(wallet),
+      (async () => {
+        try {
+          const [bal, dec, sym] = await Promise.all([
+            erc20Balance(quantaToken, wallet),
+            erc20Decimals(quantaToken),
+            erc20Symbol(quantaToken),
+          ])
+          // If symbol is UNK, token is not deployed yet — return pre-TGE state
+          if (sym === "UNK" && bal === "0") {
+            return { balance: "0", symbol: "QUANTA", deployed: false }
+          }
+          return { balance: formatUnits(bal, dec), symbol: sym, deployed: true }
+        } catch {
+          return { balance: "0", symbol: "QUANTA", deployed: false }
+        }
+      })(),
+    ])
+
+    return j({ ens, ...balanceResult })
   }
 
   if (method === "GET" && path === "/staking") {
@@ -316,8 +424,9 @@ export async function onRequest({ request, env }) {
     endpoints: {
       "GET /api/web3/resolve": "ENS name → address",
       "GET /api/web3/lookup": "address → ENS name",
-      "GET /api/web3/balance": "ERC20 token balance",
-      "POST /api/web3/gate": "Check token/ENS gating",
+      "GET /api/web3/balance": "ERC20 token balance (accepts symbol or address)",
+      "POST /api/web3/gate": "Check token/ENS gating (accepts symbol or address)",
+      "GET /api/web3/profile": "Wallet profile — ENS name + QUANTA balance",
       "GET /api/web3/staking": "Staking pool stats",
       "GET /api/web3/staking/position": "User staking position",
       "GET /api/web3/swap/quote": "Swap quote from DEX",

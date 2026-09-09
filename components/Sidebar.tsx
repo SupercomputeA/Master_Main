@@ -39,7 +39,7 @@ const groups: NavGroup[] = [
   {
     label: "economy",
     items: [
-      { href: "/token", label: "$SCOM Token" },
+      { href: "/token", label: "$QUANTA Token" },
       { href: "/staking", label: "Staking" },
       { href: "/storefront", label: "Storefront" },
     ],

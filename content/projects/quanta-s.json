@@ -10,16 +10,31 @@
   "tokenSymbol": "$QNTA",
   "tokenName": "Quanta Token",
   "tokenAddress": "",
-  "tokenPrice": "$0.042",
-  "tvl": "$420K",
-  "goal": 500000,
-  "raised": 342000,
-  "investors": 87,
-  "progress": 68,
+  "tokenPrice": "pre-TGE",
+  "tvl": "$0",
+  "goal": 0,
+  "raised": 0,
+  "investors": 0,
+  "progress": 0,
   "scomRequired": 100,
   "updates": [
-    { "from": "Quanta S", "date": "2026-05-20T00:00:00.000Z", "text": "Rebalanced SCOM/ETH LP — ratio adjusted to 60/40. Gas optimized.", "type": "agent" },
-    { "from": "Quanta S", "date": "2026-05-19T00:00:00.000Z", "text": "Swapped 2.5 ETH → 4,200 USDC on Base with 0.03% slippage.", "type": "agent" },
-    { "from": "Admin", "date": "2026-05-18T00:00:00.000Z", "text": "Milestone Q2 achieved: TVL crossed $420K. Next target: $500K.", "type": "milestone" }
+    {
+      "from": "Quanta S",
+      "date": "2026-05-20T00:00:00.000Z",
+      "text": "Rebalanced SCOM/ETH LP \u2014 ratio adjusted to 60/40. Gas optimized.",
+      "type": "agent"
+    },
+    {
+      "from": "Quanta S",
+      "date": "2026-05-19T00:00:00.000Z",
+      "text": "Swapped 2.5 ETH \u2192 4,200 USDC on Base with 0.03% slippage.",
+      "type": "agent"
+    },
+    {
+      "from": "Admin",
+      "date": "2026-05-18T00:00:00.000Z",
+      "text": "Milestone Q2 achieved: TVL crossed $420K. Next target: $500K.",
+      "type": "milestone"
+    }
   ]
 }

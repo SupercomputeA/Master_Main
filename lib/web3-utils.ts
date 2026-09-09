@@ -52,6 +52,22 @@ export async function checkGate(
   }
 }
 
+export async function getWalletProfile(
+  walletAddress: string,
+): Promise<{ ens: string | null; balance: string; symbol: string }> {
+  try {
+    const res = await fetch(`${API}/profile?wallet=${encodeURIComponent(walletAddress)}`)
+    const data = await res.json() as { ens?: string; balance?: string; symbol?: string }
+    return {
+      ens: data.ens ?? null,
+      balance: data.balance ?? "0",
+      symbol: data.symbol ?? "QUANTA",
+    }
+  } catch {
+    return { ens: null, balance: "0", symbol: "QUANTA" }
+  }
+}
+
 export async function getStakingStats(): Promise<{
   apy: number
   tvl: number

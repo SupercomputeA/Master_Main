@@ -11,19 +11,30 @@ function generateId() {
 // Query params:
 //   ?include=content  → include the full body (markdown) in each row
 //   ?slug=<slug>       → filter to a single article matching this slug
-//   ?status=<status>   → filter by status (default: published only via published_at)
-async function listArticles(env, url) {
+//   ?status=<status>   → filter by status (default: published only via published_at;
+//                        'draft'/'all' require admin auth — member editing surface)
+async function listArticles(env, url, request) {
   if (!env.DB) return json({ error: 'Database not configured' }, 503);
 
   const includeContent = url.searchParams.get('include') === 'content';
   const slugFilter = url.searchParams.get('slug');
+  const statusFilter = url.searchParams.get('status');
 
   const cols = includeContent
     ? 'id, title, slug, excerpt, content, category, author, icon, views, status, published_at, created_at, updated_at'
-    : 'id, title, slug, excerpt, category, author, icon, views, published_at, created_at';
+    : 'id, title, slug, excerpt, category, author, icon, views, status, published_at, created_at';
 
   let where = 'WHERE published_at IS NOT NULL';
   const binds = [];
+
+  // Drafts are admin-only — the member surface must authenticate to see them.
+  if (statusFilter === 'draft' || statusFilter === 'all') {
+    const auth = await verifySession(env, request.headers.get('Authorization'));
+    if (!auth.valid) return json({ error: 'Unauthorized' }, 401);
+    if (!await isAdmin(env, auth.wallet)) return json({ error: 'Forbidden: admin access required' }, 403);
+    where = statusFilter === 'draft' ? "WHERE status = 'draft'" : 'WHERE 1=1';
+  }
+
   if (slugFilter) {
     where += ' AND slug = ?';
     binds.push(slugFilter);
@@ -144,7 +155,7 @@ export async function onRequest({ request, env, ctx }) {
     });
   }
 
-  if (method === 'GET' && path === '/') return listArticles(env, url);
+  if (method === 'GET' && path === '/') return listArticles(env, url, request);
   if (method === 'GET' && path.match(/^\/\w+$/)) return getArticle(env, path.slice(1));
   if (method === 'POST' && path === '/') {
     const body = await request.json().catch(() => ({}));

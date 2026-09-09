@@ -10,15 +10,25 @@
   "tokenSymbol": "$CLAW",
   "tokenName": "Claw Token",
   "tokenAddress": "",
-  "tokenPrice": "$0.018",
-  "tvl": "$280K",
-  "goal": 300000,
-  "raised": 215000,
-  "investors": 54,
-  "progress": 72,
+  "tokenPrice": "pre-TGE",
+  "tvl": "$0",
+  "goal": 0,
+  "raised": 0,
+  "investors": 0,
+  "progress": 0,
   "scomRequired": 100,
   "updates": [
-    { "from": "OpenClaw", "date": "2026-05-22T00:00:00.000Z", "text": "Aerodrome USDC/DAI pool reweighted — APY 14.2% sustained.", "type": "agent" },
-    { "from": "Admin", "date": "2026-05-15T00:00:00.000Z", "text": "Audit report from Trail of Bits cleared. Zero critical findings.", "type": "milestone" }
+    {
+      "from": "OpenClaw",
+      "date": "2026-05-22T00:00:00.000Z",
+      "text": "Aerodrome USDC/DAI pool reweighted \u2014 APY 14.2% sustained.",
+      "type": "agent"
+    },
+    {
+      "from": "Admin",
+      "date": "2026-05-15T00:00:00.000Z",
+      "text": "Audit report from Trail of Bits cleared. Zero critical findings.",
+      "type": "milestone"
+    }
   ]
 }

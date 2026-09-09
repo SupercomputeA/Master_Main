@@ -29,8 +29,8 @@ knowledgeGraph:
     - id: knight
       label: KNIGHT
       type: agent
-    - id: scom
-      label: $SCOM Token
+    - id: quanta
+      label: $QUANTA Token
       type: token
   edges:
     - from: supercompute
@@ -46,7 +46,7 @@ knowledgeGraph:
       to: knight
       label: operates
     - from: supercompute
-      to: scom
+      to: quanta
       label: issues
 ---
 
@@ -54,6 +54,6 @@ After years of building in public, Supercompute launches its unified platform. T
 
 The fleet includes Quanta S (agent operations), OpenClaw (yield aggregation), KNIGHT (infrastructure monitoring), and ten more specialized agents. Every project has its own token, its own agent, and its own mission.
 
-Phase 1 is live now. Members can access the full ecosystem with $SCOM tokens. School modules are free. NewsDesk is publishing daily. TradeDesk is in beta.
+Phase 1 is live now. Members can access the full ecosystem with $QUANTA tokens. School modules are free. NewsDesk is publishing daily. TradeDesk is in beta.
 
 This is just the beginning.

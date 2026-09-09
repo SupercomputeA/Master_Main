@@ -1,0 +1,50 @@
+{
+  "moduleId": "ID-01",
+  "title": "On-Chain Identity",
+  "subtitle": "ENS, SBTs, and Decentralized Identity",
+  "description": "Build identity systems on-chain \u2014 ENS names, soul-bound tokens, attestations, and decentralized identifiers. Self-sovereign identity for Web3.",
+  "difficulty": "Intermediate",
+  "access": "free",
+  "duration": "2.5 hours",
+  "credential": "",
+  "icon": "\ud83e\udeaa",
+  "color": "#5bc0be",
+  "done": true,
+  "lessons": [
+    {
+      "id": "ID-01-01",
+      "title": "ENS Deep Dive",
+      "description": "How Ethereum Name Service works \u2014 registration, resolution, and records.",
+      "duration": "25 min",
+      "topics": "ENS, Namehash, Resolution, Reverse records"
+    },
+    {
+      "id": "ID-01-02",
+      "title": "Decentralized Identifiers",
+      "description": "DIDs, verifiable credentials, and self-sovereign identity standards.",
+      "duration": "30 min",
+      "topics": "DIDs, W3C VC, Self-sovereign identity, Attestations"
+    },
+    {
+      "id": "ID-01-03",
+      "title": "Soul-Bound Identity",
+      "description": "Using non-transferable tokens for persistent on-chain identity.",
+      "duration": "25 min",
+      "topics": "SBTs, Identity tokens, Reputation, Attestation schema"
+    },
+    {
+      "id": "ID-01-04",
+      "title": "Sign-In with Ethereum (SIWE)",
+      "description": "How SIWE works \u2014 message format, verification, and session management.",
+      "duration": "30 min",
+      "topics": "SIWE, Message signing, Session management, Nonce verification"
+    },
+    {
+      "id": "ID-01-05",
+      "title": "Identity for Agents",
+      "description": "Giving AI agents on-chain identity \u2014 wallets, signing, and reputation.",
+      "duration": "20 min",
+      "topics": "Agent wallets, Delegated signing, Agent identity, Reputation"
+    }
+  ]
+}

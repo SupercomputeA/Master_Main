@@ -74,8 +74,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const connect = useCallback(() => {
+    // Try injected first, fall back to first available connector
     const injectedConn = connectors.find(c => c.id === "injected")
-    if (injectedConn) wagmiConnect({ connector: injectedConn })
+    const target = injectedConn || connectors[0]
+    if (target) wagmiConnect({ connector: target })
   }, [wagmiConnect, connectors])
 
   const disconnect = useCallback(() => {

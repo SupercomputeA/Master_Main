@@ -1,5 +1,5 @@
 import type { GetStaticProps } from "next"
-import Layout from "../../components/Layout"
+import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 import Link from "next/link"
 import { getAllProjects, type Project } from "../../lib/content"
@@ -11,14 +11,14 @@ export const getStaticProps: GetStaticProps = async () => {
 
 export default function ProjectBrowse({ projects }: { projects: Project[] }) {
   return (
-    <Layout title="SUPERCOMPUTE · Projects">
+    <PublicLayout title="SUPERCOMPUTE · Projects">
       <section className="hero" id="projects">
         <div className="hero-kicker">
           <div className="status-dot" />
           <span className="label">// projects</span>
         </div>
         <h1 className="display-xl hero-title">ECOSYSTEM<br /><em>PROJECTS</em></h1>
-        <p className="hero-sub">Browse the Supercompute ecosystem — each project has its own token, agent, and on-chain milestones.</p>
+        <p className="hero-sub">Browse the Supercompute ecosystem — protocols, tools, agents, and public-good infrastructure, each tracked in the open.</p>
       </section>
 
       <section className="section">
@@ -50,17 +50,10 @@ export default function ProjectBrowse({ projects }: { projects: Project[] }) {
                   </div>
                   <div style={{ display: "flex", gap: 12, marginBottom: 14, fontFamily: "var(--font-mono)", fontSize: 9 }}>
                     <span style={{ color: "var(--teal)" }}>// {p.status}</span>
-                    <span style={{ color: "var(--muted)" }}>{p.agents || 0} agent{(p.agents || 0) === 1 ? "" : "s"}</span>
-                    {p.tvl && <span style={{ color: "var(--accent)" }}>{p.tvl}</span>}
-                  </div>
-                  <div style={{ marginBottom: 12 }}>
-                    <div style={{ height: 3, background: "var(--border)", overflow: "hidden" }}>
-                      <div style={{ width: `${p.progress || 0}%`, height: "100%", background: "var(--accent)" }} />
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", marginTop: 4 }}>
-                      <span>${(p.raised || 0).toLocaleString()}</span>
-                      <span>{p.progress || 0}% · {p.investors || 0} investors</span>
-                    </div>
+                    {p.agents > 0 && (
+                      <span style={{ color: "var(--muted)" }}>{p.agents} agent{p.agents === 1 ? "" : "s"}</span>
+                    )}
+                    {p.tokenSymbol && <span style={{ color: "var(--muted)" }}>pre-TGE</span>}
                   </div>
                   <Link href={`/projects/${p.slug}`} className="btn-connect" style={{ fontSize: 10, padding: "6px 14px", textDecoration: "none" }}>View Details →</Link>
                 </div>
@@ -71,6 +64,6 @@ export default function ProjectBrowse({ projects }: { projects: Project[] }) {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

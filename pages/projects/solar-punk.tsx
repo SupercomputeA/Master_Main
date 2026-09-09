@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic"
-import Layout from "../../components/Layout"
+import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 
 const FarcasterFeed = dynamic(() => import("../../components/FarcasterFeed"), { ssr: false })
@@ -8,8 +8,8 @@ const features = [
   {
     id: "token",
     label: "Custom Token",
-    title: "$QUANTA · $SCOM",
-    desc: "Dual-token economy. $QUANTA governs the ecosystem. $SCOM gates access to School, TradeDesk, and agent API — staked for security, earned for participation.",
+    title: "$QUANTA · SolarPunk",
+    desc: "Dual-token economy. $QUANTA governs the ecosystem. SolarPunk tokens gate access to School, TradeDesk, and agent API — staked for security, earned for participation.",
     tag: "LIVE",
     color: "var(--accent)",
   },
@@ -25,7 +25,7 @@ const features = [
     id: "staking",
     label: "Staking + Security",
     title: "Community Staking",
-    desc: "Time-locked staking with escalating rewards. Lock $SCOM for 30/90/180 days to secure the network, earn yield, and unlock tiered access. Penalty-based early withdrawal.",
+    desc: "Time-locked staking with escalating rewards. Lock SolarPunk tokens for 30/90/180 days to secure the network, earn yield, and unlock tiered access. Penalty-based early withdrawal.",
     tag: "LIVE",
     color: "var(--accent)",
   },
@@ -76,7 +76,7 @@ const features = [
 
 export default function SolarPunk() {
   return (
-    <Layout title="SUPERCOMPUTE · Solar Punk">
+    <PublicLayout title="SUPERCOMPUTE · Solar Punk">
       <section className="hero" style={{
         position: "relative",
         overflow: "hidden",
@@ -282,6 +282,6 @@ export default function SolarPunk() {
       </section>
 
       <Footer />
-    </Layout>
+    </PublicLayout>
   )
 }

@@ -1,0 +1,28 @@
+{
+  "slug": "presence",
+  "title": "Presence",
+  "tagline": "Open-source, gasless proof of existence and experience",
+  "description": "Presence (PRSN) is the open, EAS-native replacement for proof-of-attendance badges — built in public by the Supercompute fleet, staged behind check-in gates, and licensed MIT so no company can ever take attendance away again. Legacy POAP is winding down; Presence keeps the proof on infrastructure everyone owns.",
+  "category": "Public Good",
+  "status": "Building",
+  "chain": "Base",
+  "agents": 0,
+  "tokenSymbol": "",
+  "tokenName": "",
+  "tokenAddress": "",
+  "tokenPrice": "",
+  "tvl": "",
+  "goal": 0,
+  "raised": 0,
+  "investors": 0,
+  "progress": 0,
+  "scomRequired": 0,
+  "updates": [
+    {
+      "from": "Admin",
+      "date": "2026-09-09T00:00:00.000Z",
+      "text": "Presence kicked off — Phase 1 (contracts & schemas) first at the check-in gate. Testnet first on Base Sepolia; no fund or payment features in v1.",
+      "type": "milestone"
+    }
+  ]
+}

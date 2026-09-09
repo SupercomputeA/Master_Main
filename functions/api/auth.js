@@ -76,53 +76,52 @@ async function recordFailedAttempt(env, address) {
 }
 
 // ── ENS Resolution ───────────────────────────────────────────────────────────
-const ENS_RESOLVER = '0x231b0ee14048e9dccd1d247744d114a4eb5e8e63';
-const ADDR_SELECTOR = '3b3b57de'; // addr(bytes32)
+// Node's `crypto.createHash('sha3-256')` is NIST SHA-3, NOT Ethereum's Keccak-256.
+// The previous local implementation produced garbage hashes, breaking the
+// `isAdmin` ENS-name path. viem ships a battle-tested keccak256 implementation.
+import { namehash as viemNamehash } from 'viem/ens';
+
+function namehashEncode(name) {
+  return viemNamehash(name).slice(2); // strip 0x
+}
 
 async function resolveENS(addressOrName) {
   // Already an address
   if (addressOrName.startsWith('0x') && addressOrName.length === 42) {
     return addressOrName.toLowerCase();
   }
-  // ENS name — resolve via public Ethereum RPC
+  // ENS name — resolve via public Ethereum RPC (eth_call to ENS resolver),
+  // trying multiple RPCs in order (publicnode blocks Workers egress).
   const namehash = namehashEncode(addressOrName);
-  const data = ADDR_SELECTOR + namehash;
-  try {
-    const res = await fetch('https://ethereum.publicnode.com', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'eth_call',
-        params: [{ to: ENS_RESOLVER, data }, 'latest'],
-        id: 1,
-      }),
-    });
-    const json = await res.json();
-    const result = json.result || '0x';
-    if (result !== '0x' && result.length === 66) {
-      return '0x' + result.slice(-40);
-    }
-  } catch (e) { /* fall through */ }
+  const data = '0x' + ADDR_SELECTOR + namehash;
+  const ETH_RPCS = [
+    'https://ethereum-rpc.publicnode.com',
+    'https://ethereum.publicnode.com',
+    'https://cloudflare-eth.com',
+    'https://eth.llamarpc.com',
+    'https://1rpc.io/eth',
+  ];
+  for (const rpc of ETH_RPCS) {
+    try {
+      const res = await fetch(rpc, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_call',
+          params: [{ to: ENS_RESOLVER, data }, 'latest'],
+          id: 1,
+        }),
+      });
+      const json = await res.json();
+      const result = json.result || '0x';
+      if (result !== '0x' && result.length === 66) {
+        return '0x' + result.slice(-40);
+      }
+    } catch (e) { /* try next RPC */ }
+  }
   return null;
 }
-
-function namehashEncode(name) {
-  const labels = name.split('.').filter(Boolean);
-  let node = new Uint8Array(32);
-  const crypto = require('crypto');
-  for (let i = labels.length - 1; i >= 0; i--) {
-    const labelBytes = new TextEncoder().encode(labels[i]);
-    const data = new Uint8Array(32 + 1 + labelBytes.length);
-    data.set(node, 0);
-    data[32] = labelBytes.length;
-    data.set(labelBytes, 33);
-    const hash = crypto.createHash('sha3-256').update(Buffer.from(data)).digest();
-    node = new Uint8Array(hash);
-  }
-  return Array.from(node).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
 // ── Auth checks ─────────────────────────────────────────────────────────────
 async function isAdmin(env, wallet) {
   if (!env?.DB) return false;
@@ -170,8 +169,16 @@ export async function onRequest({ request, env }) {
   let allowedOrigin = 'https://supercompute.io';
   if (reqOrigin) {
     try {
-      const host = new URL(reqOrigin).hostname;
-      const allowed = host === 'supercompute.io' || host === 'supercompute.pages.dev' || host === 'localhost' || host === '127.0.0.1' || host.endsWith('.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app');
+      const u = new URL(reqOrigin);
+      const host = u.hostname;
+      const devHost = host === 'localhost' || host === '127.0.0.1';
+      // Only exact owned HTTPS origins are reflected; no wildcard *.pages.dev
+      // (would reflect attacker.pages.dev). Preview branches are
+      // <branch>.supercompute.pages.dev, covered by the owned suffix below.
+      const httpsOk = u.protocol === 'https:' && (u.port === '' || u.port === '443');
+      const allowed =
+        (httpsOk && (host === 'supercompute.io' || host === 'staging.supercompute.io' || host === 'supercompute.pages.dev' || host.endsWith('.supercompute.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app'))) ||
+        devHost; // local dev servers run over http on arbitrary ports
       if (allowed) allowedOrigin = reqOrigin;
     } catch {}
   }
@@ -208,76 +215,11 @@ export async function onRequest({ request, env }) {
     return j({ message });
   }
 
-  // POST /api/auth/login
-  if (method === 'POST' && path === '/login') {
-    const body = await request.json().catch(() => ({}));
-    const { address, signature, nonce } = body;
+  // POST /api/auth/login — handled by auth/login.js (directory file takes priority)
+  // The catchall below is dead code kept only for reference; it will never run
+  // because Cloudflare Pages routes /api/auth/login to auth/login.js.
 
-    if (!address || !signature) return j({ error: 'address and signature required' }, 400);
-
-    const wallet = address.toLowerCase();
-    if (!isValidAddress(wallet)) return j({ error: 'Invalid address' }, 400);
-
-    // Rate limit
-    if (env?.CACHE) {
-      const rl = await checkRateLimit(env, wallet);
-      if (!rl.allowed) {
-        return new Response(JSON.stringify({ error: 'Too many login attempts', retryAfter: rl.resetIn }), {
-          status: 429, headers: { ...cors, 'Content-Type': 'application/json', 'Retry-After': String(rl.resetIn) },
-        });
-      }
-    }
-
-    // Signature format validation (65 bytes for personal_sign)
-    const sigBytes = typeof signature === 'string' ? hexToBytes(signature) : signature;
-    if (!sigBytes || sigBytes.length !== 65) {
-      if (env?.CACHE) await recordFailedAttempt(env, wallet);
-      return j({ error: 'Invalid signature format' }, 400);
-    }
-    const v = sigBytes[64];
-    if (v !== 27 && v !== 28 && v !== 31 && v !== 32) {
-      if (env?.CACHE) await recordFailedAttempt(env, wallet);
-      return j({ error: 'Invalid signature v value' }, 400);
-    }
-
-    // Consume nonce
-    if (env?.CACHE && nonce) await env.CACHE.delete(`siwe:nonce:${nonce}`);
-
-    // Create session
-    const sessionId = generateNonce();
-    const sessionExpiry = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;
-    if (env?.DB) {
-      await env.DB.prepare(`
-        INSERT OR REPLACE INTO sessions (id, wallet_address, expires_at)
-        VALUES (?, ?, ?)
-      `).bind(sessionId, wallet, sessionExpiry).run();
-    }
-
-    // Check admin
-    const admin = await isAdmin(env, wallet);
-
-    // Upsert user
-    if (env?.DB) {
-      const existing = await env.DB.prepare('SELECT * FROM users WHERE wallet_address = ?').bind(wallet).first();
-      if (!existing) {
-        await env.DB.prepare('INSERT INTO users (id, wallet_address, name, role) VALUES (?, ?, ?, ?)')
-          .bind(generateNonce(), wallet, formatAddress(wallet), admin ? 'admin' : 'user').run();
-      }
-    }
-
-    return j({
-      success: true,
-      session: sessionId,
-      user: {
-        id: wallet,
-        name: formatAddress(wallet),
-        address: wallet,
-        role: admin ? 'admin' : 'user',
-      },
-    });
-  }
-
-  // GET /api/auth/profile
+  // GET /api/auth/profile — handled by auth/profile.js
   if (method === 'GET' && path === '/profile') {
     const { valid, wallet } = await verifySession(env, request.headers.get('Authorization'));
     if (!valid) return j({ user: null });
@@ -311,4 +253,4 @@ export async function onRequest({ request, env }) {
   });
 }
 
-export { verifySession, isAdmin, generateNonce, json, hexToBytes, isValidAddress };
+export { verifySession, isAdmin, generateNonce, json, hexToBytes, isValidAddress, resolveENS };

@@ -1,0 +1,57 @@
+{
+  "moduleId": "DA-01",
+  "title": "Data & Analytics On-Chain",
+  "subtitle": "Reading the Blockchain Like a Database",
+  "description": "Query, analyze, and visualize on-chain data. Learn to use Dune, The Graph, and direct RPC calls to extract insights from smart contract events and state.",
+  "difficulty": "Intermediate",
+  "access": "free",
+  "duration": "3.5 hours",
+  "credential": "",
+  "icon": "\ud83d\udcca",
+  "color": "#6FA3E5",
+  "done": true,
+  "lessons": [
+    {
+      "id": "DA-01-01",
+      "title": "Reading Blockchain Data",
+      "description": "Blocks, transactions, logs, and events \u2014 the raw data layer of EVM chains.",
+      "duration": "25 min",
+      "topics": "Blocks, Transactions, Logs, Events, ABI decoding"
+    },
+    {
+      "id": "DA-01-02",
+      "title": "Dune Analytics",
+      "description": "Writing SQL queries against on-chain data with Dune.",
+      "duration": "35 min",
+      "topics": "Dune, SQL, Dashboards, Data tables"
+    },
+    {
+      "id": "DA-01-03",
+      "title": "The Graph Protocol",
+      "description": "Indexing smart contract data with subgraphs for fast querying.",
+      "duration": "30 min",
+      "topics": "Subgraphs, GraphQL, Indexing, Entity mapping"
+    },
+    {
+      "id": "DA-01-04",
+      "title": "Direct RPC Queries",
+      "description": "Using eth_call, eth_getLogs, and batch requests for custom data extraction.",
+      "duration": "30 min",
+      "topics": "eth_call, eth_getLogs, Batch requests, Multicall"
+    },
+    {
+      "id": "DA-01-05",
+      "title": "Token Analytics",
+      "description": "Tracking transfers, holders, volume, and liquidity for ERC-20 tokens.",
+      "duration": "25 min",
+      "topics": "Transfer events, Holder counts, Volume tracking, Pool analytics"
+    },
+    {
+      "id": "DA-01-06",
+      "title": "Building Dashboards",
+      "description": "Create real-time dashboards for protocol metrics using on-chain data.",
+      "duration": "30 min",
+      "topics": "Dashboard design, Real-time data, Visualization, Alerting"
+    }
+  ]
+}

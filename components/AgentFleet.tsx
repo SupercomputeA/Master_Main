@@ -1,9 +1,11 @@
 const agents = [
-  { name: "Hermescommand", role: "coordinator · Hermes Workspace", status: "online", desc: "Local fleet conductor inside Hermes Workspace. Routes work between agents, surfaces Kanban status, fans out to Quanta/KNIGHT/OpenClaw as needed." },
-  { name: "OpenClaw", role: "infrastructure · primary operator", status: "online", desc: "Browser automation. Social posting (X, Lens, FarFarster), web research, Linear ticket updates, task execution. The one that types." },
-  { name: "Quanta S", role: "newsdesk · intelligence", status: "online", desc: "Sovereign content agent. On-chain identity via Virtuals Protocol. Drafts NewsDesk articles, monitors on-chain signals, cross-posts." },
+  { name: "Hermes", role: "coordinator · command", status: "online", desc: "Local fleet conductor. Routes work between agents, surfaces Kanban status, fans out to Quanta/KNIGHT/OpenClaw as needed." },
+  { name: "OpenClaw", role: "infrastructure · primary operator", status: "online", desc: "Browser automation. Social posting (X, Lens, FarFarster), web research, Linear ticket updates, task execution." },
+  { name: "Quanta", role: "newsdesk · intelligence", status: "online", desc: "Sovereign content agent. On-chain identity via Virtuals Protocol. Drafts NewsDesk articles, monitors on-chain signals, cross-posts." },
   { name: "KNIGHT", role: "tradedesk · analytics", status: "observer", desc: "Trading agent on Conway Terminal. Observer mode — monitors CDP positions, Polymarket opportunities, treasury. Monitors 24/7." },
 ]
+
+const UNK = { color: "#ef4444" } as const
 
 export default function AgentFleet() {
   return (
@@ -14,19 +16,19 @@ export default function AgentFleet() {
       </div>
       <div className="fleet-summary">
         <div className="fleet-stat">
-          <div className="fleet-stat-num accent">4</div>
+          <div className="fleet-stat-num accent">3</div>
           <div className="op-stat-label">Active</div>
         </div>
         <div className="fleet-stat">
-          <div className="fleet-stat-num">2</div>
+          <div className="fleet-stat-num accent">1</div>
           <div className="op-stat-label">Observer</div>
         </div>
         <div className="fleet-stat">
-          <div className="fleet-stat-num">4</div>
+          <div className="fleet-stat-num" style={{ color: UNK.color }}>—</div>
           <div className="op-stat-label">Dev</div>
         </div>
         <div className="fleet-stat">
-          <div className="fleet-stat-num">3</div>
+          <div className="fleet-stat-num" style={{ color: UNK.color }}>—</div>
           <div className="op-stat-label">Queued</div>
         </div>
       </div>

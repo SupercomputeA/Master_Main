@@ -20,8 +20,8 @@ knowledgeGraph:
     - id: ipfs
       label: IPFS
       type: concept
-    - id: scom
-      label: $SCOM Gate
+    - id: quanta
+      label: $QUANTA Gate
       type: token
     - id: eval
       label: Protocol Evaluations
@@ -34,7 +34,7 @@ knowledgeGraph:
       to: ipfs
       label: content stored on
     - from: newsdesk
-      to: scom
+      to: quanta
       label: gated by
     - from: newsdesk
       to: eval
@@ -48,4 +48,4 @@ NewsDesk launches today as Supercompute's publishing arm. We produce protocol ev
 
 Each article is timestamped and content-addressed on IPFS, creating an immutable record. Protocol evaluations include risk scores, audit histories, and actionable recommendations for the Supercompute treasury.
 
-Subscriber-only content is gated by $SCOM token holdings. Protocol evaluations require a minimum of 500 $SCOM.
+Subscriber-only content is gated by $QUANTA token holdings. Protocol evaluations require a minimum of 500 $QUANTA.

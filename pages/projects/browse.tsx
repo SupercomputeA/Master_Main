@@ -18,7 +18,7 @@ export default function ProjectBrowse({ projects }: { projects: Project[] }) {
           <span className="label">// projects</span>
         </div>
         <h1 className="display-xl hero-title">ECOSYSTEM<br /><em>PROJECTS</em></h1>
-        <p className="hero-sub">Browse the Supercompute ecosystem — each project has its own token, agent, and on-chain milestones.</p>
+        <p className="hero-sub">Browse the Supercompute ecosystem — protocols, tools, agents, and public-good infrastructure, each tracked in the open.</p>
       </section>
 
       <section className="section">
@@ -50,8 +50,10 @@ export default function ProjectBrowse({ projects }: { projects: Project[] }) {
                   </div>
                   <div style={{ display: "flex", gap: 12, marginBottom: 14, fontFamily: "var(--font-mono)", fontSize: 9 }}>
                     <span style={{ color: "var(--teal)" }}>// {p.status}</span>
-                    <span style={{ color: "var(--muted)" }}>{p.agents || 0} agent{(p.agents || 0) === 1 ? "" : "s"}</span>
-                    <span style={{ color: "var(--muted)" }}>pre-TGE</span>
+                    {p.agents > 0 && (
+                      <span style={{ color: "var(--muted)" }}>{p.agents} agent{p.agents === 1 ? "" : "s"}</span>
+                    )}
+                    {p.tokenSymbol && <span style={{ color: "var(--muted)" }}>pre-TGE</span>}
                   </div>
                   <Link href={`/projects/${p.slug}`} className="btn-connect" style={{ fontSize: 10, padding: "6px 14px", textDecoration: "none" }}>View Details →</Link>
                 </div>

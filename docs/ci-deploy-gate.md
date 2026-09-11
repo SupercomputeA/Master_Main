@@ -53,3 +53,24 @@ shipped under two green runs. Check the artifact:
 curl -s https://supercompute.io/ | grep -o 'supercompute build [0-9a-f]*'
 git rev-parse origin/main   # the two should agree after a merge
 ```
+
+## Election: `gate` (added after the first version of this gate failed live)
+
+`gate` runs `needs: validate` on the same refs and **outside** the deploy concurrency
+group. It compares `$GITHUB_SHA` with the tip of the run's own branch and publishes
+`deploy=true|false`; the `deploy` job is `needs: [validate, gate]` and only runs when
+that output is `true`. A manual re-run (`run_attempt > 1`) always passes.
+
+Why it exists: GitHub cancels a *pending* job when a newer arrival joins the same
+concurrency group, and it has no notion of commit order. On 2026-09-11 the first
+version of this fix (concurrency + in-job re-check) was verified live and did this:
+
+- merge A (older) at `21:40:47Z`, merge B (newer) at `21:40:50Z`;
+- B's deploy job queued at `21:43:07Z`, A's queued 5s later → **B was cancelled**;
+- A then ran, saw it had been superseded, and correctly skipped — so nothing deployed
+  and production kept an older build.
+
+Keeping non-tip runs out of the group removes the contention entirely: the only jobs
+that ever enter it are tip commits, so entrants are commit-ordered and the newest
+commit is always the last to write the alias. (It also skips a ~4 minute build for
+runs that would only skip at the end.)

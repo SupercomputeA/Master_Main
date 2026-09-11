@@ -15,7 +15,7 @@
     "db:create": "wrangler d1 create supercompute",
     "db:push": "wrangler d1 execute supercompute --local --file=./schema.sql",
     "db:push:prod": "wrangler d1 execute supercompute --file=./schema.sql --env production",
-    "test": "node --test tests/auth/login.test.js",
+    "test": "node --test \"tests/**/*.test.js\"",
     "test:security-headers": "node --test tests/csp/functions-security-headers.test.mjs",
     "test:csp": "node --test tests/csp/csp-report.test.mjs tests/csp/inline-scripts.test.mjs tests/csp/analytics-beacon.test.mjs",
     "test:cors": "node --test tests/security/cors-origins.test.mjs",

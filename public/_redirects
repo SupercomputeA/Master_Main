@@ -36,5 +36,13 @@
 /app/article/kg/*         /app/article/kg/[id]         200
 /app/publishing/*/edit    /app/publishing/[id]/edit    200
 
+# Marketplace listing detail — /project/[id] is a statically exported shell that reads the
+# listing id from the client router and fetches /api/marketplace?id=<id>. Because the site
+# uses `output: "export"`, only the literal /project/[id] asset exists, so a real id
+# (/project/abc123) must be mapped onto that shell here. Without this rule every
+# "View listing" link rendered by /marketplace 404s on production.
+# Must come BEFORE the /* SPA catch-all.
+/project/*    /project/[id]    200
+
 # SPA fallback — route all remaining non-file, non-API 404s to index.html
 /*    /index.html   200

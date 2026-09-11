@@ -1,13 +1,50 @@
 # SUPERCOMPUTE — Cloudflare Pages headers
 # Static export output (public/ -> out/ on build).
-# NOTE: COEP require-corp was previously declared but never applied (missing
-# path section). Intentionally NOT re-added: it would block cross-origin
-# images/media that lack CORP headers. COOP same-origin kept (no render impact).
+#
+# CLOUDFLARE SYNTAX: headers only apply inside a path section. A block with no
+# path line ("/*" or "/path") is silently ignored — the previous revision of this
+# file was written that way, so none of it ever reached a browser. Everything in
+# the /* section below is therefore in effect for the FIRST time. Treat it as a
+# fresh rollout, not a tweak.
+#
+# COEP require-corp was declared in that dead block and is intentionally NOT
+# re-added: it would block cross-origin images/media that lack CORP headers.
+#
+# CSP <-> transport invariant (kept honest in BOTH directions):
+#   Browser-side RPC transports are defined in lib/web3.ts and every one of them
+#   MUST be listed in connect-src below:
+#     base    -> https://mainnet.base.org   (viem's Base default)
+#     mainnet -> https://eth.drpc.org
+#   Both are pinned explicitly in lib/web3.ts so this stays a static mapping. A
+#   bare http() would resolve to chain.rpcUrls.default.http[0] at request time:
+#   for mainnet that is https://eth.merkle.io, which 429s (Cloudflare error 1015)
+#   under ordinary traffic, so mainnet is pinned to a host that answers reads.
+#
+#   The other mainnet RPC hosts in the repo (functions/api/auth.js,
+#   functions/api/web3/[[catchall]].js, functions/api/token.js) are Cloudflare
+#   Pages Functions: server-side, where CSP does not apply. They deliberately do
+#   NOT appear here — listing a host the browser never contacts makes the policy
+#   lie about its own trust surface, and none of them work from a browser anyway
+#   (llamarpc/publicnode fail the TLS handshake, cloudflare-eth.com cannot serve
+#   eth_blockNumber). Adding a browser-side read against any of them requires
+#   adding it below first.
+#
+# COOP: same-origin is in effect for the first time. No live impact today — the
+# only window.open() is components/FiatRamp.tsx:62, which already passes
+# "noopener", and the WalletConnect modal is an iframe. If a popup-based flow is
+# ever added (OAuth / social login / Coinbase), COOP MUST become
+# same-origin-allow-popups or that popup loses window.opener.
+#
+# X-Frame-Options is SAMEORIGIN, aligned with frame-ancestors 'self'. It was DENY,
+# which contradicted the CSP: modern browsers honour frame-ancestors and ignore
+# XFO, older ones let DENY win — so same-origin framing silently broke on older
+# browsers. SAMEORIGIN keeps the legacy clickjacking protection and agrees with
+# the CSP instead of removing the header.
 
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://fonts.gstatic.com https://mainnet.base.org https://eth.llamarpc.com https://ethereum-rpc.publicnode.com https://cloudflare-eth.com https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://fonts.gstatic.com https://mainnet.base.org https://eth.drpc.org https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
   X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
+  X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin
   Cross-Origin-Opener-Policy: same-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()

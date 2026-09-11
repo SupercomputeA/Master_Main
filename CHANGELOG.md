@@ -17,6 +17,11 @@ its own versions over there.
   commit was the older one — prod silently regressed to the previous build
   (t_7998fe88). Exported HTML now carries a `supercompute build <sha>` provenance
   comment, so the live body names the commit that produced it.
+- CI: a `gate` job now elects which run may enter the deploy lane. It runs outside the
+  deploy concurrency group on purpose: GitHub cancels a *pending* job when a newer
+  arrival joins a group and it cannot see commit order, so a stale run's arrival could
+  cancel the newest run's pending deploy. Only branch-tip commits get through, which
+  keeps entrants in commit order (t_7998fe88).
 
 ## [1.1.0] — 2026-05-28
 

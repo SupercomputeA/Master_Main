@@ -15,7 +15,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { checkExport, readScriptSrc, report, scanHtml, scriptSrcAllowsOrigin } from "../../scripts/check-inline-scripts.mjs";
+import { checkExport, decodeCharRefs, readScriptSrc, refreshUrl, report, scanHtml, scriptSrcAllowsOrigin, urlSchemeOf } from "../../scripts/check-inline-scripts.mjs";
 
 const quiet = { stdout: () => {} };
 
@@ -329,6 +329,327 @@ test("scriptSrcAllowsOrigin reads the host-source grammar", () => {
   assert.equal(scriptSrcAllowsOrigin(cdn, "script-src *.cdn.example.com"), false, "a wildcard does not cover the apex");
   assert.equal(scriptSrcAllowsOrigin(cdn, "script-src 'self' http:"), false, "wrong scheme");
   assert.equal(scriptSrcAllowsOrigin(cdn, null), null, "no policy shipped => nothing to judge");
+});
+
+/* ------------------------- attribute-carried execution surfaces ------------- */
+
+/**
+ * `iframe srcdoc` — an `about:srcdoc` document inherits the parent's policy
+ * container, so an inline script inside the attribute is CSP-blocked exactly
+ * like a top-level one. Browser-verified (Chrome, `script-src 'self'`, with a
+ * `securitypolicyviolation` listener and an image beacon proving non-execution):
+ * the srcdoc-internal script fired `script-src-elem`/`inline` and never ran, an
+ * inline handler inside it fired `script-src-attr`, and a same-origin
+ * `<script src>` inside it DID load (so the document is governed, not dropped).
+ */
+test("fails on an executable inline script inside an iframe srcdoc — the card's case", () => {
+  const dir = fixture({ "index.html": PAGE(DATA_BLOCK, `<iframe srcdoc='<script>alert(1)</script>'></iframe>`) });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false, "a srcdoc-carried inline script is blocked by script-src 'self' in production");
+  assert.equal(res.violations.length, 1);
+  assert.equal(res.violations[0].kind, "executable-inline-script");
+  assert.match(res.violations[0].detail, /srcdoc/);
+  assert.equal(res.violations[0].line, 1, "the finding points at the attribute in the outer document");
+  assert.equal(res.totals.srcdocDocuments, 1);
+});
+
+test("fails on an inline handler inside an iframe srcdoc", () => {
+  const dir = fixture({ "index.html": PAGE(DATA_BLOCK, `<iframe srcdoc='<img src="x" onerror="alert(1)">'></iframe>`) });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false);
+  assert.equal(res.violations[0].kind, "inline-event-handler");
+  assert.equal(res.totals.inlineHandlers, 1);
+});
+
+test("merges a srcdoc document's counters and does not flag inert markup (negative control)", () => {
+  const dir = fixture({
+    "index.html": PAGE(DATA_BLOCK, `<iframe srcdoc='<script src="/child.js"></script><p>inert</p>'></iframe>`),
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, true, "a same-origin external script inside srcdoc is allowed by 'self'");
+  assert.equal(res.violations.length, 0);
+  assert.equal(res.totals.srcdocDocuments, 1);
+  assert.equal(res.totals.sameOriginScripts, 1);
+  assert.equal(res.totals.inlineScripts, 1, "only the outer __NEXT_DATA__ data block");
+});
+
+test("fails on a srcdoc nested inside a srcdoc (recursion)", () => {
+  const dir = fixture({
+    "index.html": PAGE(
+      DATA_BLOCK,
+      `<iframe srcdoc="<iframe srcdoc='<script>alert(1)</script>'></iframe>"></iframe>`,
+    ),
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false, "each nested about:srcdoc document inherits the policy in turn");
+  assert.equal(res.violations[0].kind, "executable-inline-script");
+  assert.equal(res.totals.srcdocDocuments, 2);
+});
+
+test("fails loudly when srcdoc nesting exceeds the scanner's depth cap", () => {
+  // Entity-escaped per level, the way a serializer does it — which is also the
+  // only way to nest more than two levels in real markup.
+  const escapeAttr = (s) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  let body = "<script>alert(1)</script>";
+  for (let i = 0; i < 6; i++) body = `<iframe srcdoc="${escapeAttr(body)}"></iframe>`;
+  const dir = fixture({ "index.html": PAGE(DATA_BLOCK, body) });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false, "markup the scanner cannot follow must not pass silently");
+  assert.ok(res.violations.some((f) => f.kind === "srcdoc-nesting-depth"), JSON.stringify(res.violations));
+});
+
+/**
+ * The entity-escaped form, which is what a React/JSX build actually emits for
+ * `srcdoc={html}`. Browser-verified: the srcdoc document decoded it into a real
+ * inline script and blocked it (`script-src-elem`), the escaped handler fired
+ * `script-src-attr`, and no beacon for either ever arrived — while the escaped
+ * same-origin `<script src>` next to them DID load.
+ */
+test("fails on an entity-escaped srcdoc script — the shape a React export emits", () => {
+  const dir = fixture({
+    "index.html": PAGE(
+      DATA_BLOCK,
+      `<iframe srcdoc="&lt;script src=&quot;/child.js&quot;&gt;&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;img src=x onerror=&quot;alert(2)&quot;&gt;"></iframe>`,
+    ),
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false, "the browser decodes the attribute value into a real inline script");
+  assert.deepEqual(
+    res.violations.map((f) => f.kind).sort(),
+    ["executable-inline-script", "inline-event-handler"],
+    JSON.stringify(res.violations),
+  );
+  assert.equal(res.totals.sameOriginScripts, 1, "the escaped same-origin src inside the srcdoc is counted");
+});
+
+test("fails on an entity-escaped srcdoc nested inside an escaped srcdoc", () => {
+  const dir = fixture({
+    "index.html": PAGE(
+      DATA_BLOCK,
+      `<iframe srcdoc="&lt;iframe srcdoc=&quot;&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;&quot;&gt;&lt;/iframe&gt;"></iframe>`,
+    ),
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false, "each level decodes once, exactly like the tokenizer");
+  assert.equal(res.violations[0].kind, "executable-inline-script");
+  assert.equal(res.totals.srcdocDocuments, 2);
+});
+
+test("passes on a srcdoc escaped twice — that is text, not markup (negative control)", () => {
+  const dir = fixture({
+    "index.html": PAGE(DATA_BLOCK, `<iframe srcdoc="&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;"></iframe>`),
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, true, "one decode leaves '&lt;script&gt;' as literal text in the srcdoc document");
+  assert.equal(res.violations.length, 0);
+  assert.equal(res.totals.srcdocDocuments, 1);
+});
+
+test("does not flag a sandboxed srcdoc that cannot execute scripts (inert, browser-verified)", () => {
+  const dir = fixture({
+    "index.html": PAGE(
+      DATA_BLOCK,
+      `<iframe sandbox="allow-same-origin" srcdoc='<script>alert(1)</script>'></iframe>`,
+    ),
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, true, "sandbox without allow-scripts executes nothing and fires no violation");
+  assert.equal(res.totals.inertSrcdoc, 1);
+  assert.equal(res.totals.srcdocDocuments, 0);
+});
+
+test("still flags a sandboxed srcdoc that does allow scripts", () => {
+  const dir = fixture({
+    "index.html": PAGE(DATA_BLOCK, `<iframe sandbox="allow-scripts" srcdoc='<script>alert(1)</script>'></iframe>`),
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false);
+  assert.equal(res.totals.srcdocDocuments, 1);
+  assert.equal(res.totals.inertSrcdoc, 0);
+});
+
+test("judges a cross-origin <script src> inside a srcdoc against the shipped script-src", () => {
+  const dir = fixture({
+    "index.html": PAGE(DATA_BLOCK, `<iframe srcdoc='<script src="https://cdn.example.com/a.js"></script>'></iframe>`),
+    _headers: CSP_SELF,
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false);
+  assert.equal(res.violations[0].kind, "cross-origin-script-src");
+  assert.ok(res.crossOriginHosts.has("cdn.example.com"));
+});
+
+/**
+ * `javascript:` URLs on href/action/formaction. Element-initiated javascript:
+ * execution is a hyperlink traversal or a form submission; the URL is run as
+ * script and refused by the `script-src` inline check. Browser-verified: click
+ * on each of these fired `script-src-elem`/`blockedURI: inline` (forms: shipped
+ * `form-action` first), no beacon ever arrived, and the flag never got set.
+ */
+test("fails on href=javascript: — the card's case", () => {
+  const dir = fixture({ "index.html": PAGE(DATA_BLOCK, `<a href="javascript:alert(1)">x</a>`) });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false);
+  assert.equal(res.violations[0].kind, "javascript-url");
+  assert.equal(res.totals.javascriptUrls, 1);
+});
+
+test("fails on a form action= and a per-button formaction= javascript: URL", () => {
+  const dir = fixture({
+    "index.html": PAGE(
+      DATA_BLOCK,
+      `<form action="javascript:alert(1)"><button formaction="javascript:alert(2)">go</button></form>`,
+    ),
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false);
+  assert.equal(res.violations.length, 2);
+  assert.deepEqual([...new Set(res.violations.map((f) => f.kind))], ["javascript-url"]);
+  assert.equal(res.totals.javascriptUrls, 2);
+});
+
+/**
+ * Every spelling below is one Chrome's URL parser resolved to a `javascript:`
+ * URL (read back from `.href` on the live element), and each was clicked and
+ * confirmed blocked. The scanner reads raw markup, so it has to do the same
+ * character-reference decoding the HTML tokenizer does before the URL parser
+ * ever sees the value.
+ */
+const JAVASCRIPT_URL_SPELLINGS = [
+  "javascript:alert(1)",
+  "JaVaScRiPt:alert(1)",
+  " javascript:alert(1)",
+  "&#9;javascript:alert(1)",
+  "java&#9;script:alert(1)",
+  "&#106;avascript:alert(1)",
+  "javascript&colon;alert(1)",
+  "javascript&#58;alert(1)",
+  "jav&#x61;script:alert(1)",
+  "&Tab;javascript:alert(1)",
+  "javascript&#10;:alert(1)",
+  "jav&#x09;ascript:alert(1)",
+  "&#106avascript:alert(1)",
+  "&#0000106;avascript:alert(1)",
+];
+
+test("fails on every javascript: spelling Chrome resolves to one", () => {
+  for (const spelling of JAVASCRIPT_URL_SPELLINGS) {
+    const dir = fixture({ "index.html": PAGE(DATA_BLOCK, `<a href="${spelling}">x</a>`) });
+    const { res, ok } = run(dir);
+    assert.equal(ok, false, `href="${spelling}" is a javascript: URL and must fail`);
+    assert.equal(res.violations[0].kind, "javascript-url", spelling);
+  }
+});
+
+/**
+ * Negative controls: Chrome resolved each of these to a RELATIVE URL, not a
+ * javascript: URL (browser-verified `.href`), so flagging them would be a
+ * false red build. `&Colon;` is not `:` (Chrome maps it to U+2237), `&tab;` is
+ * not an HTML5 reference at all, and a leading `"` survives URL preprocessing.
+ */
+test("passes on hrefs that only look like javascript: URLs", () => {
+  const inert = [
+    "javascript&Colon;alert(1)",
+    "&tab;javascript:alert(1)",
+    "&quot;javascript:alert(1)",
+    "https://example.com/javascript:x",
+    "/relative/javascript:1",
+    "#javascript:1",
+    "mailto:someone@example.com",
+    "alert(1)",
+  ];
+  for (const value of inert) {
+    const dir = fixture({ "index.html": PAGE(DATA_BLOCK, `<a href="${value}">x</a>`) });
+    const { res, ok } = run(dir);
+    assert.equal(ok, true, `href="${value}" is not a javascript: URL`);
+    assert.equal(res.totals.javascriptUrls, 0, value);
+  }
+});
+
+test("does not flag javascript: text that is not a URL attribute value", () => {
+  const dir = fixture({
+    "index.html": PAGE(
+      DATA_BLOCK +
+        '<script type="application/json">{"next":"javascript:alert(1)"}</script>' +
+        '<a data-href="javascript:alert(1)">x</a>',
+      "<p>javascript:alert(1)</p>",
+    ),
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, true, "only the attributes the browser resolves and executes are judged");
+  assert.equal(res.totals.javascriptUrls, 0);
+});
+
+test("fails on a meta refresh whose url= is a javascript: URL", () => {
+  const dir = fixture({
+    "index.html": PAGE(
+      DATA_BLOCK,
+      `<meta http-equiv="refresh" content="0;url=javascript:alert(1)">`,
+    ),
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false);
+  assert.equal(res.violations[0].kind, "javascript-url");
+});
+
+test("passes on meta refreshes that navigate somewhere ordinary", () => {
+  for (const content of ["30", "0;url=/next", "0; url='https://example.com'", "0;url=index.html"]) {
+    const dir = fixture({ "index.html": PAGE(DATA_BLOCK, `<meta http-equiv="refresh" content="${content}">`) });
+    const { res, ok } = run(dir);
+    assert.equal(ok, true, `content="${content}" is not a javascript: URL`);
+  }
+});
+
+test("urlSchemeOf agrees with Chrome's own answer for the 17 probed spellings", () => {
+  // Left column: raw attribute value. Right: what Chrome's `.href` resolved it
+  // to — `javascript:…` or a relative URL (browser-verified, jsurl-variants.html).
+  const resolvedToJavascript = [
+    "javascript:alert(1)",
+    "JaVaScRiPt:alert(1)",
+    " javascript:alert(1)",
+    "&#9;javascript:alert(1)",
+    "java&#9;script:alert(1)",
+    "&#106;avascript:alert(1)",
+    "javascript&colon;alert(1)",
+    "javascript&#58;alert(1)",
+    "jav&#x61;script:alert(1)",
+    "&Tab;javascript:alert(1)",
+    "javascript&#10;:alert(1)",
+    "jav&#x09;ascript:alert(1)",
+    "&#106avascript:alert(1)",
+    "&#0000106;avascript:alert(1)",
+  ];
+  for (const value of resolvedToJavascript) assert.equal(urlSchemeOf(value), "javascript", value);
+
+  const resolvedToRelative = ["javascript&Colon;alert(1)", "&tab;javascript:alert(1)", '&quot;javascript:alert(1)'];
+  for (const value of resolvedToRelative) assert.notEqual(urlSchemeOf(value), "javascript", value);
+
+  assert.equal(urlSchemeOf(undefined), null);
+  assert.equal(urlSchemeOf(""), null);
+  assert.equal(urlSchemeOf("https://example.com/a"), "https");
+  assert.equal(urlSchemeOf("MAILTO:a@b.c"), "mailto");
+});
+
+test("decodeCharRefs decodes numeric references and only the named ones HTML defines", () => {
+  assert.equal(decodeCharRefs("&#106;"), "j");
+  assert.equal(decodeCharRefs("&#x6a;"), "j");
+  assert.equal(decodeCharRefs("&#0000106;"), "j");
+  assert.equal(decodeCharRefs("&colon;"), ":");
+  assert.equal(decodeCharRefs("&Tab;"), "\t");
+  assert.equal(decodeCharRefs("&NewLine;"), "\n");
+  assert.equal(decodeCharRefs("&lt;script&gt;"), "<script>", "the escaped form a serializer emits");
+  assert.equal(decodeCharRefs("&quot;a&quot;"), '"a"');
+  assert.equal(decodeCharRefs("&amp;amp;"), "&amp;", "decoded ONCE — no re-decoding of its own output");
+  assert.equal(decodeCharRefs("&Colon;"), "&Colon;", "Chrome maps this to U+2237, not ':'");
+  assert.equal(decodeCharRefs("&tab;"), "&tab;", "not an HTML5 named reference");
+});
+
+test("refreshUrl reads the url= target of a refresh directive", () => {
+  assert.equal(refreshUrl("0;url=javascript:alert(1)"), "javascript:alert(1)");
+  assert.equal(refreshUrl("0; URL = 'https://example.com'"), "https://example.com");
+  assert.equal(refreshUrl("30"), null);
+  assert.equal(refreshUrl("0;url=/next"), "/next");
 });
 
 /* --------------------------------------------------------------------- wasm */

@@ -69,6 +69,30 @@ Exit code `0` = invariant holds, `1` = broken (or no export found).
    `'wasm-unsafe-eval'` in `script-src`; there are 0 `.wasm` files today
    (Turbopack's lazy loader references `WebAssembly` from ~52 chunks but never
    fires), so a new one is a policy decision that must be made on purpose.
+5. Any **`javascript:` URL** on `href`, `action`, `formaction`, or in a
+   `<meta http-equiv="refresh">` `url=`. Element-initiated `javascript:`
+   execution is exactly a hyperlink traversal and a form submission: the URL is
+   run as script and refused by the `script-src` inline check
+   (`script-src-elem` / `blockedURI: inline`), or one step earlier by the shipped
+   `form-action 'self'` (`blockedURI: javascript`). Browser-verified for 17
+   spellings of `javascript:` — mixed case, HTML character references
+   (`&#106;`, `&colon;`, `&Tab;`, `&#58;`), embedded tab/newline, leading
+   whitespace — all blocked, none executed. The scanner decodes character
+   references the same way the tokenizer does before the URL parser sees the
+   value, and *only* the references HTML actually defines: `&Colon;` is not `:`
+   (Chrome maps it to U+2237) and `&tab;` is not a reference, so neither is
+   decoded — flagging them would invent a URL the browser never sees.
+6. Any **executable inline script, or inline handler, inside an `srcdoc`**. An
+   `about:srcdoc` document inherits its parent's policy container, so its
+   `<script>` bodies are blocked exactly like top-level ones (`script-src-elem`)
+   and its handlers as `script-src-attr` — while a same-origin `<script src>`
+   inside it still loads. The attribute value is scanned recursively as the
+   document it becomes, entity-decoded **once per level** exactly like the
+   tokenizer: `srcdoc="&lt;script&gt;…"` (what a React/JSX build emits for
+   `srcdoc={html}`) is a real blocked script, while a value escaped *twice* is
+   literal text and stays inert. Nesting past `MAX_SRCDOC_DEPTH` (5) fails with a
+   `srcdoc-nesting-depth` finding rather than passing markup the scanner could
+   not follow.
 
 It does **not** fail on: `style=` attribute counts, `http://localhost`
 references, a parameterised JavaScript MIME type
@@ -82,7 +106,20 @@ Content that cannot execute is skipped rather than counted: a raw `<script>`
 inside a `<textarea>` is RCDATA — the browser never parses markup there — so
 flagging it would be a spurious red build. `<title>` is deliberately *not*
 skipped, because SVG `<title>` is parsed as markup and skipping it could hide a
-real script.
+real script. An `<iframe sandbox=…>` **without `allow-scripts`** is skipped the
+same way: nothing in its `srcdoc` executes and no violation fires
+(browser-verified), so flagging it would be a false red build. It is counted as
+`inertSrcdoc` and printed.
+
+`data:` in `<iframe src>` / `<object data>` / `<embed src>` needs no rule: the
+shipped `frame-src 'self'` and `object-src 'none'` refuse it outright
+(`frame-src` / `object-src` violations, no execution — browser-verified), and
+Chrome refuses top-level navigation to a `data:` URL as well.
+
+`<svg><script>`, `<template><script>` and `<noscript><script>` are **already
+flagged** and stay that way on purpose: the first two are inert in a browser, so
+flagging them is a false red build rather than a silent pass — the fail-loud
+direction, which is the one to keep.
 
 ## Today's numbers (on `main`)
 
@@ -95,6 +132,8 @@ inline <script>           154   [application/json×152, module×1, <missing>×1]
   data blocks             152
   executable              2
 inline event handlers     1
+javascript: URLs          0    (executed as script then blocked by script-src 'self' — browser-verified)
+srcdoc sub-documents      0    (scanned as their own documents — CSP is inherited from this one)
 style= attributes         2492  (informational — style-src allows 'unsafe-inline')
 http://localhost refs     3     (informational — dev-mode artifact leakage)
 .wasm files               0     (must be 0 without a policy decision)
@@ -170,6 +209,13 @@ Pick one, deliberately — do not silence the check:
   widget. `'self'` blocks it in production; the gate fails it unless the shipped
   `script-src` names that host, so widening the policy is a deliberate act
   rather than a silent one.
+- **An `srcdoc` on an `<iframe>`** — the attribute value is a document the
+  browser builds and this policy governs (recursively, and including the
+  entity-escaped form a serializer emits). Never scanned by hand: if a component
+  needs to frame generated markup, that markup gets the same inline-script rules
+  as any other page.
+- **A `javascript:` URL** on a link, a form `action`, a `formaction`, or a
+  `meta refresh` `url=`. It is dead markup under this policy, not a handler.
 - **Any `.wasm`** — see above.
 
 ## Coupling to the policy itself
@@ -192,16 +238,20 @@ errors" covers only the pages a probe visits and needs a browser in CI. The
 invariant is a property of the emitted markup, so it is checked by parsing all
 154 files: deterministic, no browser, no network, sub-second.
 
-The gate's own tests (`tests/csp/inline-scripts.test.mjs`, 38 cases) cover the
+The gate's own tests (`tests/csp/inline-scripts.test.mjs`, 59 cases) cover the
 fail cases — including every MIME type in the HTML spec's list, non-lowercase
-handler names, and cross-origin `src`s — the must-not-false-positive cases
-(comment-inert markup, markup inside a quoted attribute value, a bare `<` in
-text, a `<script>` inside a `<textarea>`), the exception/stale-exception
-behaviour, and the `script-src` reader.
+handler names, cross-origin `src`s, `javascript:` URLs in all 14
+browser-verified spellings, and `srcdoc` scripts (plain, nested, and
+entity-escaped) — the must-not-false-positive cases (comment-inert markup,
+markup inside a quoted attribute value, a bare `<` in text, a `<script>` inside
+a `<textarea>`, a `sandbox`ed `srcdoc`, a `srcdoc` escaped twice, and the three
+spellings Chrome resolves to a relative URL rather than a `javascript:` one),
+the exception/stale-exception behaviour, and the `script-src` reader.
 
 The rule set is not guessed from the spec: each fail case was browser-verified
 in Chrome under `script-src 'self'` with a `securitypolicyviolation` listener
-recording what the engine actually enforced.
+recording what the engine actually enforced, plus an execution beacon logged
+server-side to prove what did *not* run.
 
 ## Reproducing the acceptance test
 

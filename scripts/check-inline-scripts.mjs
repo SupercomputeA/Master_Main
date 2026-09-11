@@ -60,6 +60,44 @@
  * host — an absolute one. `'self'` allows SAME-ORIGIN only, so a cross-origin
  * `src` is a violation and is reported as one, not printed as "allowed".
  *
+ * ATTRIBUTE-CARRIED EXECUTION SURFACES — each browser-verified with a
+ * `securitypolicyviolation` listener under `script-src 'self'` plus an image
+ * beacon proving whether the script actually ran (see docs/csp-inline-script-
+ * invariant.md for the run):
+ *
+ * 1. `javascript:` URLs on `href` / `action` / `formaction` (and a
+ *    `<meta http-equiv="refresh">` `url=`). Element-initiated javascript:
+ *    execution is exactly a hyperlink traversal and a form submission, and the
+ *    URL the browser runs is subject to the `script-src` inline check: every
+ *    spelling Chrome resolves to `javascript:` — mixed case, HTML character
+ *    references (`&#106;`, `&colon;`, `&Tab;`), embedded tab/newline — is
+ *    blocked (`script-src-elem`, `blockedURI` `inline`) and the handler never
+ *    fires. On a form it is refused one step earlier by the shipped
+ *    `form-action 'self'` (`blockedURI` `javascript`), and by `script-src`
+ *    itself when no `form-action` ships. Either way: silently dead markup.
+ *
+ * 2. `srcdoc` on `<iframe>`. An `about:srcdoc` document inherits the parent's
+ *    policy container, so its `<script>` bodies are blocked exactly like a
+ *    top-level one (`script-src-elem`) and its inline handlers as
+ *    `script-src-attr` — while a same-origin `<script src>` inside it still
+ *    loads (verified: the srcdoc-internal control script ran). The value is
+ *    therefore scanned recursively as the document it becomes — including the
+ *    entity-escaped form a React/JSX build emits
+ *    (`srcdoc="&lt;script&gt;…"`), which the browser decodes into the same
+ *    blocked script.
+ *
+ * NOT A PROBLEM, verified — do not "fix" by loosening:
+ *   - `sandbox` on an iframe WITHOUT `allow-scripts`: nothing in its `srcdoc`
+ *     executes and no violation fires. Flagging it would be a false red build,
+ *     so that value is skipped (and counted as `inertSrcdoc`).
+ *   - `data:`/`blob:` in `<iframe src>`, `<object data>`, `<embed src>`: refused
+ *     by the shipped `frame-src 'self'` / `object-src 'none'` (`frame-src` /
+ *     `object-src` violations), and Chrome refuses top-level navigation to a
+ *     `data:` URL — no execution surface.
+ *   - `<svg><script>`, `<template><script>`, `<noscript><script>` are inert in a
+ *     browser but ARE flagged below: that is the fail-loud direction (a false
+ *     red build, not a silent pass). Left as-is on purpose.
+ *
  * INERT CONTENT SKIPPED: `<textarea>` bodies are RCDATA — the browser never
  * parses markup inside them — so a raw `<script>` there is not a violation and
  * must not fail the build. `<title>` is deliberately NOT skipped: SVG `<title>`
@@ -102,6 +140,107 @@ const JS_MIME_TYPES = new Set([
   "text/x-ecmascript",
   "text/x-javascript",
 ]);
+
+/**
+ * Attributes the browser resolves as a URL and *executes* as script when the
+ * scheme is `javascript:`. Element-initiated javascript: URLs are run for a
+ * hyperlink traversal (`href`) and a form submission (`action`, plus the
+ * per-button `formaction` override) — and for nothing else: a `javascript:` URL
+ * in `<iframe src>`, `<img src>` etc. is a load error, not script, so those are
+ * deliberately not flagged (a rule there would be a false red build).
+ */
+const URL_SCRIPT_ATTRS = new Set(["href", "action", "formaction"]);
+
+/** `sandbox` token list, case-insensitive, that lets a frame execute scripts. */
+const SANDBOX_ALLOW_SCRIPTS = /(?:^|\s)allow-scripts(?:\s|$)/i;
+
+/**
+ * HTML character references that decodeCharRefs handles, matched EXACTLY as the
+ * HTML5 named table does (case-sensitive):
+ *   - `&colon;` -> `:` — confirmed to still resolve to a javascript: URL
+ *   - `&Tab;` / `&NewLine;` -> whitespace the URL parser strips
+ *   - the set an HTML serializer emits: `&amp;` `&lt;` `&gt;` `&quot;` `&apos;`
+ *     (and their `&AMP;`-style uppercase duplicates). This is what makes an
+ *     entity-escaped `srcdoc` visible at all: a React/JSX build emits
+ *     `<iframe srcdoc="&lt;script&gt;…">`, and the browser decodes it into a
+ *     real `<script>` inside the srcdoc document — browser-verified as a
+ *     `script-src-elem` violation with no execution.
+ *   - `&Colon;` is NOT `:` (Chrome resolves it to U+2237) and `&tab;` is not a
+ *     reference at all, both browser-verified; decoding them would invent a
+ *     javascript: URL the browser never sees. Deliberately absent.
+ * The full 2231-entry table is deliberately not implemented: the entries above
+ * are the ones that can produce markup or a URL scheme. Decoding happens ONCE
+ * per pass, per document level, exactly like the HTML tokenizer — a value
+ * escaped twice must stay inert (`&amp;lt;script&amp;gt;` is text, not markup).
+ *
+ * Numeric references (`&#106;`, `&#x6a;`, and — browser-verified — the
+ * semicolon-less form `&#106avascript:`, which Chrome still decodes) are
+ * handled in the same function.
+ */
+const NAMED_CHAR_REFS = new Map([
+  ["amp", "&"],
+  ["AMP", "&"],
+  ["lt", "<"],
+  ["LT", "<"],
+  ["gt", ">"],
+  ["GT", ">"],
+  ["quot", '"'],
+  ["QUOT", '"'],
+  ["apos", "'"],
+  ["colon", ":"],
+  ["Tab", "\t"],
+  ["NewLine", "\n"],
+]);
+
+/** Depth cap for `srcdoc` recursion; past it the scanner fails loudly. */
+export const MAX_SRCDOC_DEPTH = 5;
+
+/** Decode the character references that can matter to markup or a URL scheme. */
+export function decodeCharRefs(value) {
+  return value.replace(
+    /&(#[0-9]+;?|#[xX][0-9a-fA-F]+;?|amp;|AMP;|lt;|LT;|gt;|GT;|quot;|QUOT;|apos;|colon;|Tab;|NewLine;)/g,
+    (match, body) => {
+      if (body[0] === "#") {
+        const hex = body[1] === "x" || body[1] === "X";
+        const code = parseInt(body.slice(hex ? 2 : 1).replace(/;$/, ""), hex ? 16 : 10);
+        if (!Number.isFinite(code) || code <= 0 || code > 0x10ffff) return match;
+        try {
+          return String.fromCodePoint(code);
+        } catch {
+          return match;
+        }
+      }
+      const named = NAMED_CHAR_REFS.get(body.replace(/;$/, ""));
+      return named === undefined ? match : named;
+    },
+  );
+}
+
+/**
+ * The URL scheme a browser will see in an attribute value, or `null`.
+ *
+ * Mirrors the URL parser's own preprocessing: decode HTML character references
+ * (the HTML tokenizer does this before the value ever reaches the URL parser),
+ * strip leading/trailing C0 controls and spaces, then remove tab/LF/CR
+ * anywhere, then read the scheme. Verified against Chrome's own `.href`
+ * resolution for 17 spellings of `javascript:` — the rule must not invent one
+ * the browser does not see, nor miss one it does.
+ */
+export function urlSchemeOf(rawValue) {
+  if (rawValue === undefined || rawValue === null) return null;
+  let value = decodeCharRefs(String(rawValue));
+  value = value.replace(/^[\u0000-\u0020]+/, "").replace(/[\u0000-\u0020]+$/, "");
+  value = value.replace(/[\t\n\r]/g, "");
+  const match = /^([a-zA-Z][a-zA-Z0-9+.-]*):/.exec(value);
+  return match ? match[1].toLowerCase() : null;
+}
+
+/** The `url=` target of a `<meta http-equiv="refresh">` `content` value. */
+export function refreshUrl(content) {
+  const match = /\burl\s*=\s*(.*)$/is.exec(content);
+  if (!match) return null;
+  return match[1].trim().replace(/^(['"])(.*)\1$/s, "$2").trim();
+}
 
 /**
  * Path-scoped, shrink-only exceptions. A path is export-relative and POSIX.
@@ -209,8 +348,11 @@ export function scriptSrcAllowsOrigin(origin, scriptSrc) {
  * `scriptSrc` is the shipped `script-src` directive (or null). It is only used
  * to judge a cross-origin `<script src>`: with no policy shipped there is
  * nothing to judge against, so those are counted, not failed.
+ *
+ * `depth` is internal: `srcdoc` values are scanned by calling this function
+ * again, and the recursion is capped by MAX_SRCDOC_DEPTH.
  */
-export function scanHtml(html, file = "<string>", { scriptSrc = null } = {}) {
+export function scanHtml(html, file = "<string>", { scriptSrc = null, depth = 0 } = {}) {
   const findings = [];
   const scriptTypes = new Map();
   const crossOriginHosts = new Map();
@@ -222,22 +364,110 @@ export function scanHtml(html, file = "<string>", { scriptSrc = null } = {}) {
   let styleAttrs = 0;
   let localhostRefs = 0;
   let jsMimeEssence = 0;
+  let javascriptUrls = 0;
+  let srcdocDocuments = 0;
+  let inertSrcdoc = 0;
 
   const lineOf = makeLineIndex(html);
   const push = (kind, index, detail) => {
     findings.push({ file, line: lineOf(index), kind, detail, snippet: snippet(html, index) });
   };
 
+  /** Index of an attribute name, for pointing a finding at the right place. */
+  const attrIndex = (attrs, wanted) => {
+    const hit = attrs.named.find(([name]) => name.toLowerCase() === wanted);
+    return hit ? hit[1] : 0;
+  };
+
   const scanAttrs = (attrs) => {
     for (const [name, index] of attrs.named) {
+      const lower = name.toLowerCase();
       // HTML attribute names are ASCII case-insensitive: `ONERROR`, `OnError`
       // and `onerror` are one handler, and all three are CSP-blocked
       // (script-src-attr, browser-verified). Compare the lowercased name.
-      if (/^on[a-z]+$/.test(name.toLowerCase())) {
+      if (/^on[a-z]+$/.test(lower)) {
         inlineHandlers += 1;
         push("inline-event-handler", index, `inline event handler attribute \`${name}="…"\` (blocked by script-src 'self')`);
-      } else if (name.toLowerCase() === "style") {
+      } else if (lower === "style") {
         styleAttrs += 1;
+      } else if (URL_SCRIPT_ATTRS.has(lower)) {
+        // A javascript: URL here is executed as script by the browser and is
+        // blocked by `script-src 'self'` (script-src-elem, browser-verified) —
+        // i.e. the one failure mode this gate exists to catch.
+        const value = attrs.values.get(lower);
+        if (urlSchemeOf(value) === "javascript") {
+          javascriptUrls += 1;
+          push(
+            "javascript-url",
+            index,
+            `\`${name}="${snippet(String(value), 0, 60)}"\` is a javascript: URL — the browser runs it as inline script and \`script-src 'self'\` blocks it, so it never executes`,
+          );
+        }
+      }
+    }
+
+    // `<meta http-equiv="refresh" content="0;url=javascript:…">` — same scheme,
+    // same browser-verified block (script-src-elem / blockedURI `inline`).
+    if ((attrs.values.get("http-equiv") ?? "").trim().toLowerCase() === "refresh") {
+      const content = attrs.values.get("content");
+      const target = content === undefined ? null : refreshUrl(content);
+      if (target !== null && urlSchemeOf(target) === "javascript") {
+        javascriptUrls += 1;
+        push(
+          "javascript-url",
+          attrIndex(attrs, "content"),
+          `\`<meta http-equiv="refresh" content="…;url=javascript:…">\` navigates to a javascript: URL — blocked by \`script-src 'self'\`, so the refreshed script never runs`,
+        );
+      }
+    }
+
+    // An `about:srcdoc` document inherits its parent's policy container, so the
+    // attribute value is a document the browser builds and this policy governs:
+    // scan it as one. Every counter it produces is merged (it is markup we
+    // ship), and each finding is re-pointed at the attribute in this file.
+    const srcdoc = attrs.values.get("srcdoc");
+    if (srcdoc !== undefined) {
+      const sandbox = attrs.values.get("sandbox");
+      if (sandbox !== undefined && !SANDBOX_ALLOW_SCRIPTS.test(decodeCharRefs(sandbox))) {
+        // sandbox without allow-scripts: the frame executes nothing and fires
+        // no violation (browser-verified) — flagging it would be a false red.
+        inertSrcdoc += 1;
+      } else if (depth >= MAX_SRCDOC_DEPTH) {
+        push(
+          "srcdoc-nesting-depth",
+          attrIndex(attrs, "srcdoc"),
+          `srcdoc nested more than ${MAX_SRCDOC_DEPTH} levels deep — the scanner stops here and fails loudly rather than passing unread markup`,
+        );
+      } else {
+        srcdocDocuments += 1;
+        // The tokenizer decodes the attribute value before it becomes a
+        // document, so `<iframe srcdoc="&lt;script&gt;…">` IS an inline script
+        // to the browser (browser-verified). Decode once per level, exactly
+        // like the tokenizer: a value escaped twice stays text.
+        const sub = scanHtml(decodeCharRefs(srcdoc), file, { scriptSrc, depth: depth + 1 });
+        inlineScripts += sub.stats.inlineScripts;
+        externalScripts += sub.stats.externalScripts;
+        sameOriginScripts += sub.stats.sameOriginScripts;
+        crossOriginScripts += sub.stats.crossOriginScripts;
+        inlineHandlers += sub.stats.inlineHandlers;
+        styleAttrs += sub.stats.styleAttrs;
+        jsMimeEssence += sub.stats.jsMimeEssence;
+        javascriptUrls += sub.stats.javascriptUrls;
+        srcdocDocuments += sub.stats.srcdocDocuments;
+        inertSrcdoc += sub.stats.inertSrcdoc;
+        for (const [host, count] of sub.stats.crossOriginHosts) {
+          crossOriginHosts.set(host, (crossOriginHosts.get(host) ?? 0) + count);
+        }
+        for (const [type, count] of sub.stats.scriptTypes) {
+          scriptTypes.set(type, (scriptTypes.get(type) ?? 0) + count);
+        }
+        for (const finding of sub.findings) {
+          push(
+            finding.kind,
+            attrIndex(attrs, "srcdoc"),
+            `inside <iframe srcdoc="…">${finding.line > 1 ? ` (line ${finding.line} of the srcdoc body)` : ""}: ${finding.detail}`,
+          );
+        }
       }
     }
   };
@@ -326,6 +556,8 @@ export function scanHtml(html, file = "<string>", { scriptSrc = null } = {}) {
     i = lt + 1;
   }
 
+  // Counted off the RAW text, so a http://localhost reference written inside a
+  // srcdoc attribute value is counted too — it is still a dev artifact we ship.
   localhostRefs = countMatches(html, /https?:\/\/localhost[:/]/gi);
   return {
     findings,
@@ -339,6 +571,9 @@ export function scanHtml(html, file = "<string>", { scriptSrc = null } = {}) {
       styleAttrs,
       localhostRefs,
       jsMimeEssence,
+      javascriptUrls,
+      srcdocDocuments,
+      inertSrcdoc,
       scriptTypes,
     },
   };
@@ -478,6 +713,9 @@ export function checkExport(dir, { exceptions = ALLOWED_EXCEPTIONS, strict = fal
     styleAttrs: 0,
     localhostRefs: 0,
     jsMimeEssence: 0,
+    javascriptUrls: 0,
+    srcdocDocuments: 0,
+    inertSrcdoc: 0,
   };
   const typeHistogram = new Map();
   const crossOriginHosts = new Map();
@@ -493,6 +731,9 @@ export function checkExport(dir, { exceptions = ALLOWED_EXCEPTIONS, strict = fal
     totals.styleAttrs += res.stats.styleAttrs;
     totals.localhostRefs += res.stats.localhostRefs;
     totals.jsMimeEssence += res.stats.jsMimeEssence;
+    totals.javascriptUrls += res.stats.javascriptUrls;
+    totals.srcdocDocuments += res.stats.srcdocDocuments;
+    totals.inertSrcdoc += res.stats.inertSrcdoc;
     for (const [host, c] of res.stats.crossOriginHosts) {
       crossOriginHosts.set(host, (crossOriginHosts.get(host) ?? 0) + c);
     }
@@ -563,6 +804,7 @@ export function report(res, { stdout = console.log } = {}) {
     excepted.reduce((n, e) => n + e.findings.filter((f) => f.kind === kind).length, 0);
   const executableTotal = count("executable-inline-script");
   const handlerTotal = count("inline-event-handler");
+  const javascriptTotal = count("javascript-url");
 
   stdout("");
   stdout(`html files scanned        ${files.length}`);
@@ -584,6 +826,12 @@ export function report(res, { stdout = console.log } = {}) {
     stdout(`  js-MIME essence         ${totals.jsMimeEssence}  (informational — parameterised type, inert in Chrome)`);
   }
   stdout(`inline event handlers     ${handlerTotal}`);
+  stdout(`javascript: URLs           ${javascriptTotal}  (executed as script then blocked by script-src 'self' — browser-verified)`);
+  stdout(
+    `srcdoc sub-documents      ${totals.srcdocDocuments}  (scanned as their own documents — CSP is inherited from this one)${
+      totals.inertSrcdoc ? `; ${totals.inertSrcdoc} skipped (sandbox without allow-scripts — inert)` : ""
+    }`,
+  );
   stdout(`style= attributes         ${totals.styleAttrs}  (informational — style-src allows 'unsafe-inline')`);
   stdout(`http://localhost refs     ${totals.localhostRefs}  (informational — dev-mode artifact leakage)`);
   stdout(`.wasm files               ${wasm.length}  (must be 0 without a policy decision)`);
@@ -619,7 +867,7 @@ export function report(res, { stdout = console.log } = {}) {
   stdout(
     failed
       ? `\n✗ FAIL — the export is not compatible with the shipped CSP (script-src 'self').`
-      : `\n✓ PASS — 0 unexcepted executable inline scripts, 0 unexcepted inline handlers, 0 unexcepted cross-origin script srcs, 0 .wasm${
+      : `\n✓ PASS — 0 unexcepted executable inline scripts, 0 unexcepted inline handlers, 0 unexcepted javascript: URLs, 0 unexcepted cross-origin script srcs, 0 .wasm${
           exceptedCount ? ` (${exceptedCount} pre-existing violation(s) excepted — see above)` : ""
         }.`,
   );

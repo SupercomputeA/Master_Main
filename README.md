@@ -43,6 +43,20 @@ python -m http.server 8080
 bash validate.sh
 ```
 
+**CSP inline-script invariant.** `public/_headers` ships `script-src 'self'` with
+no nonce, no hash and no `'unsafe-inline'`, so the static export must ship **zero
+executable inline scripts** and **zero inline event handlers**. That property is
+asserted in CI — reproduce it locally after a build:
+
+```bash
+npx next build
+node scripts/check-inline-scripts.mjs out        # npm run check:inline-scripts
+node --test tests/csp/inline-scripts.test.mjs    # npm run test:csp
+```
+
+See [`docs/csp-inline-script-invariant.md`](docs/csp-inline-script-invariant.md)
+for what it guards, the single excepted file, and what to do when it fails.
+
 ### 4. Deploy
 
 ```bash
@@ -66,6 +80,7 @@ npx wrangler pages deploy public --project-name=artifact-main
 
 - ✅ Validates HTML structure
 - ✅ Checks required files exist
+- ✅ Asserts the export ships no executable inline scripts (guards `script-src 'self'`)
 - ✅ Scans for code issues
 - ✅ Deploys to Cloudflare Pages on main branch
 - ✅ Runs on every PR and push

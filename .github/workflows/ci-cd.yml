@@ -53,6 +53,16 @@ jobs:
           test -f out/storefront.html && echo "✓ out/storefront.html exists"
           echo "✓ Next.js export complete"
 
+      # Guards `script-src 'self'` in public/_headers: the policy has no nonce,
+      # no hash and no 'unsafe-inline', so it is only safe while the export
+      # ships zero executable inline scripts and zero inline event handlers.
+      # See docs/csp-inline-script-invariant.md.
+      - name: Test the CSP inline-script gate itself
+        run: node --test tests/csp/inline-scripts.test.mjs
+
+      - name: Assert export ships no executable inline scripts (guards script-src 'self')
+        run: node scripts/check-inline-scripts.mjs out
+
       - name: Check for debug/code issues
         run: |
           echo "TODO count: $(grep -rc 'TODO' pages/ components/ lib/ 2>/dev/null | wc -l)" || true

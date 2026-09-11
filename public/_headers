@@ -45,9 +45,22 @@
 # XFO, older ones let DENY win — so same-origin framing silently broke on older
 # browsers. SAMEORIGIN keeps the legacy clickjacking protection and agrees with
 # the CSP instead of removing the header.
+#
+# CSP violation telemetry (card t_38a77267): the enforcing policy below reports
+# every violation to /api/csp-report (Pages Function -> D1 table csp_reports),
+# rolled up as a count per day|directive|origin|document. Read it with
+# scripts/csp-report-stats.sh; see docs/csp-telemetry.md.
+#   - Reporting-Endpoints / Report-To carry the ABSOLUTE prod URL, as specified.
+#     On a preview branch (<branch>.supercompute.pages.dev) the legacy
+#     `report-uri` fallback is document-relative and therefore stays on the
+#     preview origin; only modern-Chrome (report-to) reports go to prod.
+#   - The collector is same-origin and adds NO new browser-side origin, so
+#     connect-src is unchanged by this addition.
 
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://fonts.gstatic.com https://mainnet.base.org https://eth.drpc.org https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://fonts.gstatic.com https://mainnet.base.org https://eth.drpc.org https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests; report-uri /api/csp-report; report-to csp
+  Reporting-Endpoints: csp="https://supercompute.io/api/csp-report"
+  Report-To: {"group":"csp","max_age":10886400,"endpoints":[{"url":"https://supercompute.io/api/csp-report"}]}
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin

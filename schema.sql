@@ -106,3 +106,23 @@ CREATE INDEX idx_subscribers_email ON subscribers(email);
 CREATE INDEX idx_subscribers_tier ON subscribers(tier);
 CREATE INDEX idx_subscribers_status ON subscribers(status);
 CREATE INDEX idx_subscribers_expires ON subscribers(expires_at);
+
+-- CSP violation telemetry rollup (see migrations/0008_csp_reports.sql and
+-- docs/csp-telemetry.md). Written by functions/api/csp-report.js.
+CREATE TABLE IF NOT EXISTS csp_reports (
+  bucket_key          TEXT PRIMARY KEY,          -- day|directive|blocked_origin|document_path|disposition
+  day                 TEXT    NOT NULL,
+  violated_directive  TEXT    NOT NULL,
+  blocked_origin      TEXT    NOT NULL,
+  blocked_path        TEXT,
+  document_path       TEXT    NOT NULL,
+  disposition         TEXT,
+  source              TEXT,
+  hits                INTEGER NOT NULL DEFAULT 1,
+  first_seen          INTEGER NOT NULL,
+  last_seen           INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_csp_reports_day       ON csp_reports(day);
+CREATE INDEX IF NOT EXISTS idx_csp_reports_directive ON csp_reports(violated_directive);
+CREATE INDEX IF NOT EXISTS idx_csp_reports_last_seen ON csp_reports(last_seen);

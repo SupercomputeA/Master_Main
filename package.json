@@ -17,6 +17,7 @@
     "db:push": "wrangler d1 execute supercompute --local --file=./schema.sql",
     "db:push:prod": "wrangler d1 execute supercompute --file=./schema.sql --env production",
     "test": "node --test tests/auth/login.test.js",
+    "test:security-headers": "node --test tests/csp/functions-security-headers.test.mjs",
     "preview": "wrangler pages project . --preview"
   },
   "dependencies": {

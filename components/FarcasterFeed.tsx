@@ -20,17 +20,20 @@ export default function FarcasterFeed({ fid }: { fid?: string }) {
     return (
       <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "24px" }}>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)" }}>
-          Set FID to display live Farcaster feed.
+          // rail pending — set NEXT_PUBLIC_FARCASTER_FID to stream the protocol feed
         </div>
       </div>
     )
   }
 
   if (error) {
+    const notConfigured = /not configured|NEYNAR_API_KEY/i.test(error)
     return (
       <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "24px" }}>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)" }}>
-          Feed unavailable: {error}
+          {notConfigured
+            ? "// rail wired — NEYNAR_API_KEY not yet provisioned in Cloudflare; feed activates on deploy"
+            : `Feed unavailable: ${error}`}
         </div>
       </div>
     )

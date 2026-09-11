@@ -1,40 +1,52 @@
 // functions/api/farcaster.js — Neynar Farcaster API + Snapchain API proxy
 // Requires NEYNAR_API_KEY env var in Cloudflare dashboard
+// Subpaths are served by functions/api/farcaster/[[catchall]].js (re-export).
 
 const NEYNAR_BASE = "https://api.neynar.com/v2/farcaster";
 const SNAPCHAIN_BASE = "https://snapchain-api.neynar.com";
 
-function json(data, status = 200) {
+// Exact-origin allowlist (audit pattern: never echo arbitrary origins).
+const ALLOWED_ORIGINS = new Set([
+  "https://supercompute.io",
+  "https://staging.supercompute.io",
+  "http://127.0.0.1:8791",
+  "http://localhost:3000",
+]);
+
+function corsHeaders(request) {
+  const origin = request?.headers?.get("Origin") || "";
+  const allow = ALLOWED_ORIGINS.has(origin) ? origin : "https://supercompute.io";
+  return {
+    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Vary": "Origin",
+  };
+}
+
+function json(data, status = 200, request) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      ...corsHeaders(request),
     },
   });
 }
 
-function cors() {
-  return new Response(null, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
-  });
+function cors(request) {
+  return new Response(null, { headers: corsHeaders(request) });
 }
 
 export async function onRequest({ request, env }) {
   const url = new URL(request.url);
   const path = url.pathname.replace("/api/farcaster", "") || "/";
 
-  if (request.method === "OPTIONS") return cors();
+  if (request.method === "OPTIONS") return cors(request);
 
   const apiKey = env.NEYNAR_API_KEY;
   if (!apiKey) {
-    return json({ error: "NEYNAR_API_KEY not configured", docs: "Set NEYNAR_API_KEY in Cloudflare dashboard" }, 503);
+    return json({ error: "NEYNAR_API_KEY not configured", docs: "Set NEYNAR_API_KEY in Cloudflare dashboard" }, 503, request);
   }
 
   // ── Snapchain API proxy ─────────────────────────────────────────────────

@@ -133,9 +133,7 @@ test('happy path admin: real signature from admin wallet → role=admin', async 
     body: { address: client.account.address, signature, nonce },
   });
   assert.equal(status, 200);
-  // RED-RUN DEMO (temporary, reverted in the next commit): flipped expectation.
-  // This is a deliberate one-commit break to prove the new CI gate fails.
-  assert.equal(body.user.role, 'user');
+  assert.equal(body.user.role, 'admin');
 });
 
 test('rate limit: 6th attempt from same address within window returns 429', async () => {

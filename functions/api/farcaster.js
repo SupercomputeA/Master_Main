@@ -1,7 +1,6 @@
 // functions/api/farcaster.js — Neynar Farcaster API + Snapchain API proxy
 // Requires NEYNAR_API_KEY env var in Cloudflare dashboard
 // Subpaths are served by functions/api/farcaster/[[catchall]].js (re-export).
-
 import { allowOrigin } from "../_shared/cors-origins.js";
 
 const NEYNAR_BASE = "https://api.neynar.com/v2/farcaster";

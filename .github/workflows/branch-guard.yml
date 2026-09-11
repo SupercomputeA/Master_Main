@@ -1,14 +1,47 @@
 name: branch-guard
 
+# Fleet trunk policy: main/develop are PR-only
+# (supercompute-devops/docs/branch-strategy.md).
+#
+# A merged PR LANDS AS A PUSH to the trunk, so the old "fail closed on any push"
+# guard fired on exactly the event it was meant to permit: every merge to main
+# carried one or two permanently red branch-guard runs and "is main green?" stopped
+# being answerable (t_424dc0c3 / t_f1050fbf). The guard now asks the API whether the
+# pushed commit landed through a merged PR (`.github/scripts/trunk-push-check.sh`);
+# a genuine `git push origin main` from a workstation still fails closed.
+#
+# This file is the ONLY branch-guard in the repo — the duplicate
+# `ci-branch-guard.yml` (byte-identical, hence two red runs per merge) was deleted in
+# the same change. Do not re-add a second copy: two workflows with `name: branch-guard`
+# produce two check runs under one name.
+
 on:
   pull_request:
   push:
     branches: [main, develop]
+  # Manual dry run so the guard can be re-proved against any commit (a merge, or a
+  # known direct push) without pushing to a protected branch.
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'Commit SHA to test'
+        required: true
+      ref:
+        description: 'Branch name to report in the message'
+        required: false
+        default: 'main'
+
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
   guard:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Check head branch naming
         if: github.event_name == 'pull_request'
         env:
@@ -16,10 +49,26 @@ jobs:
         run: |
           echo "$BRANCH" | grep -qE '^(feature|design|project|test|security|hotfix|fix|docs|ci|chore|refactor)/' \
             || { echo "✗ Branch '$BRANCH' violates fleet naming (see supercompute-devops/docs/branch-strategy.md)"; exit 1; }
+          echo "✓ '$BRANCH' is a valid fleet lane."
 
-      - name: Fail closed on direct trunk push
+      - name: Allow PR landings; fail closed on direct trunk push
         if: github.event_name == 'push'
-        run: |
-          echo "✗ Direct push to ${{ github.ref_name }} is not allowed — PR-only lane."
-          echo "  See supercompute-devops/docs/branch-strategy.md"
-          exit 1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: .github/scripts/trunk-push-check.sh "${GITHUB_SHA}" "${GITHUB_REF_NAME}"
+
+  probe:
+    # Negative-control / audit lane: run the same check against an arbitrary commit.
+    # Never gates anything — it only prints the verdict and exits non-zero on a
+    # direct push, so "the guard still catches a real direct push" stays provable.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Probe commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: .github/scripts/trunk-push-check.sh "${{ inputs.sha }}" "${{ inputs.ref }}"

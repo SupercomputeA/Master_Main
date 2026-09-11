@@ -55,25 +55,51 @@
  * ALLOWED inline scripts: any <script> WITHOUT `src` whose `type` attribute is
  * present and is NOT a JavaScript MIME type.
  *
+ * ALLOWED external scripts: a <script src> whose `src` is a relative reference
+ * (same-origin by construction), plus — when the shipped `script-src` names its
+ * host — an absolute one. `'self'` allows SAME-ORIGIN only, so a cross-origin
+ * `src` is a violation and is reported as one, not printed as "allowed".
+ *
+ * INERT CONTENT SKIPPED: `<textarea>` bodies are RCDATA — the browser never
+ * parses markup inside them — so a raw `<script>` there is not a violation and
+ * must not fail the build. `<title>` is deliberately NOT skipped: SVG `<title>`
+ * is parsed as markup, so skipping it could hide a real script.
+ *
  * NOT failed here (reported for drift visibility only): `style=` attribute
  * count (`style-src` currently allows 'unsafe-inline'), `http://localhost`
- * references, and the `script-src` line read out of `public/_headers`.
+ * references, a parameterised JS MIME type (`text/javascript;charset=utf-8` is
+ * inert in Chrome but a JS-MIME essence match per spec), and the `script-src`
+ * line read out of `public/_headers`.
  */
 
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
-/** MIME types that make an inline <script> EXECUTABLE (and thus CSP-blocked). */
+/**
+ * MIME types that make an inline <script> EXECUTABLE (and thus CSP-blocked).
+ *
+ * The complete HTML spec "JavaScript MIME type" list (16 entries) plus the
+ * `module` keyword. Each entry was browser-verified to execute and to be
+ * CSP-blocked under `script-src 'self'`; an incomplete list is a silent false
+ * negative, which is the whole failure mode this file exists to remove.
+ */
 const JS_MIME_TYPES = new Set([
-  "module", // the card's explicit list
-  "text/javascript",
-  "application/javascript",
-  // legacy aliases browsers also execute
+  "module", // not a MIME type: the `type="module"` keyword, which executes as JS
   "application/ecmascript",
-  "text/ecmascript",
+  "application/javascript",
+  "application/x-ecmascript",
   "application/x-javascript",
+  "text/ecmascript",
+  "text/javascript",
+  "text/javascript1.0",
+  "text/javascript1.1",
+  "text/javascript1.2",
+  "text/javascript1.3",
+  "text/javascript1.4",
+  "text/javascript1.5",
   "text/jscript",
   "text/livescript",
+  "text/x-ecmascript",
   "text/x-javascript",
 ]);
 
@@ -83,9 +109,11 @@ const JS_MIME_TYPES = new Set([
  *   - Every entry names an OWNER CARD that removes the need for it.
  *   - Entries are counted and printed on every run; they are never silent.
  *   - An entry that is no longer needed (file clean, or file gone) raises a
- *     loud warning so it gets deleted. It is a warning, not a failure, because
- *     the export's contents legitimately vary between a local working tree and
- *     CI (e.g. the `npx tinacms build` step is `continue-on-error`).
+ *     loud warning so it gets deleted. It is a warning, not a failure because
+ *     the condition it names is pre-existing AND owned by another card: failing
+ *     `validate` here would block the deploy lane for every branch until that
+ *     other card lands, which is how guards get switched off. The warning
+ *     prints the removal instruction on every run instead.
  *   - `--strict` ignores this map entirely.
  */
 export const ALLOWED_EXCEPTIONS = new Map([
@@ -103,6 +131,71 @@ export const ALLOWED_EXCEPTIONS = new Map([
 
 const VOID_OK = /^<[a-zA-Z][a-zA-Z0-9:._-]*/; // a '<' only starts a tag if this matches
 
+/** Elements whose content is RCDATA (text) — the browser parses no markup inside. */
+const RCDATA_TAGS = new Set(["textarea"]);
+
+/**
+ * Origin of a `<script src>`, or `null` when it is a relative reference.
+ *
+ * `'self'` allows same-origin script loads only, so a relative `src` is
+ * allowed by construction and anything with an explicit scheme or a
+ * protocol-relative `//` is cross-origin until the policy says otherwise.
+ */
+function srcOrigin(src) {
+  const value = src.trim();
+  if (!/^(?:[a-zA-Z][a-zA-Z0-9+.-]*:|\/\/)/.test(value)) return null; // relative -> same-origin
+  const protocolRelative = value.startsWith("//");
+  try {
+    const url = new URL(protocolRelative ? `https:${value}` : value);
+    return {
+      origin: `${url.protocol}//${url.host}`,
+      scheme: protocolRelative ? null : url.protocol.replace(":", ""),
+      host: (url.hostname || url.host).toLowerCase(),
+    };
+  } catch {
+    return { origin: value, scheme: null, host: value.toLowerCase() };
+  }
+}
+
+/**
+ * Does the shipped `script-src` directive permit this cross-origin `src`?
+ *
+ * A deliberately small reader of the CSP host-source grammar — `*`, scheme
+ * sources (`https:`), exact hosts, `*.suffix` wildcards, with optional scheme
+ * and port. It is only ever asked about hand-written policy for one static
+ * site, and every miss reports a violation, which is the fail-loud direction.
+ * Host-only comparison for named hosts: the scheme of a named host is not
+ * modelled, so the only way to slip past it is a policy that names the host
+ * under a scheme the src could not have loaded from anyway.
+ *
+ * Returns `null` when no `script-src` is shipped — there is nothing to judge
+ * against, exactly as the report's `policy:` line says.
+ */
+export function scriptSrcAllowsOrigin(origin, scriptSrc) {
+  if (!scriptSrc) return null;
+  const sources = scriptSrc.trim().split(/\s+/).slice(1); // drop the directive name
+  for (const token of sources) {
+    if (token.startsWith("'")) continue; // 'self', 'unsafe-inline', 'sha256-…' — never a host-source
+    if (token === "*") return true;
+    const schemeSource = token.match(/^([a-z][a-z0-9+.-]*):$/i);
+    if (schemeSource) {
+      // A scheme source allows that scheme anywhere; a protocol-relative src has
+      // no scheme of its own, so it can load under it.
+      if (!origin.scheme || origin.scheme === schemeSource[1].toLowerCase()) return true;
+      continue;
+    }
+    const name = token
+      .replace(/^[a-z][a-z0-9+.-]*:\/\//i, "")
+      .split(/[/?#]/)[0]
+      .replace(/:\d+$/, "")
+      .toLowerCase();
+    if (!name) continue;
+    if (name === origin.host) return true;
+    if (name.startsWith("*.") && origin.host.endsWith(name.slice(1))) return true; // `*.foo.com` covers sub.foo.com
+  }
+  return false;
+}
+
 /* ------------------------------------------------------------------ scanner */
 
 /**
@@ -112,15 +205,23 @@ const VOID_OK = /^<[a-zA-Z][a-zA-Z0-9:._-]*/; // a '<' only starts a tag if this
  * numbers. Deliberately dependency-free and small enough to audit top to
  * bottom: this is a security assertion, so its behaviour must not change when
  * an unrelated transitive dependency is bumped.
+ *
+ * `scriptSrc` is the shipped `script-src` directive (or null). It is only used
+ * to judge a cross-origin `<script src>`: with no policy shipped there is
+ * nothing to judge against, so those are counted, not failed.
  */
-export function scanHtml(html, file = "<string>") {
+export function scanHtml(html, file = "<string>", { scriptSrc = null } = {}) {
   const findings = [];
   const scriptTypes = new Map();
+  const crossOriginHosts = new Map();
   let inlineScripts = 0;
   let externalScripts = 0;
+  let sameOriginScripts = 0;
+  let crossOriginScripts = 0;
   let inlineHandlers = 0;
   let styleAttrs = 0;
   let localhostRefs = 0;
+  let jsMimeEssence = 0;
 
   const lineOf = makeLineIndex(html);
   const push = (kind, index, detail) => {
@@ -129,7 +230,10 @@ export function scanHtml(html, file = "<string>") {
 
   const scanAttrs = (attrs) => {
     for (const [name, index] of attrs.named) {
-      if (/^on[a-zA-Z]+$/.test(name)) {
+      // HTML attribute names are ASCII case-insensitive: `ONERROR`, `OnError`
+      // and `onerror` are one handler, and all three are CSP-blocked
+      // (script-src-attr, browser-verified). Compare the lowercased name.
+      if (/^on[a-z]+$/.test(name.toLowerCase())) {
         inlineHandlers += 1;
         push("inline-event-handler", index, `inline event handler attribute \`${name}="…"\` (blocked by script-src 'self')`);
       } else if (name.toLowerCase() === "style") {
@@ -163,6 +267,22 @@ export function scanHtml(html, file = "<string>") {
 
       if (src !== undefined) {
         externalScripts += 1;
+        const origin = srcOrigin(src);
+        if (origin === null) {
+          sameOriginScripts += 1;
+        } else {
+          crossOriginScripts += 1;
+          crossOriginHosts.set(origin.host, (crossOriginHosts.get(origin.host) ?? 0) + 1);
+          // `'self'` allows same-origin only. Judged against the shipped policy
+          // (null policy => nothing to judge => counted, not failed).
+          if (scriptSrcAllowsOrigin(origin, scriptSrc) === false) {
+            push(
+              "cross-origin-script-src",
+              lt,
+              `cross-origin <script src="${origin.origin}…"> — host \`${origin.host}\` is not allowed by the shipped \`${scriptSrc}\`, so the browser blocks it in production`,
+            );
+          }
+        }
       } else {
         inlineScripts += 1;
         scriptTypes.set(type || "<missing>", (scriptTypes.get(type || "<missing>") ?? 0) + 1);
@@ -174,6 +294,11 @@ export function scanHtml(html, file = "<string>") {
           );
         } else if (JS_MIME_TYPES.has(type)) {
           push("executable-inline-script", lt, `inline <script type="${type}"> is executable — blocked by script-src 'self'`);
+        } else if (JS_MIME_TYPES.has(type.split(";")[0].trim())) {
+          // `text/javascript;charset=utf-8` — a JS-MIME *essence* match. Chrome treats
+          // the parameterised form as inert, so it is reported, never failed: an engine
+          // implementing essence matching would execute it.
+          jsMimeEssence += 1;
         }
       }
       if (bodyEnd === -1) {
@@ -184,9 +309,16 @@ export function scanHtml(html, file = "<string>") {
       }
       continue;
     } else if (rest.startsWith("</") || rest.startsWith("<!") || rest.startsWith("<?") || VOID_OK.test(rest)) {
-      const { attrs, end } = parseTag(html, lt);
+      const { attrs, end, name } = parseTag(html, lt);
       scanAttrs(attrs);
       i = end;
+      // RCDATA content is text, not markup: jump to the closing tag so a raw
+      // `<script>` inside a <textarea> is not a spurious violation (inert in the
+      // browser). Only on a START tag, or the closing tag would skip again.
+      if (!rest.startsWith("</") && RCDATA_TAGS.has(name)) {
+        const close = html.slice(i).search(new RegExp(`</${name}(?=[\\s/>])`, "i"));
+        i = close === -1 ? n : i + close;
+      }
       continue;
     }
 
@@ -197,7 +329,18 @@ export function scanHtml(html, file = "<string>") {
   localhostRefs = countMatches(html, /https?:\/\/localhost[:/]/gi);
   return {
     findings,
-    stats: { inlineScripts, externalScripts, inlineHandlers, styleAttrs, localhostRefs, scriptTypes },
+    stats: {
+      inlineScripts,
+      externalScripts,
+      sameOriginScripts,
+      crossOriginScripts,
+      crossOriginHosts,
+      inlineHandlers,
+      styleAttrs,
+      localhostRefs,
+      jsMimeEssence,
+      scriptTypes,
+    },
   };
 }
 
@@ -205,7 +348,10 @@ export function scanHtml(html, file = "<string>") {
 function parseTag(html, lt) {
   const n = html.length;
   let i = lt + 1;
+  if (html[i] === "/") i += 1; // a closing tag: the element name follows
+  const tagStart = i;
   while (i < n && !/[\s/>]/.test(html[i])) i++; // skip tag name
+  const tagName = html.slice(tagStart, i).toLowerCase();
   const attrs = { values: new Map(), named: [] };
   while (i < n) {
     while (i < n && /[\s/]/.test(html[i])) i++; // skip whitespace and stray '/'
@@ -242,7 +388,7 @@ function parseTag(html, lt) {
     if (!attrs.values.has(lower)) attrs.values.set(lower, value);
     attrs.named.push([name, nameStart]);
   }
-  return { attrs, end: i, tagEnd: i - 1 };
+  return { attrs, end: i, tagEnd: i - 1, name: tagName };
 }
 
 /** Index of the `</script` that terminates the current script data state. */
@@ -318,21 +464,38 @@ export function checkExport(dir, { exceptions = ALLOWED_EXCEPTIONS, strict = fal
   }
   const files = walkFiles(dir, ".html");
   if (files.length === 0) throw new Error(`no .html files under ${dir} — is this really the static export?`);
+  const scriptSrc = readScriptSrc(dir);
 
   const violations = []; // unexcepted findings -> fail
   const excepted = []; // findings inside an excepted file -> report, no fail
   const entries = [];
-  const totals = { inlineScripts: 0, externalScripts: 0, inlineHandlers: 0, styleAttrs: 0, localhostRefs: 0 };
+  const totals = {
+    inlineScripts: 0,
+    externalScripts: 0,
+    sameOriginScripts: 0,
+    crossOriginScripts: 0,
+    inlineHandlers: 0,
+    styleAttrs: 0,
+    localhostRefs: 0,
+    jsMimeEssence: 0,
+  };
   const typeHistogram = new Map();
+  const crossOriginHosts = new Map();
 
   for (const file of files) {
     const rel = relative(dir, file).split(sep).join("/");
-    const res = scanHtml(readFileSync(file, "utf8"), file);
+    const res = scanHtml(readFileSync(file, "utf8"), file, { scriptSrc });
     totals.inlineScripts += res.stats.inlineScripts;
     totals.externalScripts += res.stats.externalScripts;
+    totals.sameOriginScripts += res.stats.sameOriginScripts;
+    totals.crossOriginScripts += res.stats.crossOriginScripts;
     totals.inlineHandlers += res.stats.inlineHandlers;
     totals.styleAttrs += res.stats.styleAttrs;
     totals.localhostRefs += res.stats.localhostRefs;
+    totals.jsMimeEssence += res.stats.jsMimeEssence;
+    for (const [host, c] of res.stats.crossOriginHosts) {
+      crossOriginHosts.set(host, (crossOriginHosts.get(host) ?? 0) + c);
+    }
     for (const [t, c] of res.stats.scriptTypes) typeHistogram.set(t, (typeHistogram.get(t) ?? 0) + c);
     if (res.findings.length === 0) continue;
     const exception = exceptions.get(rel);
@@ -362,18 +525,19 @@ export function checkExport(dir, { exceptions = ALLOWED_EXCEPTIONS, strict = fal
     files,
     totals,
     typeHistogram,
+    crossOriginHosts,
     violations,
     excepted,
     staleExceptions,
     wasm: walkFiles(dir, ".wasm"),
-    scriptSrc: readScriptSrc(dir),
+    scriptSrc,
     strict,
     offendingFiles: [...new Set(entries)],
   };
 }
 
 export function report(res, { stdout = console.log } = {}) {
-  const { dir, files, totals, typeHistogram, violations, excepted, staleExceptions, wasm, scriptSrc, strict } = res;
+  const { dir, files, totals, typeHistogram, crossOriginHosts, violations, excepted, staleExceptions, wasm, scriptSrc, strict } = res;
   const rel = (p) => relative(process.cwd(), p).split(sep).join("/");
   const bar = "─".repeat(74);
 
@@ -402,10 +566,23 @@ export function report(res, { stdout = console.log } = {}) {
 
   stdout("");
   stdout(`html files scanned        ${files.length}`);
-  stdout(`<script src=…>            ${totals.externalScripts}  (external — allowed by script-src 'self')`);
+  stdout(`<script src=…>            ${totals.externalScripts}  (external — 'self' allows SAME-ORIGIN only)`);
+  stdout(`  same-origin             ${totals.sameOriginScripts}  (relative references — allowed)`);
+  stdout(
+    `  cross-origin            ${totals.crossOriginScripts}  ${
+      scriptSrc
+        ? `(${count("cross-origin-script-src")} not allowed by the shipped script-src${
+            crossOriginHosts.size ? ` — hosts: ${[...crossOriginHosts.keys()].join(", ")}` : ""
+          })`
+        : "(not judged — no script-src in _headers yet)"
+    }`,
+  );
   stdout(`inline <script>           ${totals.inlineScripts}  [${byType}]`);
   stdout(`  data blocks             ${totals.inlineScripts - executableTotal}`);
   stdout(`  executable              ${executableTotal}`);
+  if (totals.jsMimeEssence > 0) {
+    stdout(`  js-MIME essence         ${totals.jsMimeEssence}  (informational — parameterised type, inert in Chrome)`);
+  }
   stdout(`inline event handlers     ${handlerTotal}`);
   stdout(`style= attributes         ${totals.styleAttrs}  (informational — style-src allows 'unsafe-inline')`);
   stdout(`http://localhost refs     ${totals.localhostRefs}  (informational — dev-mode artifact leakage)`);
@@ -442,7 +619,7 @@ export function report(res, { stdout = console.log } = {}) {
   stdout(
     failed
       ? `\n✗ FAIL — the export is not compatible with the shipped CSP (script-src 'self').`
-      : `\n✓ PASS — 0 unexcepted executable inline scripts, 0 unexcepted inline handlers, 0 .wasm${
+      : `\n✓ PASS — 0 unexcepted executable inline scripts, 0 unexcepted inline handlers, 0 unexcepted cross-origin script srcs, 0 .wasm${
           exceptedCount ? ` (${exceptedCount} pre-existing violation(s) excepted — see above)` : ""
         }.`,
   );

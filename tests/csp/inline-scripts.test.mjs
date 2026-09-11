@@ -15,7 +15,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { checkExport, readScriptSrc, report, scanHtml } from "../../scripts/check-inline-scripts.mjs";
+import { checkExport, readScriptSrc, report, scanHtml, scriptSrcAllowsOrigin } from "../../scripts/check-inline-scripts.mjs";
 
 const quiet = { stdout: () => {} };
 
@@ -93,6 +93,53 @@ test("passes on an unknown non-JS type (data block by contract)", () => {
   assert.equal(run(dir).ok, true);
 });
 
+/**
+ * R2 — the complete HTML spec "JavaScript MIME type" list. A short list is a
+ * silent false negative: each of these executes in Chrome and is CSP-blocked,
+ * while the gate reported PASS.
+ */
+const JS_MIME_TYPES_SPEC = [
+  "application/ecmascript",
+  "application/javascript",
+  "application/x-ecmascript",
+  "application/x-javascript",
+  "text/ecmascript",
+  "text/javascript",
+  "text/javascript1.0",
+  "text/javascript1.1",
+  "text/javascript1.2",
+  "text/javascript1.3",
+  "text/javascript1.4",
+  "text/javascript1.5",
+  "text/jscript",
+  "text/livescript",
+  "text/x-ecmascript",
+  "text/x-javascript",
+];
+
+test("fails on every JavaScript MIME type in the HTML spec's list", () => {
+  assert.equal(JS_MIME_TYPES_SPEC.length, 16, "the spec list is 16 entries");
+  for (const mime of JS_MIME_TYPES_SPEC) {
+    const dir = fixture({ "index.html": PAGE(`<script type="${mime}">console.log(1)</script>`) });
+    const { res, ok } = run(dir);
+    assert.equal(ok, false, `type="${mime}" is executable and must fail`);
+    assert.equal(res.violations[0].kind, "executable-inline-script", `type="${mime}"`);
+  }
+});
+
+test("fails on a mixed-case JavaScript MIME type", () => {
+  const dir = fixture({ "index.html": PAGE('<script type="TEXT/JavaScript">console.log(1)</script>') });
+  assert.equal(run(dir).ok, false);
+});
+
+test("reports a parameterised JavaScript MIME type without failing (inert in Chrome)", () => {
+  const dir = fixture({ "index.html": PAGE('<script type="text/javascript;charset=utf-8">console.log(1)</script>') });
+  const { res, ok } = run(dir);
+  assert.equal(ok, true, "Chrome treats `text/javascript;charset=utf-8` as inert — report, do not fail");
+  assert.equal(res.violations.length, 0);
+  assert.equal(res.totals.jsMimeEssence, 1);
+});
+
 /* ------------------------------------------------------- inline event handler */
 
 test("fails on an inline event handler attribute", () => {
@@ -116,6 +163,36 @@ test("fails on a handler on a <script> tag — regression: scripts are tags too"
 test("fails on a single-quoted handler value", () => {
   const dir = fixture({ "index.html": PAGE("", "<body onclick='go()'>") });
   assert.equal(run(dir).ok, false);
+});
+
+/**
+ * R1 — HTML attribute names are ASCII case-insensitive, so `ONERROR`/
+ * `OnError`/`onErRoR` are one handler and all of them are CSP-blocked
+ * (script-src-attr, browser-verified). The gate used to demand a literal
+ * lowercase `on` prefix and stayed silent on every non-lowercase spelling.
+ */
+test("fails on an upper/mixed-case handler name", () => {
+  for (const name of ["ONERROR", "OnError", "ONCLICK", "oNeRrOr"]) {
+    const dir = fixture({ "index.html": PAGE("", `<img src="/a.png" ${name}="steal()">`) });
+    const { res, ok } = run(dir);
+    assert.equal(ok, false, `${name} is an enforced CSP violation and must fail`);
+    assert.equal(res.violations[0].kind, "inline-event-handler", name);
+  }
+});
+
+test("fails on ONERROR on a <script src=…> tag", () => {
+  const dir = fixture({ "index.html": PAGE('<script src="/a.js" ONERROR="handleLoadError()"></script>') });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false);
+  assert.equal(res.violations[0].kind, "inline-event-handler");
+  assert.equal(res.totals.externalScripts, 1);
+});
+
+test("does not treat a name that merely starts with `on`-ish text as a handler", () => {
+  const dir = fixture({ "index.html": PAGE("", '<div on="x" onclick-not-a-handler="1" owner="me"></div>') });
+  const { res, ok } = run(dir);
+  assert.equal(ok, true);
+  assert.equal(res.totals.inlineHandlers, 0);
 });
 
 /* --------------------------------------------------- must NOT false-positive */
@@ -146,6 +223,112 @@ test("counts style= attributes without failing (drift visibility)", () => {
   const { res, ok } = run(dir);
   assert.equal(ok, true);
   assert.equal(res.totals.styleAttrs, 2);
+});
+
+test("does not count a closing tag as a style= attribute", () => {
+  const dir = fixture({ "index.html": PAGE("<style>a{color:red}</style>") });
+  const { res, ok } = run(dir);
+  assert.equal(ok, true);
+  assert.equal(res.totals.styleAttrs, 0);
+});
+
+test("passes on a raw <script> inside a <textarea> (RCDATA — inert in the browser)", () => {
+  const dir = fixture({ "index.html": PAGE("", '<textarea><script>alert(1)</script></textarea><p>after</p>') });
+  const { res, ok } = run(dir);
+  assert.equal(ok, true, "textarea content is text, not markup — flagging it would be a spurious red build");
+  assert.equal(res.totals.inlineScripts, 0);
+});
+
+test("keeps scanning markup after a <textarea> closes", () => {
+  const dir = fixture({
+    "index.html": PAGE("", '<textarea><script>x</script></textarea><img src="/a.png" onerror="boom()">'),
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false);
+  assert.equal(res.totals.inlineHandlers, 1);
+  assert.equal(res.violations[0].kind, "inline-event-handler");
+});
+
+/* ------------------------------------------------------ cross-origin script src */
+
+/**
+ * R3 — `'self'` allows SAME-ORIGIN scripts only. Every `src` used to be printed
+ * as "(external — allowed by script-src 'self')", which was untrue for an
+ * absolute `src` and would have hidden a silently blocked CDN/analytics script.
+ */
+const CSP_SELF = "/*\n  Content-Security-Policy: default-src 'self'; script-src 'self'\n";
+
+test("fails on a cross-origin <script src> when script-src ships", () => {
+  const dir = fixture({
+    "index.html": PAGE(DATA_BLOCK + '<script src="https://cdn.example.com/analytics.js"></script>'),
+    _headers: CSP_SELF,
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false);
+  assert.equal(res.violations[0].kind, "cross-origin-script-src");
+  assert.equal(res.totals.crossOriginScripts, 1);
+  assert.equal(res.totals.sameOriginScripts, 0);
+  assert.ok(res.crossOriginHosts.has("cdn.example.com"));
+});
+
+test("treats a protocol-relative <script src> as cross-origin", () => {
+  const dir = fixture({
+    "index.html": PAGE('<script src="//cdn.example.com/a.js"></script>'),
+    _headers: CSP_SELF,
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, false);
+  assert.equal(res.violations[0].kind, "cross-origin-script-src");
+});
+
+test("relative srcs are same-origin and never judged", () => {
+  const dir = fixture({
+    "index.html": PAGE(
+      '<script src="/_next/a.js"></script><script src="a.js"></script><script src="./b.js"></script>',
+    ),
+    _headers: CSP_SELF,
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, true);
+  assert.equal(res.violations.length, 0);
+  assert.equal(res.totals.sameOriginScripts, 3);
+  assert.equal(res.totals.crossOriginScripts, 0);
+});
+
+test("allows a cross-origin src whose host the shipped script-src names", () => {
+  const dir = fixture({
+    "index.html": PAGE('<script src="https://cdn.example.com/a.js"></script>'),
+    _headers: "/*\n  Content-Security-Policy: script-src 'self' https://cdn.example.com\n",
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, true, "the policy allows this host, so the browser does not block it");
+  assert.equal(res.violations.length, 0);
+  assert.equal(res.totals.crossOriginScripts, 1);
+});
+
+test("counts cross-origin srcs without judging them before script-src ships", () => {
+  const dir = fixture({
+    "index.html": PAGE('<script src="https://cdn.example.com/a.js"></script>'),
+    _headers: "/*\n  X-Frame-Options: DENY\n",
+  });
+  const { res, ok } = run(dir);
+  assert.equal(ok, true, "no policy shipped => nothing to judge against (PR #59 ordering)");
+  assert.equal(res.violations.length, 0);
+  assert.equal(res.totals.crossOriginScripts, 1);
+});
+
+test("scriptSrcAllowsOrigin reads the host-source grammar", () => {
+  const cdn = { host: "cdn.example.com", scheme: "https" };
+  assert.equal(scriptSrcAllowsOrigin(cdn, "script-src 'self' https://cdn.example.com"), true);
+  assert.equal(scriptSrcAllowsOrigin(cdn, "script-src 'self' https://cdn.example.com:443"), true);
+  assert.equal(scriptSrcAllowsOrigin(cdn, "script-src 'self' https:"), true, "scheme source");
+  assert.equal(scriptSrcAllowsOrigin({ host: "cdn.example.com", scheme: null }, "script-src 'self' http:"), true, "protocol-relative src can load under a scheme source");
+  assert.equal(scriptSrcAllowsOrigin(cdn, "script-src *"), true);
+  assert.equal(scriptSrcAllowsOrigin(cdn, "script-src 'self' 'unsafe-inline'"), false);
+  assert.equal(scriptSrcAllowsOrigin({ host: "sub.cdn.example.com", scheme: "https" }, "script-src *.cdn.example.com"), true);
+  assert.equal(scriptSrcAllowsOrigin(cdn, "script-src *.cdn.example.com"), false, "a wildcard does not cover the apex");
+  assert.equal(scriptSrcAllowsOrigin(cdn, "script-src 'self' http:"), false, "wrong scheme");
+  assert.equal(scriptSrcAllowsOrigin(cdn, null), null, "no policy shipped => nothing to judge");
 });
 
 /* --------------------------------------------------------------------- wasm */

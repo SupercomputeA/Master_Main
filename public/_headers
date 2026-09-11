@@ -40,6 +40,35 @@
 # XFO, older ones let DENY win — so same-origin framing silently broke on older
 # browsers. SAMEORIGIN keeps the legacy clickjacking protection and agrees with
 # the CSP instead of removing the header.
+#
+# HSTS + expanded Permissions-Policy (F6 salvage from the closed PR #58) —
+# everything else in that competing branch was dropped, deliberately: its policy
+# put 'unsafe-inline' back into script-src and used frame-ancestors 'none' where
+# the audited policy says 'self'. Only these two headers were worth keeping, and
+# both land inside the /* block below (a path-less block is inert — see above).
+#
+# HSTS: 1 year, includeSubDomains, NO preload (preload is a separate, deliberate
+# commitment and is not part of this change). includeSubDomains was checked
+# against every name that resolves under the zone before shipping:
+#   supercompute.io / www / staging            -> 200, and http 301s to https
+#   dev / newsdesk / app / admin / cdn / docs /
+#   mail / tradedesk / <random>.supercompute.io -> 522 (no origin behind it today),
+#                                                  identical over https
+#   api.supercompute.io                         -> 404 over both http and https
+# Nothing on the zone serves plain HTTP content, and the wildcard cert
+# (*.supercompute.io) already means the downgrade path is closed. includeSubDomains
+# is still the hard-to-walk-back half of this: any FUTURE subdomain that answers
+# only plain HTTP hard-fails in browsers that have seen this header. Rollback is a
+# one-line removal here (plus Clear-HSTS in the CF dashboard), never a preload.
+#
+# Permissions-Policy payment=(), usb=(): verified unused before extending —
+#   0 hits for PaymentRequest | canMakePayment | navigator.usb across the built
+#   export (out/_next/**/*.js) AND across lib/ components/ pages/ functions/;
+#   0 hits for getUserMedia | navigator.geolocation | navigator.mediaDevices.
+#   The fiat ramp (components/FiatRamp.tsx:62) is a top-level window.open() — a
+#   separate document this policy does not cover — not an embedded Payment
+#   Request flow. A WebUSB hardware-wallet integration (e.g. Ledger) would need
+#   usb=(self) added here first; nothing in the tree uses it today.
 
 /*
   Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://fonts.gstatic.com https://mainnet.base.org https://eth.drpc.org https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
@@ -47,7 +76,8 @@
   X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin
   Cross-Origin-Opener-Policy: same-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
 
 # Immutable hashed build assets
 /_next/static/*

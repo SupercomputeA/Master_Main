@@ -2,7 +2,9 @@ import Head from "next/head"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { useConnect } from "wagmi"
+import { useAccount } from "wagmi"
 import { useAuth } from "../lib/auth"
+import { formatAddress, useENSName } from "../lib/ens"
 
 /* Auth — SIWE (Sign In with Ethereum) on Base.
    Wallet buttons trigger wagmi connect → AuthProvider detects
@@ -18,6 +20,8 @@ const WALLETS = [
 export default function Auth() {
   const { authing, session, profile } = useAuth()
   const { connect, connectors, isPending, error } = useConnect()
+  const { address: wagmiAddress } = useAccount()
+  const { data: ensName } = useENSName(wagmiAddress)
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null)
 
   // Redirect to /app when session is established
@@ -80,6 +84,14 @@ export default function Auth() {
               </button>
             ))}
           </div>
+
+          {wagmiAddress && !session && (
+            <div className="auth-msg" style={{ color: "var(--teal)", fontSize: 11 }}>
+              {/* Render ENS-first; fall back to formatted address. Hydrates
+                  client-side after wagmi picks up the connection. */}
+              connected as <strong>{formatAddress(wagmiAddress, ensName)}</strong>
+            </div>
+          )}
 
           {busy && (
             <div className="auth-msg" style={{ color: "var(--gold-warm)" }}>

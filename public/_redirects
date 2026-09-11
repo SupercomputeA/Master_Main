@@ -1,3 +1,7 @@
+# Legal pages — serve static HTML files at canonical URLs
+/terms    /terms.html    200
+/privacy  /privacy.html  200
+
 # NewsDesk article routing:
 # Markdown articles (aave, aerodrome, nypd, newsdesk-launch, token-gating,
 # on-chain-identity, welcome-to-supercompute) get their own pre-rendered HTML

@@ -28,8 +28,11 @@ every other `functions/api/*` handler).
 
 ## Storage — D1, table `csp_reports`
 
-Migration: `migrations/0008_csp_reports.sql`. One row per rollup identity, so the
-signal is a **count, not a firehose**:
+Migration: `migrations/0008_csp_reports.sql`. It is **applied by CI** — the
+`Apply D1 migrations (idempotent)` step in `.github/workflows/ci-cd.yml` runs it
+(alongside `0002`/`0006`) on every deploy, and the file is written to be safely
+re-runnable. Nothing has to be run by hand for the table to exist in production.
+One row per rollup identity, so the signal is a **count, not a firehose**:
 
 ```
 bucket_key = day | violated_directive | blocked_origin | document_path | disposition

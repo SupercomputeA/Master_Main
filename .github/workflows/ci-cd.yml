@@ -58,20 +58,62 @@ jobs:
           echo "TODO count: $(grep -rc 'TODO' pages/ components/ lib/ 2>/dev/null | wc -l)" || true
           echo "✓ Code scan complete"
 
-  deploy:
+  # Election (t_7998fe88): which run is even allowed to enter the deploy lane.
+  # This job is deliberately NOT in the deploy concurrency group. GitHub cancels a
+  # *pending* job whenever a newer arrival joins the same group, and it has no notion
+  # of commit order — so a stale run's arrival can cancel the newest run's pending
+  # deploy. Observed live 2026-09-11, immediately after the first version of this fix
+  # shipped: run A (older merge) queued 1s after run B (newer merge) had queued, B was
+  # cancelled, then A's guard correctly refused to publish — and *nothing* deployed.
+  # Keeping non-tip runs out of the group closes that hole: the only jobs that enter
+  # it are tip commits, so entrants arrive in commit order and the newest always
+  # deploys. It also skips the ~4 minute build for runs nobody needs.
+  gate:
     needs: validate
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/development'
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.elect.outputs.deploy }}
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Elect the branch tip
+        id: elect
+        run: |
+          set -uo pipefail
+          tip=""
+          if ! tip=$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" 2>/dev/null | cut -f1) || [ -z "$tip" ]; then
+            echo "::warning::could not read refs/heads/${GITHUB_REF_NAME} — allowing this deploy through"
+            tip="$GITHUB_SHA"
+          fi
+          echo "run sha : $GITHUB_SHA"
+          echo "tip     : $tip"
+          echo "attempt : $GITHUB_RUN_ATTEMPT"
+          if [ "${GITHUB_RUN_ATTEMPT:-1}" != "1" ]; then
+            echo "manual re-run (attempt $GITHUB_RUN_ATTEMPT) — deploying the requested commit"
+          elif [ "$tip" = "$GITHUB_SHA" ]; then
+            echo "this run is the newest commit on ${GITHUB_REF_NAME}"
+          else
+            echo "::warning::$GITHUB_SHA has been superseded by $tip — staying out of the deploy queue so the newer run keeps the alias"
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: [validate, gate]
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/development') && needs.gate.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     # Serialize deploys per branch (t_7998fe88). Two merges to `main` in the same
     # minute used to build+deploy concurrently and the LAST one to finish claimed the
     # production alias, even when its commit was the OLDER of the two — prod silently
     # regressed to 9de3c8c6 while c6fe38dd (the newer merge) had already deployed.
     # cancel-in-progress MUST stay false: cancelling the newer run would leave the
-    # older build live. With it false, GitHub keeps exactly one run pending per group
-    # and a third run displaces the *pending* one, so the newest commit always reaches
-    # the gate. `Decide whether this run may move the production alias` below is the
-    # second half of the guarantee: whichever run gets the gate, only the branch tip
-    # is allowed to publish.
+    # older build live. Only runs that won the `gate` election above (tip commits, in
+    # commit order) ever reach this group, and the in-job re-check below stops a run
+    # whose commit was superseded mid-build from being the last writer.
     concurrency:
       group: pages-deploy-${{ github.ref }}
       cancel-in-progress: false
@@ -138,11 +180,13 @@ jobs:
       # (CREATE TABLE / CREATE INDEX IF NOT EXISTS) belong in this list — anything
       # that ALTERs or rebuilds a table must be applied deliberately instead.
       #
-      # continue-on-error: the Pages deploy token (CLOUDFLARE_API_TOKEN) cannot
-      # reach the D1 import endpoint (`Authentication error [code: 10000]`, run
-      # 34647683246, 2026-09-11). That is a token-scope problem, not a build problem,
-      # and it must not wedge the static deploy — but it must never be silent either:
-      # the outcome is re-raised as a hard failure after the deploy steps below.
+      # continue-on-error: this step talks to a stricter Cloudflare credential than the
+      # deploy above (D1 writes need D1:Edit, which the Pages token never had — run
+      # 34647683246 died on the import endpoint with `Authentication error [code: 10000]`
+      # on 2026-09-11). A credential/scope problem must not be able to wedge the static
+      # deploy — it did, for half an hour, while `/subscribe` sat merged and unshipped —
+      # but it must never be silent either: the outcome is re-raised as a hard failure
+      # after the deploy steps below.
       #
       # D1 writes need D1:Edit, which the Pages token does not have. The step
       # therefore runs with CLOUDFLARE_D1_TOKEN (the D1 read+write token) and only

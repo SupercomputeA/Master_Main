@@ -19,6 +19,11 @@ QUANTA_TOKEN = "0x5ACDC563450cC35055d7344287C327fafB2b371A"
 SCOM_STAKING = "0x0000000000000000000000000000000000000000"
 # Uniswap V4 Quoter on Base — not deployed yet; zero-address falls back to simulated quote
 UNISWAP_QUOTER = "0x0000000000000000000000000000000000000000"
+# ENS RPC — mainnet (ENS lives on mainnet, not Base). Public read-only RPCs
+# are fine for namehash + text record reads. Functions/api/ens/* fall back to
+# https://ethereum-rpc.publicnode.com if unset. Override per-environment via
+# the Cloudflare dashboard for higher rate limits.
+ENS_RPC_URL = "https://ethereum-rpc.publicnode.com"
 
 # NOTE: Cloudflare Pages only supports the named environments "preview" and
 # "production" — a custom [env.staging] block fails Pages config validation and

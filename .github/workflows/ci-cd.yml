@@ -72,6 +72,19 @@ jobs:
     needs: validate
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
+    # Serialize deploys per branch (t_7998fe88). Two merges to `main` in the same
+    # minute used to build+deploy concurrently and the LAST one to finish claimed the
+    # production alias, even when its commit was the OLDER of the two — prod silently
+    # regressed to 9de3c8c6 while c6fe38dd (the newer merge) had already deployed.
+    # cancel-in-progress MUST stay false: cancelling the newer run would leave the
+    # older build live. With it false, GitHub keeps exactly one run pending per group
+    # and a third run displaces the *pending* one, so the newest commit always reaches
+    # the gate. `Decide whether this run may move the production alias` below is the
+    # second half of the guarantee: whichever run gets the gate, only the branch tip
+    # is allowed to publish.
+    concurrency:
+      group: pages-deploy-${{ github.ref }}
+      cancel-in-progress: false
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
@@ -112,13 +125,88 @@ jobs:
           cp -r functions out/functions
           echo "✓ Functions copied to out/functions/"
 
+      # Build provenance inside the shipped bytes: `curl -s https://supercompute.io/`
+      # now names the exact commit that produced the live HTML, so "which build is
+      # live?" is a body check instead of an inference from CI status (t_7998fe88).
+      - name: Stamp build provenance into the exported HTML
+        run: |
+          stamp="<!-- supercompute build ${GITHUB_SHA} ${GITHUB_REF_NAME} $(date -u +%Y-%m-%dT%H:%M:%SZ) -->"
+          count=0
+          while IFS= read -r f; do
+            sed -i "s|</body>|${stamp}</body>|" "$f"
+            count=$((count + 1))
+          done < <(find out -name '*.html' -type f)
+          echo "stamped ${count} HTML files"
+          grep -o "supercompute build [0-9a-f]*" out/index.html | head -1
+
       - name: Install Wrangler
         run: npm install -g wrangler@4
 
-      - name: Deploy to Cloudflare Pages (production)
+      # Schema before code: the subscriber funnel (/api/subscribers, the tier gate)
+      # 500s when its tables are missing, and `wrangler pages deploy` never runs
+      # migrations. Only migrations written to be safely re-runnable
+      # (CREATE TABLE / CREATE INDEX IF NOT EXISTS) belong in this list — anything
+      # that ALTERs or rebuilds a table must be applied deliberately instead.
+      #
+      # continue-on-error: the Pages deploy token (CLOUDFLARE_API_TOKEN) cannot
+      # reach the D1 import endpoint (`Authentication error [code: 10000]`, run
+      # 34647683246, 2026-09-11). That is a token-scope problem, not a build problem,
+      # and it must not wedge the static deploy — but it must never be silent either:
+      # the outcome is re-raised as a hard failure after the deploy steps below.
+      #
+      # D1 writes need D1:Edit, which the Pages token does not have. The step
+      # therefore runs with CLOUDFLARE_D1_TOKEN (the D1 read+write token) and only
+      # falls back to CLOUDFLARE_API_TOKEN when that secret is unset — with the
+      # fallback the schema step fails as before and the run still goes red below.
+      - name: Apply D1 migrations (idempotent)
+        id: d1
+        continue-on-error: true
+        run: |
+          for f in migrations/0002_marketplace.sql migrations/0006_add_subscribers.sql migrations/0008_csp_reports.sql; do
+            echo "==> applying $f"
+            wrangler d1 execute supercompute-db --remote --file="$f" --yes
+          done
+          wrangler d1 execute supercompute-db --remote --yes \
+            --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('subscribers','marketplace_listings','csp_reports') ORDER BY name;"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # Second half of the serialization guarantee (t_7998fe88). The concurrency group
+      # keeps two deploys from overlapping; this keeps an *older* commit from being the
+      # last writer. Evaluated immediately before the deploy because the branch tip can
+      # move during the ~4 minute build. A manual re-run (attempt > 1) is an operator
+      # asking for that specific commit and is always allowed through.
+      - name: Decide whether this run may move the production alias
+        id: tip
         if: github.ref == 'refs/heads/main'
         run: |
-          wrangler pages deploy out --project-name=supercompute --commit-dirty=true
+          set -uo pipefail
+          tip=""
+          if ! tip=$(git ls-remote origin refs/heads/main 2>/dev/null | cut -f1) || [ -z "$tip" ]; then
+            echo "::warning::could not read the origin/main tip — allowing this deploy through"
+            tip="$GITHUB_SHA"
+          fi
+          echo "run sha  : $GITHUB_SHA"
+          echo "main tip : $tip"
+          echo "attempt  : $GITHUB_RUN_ATTEMPT"
+          if [ "${GITHUB_RUN_ATTEMPT:-1}" != "1" ]; then
+            echo "manual re-run (attempt $GITHUB_RUN_ATTEMPT) — deploying the requested commit"
+          elif [ "$tip" = "$GITHUB_SHA" ]; then
+            echo "this run is the newest commit on main"
+          else
+            echo "::warning::superseded by $tip — skipping the production deploy so the newer build keeps the alias"
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Cloudflare Pages (production)
+        if: github.ref == 'refs/heads/main' && steps.tip.outputs.deploy == 'true'
+        run: |
+          # --branch main is explicit: Pages resolves the production alias from the
+          # branch, and an implicit target is how a build lands on the wrong alias.
+          wrangler pages deploy out --project-name=supercompute --branch main --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -142,3 +230,13 @@ jobs:
       - name: Verify deployment
         run: |
           echo "Deployed supercompute website to supercompute.pages.dev (${{ github.ref_name }})"
+
+      # The D1 step above is allowed to fail so that a Cloudflare token-scope problem
+      # cannot freeze the site (it did: every push to main after 2026-09-11 21:06 was
+      # blocked, so /subscribe ship'd code sat undeployed). Re-raise it here so the run
+      # is still RED and the failure is impossible to miss — never silent.
+      - name: Fail loudly if the schema step failed
+        if: always() && steps.d1.outcome == 'failure'
+        run: |
+          echo "::error::D1 migrations did NOT apply — /api/subscribers and /api/marketplace will 500 until the schema lands. The Cloudflare API token needs D1 write scope for this project's database. The static site was deployed; the schema was not."
+          exit 1

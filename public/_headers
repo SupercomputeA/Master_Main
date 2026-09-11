@@ -29,6 +29,11 @@
 #   eth_blockNumber). Adding a browser-side read against any of them requires
 #   adding it below first.
 #
+#   The subscriber funnel (/subscribe, /dashboard, paid rail) adds NO new
+#   browser-side origin: wallet connect uses lib/web3.ts transports (listed),
+#   SIWE auth and every subscriber call are same-origin /api/*, and EIP-3009
+#   signing is local to the wallet. connect-src therefore stays exactly as-is.
+#
 # COOP: same-origin is in effect for the first time. No live impact today — the
 # only window.open() is components/FiatRamp.tsx:62, which already passes
 # "noopener", and the WalletConnect modal is an iframe. If a popup-based flow is
@@ -83,3 +88,10 @@
 
 /
   Cache-Control: public, max-age=0, must-revalidate
+
+# ENS resolver — read-only public resolver. Short browser cache, longer edge
+# cache (the function itself caches in KV for 1h). No CORS header: every caller
+# (lib/ens.ts) is same-origin, and a wildcard ACAO would advertise a
+# cross-origin read surface that does not exist.
+/api/ens/*
+  Cache-Control: public, max-age=60, s-maxage=300

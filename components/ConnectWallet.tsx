@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useAuth } from "../lib/auth"
 import { useUserProfile } from "../lib/useNeynar"
 import { lookupAddress, shortenAddress, getWalletProfile } from "../lib/web3-utils"
+import { formatAddress, resolveAvatar } from "../lib/ens"
 
 export default function ConnectWallet() {
   const { profile, authing, connect, disconnect } = useAuth()
@@ -11,6 +12,7 @@ export default function ConnectWallet() {
   const [mounted, setMounted] = useState(false)
   const [ensName, setEnsName] = useState<string | null>(null)
   const [tokenBalance, setTokenBalance] = useState<string | null>(null)
+  const [avatar, setAvatar] = useState<string | null>(null)
 
   const walletAddress = profile?.address || profile?.wallet_address || (profile?.name?.startsWith("0x") ? profile.name : null)
 
@@ -22,9 +24,12 @@ export default function ConnectWallet() {
         setEnsName(p.ens)
         setTokenBalance(p.balance)
       }).catch(() => {})
+      // Avatar is best-effort; don't block the UI.
+      resolveAvatar(walletAddress).then((a) => setAvatar(a)).catch(() => {})
     } else {
       setEnsName(null)
       setTokenBalance(null)
+      setAvatar(null)
     }
   }, [walletAddress])
 
@@ -37,9 +42,22 @@ export default function ConnectWallet() {
   }
 
   if (profile) {
-    const displayName = ensName || profile.name
+    // formatAddress prefers ensName, falls back to 0x1a82…323B,
+    // so the project wallet always renders as supercompute.eth
+    // (or the user's own ENS) once resolved.
+    const displayName = formatAddress(walletAddress, ensName || profile.ensName)
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {avatar && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={avatar}
+            alt="ENS avatar"
+            width={48}
+            height={48}
+            style={{ borderRadius: 4, alignSelf: "center", border: "1px solid var(--border-accent)" }}
+          />
+        )}
         {ensName && (
           <div style={{
             fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--teal)",
@@ -67,7 +85,7 @@ export default function ConnectWallet() {
           textOverflow: "ellipsis",
         }}>
           {displayName}
-          {ensName && walletAddress && (
+          {(ensName || profile.ensName) && walletAddress && (
             <div style={{ fontSize: 8, color: "var(--muted)", marginTop: 2 }}>
               {shortenAddress(walletAddress)}
             </div>

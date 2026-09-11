@@ -85,3 +85,24 @@ CREATE TABLE projects (
 
 CREATE INDEX idx_admin_wallets_address ON admin_wallets(wallet_address);
 CREATE INDEX idx_projects_status ON projects(status);
+
+-- Subscribers (tier-based membership — funnel: /subscribe → /dashboard)
+CREATE TABLE subscribers (
+  id TEXT PRIMARY KEY,
+  wallet_address TEXT UNIQUE,        -- nullable for email-only leads
+  email TEXT UNIQUE,                 -- nullable for wallet-only subs
+  tier TEXT NOT NULL DEFAULT 'free', -- free | builder | operator | syndicate | lead
+  status TEXT NOT NULL DEFAULT 'pending', -- pending | active | expired | cancelled
+  joined_at INTEGER DEFAULT (unixepoch()),
+  expires_at INTEGER,                -- unix epoch seconds; null = no expiry (free)
+  source TEXT DEFAULT 'web',         -- web | trade_desk | import
+  tx_hash TEXT,                      -- optional on-chain payment receipt
+  metadata TEXT,                     -- JSON: notes, referral, etc.
+  updated_at INTEGER DEFAULT (unixepoch())
+);
+
+CREATE INDEX idx_subscribers_wallet ON subscribers(wallet_address);
+CREATE INDEX idx_subscribers_email ON subscribers(email);
+CREATE INDEX idx_subscribers_tier ON subscribers(tier);
+CREATE INDEX idx_subscribers_status ON subscribers(status);
+CREATE INDEX idx_subscribers_expires ON subscribers(expires_at);

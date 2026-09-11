@@ -44,5 +44,20 @@
 # Must come BEFORE the /* SPA catch-all.
 /project/*    /project/[id]    200
 
-# SPA fallback — route all remaining non-file, non-API 404s to index.html
-/*    /index.html   200
+# NO CATCH-ALL SPA FALLBACK HERE.
+# This site is a Next.js static export (`output: "export"` in next.config.js), so every
+# route has a real file in out/ — /terms -> terms.html, /staking -> staking.html,
+# /app/projects/new -> app/projects/new.html — and Cloudflare Pages maps clean URLs onto
+# those files itself.
+#
+# A `/*  /index.html  200` SPA fallback was rejected by the Pages redirects parser as an
+# infinite loop (the /index.html target is matched by /* again), so it was silently ignored
+# both locally and in production. Verified independently 2026-09-16:
+#   /definitely-not-a-real-page-xyz -> HTTP 404, the exported 404 shell (2,585 B)
+#   /                               -> HTTP 200, index.html (7,956 B)
+# i.e. unknown paths fall through to 404.html, NOT to index.html. Removing the dead rule
+# changes no live behaviour: real routes keep serving their own file.
+#
+# NOTE: the "Must come BEFORE the /* SPA catch-all" annotations above are now historical —
+# the catch-all they referred to does not exist. The specific rules above still matter
+# relative to ONE ANOTHER, so they stay listed in this order.

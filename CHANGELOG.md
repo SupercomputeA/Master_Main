@@ -7,6 +7,17 @@ All notable changes to the Supercompute main site live here. Format loosely foll
 The publishing app ships independently on `feat/supercompute-publishing` and tracks
 its own versions over there.
 
+## [Unreleased]
+
+### Fixed
+- CI: production Pages deploys are serialized per branch (`concurrency` on the
+  `deploy` job, `cancel-in-progress: false`) and only the current tip of `main` may
+  move the production alias. Two merges landing in the same minute used to deploy
+  concurrently, and the deploy that finished **last** claimed the alias even when its
+  commit was the older one — prod silently regressed to the previous build
+  (t_7998fe88). Exported HTML now carries a `supercompute build <sha>` provenance
+  comment, so the live body names the commit that produced it.
+
 ## [1.1.0] — 2026-05-28
 
 ### Added

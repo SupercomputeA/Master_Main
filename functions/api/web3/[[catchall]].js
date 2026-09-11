@@ -1,6 +1,8 @@
 // functions/api/web3.js — Web3 API (ENS, Balances, Staking, Swap)
 // Cloudflare Pages Function with direct RPC calls
 
+import { entitlementsFor } from "../../../lib/tiers.js"
+
 const ETH_RPCS = [
   "https://ethereum-rpc.publicnode.com",
   "https://ethereum.publicnode.com",
@@ -345,8 +347,54 @@ export async function onRequest({ request, env }) {
 
   if (method === "POST" && path === "/gate") {
     const body = await request.json().catch(() => ({}))
-    const { wallet, requirements } = body
-    if (!wallet || !requirements) return j({ error: "wallet and requirements required" }, 400)
+    const { wallet, requirements, surface } = body
+    if (!wallet) return j({ error: "wallet required" }, 400)
+
+    const gates = []
+    let tier = null
+    let surfaces = []
+    let inferencePerDay = 0
+    let active = false
+
+    // Tier-based gate (when no requirements list provided)
+    if (env?.DB && (!requirements || requirements.length === 0)) {
+      try {
+        const row = await env.DB.prepare(
+          'SELECT * FROM subscribers WHERE wallet_address = ? ORDER BY joined_at DESC LIMIT 1'
+        ).bind(wallet.toLowerCase()).first()
+        if (row) {
+          const ent = entitlementsFor(row)
+          if (ent) {
+            tier = ent.tier.id
+            surfaces = ent.surfaces
+            inferencePerDay = ent.inferencePerDay
+            active = true
+            gates.push({ label: `Tier: ${ent.tier.name}`, passed: true })
+            if (surface) {
+              const has = ent.surfaces.includes(surface) || ent.surfaces.includes('public')
+              gates.push({ label: `Surface: ${surface}`, passed: has })
+            }
+          } else {
+            gates.push({ label: 'Active subscription', passed: false })
+          }
+        } else {
+          gates.push({ label: 'No subscription', passed: false })
+        }
+      } catch (e) {
+        gates.push({ label: 'Subscription lookup failed', passed: false })
+      }
+      const passed = gates.every(g => g.passed)
+      return j({
+        passed,
+        gates,
+        tier,
+        surfaces,
+        inferencePerDay,
+        active,
+      })
+    }
+
+    if (!requirements) return j({ error: "requirements required when no wallet has subscription" }, 400)
 
     // Resolve token symbols to contract addresses via env vars
     const TOKEN_MAP = {

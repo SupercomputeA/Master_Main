@@ -20,5 +20,13 @@
 /app/article/kg/*         /app/article/kg/[id]         200
 /app/publishing/*/edit    /app/publishing/[id]/edit    200
 
+# Legacy TinaCMS admin SPA used to be served from public/admin/index.html and
+# answered /admin/ (trailing slash). That file is gone (t_f0ba29a2) — it was a
+# dead Vite SPA that needed a localhost:4001 dev server and was the sole source
+# of CSP violations in the export. Normalise /admin/ onto the real Next.js admin
+# dashboard at /admin (out/admin.html) instead of letting it fall through to the
+# SPA catch-all below.
+/admin/    /admin    301
+
 # SPA fallback — route all remaining non-file, non-API 404s to index.html
 /*    /index.html   200

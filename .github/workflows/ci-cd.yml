@@ -27,14 +27,6 @@ jobs:
       - name: Show Node version
         run: node --version
 
-      - name: Build Tina CMS admin
-        run: npx tinacms build
-        env:
-          NEXT_PUBLIC_TINA_CLIENT_ID: ${{ vars.NEXT_PUBLIC_TINA_CLIENT_ID }}
-          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
-          TINA_BRANCH: ${{ github.ref_name }}
-        continue-on-error: true
-
       - name: Build Next.js static export
         run: npx next build
         env:
@@ -78,14 +70,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Build Tina CMS admin
-        run: npx tinacms build
-        env:
-          NEXT_PUBLIC_TINA_CLIENT_ID: ${{ vars.NEXT_PUBLIC_TINA_CLIENT_ID }}
-          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
-          TINA_BRANCH: ${{ github.ref_name }}
-        continue-on-error: true
 
       - name: Build Next.js static export
         run: npx next build

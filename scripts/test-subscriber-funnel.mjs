@@ -81,6 +81,31 @@ async function main() {
   check(`row tier is '${TIER}'`, row.tier === TIER)
   check('row has an id', typeof row.id === 'string' && row.id.length > 0)
 
+  // Status contract: paid tiers stay 'pending' until /api/subscribers/pay verifies the
+  // EIP-3009 authorization; free + email-lead have no payment rail and activate at once.
+  // Regression guard — Free used to be written 'pending' with no way to ever clear it,
+  // which left entitlementsFor() returning null (empty dashboard, gate passed:false).
+  const expectedStatus = TIER === 'free' || TIER === 'lead' ? 'active' : 'pending'
+  check(`row status is '${expectedStatus}'`, row.status === expectedStatus, `status=${row.status}`)
+
+  console.log("\n5b. POST /api/subscribers  { email only, tier: 'lead' }  (wallet-less fallback)")
+  const leadEmail = 'e2e-lead@supercompute.test' // deterministic → idempotent on re-run
+  const leadRes = await fetch(`${SITE}/api/subscribers`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ email: leadEmail, tier: 'lead', source: 'e2e-test' }),
+  })
+  const leadData = await leadRes.json().catch(() => ({}))
+  const leadRow = leadData.subscriber
+  if (
+    check('lead row created', leadRes.ok && leadData.ok === true && !!leadRow, `HTTP ${leadRes.status} ${JSON.stringify(leadData).slice(0, 200)}`)
+  ) {
+    check('lead row has no wallet', leadRow.wallet_address === null, `wallet=${leadRow.wallet_address}`)
+    check("lead row tier is 'lead'", leadRow.tier === 'lead', `tier=${leadRow.tier}`)
+    check("lead row status is 'active' (no payment rail)", leadRow.status === 'active', `status=${leadRow.status}`)
+    check('lead row stores the email', String(leadRow.email).toLowerCase() === leadEmail, `email=${leadRow.email}`)
+  }
+
   console.log('\n6. GET /api/subscribers/me (session-scoped)')
   const meRes = await fetch(`${SITE}/api/subscribers/me`, { headers: authHeaders })
   const meData = await meRes.json().catch(() => ({}))

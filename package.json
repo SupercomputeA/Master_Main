@@ -19,6 +19,9 @@
     "test": "node --test tests/auth/login.test.js",
     "test:csp": "node --test tests/csp/csp-report.test.mjs tests/csp/inline-scripts.test.mjs tests/csp/analytics-beacon.test.mjs",
     "check:inline-scripts": "node scripts/check-inline-scripts.mjs out",
+    "test:headers": "node --test tests/headers/assert-headers.test.mjs",
+    "check:headers": "node scripts/assert-headers.mjs",
+    "check:headers:live": "node scripts/assert-headers.mjs --url https://supercompute.io",
     "preview": "wrangler pages project . --preview"
   },
   "dependencies": {

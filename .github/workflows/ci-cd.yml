@@ -70,6 +70,24 @@ jobs:
       - name: Assert export ships no executable inline scripts (guards script-src 'self')
         run: node scripts/check-inline-scripts.mjs out
 
+      # Header-VALUE pins (T-follow-up from the #94 verdict, security condition 3).
+      # `_headers` has silently shipped three wrong values: a path-less file that
+      # applied nothing (M1), XFO DENY contradicting frame-ancestors 'self' (M2),
+      # and COOP same-origin severing window.opener for the Coinbase Wallet popup
+      # (M3). A build cannot catch any of them — the file parses, the deploy goes
+      # green, and prod serves headers nobody asserted. This pair does:
+      #   * the suite drives the repo's REAL public/_headers and mutation-tests
+      #     every pin, so a pin that stops matching fails here;
+      #   * out/_headers is what Cloudflare actually receives, so --same-as is
+      #     what makes the pin describe what ships (verified byte-identical on
+      #     three real builds; if that ever stops being true the failure is loud).
+      # See docs/headers-invariant.md. Drift against prod: .github/workflows/header-drift.yml.
+      - name: Test the header-pin gate itself
+        run: node --test tests/headers/assert-headers.test.mjs
+
+      - name: Assert the pinned header values survive the build (COOP, XFO, CSP, no COEP)
+        run: node scripts/assert-headers.mjs --file out/_headers --same-as public/_headers
+
       # Redirect-loop class (2026-09-11): Cloudflare Pages turns any '<name>.html'
       # request into a 308 to '<name>', so a `_redirects` 200-rewrite whose TARGET ends
       # in .html bounces the route between the two forever. It was live on

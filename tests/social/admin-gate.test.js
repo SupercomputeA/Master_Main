@@ -499,3 +499,375 @@ test('[real engine] seed-admin.sql gives every ENS-named admin row its address r
   const rando = await call('sess_rando', { env });
   assert.equal(rando.status, 403, 'the backfill must not widen the admin set');
 });
+
+// ══════════════════════════════════════════════════════════════════════════
+// SEC-F1c (card t_df9c32a1) — the LOGIN reader: an ADDRESS row is the only grant.
+//
+// SEC-F1/F1b converged the /api/social/* gate on `lower(wallet_address) = ?` over ADDRESS
+// rows and fixed the DATA (seed-admin.sql gives each ENS-named admin row its owner's address
+// row). Neither closed the class, because login.js's isAdmin() still carried a bridge from an
+// ADDRESS signer to an admin ENS row:
+//
+//   ADMIN_ENS_NAMES = ['supercompute.eth', 'orami.eth']   // resolved on every login
+//   … signer address → resolve each name → if it matches, match the NAME row
+//
+// Written that way, ownership of a name is itself a standing admin grant: whoever holds the
+// name at the moment of login gets role='admin' and the admin UI with no change to
+// `admin_wallets` — and the only revocation this table has (DELETE the address row) does not
+// reach a name the table does not own. Re-pointing a name would silently promote its new
+// holder on their next sign-in. Decided as OPTION (a), the same decision as SEC-F1b, applied
+// to the reader that was still name-aware:
+//
+//   * the principal is the ADDRESS ROW, one rule, the statement the gate already sends:
+//     `SELECT role FROM admin_wallets WHERE lower(wallet_address) = ?` — and now the
+//     statement functions/api/auth.js sends too, so three readers agree where four differed;
+//   * name rows stay in `admin_wallets` as DOCUMENTATION (the audit trail: "this name is
+//     administered by the address in its seed row"), never as a grant;
+//   * no ENS resolution on any request path, and the auth lane no longer ships a resolver at
+//     all. PR #103's reasons stand: 2–3 mainnet eth_calls on the DENY path is an amplifier any
+//     authenticated non-admin can pull, it couples admin availability to third-party RPC
+//     health, and it makes authorization follow mutable name ownership. The login path now
+//     makes ZERO mainnet calls — asserted below.
+//
+// ── Correction recorded while proving this (2026-09-15, runtime evidence) ───
+// The bridge was LATENT, NOT LIVE. The resolver the pre-fix login.js imported from
+// '../auth.js' referenced `ADDR_SELECTOR` and `ENS_RESOLVER` without defining either (added
+// in 897b0dc, "admin ENS login"—the constants exist only in the local copies in
+// functions/api/web3/[[catchall]].js and functions/api/ens/[[action]].js), so it threw
+// `ReferenceError: ADDR_SELECTOR is not defined` on every call and `isAdmin` swallowed it as
+// `false`. Proved twice at runtime on 2026-09-15, before the fix:
+//   * calling that resolver directly with a fetch stub installed threw before any fetch
+//     (zero fetch calls); and
+//   * a full signed login by a wallet with BOTH admin names re-pointed to it returned
+//     role 'user' with zero mainnet calls.
+// So no wallet was ever login-bridged by owning a name; the admin grant those owners have
+// today came from the audited `seed-admin.sql` backfill (SEC-F1b). The decision is unchanged
+// — the code removed here was the *only* thing that would have granted a name-holder admin
+// had the two constants been defined, which is exactly the hazard: one line of glue away from
+// a mutable authorization input. The mutant below makes that concrete: it restores the
+// removed block WITH those constants, and grants admin.
+//
+// `functions/api/subscribers.js` is the fourth reader and is still byte-exact
+// (`wallet_address = ?`), so the checksummed live row misses there. That is a case-handling
+// difference on one route, not a name-grant path — tracked separately, not silently fixed.
+//
+// The tests below drive the REAL login handler over a REAL engine (`node:sqlite`, what D1
+// runs) with a REAL signature, on the 5-row pre-backfill prod fixture from above.
+// ══════════════════════════════════════════════════════════════════════════
+
+const LOGIN_PATH = path.resolve(REPO_ROOT, 'functions/api/auth/login.js');
+const AUTH_PATH = path.resolve(REPO_ROOT, 'functions/api/auth.js');
+const LOGIN_SRC = readFileSync(LOGIN_PATH, 'utf8');
+const AUTH_SRC = readFileSync(AUTH_PATH, 'utf8');
+// The mutation below writes its mutant inside the tree, so it needs mkdir; the imports at the
+// top of this file are left alone on purpose (appended-only hunks in a contended file).
+import { mkdirSync } from 'node:fs';
+
+const { onRequest: loginOnRequest } = await import(pathToFileURL(LOGIN_PATH).href);
+const { isAdmin: canonicalIsAdmin } = await import(pathToFileURL(AUTH_PATH).href);
+const { privateKeyToAccount } = await import('viem/accounts');
+const { namehash: viemNamehash } = await import('viem/ens');
+
+/**
+ * A fresh wallet that holds NO admin_wallets row: "whoever now holds the name". It signs its
+ * own logins, so the bridge is exercised for real instead of being talked about.
+ */
+const FRESH = privateKeyToAccount(`0x${'c1'.repeat(32)}`);
+const FRESH_ADDR = FRESH.address.toLowerCase();
+
+const countRows = (db, wallet) =>
+  db.prepare('SELECT COUNT(*) AS c FROM admin_wallets WHERE lower(wallet_address) = ?').get(wallet).c;
+
+/**
+ * Assert on CODE, not on prose. The comments in these files legitimately NAME the removed
+ * bridge (`ADMIN_ENS_NAMES`, `resolveENS`) to explain why it is gone — a raw-source assertion
+ * would fire on the documentation and fail a correct file. This is the same reason the SQL
+ * guards strip `--` comments.
+ */
+const codeOnly = (src) => src
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .split('\n')
+  .filter((line) => !/^\s*\/\//.test(line))
+  .join('\n');
+const LOGIN_CODE = codeOnly(LOGIN_SRC);
+const AUTH_CODE = codeOnly(AUTH_SRC);
+
+/** The pre-backfill prod admin_wallets fixture: the rows read from remote D1 on 2026-09-14. */
+function preBackfillDb() {
+  const db = realDb();
+  for (const [id, wallet] of LIVE_ADMIN_WALLETS) {
+    db.prepare('INSERT OR IGNORE INTO admin_wallets (id, wallet_address, role) VALUES (?, ?, ?)').run(id, wallet, 'admin');
+  }
+  return db;
+}
+
+/** A real engine + a KV stand-in, in the shape login.js expects. */
+function loginEnv(db, cache = new Map()) {
+  return {
+    ...envOver(db),
+    CACHE: {
+      get: async (k) => (cache.has(k) ? cache.get(k) : null),
+      put: async (k, v) => { cache.set(k, v); },
+      delete: async (k) => { cache.delete(k); },
+    },
+  };
+}
+
+/** The exact SIWE message /api/auth/message issues (login.js's content contract). */
+function siweMessage(address, nonce) {
+  return [
+    'supercompute.io wants you to sign in with your Ethereum account.',
+    '',
+    'URI: https://supercompute.io',
+    'Version: 1',
+    'Chain ID: 8453',
+    `Nonce: ${nonce}`,
+    `Expiration Time: ${new Date(Date.now() + 10 * 60 * 1000).toISOString()}`,
+    '',
+    'Sign in to SUPERCOMPUTE Web3 Platform',
+  ].join('\n');
+}
+
+/** The real login request, signed for real by `account`. */
+async function signedLogin(handler, env, account, nonce) {
+  const message = siweMessage(account.address, nonce);
+  await env.CACHE.put(`siwe:msg:${nonce}`, message);
+  const signature = await account.signMessage({ message });
+  const res = await handler({
+    request: new Request('https://supercompute.io/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Origin: 'https://supercompute.io' },
+      body: JSON.stringify({ address: account.address, signature, nonce }),
+    }),
+    env,
+  });
+  return { status: res.status, body: await res.json().catch(() => null) };
+}
+
+/** A real signature over a real stored message, through the REAL login handler. */
+const loginAs = (env, account, nonce) => signedLogin(loginOnRequest, env, account, nonce);
+
+/**
+ * Stand in for mainnet ENS: make `namesToAddresses` resolve as given, and count the eth_calls
+ * it took. The eth_call `data` is `selector + namehash(name)`, so the answer is keyed on the
+ * name the caller actually asked about — the same bytes a re-pointed name would answer with.
+ */
+async function withRepointedNames(namesToAddresses, fn) {
+  const byNamehash = new Map(
+    Object.entries(namesToAddresses).map(([name, addr]) => [viemNamehash(name).slice(2), addr]),
+  );
+  const origFetch = globalThis.fetch;
+  const calls = [];
+  globalThis.fetch = async (url, init) => {
+    calls.push(String(url));
+    const payload = JSON.parse(init?.body || '{}');
+    const data = String(payload?.params?.[0]?.data || '');
+    const owner = byNamehash.get(data.slice(10));
+    return {
+      ok: true,
+      json: async () => (owner ? { result: `0x${'0'.repeat(24)}${owner.slice(2)}` } : { result: '0x' }),
+    };
+  };
+  try {
+    return await fn(calls);
+  } finally {
+    globalThis.fetch = origFetch;
+  }
+}
+
+const ADMIN_NAMEHASH = {
+  'supercompute.eth': viemNamehash('supercompute.eth').slice(2),
+  'orami.eth': viemNamehash('orami.eth').slice(2),
+};
+
+/**
+ * The removed grant path, restored in full: the pre-fix login.js block verbatim, plus the
+ * resolver it imported — with the two constants ADDR_SELECTOR / ENS_RESOLVER that the shipped
+ * copy never defined (which is why it never granted anything; see the header). "The block is
+ * back AND works" is the mutation this suite has to catch.
+ */
+const WORKING_BRIDGE_BLOCK = `const ADMIN_QUERY = 'SELECT role FROM admin_wallets WHERE wallet_address = ? OR wallet_address = ?';
+// ENS names seeded as admins. Resolving these to addresses lets a raw-address
+// signer (e.g. wallet that owns supercompute.eth signing in with 0x5056...)
+// still match the seed row.
+const ADMIN_ENS_NAMES = ['supercompute.eth', 'orami.eth'];
+const ENS_RESOLVER = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e';
+const ADDR_SELECTOR = '0178b8bf';
+const NAMEHASH = ${JSON.stringify(ADMIN_NAMEHASH)};
+async function resolveENS(addressOrName) {
+  if (addressOrName.startsWith('0x') && addressOrName.length === 42) return addressOrName.toLowerCase();
+  const data = '0x' + ADDR_SELECTOR + (NAMEHASH[addressOrName] || '');
+  for (const rpc of ['https://ethereum-rpc.publicnode.com']) {
+    try {
+      const res = await fetch(rpc, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', method: 'eth_call', params: [{ to: ENS_RESOLVER, data }, 'latest'], id: 1 }),
+      });
+      const json = await res.json();
+      const result = json.result || '0x';
+      if (result !== '0x' && result.length === 66) return '0x' + result.slice(-40);
+    } catch (e) { /* try next RPC */ }
+  }
+  return null;
+}
+async function isAdmin(env, wallet) {
+  if (!env?.DB) return false;
+  try {
+    let resolved = wallet;
+    if (!wallet.startsWith('0x')) {
+      resolved = await resolveENS(wallet);
+      if (!resolved) return false;
+    } else {
+      for (const ens of ADMIN_ENS_NAMES) {
+        const addr = await resolveENS(ens).catch(() => null);
+        if (addr && addr.toLowerCase() === wallet.toLowerCase()) {
+          resolved = ens;
+          break;
+        }
+      }
+    }
+    const r = await env.DB.prepare(ADMIN_QUERY)
+      .bind(wallet.toLowerCase(), resolved.toLowerCase())
+      .first();
+    return r?.role === 'admin';
+  } catch { return false; }
+}`;
+
+test('[real engine] SEC-F1c: the wallet an admin NAME resolves to is NOT admin at login — a name row is documentation, not a grant', async () => {
+  const db = preBackfillDb();
+  const env = loginEnv(db);
+  // Preconditions: the name rows are there, the signer has no row of its own.
+  assert.equal(countRows(db, 'supercompute.eth'), 1, 'fixture: the name row exists');
+  assert.equal(countRows(db, FRESH_ADDR), 0, 'fixture: the signer holds no admin_wallets row');
+
+  // The stale-grant setup in full: both admin names now resolve to this wallet, i.e. it holds
+  // them. A bridge that honoured the name would return role='admin' here (the mutation test
+  // below proves that is not a hypothetical).
+  await withRepointedNames({ 'supercompute.eth': FRESH_ADDR, 'orami.eth': FRESH_ADDR }, async (rpcCalls) => {
+    const { status, body } = await loginAs(env, FRESH, 'f1c1'.padEnd(64, '0'));
+    assert.equal(status, 200, `login must still succeed (a non-admin can log in): ${JSON.stringify(body)}`);
+    assert.equal(body.user.role, 'user', 'owning the name must not be an authorization input');
+    assert.equal(
+      rpcCalls.length, 0,
+      `the login path must resolve nothing on any path; it made ${rpcCalls.length} mainnet call(s)`,
+    );
+  });
+});
+
+test('[real engine] SEC-F1c: that same wallet IS admin once its ADDRESS row exists, and DELETE revokes it', async () => {
+  const db = preBackfillDb();
+  const env = loginEnv(db);
+  db.prepare('INSERT INTO admin_wallets (id, wallet_address, role) VALUES (?, ?, ?)').run('f1c_grant', FRESH_ADDR, 'admin');
+  const granted = await loginAs(env, FRESH, 'f1c2'.padEnd(64, '0'));
+  assert.equal(granted.status, 200, JSON.stringify(granted.body));
+  assert.equal(granted.body.user.role, 'admin', 'the address row IS the grant');
+
+  db.prepare('DELETE FROM admin_wallets WHERE wallet_address = ?').run(FRESH_ADDR);
+  const revoked = await loginAs(env, FRESH, 'f1c3'.padEnd(64, '0'));
+  assert.equal(revoked.status, 200, JSON.stringify(revoked.body));
+  assert.equal(revoked.body.user.role, 'user', 'revocation is one DELETE, and it is sufficient: no name path routes around it');
+});
+
+test('SEC-F1c: the login reader sends the gate statement verbatim, and the auth lane ships no resolver at all', () => {
+  assert.ok(LOGIN_CODE.includes(ADMIN_SQL), `login.js must send ${ADMIN_SQL}`);
+  assert.ok(!LOGIN_CODE.includes('ADMIN_ENS_NAMES'), 'the ENS-grant bridge must not come back');
+  assert.ok(!/\bresolveENS\s*\(/.test(LOGIN_CODE), 'no ENS resolution on the login path');
+  assert.ok(AUTH_CODE.includes(ADMIN_SQL), 'auth.js must send the same statement');
+  assert.ok(!AUTH_CODE.includes('ADMIN_ENS_NAMES'), 'auth.js must not carry the ENS bridge either');
+  // The resolver the bridge depended on was removed from the auth lane outright, so restoring
+  // the path takes a deliberate act, not a two-constant fix.
+  assert.ok(!/resolveENS|namehash/.test(AUTH_CODE), 'the auth lane must not ship ENS resolution');
+  // …and resolution itself is not gone from the repo: the two callers that resolve names on
+  // purpose keep their own resolver with its own constants.
+  for (const p of ['functions/api/ens/[[action]].js', 'functions/api/web3/[[catchall]].js']) {
+    const src = readFileSync(path.join(REPO_ROOT, p), 'utf8');
+    assert.match(src, /ADDR_SELECTOR\s*=/, `${p} keeps its own ADDR_SELECTOR definition`);
+  }
+});
+
+test('[real engine] SEC-F1c MUTATION SELF-CHECK: restore the bridge (and the constants it assumed) and the SAME login is granted admin again', async () => {
+  // Both directions in one test: the shipped handler denies, the mutant grants. If the bridge
+  // text returns to login.js, the anchors below fail loudly instead of passing vacuously.
+  const start = LOGIN_SRC.indexOf('// ── the admin principal');
+  const end = LOGIN_SRC.indexOf('const RATE_LIMIT_MAX');
+  assert.ok(start > 0 && end > start, 'the admin block anchors moved — update this guard');
+  const shippedRegion = codeOnly(LOGIN_SRC.slice(start, end));
+  assert.ok(shippedRegion.includes(ADMIN_SQL), 'the shipped block must be the address-only reader');
+  assert.ok(!shippedRegion.includes('ADMIN_ENS_NAMES'), 'the shipped block must not carry the bridge');
+
+  const mutantSrc = `${LOGIN_SRC.slice(0, start)}${WORKING_BRIDGE_BLOCK}${LOGIN_SRC.slice(end)}`
+    .replace("from '../auth.js'", `from '${pathToFileURL(AUTH_PATH).href}'`);
+  assert.notEqual(mutantSrc, LOGIN_SRC, 'the mutation must apply — the source moved, so update this guard');
+
+  // The mutant has to live INSIDE the tree (a gitignored scratch dir): login.js imports
+  // `viem/utils`, and a copy in os.tmpdir() cannot resolve a package import at all — the
+  // sibling mutant in this file gets away with it because the social handler imports nothing
+  // outside the tree. Removed in the `finally` below either way.
+  const mutantDir = path.join(REPO_ROOT, '.wrangler', 'mutants');
+  mkdirSync(mutantDir, { recursive: true });
+  const mutantPath = path.join(mutantDir, `secf1c-mutant-${process.pid}-${Date.now()}.mjs`);
+  writeFileSync(mutantPath, mutantSrc);
+  try {
+    const { onRequest: mutantLogin } = await import(pathToFileURL(mutantPath).href);
+    await withRepointedNames({ 'supercompute.eth': FRESH_ADDR, 'orami.eth': FRESH_ADDR }, async (rpcCalls) => {
+      const bridged = await signedLogin(mutantLogin, loginEnv(preBackfillDb()), FRESH, 'f1c4'.padEnd(64, '0'));
+      assert.equal(bridged.status, 200, JSON.stringify(bridged.body));
+      assert.equal(bridged.body?.user?.role, 'admin', 'without the fix the name bridge grants admin — that is the finding');
+      assert.ok(rpcCalls.length > 0, 'the pre-fix path resolves mainnet ENS per login — the amplifier PR #103 rejected');
+    });
+
+    // …and the SHIPPED handler, same engine, same re-pointed names, same signature: no admin.
+    await withRepointedNames({ 'supercompute.eth': FRESH_ADDR, 'orami.eth': FRESH_ADDR }, async (rpcCalls) => {
+      const shipped = await loginAs(loginEnv(preBackfillDb()), FRESH, 'f1c5'.padEnd(64, '0'));
+      assert.equal(shipped.body?.user?.role, 'user', 'the shipped handler must not bridge the name');
+      assert.equal(rpcCalls.length, 0, 'and it must not go looking for one either');
+    });
+  } finally {
+    unlinkSync(mutantPath);
+  }
+});
+
+test('[real engine] SEC-F1c: the canonical reader (auth.js isAdmin) applies the same rule — checksummed row matches, a name is never a grant', async () => {
+  const db = preBackfillDb();
+  const env = envOver(db);
+  // Converged with login and the gate: a row stored checksummed (the live 0xe7A3Ed04… row) is
+  // found by the lowercase address every session carries. Byte-exact missed it.
+  assert.equal(
+    await canonicalIsAdmin(env, MIXED_CASE_ADDR.toLowerCase()), true,
+    'lower(wallet_address) = ? must match the checksummed prod row — auth.js used to miss it while login and the gate matched',
+  );
+  assert.equal(await canonicalIsAdmin(env, FRESH_ADDR), false, 'not in the table ⇒ not an admin');
+  db.prepare('INSERT INTO admin_wallets (id, wallet_address, role) VALUES (?, ?, ?)').run('f1c_name', 'repointed.eth', 'admin');
+  await withRepointedNames({ 'repointed.eth': FRESH_ADDR }, async (rpcCalls) => {
+    assert.equal(
+      await canonicalIsAdmin(env, FRESH_ADDR), false,
+      'a name row does not resolve its holder into admin in this reader either',
+    );
+    assert.equal(rpcCalls.length, 0, 'auth.js must not reach for ENS either');
+  });
+});
+
+test('SEC-F1c: a NAME cannot reach any admin lookup at all — the login principal is validated as a 0x address first', async () => {
+  // This is what makes a bare `lower(wallet_address) = ?` safe in all three readers: the
+  // principal is ALWAYS a lowercase 0x address. `sessions.wallet_address` is written from the
+  // validated address (login.js:120-121), so even a row whose TEXT is a name can never match a
+  // session. (Control, not a detector: true before and after the fix — isValidAddress has
+  // always run first. It is pinned so nobody "fixes" the lookup to accept a name later.)
+  const db = preBackfillDb();
+  const env = loginEnv(db);
+  assert.equal(countRows(db, 'orami.eth'), 1, 'fixture: a row with that exact text exists');
+  const nonce = 'f1c6'.padEnd(64, '0');
+  const message = siweMessage('orami.eth', nonce);
+  await env.CACHE.put(`siwe:msg:${nonce}`, message);
+  const signature = await FRESH.signMessage({ message });
+  const res = await loginOnRequest({
+    request: new Request('https://supercompute.io/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Origin: 'https://supercompute.io' },
+      body: JSON.stringify({ address: 'orami.eth', signature, nonce }),
+    }),
+    env,
+  });
+  assert.equal(res.status, 400, 'a name is not an address: refused before any admin_wallets lookup');
+});

@@ -1,4 +1,4 @@
-import { generateNonce, hexToBytes, isValidAddress, json, resolveENS } from '../auth.js';
+import { generateNonce, hexToBytes, isValidAddress, json } from '../auth.js';
 import { recoverMessageAddress } from 'viem/utils';
 
 // ── SIWE message-content contract (nonce-omission fix, t_09e0dbd1) ─────────
@@ -36,33 +36,20 @@ function validateSiweMessage(message, nonce) {
   return null;
 }
 
-const ADMIN_QUERY = 'SELECT role FROM admin_wallets WHERE wallet_address = ? OR wallet_address = ?';
-// ENS names seeded as admins. Resolving these to addresses lets a raw-address
-// signer (e.g. wallet that owns supercompute.eth signing in with 0x5056...)
-// still match the seed row.
-const ADMIN_ENS_NAMES = ['supercompute.eth', 'orami.eth'];
+// ── the admin principal: an ADDRESS row in `admin_wallets`, and only that ────
+// SEC-F1c (card t_df9c32a1). This used to ALSO bridge an address signer to an admin
+// ENS row: it resolved ADMIN_ENS_NAMES on the request path and matched the NAME row.
+// Ownership of a name was therefore itself a standing admin grant — whoever held
+// `orami.eth` at the moment of login came back role='admin' with no change to
+// `admin_wallets`, and the only revocation this table has (DELETE the row) does not
+// reach a name the table does not own. Grants are address rows; name rows stay as
+// documentation. One rule, and it is the statement the /api/social/* gate sends, over a
+// wallet that is always a lowercase 0x address (line 120) — a name row cannot match it.
+const ADMIN_QUERY = 'SELECT role FROM admin_wallets WHERE lower(wallet_address) = ?';
 async function isAdmin(env, wallet) {
   if (!env?.DB) return false;
   try {
-    let resolved = wallet;
-    if (!wallet.startsWith('0x')) {
-      // Signer provided ENS name → resolve to address for the dual-check
-      resolved = await resolveENS(wallet);
-      if (!resolved) return false;
-    } else {
-      // Signer provided address → resolve known admin ENS names to addresses
-      // and pick the matching one so the seed row matches.
-      for (const ens of ADMIN_ENS_NAMES) {
-        const addr = await resolveENS(ens).catch(() => null);
-        if (addr && addr.toLowerCase() === wallet.toLowerCase()) {
-          resolved = ens;
-          break;
-        }
-      }
-    }
-    const r = await env.DB.prepare(ADMIN_QUERY)
-      .bind(wallet.toLowerCase(), resolved.toLowerCase())
-      .first();
+    const r = await env.DB.prepare(ADMIN_QUERY).bind(String(wallet).toLowerCase()).first();
     return r?.role === 'admin';
   } catch { return false; }
 }

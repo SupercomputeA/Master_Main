@@ -1,5 +1,6 @@
 import { generateNonce, hexToBytes, isValidAddress, json, resolveENS } from '../auth.js';
 import { recoverMessageAddress } from 'viem/utils';
+import { corsOrigin } from '../../_shared/cors.js';
 
 // ── SIWE message-content contract (nonce-omission fix, t_09e0dbd1) ─────────
 // The only messages accepted are ones matching what /api/auth/message issues.
@@ -90,24 +91,10 @@ async function recordFailedAttempt(env, address) {
   await env.CACHE.put(key, JSON.stringify(data), { expirationTtl: RATE_LIMIT_WINDOW });
 }
 export async function onRequest({ request, env }) {
-  const reqOrigin = request.headers.get('Origin') || '';
-  let allowedOrigin = 'https://supercompute.io';
-  if (reqOrigin) {
-    try {
-      const u = new URL(reqOrigin);
-      const host = u.hostname;
-      const devHost = host === 'localhost' || host === '127.0.0.1';
-      // Only exact owned HTTPS origins are reflected; no wildcard *.pages.dev
-      // (would reflect attacker.pages.dev). Preview branches are
-      // <branch>.supercompute.pages.dev, covered by the owned suffix below.
-      const httpsOk = u.protocol === 'https:' && (u.port === '' || u.port === '443');
-      const allowed =
-        (httpsOk && (host === 'supercompute.io' || host === 'staging.supercompute.io' || host === 'supercompute.pages.dev' || host.endsWith('.supercompute.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app'))) ||
-        devHost; // local dev servers run over http on arbitrary ports
-      if (allowed) allowedOrigin = reqOrigin;
-    } catch {}
-  }
-  const cors = { 'Access-Control-Allow-Origin': allowedOrigin, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization' };
+  // Exact-origin allowlist — functions/_shared/cors.js, sourced from env.CORS_ORIGIN
+  // (SEC-F4). No owned-suffix / ngrok / localhost reflection.
+  const allowedOrigin = corsOrigin(request, env);
+  const cors = { 'Access-Control-Allow-Origin': allowedOrigin, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization', 'Vary': 'Origin' };
   const j = (data, s = 200) => json(data, s, allowedOrigin);
   try {
     if (request.method === 'OPTIONS') return new Response(null, { headers: cors });

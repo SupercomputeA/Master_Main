@@ -14,6 +14,7 @@
 
 import { json } from "../auth.js";
 import { TIERS, getTier, isPaidTier, PAYMENT_CONFIG } from "../../../lib/tiers.js";
+import { corsOrigin } from "../../_shared/cors.js";
 
 const EIP3009_TYPES = {
   TransferWithAuthorization: [
@@ -36,24 +37,13 @@ function usdcDomain(chainId) {
   };
 }
 
-function allowedOrigin(reqOrigin) {
-  let origin = "https://supercompute.io";
-  if (!reqOrigin) return origin;
-  try {
-    const host = new URL(reqOrigin).hostname;
-    const ok = host === "supercompute.io" || host === "supercompute.pages.dev" || host === "localhost" || host === "127.0.0.1" || host.endsWith(".pages.dev") || host.endsWith(".cloudflarestaging.com") || host.endsWith(".ngrok-free.app");
-    if (ok) origin = reqOrigin;
-  } catch {}
-  return origin;
-}
-
 function isValidAddress(a) {
   return /^0x[0-9a-fA-F]{40}$/.test(a || "");
 }
 
 export async function onRequest({ request, env }) {
-  const reqOrigin = request.headers.get("Origin") || "";
-  const origin = allowedOrigin(reqOrigin);
+  // Exact-origin allowlist — functions/_shared/cors.js (SEC-F4).
+  const origin = corsOrigin(request, env);
   const j = (data, status = 200) => json(data, status, origin);
 
   if (request.method === "OPTIONS") {
@@ -63,6 +53,7 @@ export async function onRequest({ request, env }) {
         "Access-Control-Allow-Origin": origin,
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
+        "Vary": "Origin",
       },
     });
   }

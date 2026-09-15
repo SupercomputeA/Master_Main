@@ -81,6 +81,18 @@ jobs:
       - name: Assert the pinned header values survive the build (COOP, XFO, CSP, no COEP)
         run: node scripts/assert-headers.mjs --file out/_headers --same-as public/_headers
 
+      # SEC-F4 (card t_492fdb5b): the /api/* CORS allowlist is ONE exact origin from
+      # env.CORS_ORIGIN, resolved by functions/_shared/cors.js. Before this, 17 handlers
+      # each carried their own copy and echoed any origin whose host ended with
+      # .pages.dev / .cloudflarestaging.com / .ngrok-free.app, or was localhost /
+      # 127.0.0.1 — i.e. "the public internet, allowlisted by TLD", measured live on the
+      # mutating /api/subscribers/admin/expire-sweep endpoint. The suite drives all 17
+      # handlers with the forged origins and locks the source invariants (one Origin
+      # reader, no host-suffix matching, no local allowlist copy), so a regression or a
+      # copy #18 fails here rather than in a security report.
+      - name: Test the CORS allowlist (exact origin, all 17 handlers)
+        run: node --test tests/cors/cors-allowlist.test.mjs
+
       # Redirect-loop class (2026-09-11): Cloudflare Pages turns any '<name>.html'
       # request into a 308 to '<name>', so a `_redirects` 200-rewrite whose TARGET ends
       # in .html bounces the route between the two forever. It was live on

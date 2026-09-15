@@ -5,26 +5,14 @@
 // Silent on success — cron watchdog pattern (empty stdout = no message).
 
 import { json } from '../../auth.js';
-
-function allowedOrigin(reqOrigin) {
-  let origin = 'https://supercompute.io';
-  if (!reqOrigin) return origin;
-  try {
-    const host = new URL(reqOrigin).hostname;
-    const ok = host === 'supercompute.io' || host === 'supercompute.pages.dev' || host === 'localhost' || host === '127.0.0.1' || host.endsWith('.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app');
-    if (ok) origin = reqOrigin;
-  } catch {}
-  return origin;
-}
+import { corsOrigin, corsHeadersFor } from '../../../_shared/cors.js';
 
 export async function onRequest({ request, env }) {
-  const reqOrigin = request.headers.get('Origin') || '';
-  const origin = allowedOrigin(reqOrigin);
-  const cors = {
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
+  // Exact-origin allowlist — functions/_shared/cors.js (SEC-F4). This is the
+  // mutating admin endpoint security probed with forged *.pages.dev / ngrok /
+  // localhost origins; only env.CORS_ORIGIN is echoed now.
+  const origin = corsOrigin(request, env);
+  const cors = corsHeadersFor(request, env, { methods: 'POST, OPTIONS' });
   const j = (data, status = 200) => json(data, status, origin);
 
   if (request.method === 'OPTIONS') {

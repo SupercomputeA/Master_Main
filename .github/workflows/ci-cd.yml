@@ -5,6 +5,19 @@ on:
     branches: [main, staging, development]
   pull_request:
     branches: [main, staging]
+  # Recovery path (2026-09-15). Before this, a push event was the ONLY way this
+  # lane could start, so when GitHub failed to deliver one the site sat on stale
+  # content with no way to re-fire the deploy. Real incident: #91 was merged to
+  # main as 94758a2 — the ref moved, Actions was operational, and **zero** workflow
+  # runs were created for that sha (0 for the commit, nothing queued repo-wide).
+  # `gh run rerun` is not a recovery: the re-run deploys *its own* commit, and the
+  # "Decide whether this run may move the production alias" step below deliberately
+  # skips a run whose sha is no longer the tip — so re-running an old run would
+  # publish the OLD build. Dispatch re-fires the lane at the ref you name, and the
+  # sha it produces IS the tip, so the gate + tip-election steps let it through:
+  #   gh workflow run "CI/CD" --ref main
+  # This adds a trigger; it does not change push/pull_request behaviour.
+  workflow_dispatch:
 
 jobs:
   validate:

@@ -75,14 +75,28 @@ function json(data, status = 200, request, env) {
 //
 // Fail closed: if `admin_wallets` cannot be read (missing table, DB error), we cannot
 // prove admin, so the request is denied rather than granted from a cache.
+//
+// Fail in JSON, not by throwing (SEC-F1b, card t_f750de01): the session read below is
+// the FIRST DB touch on every gated request and it used to be unguarded, so a D1 error
+// there escaped as a throw — and the Pages runtime renders a thrown Function as an HTML
+// 500 page. Every client calls `res.json()` on this route, so the operator saw a parse
+// error instead of a denial ("non-JSON 500s" — the same class functions/api/auth.js
+// verifySession already guards at :147-154). Status 500, not 401: the session may be
+// perfectly valid, we just could not check it, and a 401 here would make the client log
+// the operator out. The body is JSON either way, and nothing is authorized.
 async function requireAdmin(request, env) {
   const authHeader = request.headers.get("Authorization")
   if (!authHeader?.startsWith("Bearer ")) return { error: "missing session", status: 401 }
   if (!env?.DB) return { error: "DB not bound", status: 500 }
   const sessionId = authHeader.slice(7)
-  const session = await env.DB.prepare(
-    "SELECT wallet_address FROM sessions WHERE id = ? AND expires_at > ?"
-  ).bind(sessionId, Math.floor(Date.now() / 1000)).first()
+  let session
+  try {
+    session = await env.DB.prepare(
+      "SELECT wallet_address FROM sessions WHERE id = ? AND expires_at > ?"
+    ).bind(sessionId, Math.floor(Date.now() / 1000)).first()
+  } catch {
+    return { error: "session check unavailable", status: 500 }
+  }
   if (!session) return { error: "session expired", status: 401 }
 
   const wallet = String(session.wallet_address || "").toLowerCase()

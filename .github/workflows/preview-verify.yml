@@ -12,7 +12,7 @@ name: Preview verify (PR)
 #   1. build                        — the artifact itself
 #   2. fast, network-free checks    — source headers, built headers, inline scripts, CSP suites
 #   3. deploy the PR preview        — Cloudflare Pages branch deployment (pr-<number>)
-#   4. smoke the preview            — routes + surface markers + closed debug surfaces
+#   4. smoke the preview            — routes + surface markers + closed debug surfaces + the /api/* gates
 #   5. header assertions vs preview — what the preview actually SERVES
 #   6. sticky PR comment            — the verdict, with the preview URL, on the PR
 #

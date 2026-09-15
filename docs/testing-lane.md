@@ -29,7 +29,7 @@ PR opened
   ├── 4. CSP invariants               no executable inline script; report collector wired
   ├── 5. unit tests                   header assertions, CSP suites
   ├── 6. deploy THIS PR as a preview  → https://pr-<number>.supercompute.pages.dev
-  ├── 7. smoke the PREVIEW            routes + surface markers + closed debug paths
+  ├── 7. smoke the PREVIEW            routes + surface markers + closed debug paths + the /api/* gates
   ├── 8. header drift vs the PREVIEW  what the preview actually serves
   └── 9. verdict comment on the PR    with the preview URL and repro commands
 ```
@@ -43,6 +43,7 @@ implements it, and `build → deploy preview → verify` is now a **required** c
 ```bash
 node scripts/smoke-preview.mjs https://pr-123.supercompute.pages.dev        # routes + markers
 node scripts/smoke-preview.mjs https://supercompute.io --json               # machine-readable
+node scripts/smoke-preview.mjs https://supercompute.io --negative-control   # prove the gate traps bite
 node scripts/assert-headers.mjs --url https://supercompute.io               # what prod serves
 npm run check:headers && npm run check:inline-scripts && npm run test:csp   # local invariants
 node scripts/test-auth-flow.mjs                                             # live SIWE end-to-end
@@ -52,7 +53,9 @@ node scripts/test-auth-flow.mjs                                             # li
 
 - **conflict-marker scan** — a committed `<<<<<<<`/`>>>>>>>` means the tree under review is not the tree anyone resolved. It earned its place before shipping: its first clean-tree run found **489 conflict blocks committed into `yarn.lock` on `main`** by a develop merge (fixed in its own PR, which must land before this lane can go green).
 - **smoke-preview (markers, not just status)** — a `200` serving the *previous* page is the failure mode we keep hitting. `/staking` returning 200 with "awaiting liquidity" is a failure, and this flags it.
-- **smoke-preview (closed surfaces)** — `/demo`, `/api/debug`, `/api/admin`, `/_debug` must stay `404`. A published debug route is a silent exposure.
+- **smoke-preview (closed surfaces)** — `/demo`, `/api/debug`, `/api/admin`, `/_debug` must stay `404`. A published debug route is a silent exposure. Worth knowing what this block is *not*: none of those four paths exists in the tree, so all four are `404` **by absence** — it is a tripwire for the day one of them appears, not a check on the surface that is closed today.
+- **smoke-preview (the gates that hold data)** — `/api/subscribers`, `/api/subscribers/admin/expire-sweep`, `/api/investors/data-room`, `/api/investors/file`, `/api/marketplace/list` must answer an **unauthenticated GET** with `401`/`403`/`405`. That is the assertion that can actually fire: a gate regressing to `200` (leak), `404` (route gone) or `5xx` (broken) fails the lane, on the preview as much as on prod — so a preview that stops enforcing a gate is caught before it reaches `main`. Unauthenticated status only: no credentials, no writes. `--negative-control` re-runs one gate against a deliberately *wrong* expectation and fails the run if that wrong expectation passes, so "the trap bites" is reproducible instead of claimed.
+- **smoke-preview (/admin route set)** — `/admin`, `/admin/users`, `/admin/settings`, `/admin/analytics`, `/admin/content` are asserted as well. They answer `200` today and that is recorded, not blessed: they are static-export pages with no server-side gate in front of the HTML (`401`/`403` accepted too, so *adding* a gate does not fail the lane). The admin **chrome** is public; what is closed is the API behind it.
 - **assert-headers --url** — the only way to catch "the file is right but Pages did something else to it in transit".
 - **check-inline-scripts** — keeps `script-src 'self'` truthful; the day an inline script appears, the strict CSP would break the page and this fails first.
 - **test-auth-flow** — proves the SIWE backend end-to-end without a browser (used it to clear the "login is broken" report earlier).

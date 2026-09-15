@@ -4,8 +4,13 @@
 // the SAME semantics as the canonical SIWE login tests (existence + expiry, and
 // revoked_at if present). Only the two things this suite cares about are layered on:
 //   1. admin_wallets lookups answer from an explicit `admins` list, with the row
-//      comparison being case-INSENSITIVE on the stored column (mirrors
-//      `lower(wallet_address) = ?`), so a mixed-case prod row is representable.
+//      comparison FOLLOWING THE SQL THE HANDLER ACTUALLY SENT: `lower(wallet_address) = ?`
+//      compares case-insensitively (so a mixed-case prod row is representable) while a
+//      bare `wallet_address = ?` compares byte-exact, exactly as SQLite would. A mock
+//      that is case-insensitive for EVERY SQL shape cannot detect a regression to the
+//      case-sensitive query — reverting the gate kept every mock-driven test green
+//      (PR #62 security review, round 1). The real-engine tests at the bottom of
+//      admin-gate.test.js cover what no JS-side mock can.
 //   2. `.all()` exists on every statement — the social routes list rows
 //      (social_accounts / social_queue) where the auth tests only ever .first().
 
@@ -52,8 +57,16 @@ export function makeSocialEnv({ admins = [], users = new Map(), sessions = new M
               all: async () => { throw new Error('D1_ERROR: no such table: admin_wallets') },
             }
           }
-          const wallet = String(args[0] ?? '').toLowerCase()
-          const hit = admins.find((a) => String(a.wallet).toLowerCase() === wallet)
+          // Mirror SQLite for the statement the handler sent, instead of lowercasing both
+          // sides unconditionally. `lower(wallet_address) = ?` is the case-insensitive
+          // comparison; a bare `wallet_address = ?` is byte-exact. Keying off the SQL text
+          // is what makes this mock able to go RED when the gate loses its `lower(`.
+          const caseInsensitive = /lower\s*\(/.test(normalized)
+          const bound = String(args[0] ?? '')
+          const hit = admins.find((a) => {
+            const stored = String(a.wallet ?? '')
+            return caseInsensitive ? stored.toLowerCase() === bound.toLowerCase() : stored === bound
+          })
           return {
             first: async () => (hit ? { role: hit.role } : null),
             run: async () => ({ success: true }),

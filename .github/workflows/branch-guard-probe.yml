@@ -1,0 +1,61 @@
+name: branch-guard-probe
+
+# Manual negative control for the trunk guard in `.github/workflows/branch-guard.yml`.
+#
+# WHY THIS IS A SEPARATE WORKFLOW
+#   A `workflow_dispatch` attaches its check run to the tip of the ref it was dispatched
+#   from. When this control lived inside branch-guard.yml, every dispatch from `main` left a
+#   red check on main's tip and made branch-guard's badge on main read "failure" — which
+#   recreates the "is main green?" ambiguity that t_424dc0c3 removed. Keeping the control in
+#   its own workflow means branch-guard's runs, checks and badge on `main` reflect real
+#   trunk events (PR landings and direct pushes) only.
+#
+# HOW TO RUN IT
+#   gh workflow run branch-guard-probe.yml --ref <ref> -f sha=<commit> -f ref=<lane>
+#
+# HOW TO READ IT
+#   RED   = the guard works: <commit> reached the lane without a merged PR, so
+#           branch-guard.yml would (and on a real push does) fail closed.
+#   GREEN = <commit> landed through a merged PR — the trunk lane was respected.
+#   `ref` (the input) is only the lane name printed in the message; point it at the lane
+#   you are claiming the commit reached.
+#
+# KEEPING THE TRUNK TIP CLEAN
+#   The dispatch ref is where the check run lands. Dispatching from `main` still puts a check
+#   on main's tip — it is named `direct-push-control`, never `guard`, so it cannot be read as
+#   the trunk lane going red, but if you want main's tip pristine, dispatch from a scratch ref
+#   that carries this file:
+#     git push origin main:refs/heads/probe/trunk-guard
+#     gh workflow run branch-guard-probe.yml --ref probe/trunk-guard -f sha=<commit> -f ref=main
+#
+# This workflow never gates anything: it is not a required status check and its job name is
+# deliberately distinct from `branch-guard` so a manual control is never mistaken for the
+# trunk lane going red.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'Commit SHA to test'
+        required: true
+      ref:
+        description: 'Lane name to report in the message'
+        required: false
+        default: 'main'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  direct-push-control:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Probe commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: .github/scripts/trunk-push-check.sh "${{ inputs.sha }}" "${{ inputs.ref }}"

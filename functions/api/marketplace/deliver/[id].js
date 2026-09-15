@@ -63,12 +63,17 @@ async function presignR2(env, key) {
   }
 }
 
-export async function onRequest({ context, request, env }) {
+// Pages Functions pass route params as a TOP-LEVEL property of the event context
+// ({ request, env, params, data, waitUntil, next }) — there is no `context` key.
+// Destructuring `context` here made `context.params` throw a TypeError on every
+// request, so this route answered Cloudflare error 1101 (500) for all callers,
+// including the buyer's post-purchase receipt fetch.
+export async function onRequest({ params, request, env }) {
   const origin = request.headers.get('Origin') || ''
   if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders(origin) })
   if (request.method !== 'GET') return j({ error: 'GET required' }, 405, origin)
 
-  const id = context.params.id
+  const id = params?.id
   if (!id) return j({ error: 'listing id required' }, 400, origin)
 
   const authHeader = request.headers.get('Authorization') || ''

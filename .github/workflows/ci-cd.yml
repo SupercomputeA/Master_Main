@@ -63,6 +63,55 @@ jobs:
       - name: Assert export ships no executable inline scripts (guards script-src 'self')
         run: node scripts/check-inline-scripts.mjs out
 
+      # Header-VALUE pins (T-follow-up from the #94 verdict, security condition 3).
+      # `_headers` has silently shipped three wrong values: a path-less file that
+      # applied nothing (M1), XFO DENY contradicting frame-ancestors 'self' (M2),
+      # and COOP same-origin severing window.opener for the Coinbase Wallet popup
+      # (M3). A build cannot catch any of them — the file parses, the deploy goes
+      # green, and prod serves headers nobody asserted. This pair does:
+      #   * the suite drives the repo's REAL public/_headers and mutation-tests
+      #     every pin, so a pin that stops matching fails here;
+      #   * out/_headers is what Cloudflare actually receives, so --same-as is
+      #     what makes the pin describe what ships (verified byte-identical on
+      #     three real builds; if that ever stops being true the failure is loud).
+      # See docs/headers-invariant.md. Drift against prod: .github/workflows/header-drift.yml.
+      - name: Test the header-pin gate itself
+        run: node --test tests/headers/assert-headers.test.mjs
+
+      - name: Assert the pinned header values survive the build (COOP, XFO, CSP, no COEP)
+        run: node scripts/assert-headers.mjs --file out/_headers --same-as public/_headers
+
+      # Redirect-loop class (2026-09-11): Cloudflare Pages turns any '<name>.html'
+      # request into a 308 to '<name>', so a `_redirects` 200-rewrite whose TARGET ends
+      # in .html bounces the route between the two forever. It was live on
+      # supercompute.io — /terms and /privacy were unreachable (curl: Maximum (50)
+      # redirects followed) while they looked fine in source. /about has no rule and
+      # works; the rule is the defect. Guard the class, not just the two paths.
+      - name: Assert _redirects has no .html-target 200 rewrite
+        run: |
+          # Source must be a concrete path (not the `/*` SPA catch-all): the
+          # documented `/*  /index.html  200` fallback is legitimate.
+          bad="$(grep -nE '^/[^/*[:space:]][^[:space:]]*[[:space:]]+/[^[:space:]]*\.html[[:space:]]+200[[:space:]]*$' public/_redirects || true)"
+          if [ -n "$bad" ]; then
+            echo "✗ public/_redirects rewrites a path to a .html file with status 200:"
+            echo "$bad"
+            echo "  Pages 308s '<name>.html' to '<name>', so the rewrite loops the route."
+            echo "  Serve it natively — the asset is already exported by the build."
+            exit 1
+          fi
+          echo "✓ _redirects has no .html-target 200 rewrites"
+
+      # The legal pages are served natively (see the note in public/_redirects), so the
+      # only thing keeping /terms reachable is the exported asset. If it stops being
+      # exported the route silently falls through to `/*  /index.html` and serves the
+      # landing page under a legal URL — fail here instead.
+      - name: Assert legal pages are exported
+        run: |
+          for f in terms privacy; do
+            test -f "out/$f.html" || { echo "✗ out/$f.html missing — /$f is unreachable without a _redirects rule"; exit 1; }
+          done
+          echo "✓ out/terms.html + out/privacy.html exported"
+
       - name: Check for debug/code issues
         run: |
           echo "TODO count: $(grep -rc 'TODO' pages/ components/ lib/ 2>/dev/null | wc -l)" || true

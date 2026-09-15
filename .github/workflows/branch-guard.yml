@@ -14,22 +14,18 @@ name: branch-guard
 # `ci-branch-guard.yml` (byte-identical, hence two red runs per merge) was deleted in
 # the same change. Do not re-add a second copy: two workflows with `name: branch-guard`
 # produce two check runs under one name.
+#
+# The manual negative control ("does this still fail on a genuine direct push?") lives in
+# `branch-guard-probe.yml`, NOT here: a dispatch attaches its check run to the tip of the
+# ref it was dispatched from, so running the control from this workflow left a red check on
+# main's tip and reddened this workflow's badge — the very ambiguity this guard exists to
+# remove. Keep the control separate so this workflow's runs, checks and badge on main
+# reflect real trunk events (PR landings and direct pushes) only.
 
 on:
   pull_request:
   push:
     branches: [main, develop]
-  # Manual dry run so the guard can be re-proved against any commit (a merge, or a
-  # known direct push) without pushing to a protected branch.
-  workflow_dispatch:
-    inputs:
-      sha:
-        description: 'Commit SHA to test'
-        required: true
-      ref:
-        description: 'Branch name to report in the message'
-        required: false
-        default: 'main'
 
 permissions:
   contents: read
@@ -37,7 +33,6 @@ permissions:
 
 jobs:
   guard:
-    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -56,19 +51,3 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: .github/scripts/trunk-push-check.sh "${GITHUB_SHA}" "${GITHUB_REF_NAME}"
-
-  probe:
-    # Negative-control / audit lane: run the same check against an arbitrary commit.
-    # Never gates anything — it only prints the verdict and exits non-zero on a
-    # direct push, so "the guard still catches a real direct push" stays provable.
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-
-      - name: Probe commit
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: .github/scripts/trunk-push-check.sh "${{ inputs.sha }}" "${{ inputs.ref }}"

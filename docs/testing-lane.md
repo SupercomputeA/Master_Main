@@ -55,11 +55,11 @@ bindings it gets — `DB` → `supercompute-db` (**production** D1), `CACHE` →
 | `/api/investors/metrics`, `/api/articles` | 200 |
 | `/api/subscribers` | 403 |
 | `/api/subscribers/admin/expire-sweep`, `/api/marketplace/list` | 405 |
-| `/api/csp-report` — `GET` / `POST` | 405 / **204** |
+| `/api/csp-report` — `GET` / `POST` | 405 / **204** — the write is refused, see below |
 
-**That 204 is a production write, proven, not inferred.** A `POST` from the preview carrying a
-made-up violation (`document-uri: https://pr-98.supercompute.pages.dev/probe`) showed up in the
-production table within the second:
+**That 204 used to be a production write** — proven, not inferred. A `POST` from this preview carrying
+a made-up violation (`document-uri: https://pr-98.supercompute.pages.dev/probe`) showed up in the
+production table within the second (measured 2026-09-15, before the guard below):
 
 ```bash
 npx wrangler d1 execute supercompute-db --remote --command \
@@ -67,11 +67,31 @@ npx wrangler d1 execute supercompute-db --remote --command \
 # 2026-09-15|probe-…|https://example.com|https://pr-98.supercompute.pages.dev/probe|enforce | 1 | 2026-09-15 04:18:36
 ```
 
-So every writing route is a production write reachable from a public URL that any PR mints:
+**It is a refusal now (SEC-F6b, code half — card `t_92c5b532`).** `api/csp-report.js` gates the write
+on the deployment's own branch: the platform sets `CF_PAGES_BRANCH` in the deployment's `env_vars`,
+which apply to Pages Functions (and `wrangler pages dev` injects the same four variables for
+dev/prod parity — verified locally: `env.CF_PAGES_BRANCH ("<git branch>")` in the bindings table).
+
+```js
+if (isNonProductionDeployment(env)) return noContent();  // branch present && branch !== "main"
+```
+
+`ci-cd.yml` deploys production with an explicit `--branch main`; the lane above deploys
+`--branch pr-<n>`, so a preview's own Function drops every report while prod's keeps writing. It
+**fails open on purpose**: a missing, empty, renamed or platform-broken variable keeps production
+telemetry writing — silently killing prod telemetry is a worse failure than a preview's noise, and a
+refused report is loud (`console.error` → `wrangler pages deployment tail`) rather than a silent
+swallow.
+
+The writes that remain from a preview are the ones the browser sends to the *absolute* endpoint, and
+those are the next bullet.
+
+So every writing route **except `csp_reports`** is a production write reachable from a public URL that
+any PR mints:
 
 | Data | Written by |
 |---|---|
-| `csp_reports` | `api/csp-report.js` |
+| `csp_reports` | `api/csp-report.js` — **refused from any non-`main` deployment** (SEC-F6b) |
 | `users`, `sessions` | `api/auth.js`, `api/auth/login.js`, `api/auth/logout.js` |
 | `subscribers` | `api/subscribers.js`, `api/subscribers/pay.js`, `api/subscribers/admin/expire-sweep.js` |
 | `articles` | `api/articles.js`, `api/tina/webhook.js` |
@@ -82,11 +102,14 @@ So every writing route is a production write reachable from a public URL that an
 
 Two consequences worth stating rather than discovering later:
 
-- **Preview telemetry is production telemetry.** The policy carries *both* `report-uri
-  /api/csp-report` (document-relative — so a preview reports to the preview's own Function) and
-  `Reporting-Endpoints`/`Report-To` at the absolute `https://supercompute.io/api/csp-report`. A
-  violation on any preview lands in prod's `csp_reports` by either path: preview noise in the prod
-  rollup, inbound-writable by any PR preview.
+- **Preview telemetry is still production telemetry — through the absolute path only.** The policy
+  carries *both* `report-uri /api/csp-report` (document-relative — a preview POSTs to the preview's
+  own Function, which now **refuses** the write: SEC-F6b) and `Reporting-Endpoints`/`Report-To` at
+  the absolute `https://supercompute.io/api/csp-report`, which the browser sends to *prod's* Function
+  — where `CF_PAGES_BRANCH` **is** `main`, so it is written. A violation on a preview therefore still
+  reaches prod's `csp_reports` rollup by that second path, and prod's collector stays a public,
+  unauthenticated ingest (capped and PII-free by design). What stopped is the path a PR preview
+  itself could exercise against the shared production D1 — the preview-origin write.
 - **A preview can write identity rows.** `api/auth/login.js` inserts/updates `users` and upserts
   `sessions`, and the SIWE nonce + rate-limit state live in the shared KV namespace.
 
@@ -115,8 +138,10 @@ their own D1/KV. It was deliberately kept out of this PR because the card's own 
 When someone with that access is in the room: create `supercompute-db-preview` (+ a preview KV),
 apply `migrations/*.sql` to it, add `[[env.preview.d1_databases]]` / `[[env.preview.kv_namespaces]]`
 to `wrangler.toml` with the production values left at the top level, push to a branch, then prove it
-on the deployed preview — a `POST /api/csp-report` from that preview must leave **no** new row in
-the production `csp_reports` table, and the smoke must stay green.
+on the deployed preview — a write through one of the tables below must leave **no** new row in the
+production database, and the smoke must stay green. (The `csp_reports` probe is spent as an isolation
+test: SEC-F6b already refuses it from a non-`main` deployment, so it would pass for the wrong
+reason.)
 
 ## Run it yourself (same scripts, any URL)
 

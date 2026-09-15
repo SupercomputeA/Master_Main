@@ -191,7 +191,10 @@ after review, the internal PR is the one that goes green and merges, and the for
 closed with a pointer to it.** Do not make a fork PR green — not by widening the trigger,
 not by an admin override on the fork PR itself. The trigger stays `on: pull_request`.
 
-`SupercomputeA/Master_Main` is **public** (`private: false`), so forks are possible, and
+`SupercomputeA/Master_Main` is **public** (`private: false`), and nothing in the tree
+invites patches (no `CONTRIBUTING.md`; the README's only related heading is `## License`)
+— the repo is public for transparency, not as an open-contribution project, so a fork PR
+is a rare, deliberate event rather than a queue to optimise for. The trigger
 `on: pull_request` deliberately runs the fork's copy of the workflow **without repository
 secrets**: *"With the exception of `GITHUB_TOKEN`, secrets are not passed to the runner
 when a workflow is triggered from a forked repository"*

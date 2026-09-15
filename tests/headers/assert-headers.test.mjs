@@ -79,6 +79,26 @@ function canonicalReal() {
   return text.replace(line[0], `  Cross-Origin-Opener-Policy: ${EXPECTED.exact[0].value}`);
 }
 
+/**
+ * The `script-src` directive exactly as the real file writes it.
+ *
+ * Derived, not hard-coded: the needle has to survive a host being added to the
+ * policy. It was hard-coded to `script-src 'self';` and that stopped matching the
+ * moment `script-src` gained `https://static.cloudflareinsights.com` (the Web
+ * Analytics carve-out, t_83174cd2) — the pins were untouched, only the needle
+ * rotted, which reddened the two mutation tests below for the wrong reason.
+ */
+function scriptSrcDirective() {
+  const line = /^ {2}Content-Security-Policy:(.*)$/m.exec(canonicalReal());
+  assert.ok(line, "public/_headers declares Content-Security-Policy — if that stops being true, revisit these tests");
+  const directive = line[1]
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.split(/\s+/)[0].toLowerCase() === "script-src");
+  assert.ok(directive, "the policy declares script-src — if that stops being true, revisit these tests");
+  return `${directive};`;
+}
+
 /** Write a `_headers` fixture to a throwaway file and return its path (for CLI tests). */
 function tempHeaders(text) {
   const dir = mkdtempSync(join(tmpdir(), "headers-cli-"));
@@ -207,7 +227,8 @@ test("an EXTRA connect-src host is fine — the pins are a floor, not a snapshot
 });
 
 test("fails when script-src gains 'unsafe-inline'", () => {
-  const text = mutate(canonicalReal(), "script-src 'self';", "script-src 'self' 'unsafe-inline';");
+  const needle = scriptSrcDirective();
+  const text = mutate(canonicalReal(), needle, needle.replace("'self'", "'self' 'unsafe-inline'"));
   const { res, ok } = source(text);
   assert.equal(ok, false);
   assert.deepEqual(kinds(res), ["forbidden-source"]);
@@ -215,10 +236,18 @@ test("fails when script-src gains 'unsafe-inline'", () => {
 });
 
 test("fails when script-src is removed", () => {
-  const text = mutate(canonicalReal(), "script-src 'self';", "");
+  const text = mutate(canonicalReal(), scriptSrcDirective(), "");
   const { res, ok } = source(text);
   assert.equal(ok, false);
   assert.equal(kinds(res)[0], "missing-directive");
+});
+
+test("an extra script-src host is fine — the pin is a floor, not a snapshot", () => {
+  const needle = scriptSrcDirective();
+  const text = mutate(canonicalReal(), needle, needle.replace(/;$/, " https://static.cloudflareinsights.com;"));
+  const { ok, res } = source(text);
+  assert.equal(ok, true, "adding a named host must not redden the gate (that is how the CSP carve-out lands)");
+  assert.equal(res.findings.length, 0);
 });
 
 test("fails when the whole CSP header is removed", () => {

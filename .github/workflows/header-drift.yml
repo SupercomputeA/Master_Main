@@ -1,0 +1,44 @@
+name: Header drift (live)
+
+# Did prod actually ship the pinned header values?
+#
+# `ci-cd.yml` asserts the SOURCE (`public/_headers`) and the built copy (`out/_headers`) — that
+# catches a defect before it deploys. It cannot catch what Pages does to the file after the deploy:
+# a header that never lands, a value rewritten in transit, a route left on an old deployment.
+#
+# This is the automated version of the `curl -sI https://supercompute.io` check that discovered all
+# three historical header defects (a path-less `_headers` file that applied nothing, XFO DENY
+# contradicting frame-ancestors 'self', and COOP same-origin severing window.opener). Run it by hand
+# from the Actions tab or let the daily schedule do it; a drift failure means what prod serves no
+# longer matches what the repo pins.
+#
+# Same expectations, same script: node scripts/assert-headers.mjs --url <url>
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: URL to assert
+        required: false
+        default: https://supercompute.io
+  schedule:
+    # Daily, off the hour to avoid the 00:00 UTC Actions stampede.
+    - cron: '17 13 * * *'
+
+jobs:
+  live-headers:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      # No `npm ci`: the assertion is dependency-free by design, so the drift check cannot be
+      # knocked out by an install failure.
+      - name: Assert the headers prod is actually serving
+        run: node scripts/assert-headers.mjs --url "${{ github.event.inputs.url || 'https://supercompute.io' }}"

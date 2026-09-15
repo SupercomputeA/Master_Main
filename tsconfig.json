@@ -34,7 +34,6 @@
     }
   },
   "include": [
-    "src/**/*",
     "pages/**/*",
     "tina/**/*",
     "next-env.d.ts"

@@ -9,6 +9,17 @@ its own versions over there.
 
 ## [Unreleased]
 
+### Removed
+- The dead legacy standalone-Worker tree — `src/worker.js`, `src/api/*` (auth, articles, agents,
+  projects, staking) and `src/utils/*` (siwe, wallet). It was on no deploy path: no workflow
+  referenced it, `wrangler.toml` names no `main` (so `wrangler deploy` cannot publish its
+  bundle), and live `/api/auth` answers with the Pages Function's endpoint list. It was a second,
+  diverging copy of the auth lane — `src/api/auth.js` still authorized admins with a byte-exact
+  `wallet_address` compare against `admin_wallets`, the shape SEC-F1d removed from the deployed
+  readers. The `build` script that bundled it to `dist/worker.js` is gone with it, and
+  `tests/api/legacy-worker-tree.test.mjs` pins the non-reachability so it cannot come back
+  silently (t_11023e45).
+
 ### Fixed
 - CI: production Pages deploys are serialized per branch (`concurrency` on the
   `deploy` job, `cancel-in-progress: false`) and only the current tip of `main` may

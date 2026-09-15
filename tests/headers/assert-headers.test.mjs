@@ -61,6 +61,32 @@ function mutate(text, from, to) {
   return text.replace(from, to);
 }
 
+/**
+ * The real file with its COOP value normalised to what `EXPECTED` pins.
+ *
+ * Rationale: each pin test below must go red for the value it mutates, and for
+ * nothing else. On a tree whose `public/_headers` still ships the pre-#94 COOP
+ * (i.e. `main` before that fix lands) the raw file would make a dozen tests fail
+ * for one unrelated root cause and bury it. Exactly TWO tests drive the raw file
+ * — the acceptance pair ("the repo's real public/_headers passes every pin" and
+ * its CLI twin) — so on such a tree those two are the only red ones, and they say
+ * why. After the fix lands they are green and this helper is a no-op.
+ */
+function canonicalReal() {
+  const text = readReal();
+  const line = /^ {2}Cross-Origin-Opener-Policy:.*$/m.exec(text);
+  assert.ok(line, "public/_headers declares COOP — if that stops being true, revisit these tests");
+  return text.replace(line[0], `  Cross-Origin-Opener-Policy: ${EXPECTED.exact[0].value}`);
+}
+
+/** Write a `_headers` fixture to a throwaway file and return its path (for CLI tests). */
+function tempHeaders(text) {
+  const dir = mkdtempSync(join(tmpdir(), "headers-cli-"));
+  const file = join(dir, "_headers");
+  writeFileSync(file, text);
+  return file;
+}
+
 function source(text) {
   const res = checkSource(text, { source: "fixture/_headers" });
   return { res, ok: report(res, QUIET) };
@@ -68,8 +94,12 @@ function source(text) {
 
 const kinds = (res) => res.findings.map((f) => f.kind);
 
-/* -------------------------------------------------- the real file is the pin */
+/* -------------------------------------------------- the raw file is the pin */
 
+/**
+ * The acceptance test: the file this repo actually ships satisfies every pin.
+ * This is one of only two tests that read the raw file — see canonicalReal().
+ */
 test("the repo's real public/_headers passes every pin", () => {
   const res = checkFile(REAL);
   const ok = report(res, QUIET);
@@ -77,10 +107,11 @@ test("the repo's real public/_headers passes every pin", () => {
   assert.equal(res.findings.length, 0);
 });
 
-test("the real file declares all three decisions", () => {
+test("the raw file declares X-Frame-Options SAMEORIGIN and no COEP (the M2 pair)", () => {
   const res = checkFile(REAL);
   const byName = Object.fromEntries(res.pins.map((p) => [p.name, p]));
-  assert.equal(byName["cross-origin-opener-policy"].actual, EXPECTED.exact[0].value);
+  // The COOP value is asserted by the acceptance test above (it is the one pin a
+  // pre-#94 tree fails); these two hold on either side of that fix.
   assert.equal(byName["x-frame-options"].actual.toUpperCase(), "SAMEORIGIN");
   assert.equal(byName["cross-origin-embedder-policy"].actual, null, "COEP must be absent");
 });
@@ -95,7 +126,7 @@ test("out/_headers matches public/_headers when a build is present", () => {
 /* ------------------------------- M3: COOP — the value that broke wallet popups */
 
 test("fails when COOP is set back to same-origin — the card's negative control", () => {
-  const text = mutate(readReal(), "Cross-Origin-Opener-Policy: same-origin-allow-popups", "Cross-Origin-Opener-Policy: same-origin");
+  const text = mutate(canonicalReal(), "Cross-Origin-Opener-Policy: same-origin-allow-popups", "Cross-Origin-Opener-Policy: same-origin");
   const { res, ok } = source(text);
   assert.equal(ok, false, "same-origin severs window.opener for the Coinbase Wallet popup");
   assert.deepEqual(kinds(res), ["wrong-header-value"]);
@@ -104,7 +135,7 @@ test("fails when COOP is set back to same-origin — the card's negative control
 });
 
 test("fails when COOP is missing entirely", () => {
-  const text = mutate(readReal(), "  Cross-Origin-Opener-Policy: same-origin-allow-popups\n", "");
+  const text = mutate(canonicalReal(), "  Cross-Origin-Opener-Policy: same-origin-allow-popups\n", "");
   const { res, ok } = source(text);
   assert.equal(ok, false);
   assert.equal(kinds(res)[0], "wrong-header-value");
@@ -113,7 +144,7 @@ test("fails when COOP is missing entirely", () => {
 
 test("a comment mentioning COOP same-origin does not satisfy or break the pin", () => {
   const text = mutate(
-    readReal(),
+    canonicalReal(),
     "  Cross-Origin-Opener-Policy: same-origin-allow-popups",
     "# historical: COOP was same-origin here, which broke the popup\n  Cross-Origin-Opener-Policy: same-origin-allow-popups",
   );
@@ -124,7 +155,7 @@ test("a comment mentioning COOP same-origin does not satisfy or break the pin", 
 /* ---------------------------------------- M2: XFO must agree with the CSP */
 
 test("fails when X-Frame-Options goes back to DENY", () => {
-  const text = mutate(readReal(), "  X-Frame-Options: SAMEORIGIN", "  X-Frame-Options: DENY");
+  const text = mutate(canonicalReal(), "  X-Frame-Options: SAMEORIGIN", "  X-Frame-Options: DENY");
   const { res, ok } = source(text);
   assert.equal(ok, false);
   assert.deepEqual(kinds(res), ["wrong-header-value"]);
@@ -132,13 +163,13 @@ test("fails when X-Frame-Options goes back to DENY", () => {
 });
 
 test("accepts X-Frame-Options in any case (HTTP values are case-insensitive)", () => {
-  const text = mutate(readReal(), "  X-Frame-Options: SAMEORIGIN", "  x-frame-options: SameOrigin");
+  const text = mutate(canonicalReal(), "  X-Frame-Options: SAMEORIGIN", "  x-frame-options: SameOrigin");
   const { ok } = source(text);
   assert.equal(ok, true);
 });
 
 test("fails when frame-ancestors is dropped while XFO stays", () => {
-  const text = mutate(readReal(), "; frame-ancestors 'self';", ";");
+  const text = mutate(canonicalReal(), "; frame-ancestors 'self';", ";");
   const { res, ok } = source(text);
   assert.equal(ok, false);
   assert.equal(kinds(res)[0], "missing-directive");
@@ -148,7 +179,7 @@ test("fails when frame-ancestors is dropped while XFO stays", () => {
 /* --------------------------------------------- CSP directives and transports */
 
 test("fails when connect-src loses a pinned browser transport", () => {
-  const text = mutate(readReal(), " https://mainnet.base.org https://eth.drpc.org", " https://eth.drpc.org");
+  const text = mutate(canonicalReal(), " https://mainnet.base.org https://eth.drpc.org", " https://eth.drpc.org");
   const { res, ok } = source(text);
   assert.equal(ok, false);
   assert.deepEqual(kinds(res), ["missing-source"]);
@@ -156,27 +187,27 @@ test("fails when connect-src loses a pinned browser transport", () => {
 });
 
 test("fails when eth.drpc.org is replaced by the RPC host that 429s", () => {
-  const text = mutate(readReal(), " https://mainnet.base.org https://eth.drpc.org", " https://mainnet.base.org https://eth.merkle.io");
+  const text = mutate(canonicalReal(), " https://mainnet.base.org https://eth.drpc.org", " https://mainnet.base.org https://eth.merkle.io");
   const { res, ok } = source(text);
   assert.equal(ok, false);
   assert.match(res.findings[0].detail, /eth\.drpc\.org/);
 });
 
 test("fails when the WalletConnect relay origins are dropped", () => {
-  const text = mutate(readReal(), " wss://*.walletconnect.com wss://*.walletconnect.org", "");
+  const text = mutate(canonicalReal(), " wss://*.walletconnect.com wss://*.walletconnect.org", "");
   const { ok, res } = source(text);
   assert.equal(ok, false);
   assert.equal(res.findings.length, 2, "both wss relay origins are pinned");
 });
 
 test("an EXTRA connect-src host is fine — the pins are a floor, not a snapshot", () => {
-  const text = mutate(readReal(), "connect-src 'self'", "connect-src 'self' https://api.example.com");
+  const text = mutate(canonicalReal(), "connect-src 'self'", "connect-src 'self' https://api.example.com");
   const { ok } = source(text);
   assert.equal(ok, true);
 });
 
 test("fails when script-src gains 'unsafe-inline'", () => {
-  const text = mutate(readReal(), "script-src 'self';", "script-src 'self' 'unsafe-inline';");
+  const text = mutate(canonicalReal(), "script-src 'self';", "script-src 'self' 'unsafe-inline';");
   const { res, ok } = source(text);
   assert.equal(ok, false);
   assert.deepEqual(kinds(res), ["forbidden-source"]);
@@ -184,14 +215,14 @@ test("fails when script-src gains 'unsafe-inline'", () => {
 });
 
 test("fails when script-src is removed", () => {
-  const text = mutate(readReal(), "script-src 'self';", "");
+  const text = mutate(canonicalReal(), "script-src 'self';", "");
   const { res, ok } = source(text);
   assert.equal(ok, false);
   assert.equal(kinds(res)[0], "missing-directive");
 });
 
 test("fails when the whole CSP header is removed", () => {
-  const text = readReal().replace(/^ {2}Content-Security-Policy:.*$/m, "");
+  const text = canonicalReal().replace(/^ {2}Content-Security-Policy:.*$/m, "");
   const { res, ok } = source(text);
   assert.equal(ok, false);
   assert.ok(kinds(res).includes("missing-header"));
@@ -200,7 +231,7 @@ test("fails when the whole CSP header is removed", () => {
 /* ------------------------------------------------------ COEP must stay absent */
 
 test("fails when COEP: require-corp comes back (breaks extension-injected providers)", () => {
-  const text = mutate(readReal(), "  Permissions-Policy: camera=(), microphone=(), geolocation=()", "  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Cross-Origin-Embedder-Policy: require-corp");
+  const text = mutate(canonicalReal(), "  Permissions-Policy: camera=(), microphone=(), geolocation=()", "  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Cross-Origin-Embedder-Policy: require-corp");
   const { res, ok } = source(text);
   assert.equal(ok, false);
   assert.deepEqual(kinds(res), ["forbidden-header"]);
@@ -208,7 +239,7 @@ test("fails when COEP: require-corp comes back (breaks extension-injected provid
 });
 
 test("an unexpected COEP value is reported, not failed (drift visibility)", () => {
-  const text = mutate(readReal(), "  Permissions-Policy: camera=(), microphone=(), geolocation=()", "  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Cross-Origin-Embedder-Policy: credentialless");
+  const text = mutate(canonicalReal(), "  Permissions-Policy: camera=(), microphone=(), geolocation=()", "  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Cross-Origin-Embedder-Policy: credentialless");
   const { ok, res } = source(text);
   assert.equal(ok, true);
   assert.equal(res.warnings.filter((w) => w.kind === "unexpected-header").length, 1);
@@ -259,20 +290,20 @@ X-Frame-Options: SAMEORIGIN`);
 });
 
 test("an unindented header inside a real section is accepted, with a warning", () => {
-  const text = mutate(readReal(), "  X-Frame-Options: SAMEORIGIN", "X-Frame-Options: SAMEORIGIN");
+  const text = mutate(canonicalReal(), "  X-Frame-Options: SAMEORIGIN", "X-Frame-Options: SAMEORIGIN");
   const { res, ok } = source(text);
   assert.equal(ok, true, "Pages reads the line; the documented form is indentation");
   assert.equal(res.warnings.filter((w) => w.kind === "non-indented-header").length, 1);
 });
 
 test("a path section with no headers is reported as applying nothing", () => {
-  const { res, ok } = source(`${readReal()}\n\n/dead-section\n`);
+  const { res, ok } = source(`${canonicalReal()}\n\n/dead-section\n`);
   assert.equal(ok, true);
   assert.ok(res.warnings.some((w) => w.kind === "empty-section" && w.raw === "/dead-section"));
 });
 
 test("a line that is neither comment, path nor header fails (it may orphan its neighbours)", () => {
-  const { res, ok } = source(`${readReal()}\n\njust some prose\n`);
+  const { res, ok } = source(`${canonicalReal()}\n\njust some prose\n`);
   assert.equal(ok, false);
   assert.deepEqual(kinds(res), ["unparsable-line"]);
 });
@@ -389,27 +420,33 @@ test("CLI exits 0 on the repo's real public/_headers", () => {
 });
 
 test("CLI exits 1 when COOP is mutated back to same-origin — proving the guard guards", () => {
-  const dir = mkdtempSync(join(tmpdir(), "headers-cli-"));
-  const file = join(dir, "_headers");
-  writeFileSync(file, mutate(readReal(), "Cross-Origin-Opener-Policy: same-origin-allow-popups", "Cross-Origin-Opener-Policy: same-origin"));
+  const file = tempHeaders(canonicalReal().replace(
+    "Cross-Origin-Opener-Policy: same-origin-allow-popups",
+    "Cross-Origin-Opener-Policy: same-origin",
+  ));
   const out = run(["--file", file]);
   assert.equal(out.status, 1, out.stdout);
   assert.match(out.stdout, /✗ FAIL/);
   assert.match(out.stdout, /same-origin-allow-popups/);
 });
 
+test("CLI exits 1 on the same file with only the COOP line removed", () => {
+  const file = tempHeaders(canonicalReal().replace(/^ {2}Cross-Origin-Opener-Policy:.*\n/m, ""));
+  const out = run(["--file", file]);
+  assert.equal(out.status, 1, out.stdout);
+  assert.match(out.stdout, /NOT DECLARED/);
+});
+
 test("CLI --same-as fails when the built copy drifts from the source", () => {
-  const dir = mkdtempSync(join(tmpdir(), "headers-same-cli-"));
-  const file = join(dir, "_headers");
-  writeFileSync(file, readReal().replace(/^ {2}X-Content-Type-Options: nosniff$/m, "  X-Content-Type-Options: sniff"));
+  const file = tempHeaders(canonicalReal().replace(/^ {2}X-Content-Type-Options: nosniff$/m, "  X-Content-Type-Options: sniff"));
   const out = run(["--file", file, "--same-as", REAL]);
   assert.equal(out.status, 1, out.stdout);
   assert.match(out.stdout, /\[file-drift\]/);
 });
 
 test("CLI --json prints a parseable result", () => {
-  const out = run(["--json"]);
-  assert.equal(out.status, 0);
+  const out = run(["--file", tempHeaders(canonicalReal()), "--json"]);
+  assert.equal(out.status, 0, out.stdout + out.stderr);
   const parsed = JSON.parse(out.stdout);
   assert.equal(parsed.ok, true);
   assert.ok(Array.isArray(parsed.pins));

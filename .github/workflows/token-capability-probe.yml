@@ -1,0 +1,44 @@
+name: token-capability-probe
+
+# SEC-F3 evidence probe (t_73e23314). Throwaway: deleted after the experiment.
+# Read-only capability fingerprint of the credential that a pull_request run can
+# reach today. Prints HTTP status, Cloudflare error codes and the token's ID
+# (an identifier, not a credential). NEVER prints the token value.
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  caps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: fingerprint the PR-reachable deploy credential (read-only)
+        env:
+          TOK: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "CAP present=$([ -n "$TOK" ] && echo yes || echo no) len=${#TOK}"
+          probe() {
+            code=$(curl -s -m 20 -o /tmp/r.json -w '%{http_code}' \
+              -H "Authorization: Bearer $TOK" "https://api.cloudflare.com/client/v4$2" || echo ERR)
+            errs=$(jq -r '[.errors[]?.code] | join(",")' /tmp/r.json 2>/dev/null || echo parse)
+            echo "CAP $1 http=$code cf_err=${errs:--}"
+          }
+          curl -s -m 20 -o /tmp/v.json -H "Authorization: Bearer $TOK" \
+            https://api.cloudflare.com/client/v4/user/tokens/verify
+          tid=$(jq -r '.result.id // "none"' /tmp/v.json 2>/dev/null || echo none)
+          tst=$(jq -r '.result.status // "none"' /tmp/v.json 2>/dev/null || echo none)
+          echo "CAP verify token_id=$tid status=$tst"
+          probe pages-projects  "/accounts/$ACCT/pages/projects"
+          probe account-tokens  "/accounts/$ACCT/tokens"
+          probe user-tokens     "/user/tokens"
+          probe d1-databases    "/accounts/$ACCT/d1/database"
+          probe kv-namespaces   "/accounts/$ACCT/storage/kv/namespaces"
+          probe workers-scripts "/accounts/$ACCT/workers/scripts"
+          probe zones           "/zones"
+          probe account-members "/accounts/$ACCT/members"
+          probe account-details "/accounts/$ACCT"

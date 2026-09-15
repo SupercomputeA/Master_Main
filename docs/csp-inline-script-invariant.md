@@ -21,6 +21,14 @@ CI signal, just a CSP violation in a console nobody reads.
 
 `scripts/check-inline-scripts.mjs` is the CI gate for that property.
 
+Sibling assertion: `scripts/assert-headers.mjs` pins the *values* in the `/*`
+section of the same file (COOP, `X-Frame-Options`, the CSP directives this script
+depends on, and the absence of COEP) — see `docs/headers-invariant.md`. This file
+owns the *content* half of the invariant; that one owns the header half. Neither
+is sufficient alone: a correct `script-src` value guards nothing if the header
+never applies (M1), and an export with no inline scripts is still unsafe if
+`script-src` gains `'unsafe-inline'`.
+
 ## Where it runs
 
 `.github/workflows/ci-cd.yml`, `validate` job, after `npx next build`:

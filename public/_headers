@@ -34,11 +34,12 @@
 #   SIWE auth and every subscriber call are same-origin /api/*, and EIP-3009
 #   signing is local to the wallet. connect-src therefore stays exactly as-is.
 #
-# COOP: same-origin is in effect for the first time. No live impact today — the
-# only window.open() is components/FiatRamp.tsx:62, which already passes
-# "noopener", and the WalletConnect modal is an iframe. If a popup-based flow is
-# ever added (OAuth / social login / Coinbase), COOP MUST become
-# same-origin-allow-popups or that popup loses window.opener.
+# COOP: same-origin-allow-popups. A popup-based flow IS live — the Coinbase
+# Wallet connector (lib/web3.ts) opens a popup that needs the opener
+# relationship; under `same-origin` that popup loses window.opener. This value
+# keeps COOP's cross-origin isolation for windows we do not open ourselves while
+# restoring the opener for the ones we do. It does NOT affect extension wallets
+# (MetaMask's popup is browser UI, not a page) and does NOT weaken the CSP.
 #
 # X-Frame-Options is SAMEORIGIN, aligned with frame-ancestors 'self'. It was DENY,
 # which contradicted the CSP: modern browsers honour frame-ancestors and ignore
@@ -64,7 +65,7 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin
-  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 
 # Immutable hashed build assets

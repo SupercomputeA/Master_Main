@@ -6,7 +6,10 @@
 //   GET  /api/social/queue?status=   → queue items
 //   POST /api/social/queue           → create draft/scheduled item  { body, platforms[], scheduled_at? }
 //   POST /api/social/queue/update    → { id, status?, scheduled_at?, body?, platforms? }
-//   POST /api/social/publish         → { id } → dispatch adapters (dry-run when creds are absent)
+//                                      status must be a QUEUE_STATUSES member — 400 otherwise
+//   POST /api/social/publish         → { id, force? } → dispatch adapters (dry-run when creds are absent)
+//                                      refuses a re-dispatch of an item already status='posted'
+//                                      (409) unless the caller sends an explicit `force: true`
 //   GET  /api/social/health          → rail health summary
 //
 // Design rules:
@@ -14,6 +17,10 @@
 //   the queue item is marked dry_run with per-platform detail.
 // - Substack has no public write API: its adapter is "manual" and only ever exports.
 // - Credentials are read from Cloudflare env; this file never logs or returns them.
+// - `status` / `results` are the operator audit trail. status is enum-validated here and
+//   again by triggers in migrations/0010_social_queue_status_enum.sql; a dispatch that
+//   actually hit a live platform and failed is recorded as `failed`, never laundered into
+//   `dry_run`; and posted_at only ever moves forward.
 
 const ALLOWED_ORIGINS = new Set([
   "https://supercompute.io",
@@ -21,6 +28,14 @@ const ALLOWED_ORIGINS = new Set([
   "http://127.0.0.1:8793",
   "http://localhost:3000",
 ])
+
+// The one vocabulary `social_queue.status` may ever take (SEC-F2). These six values are
+// what the audit trail, GET /health queue_counts and the admin UI can interpret; anything
+// else is a lie stored in the operator's evidence trail. Mirrored at the storage layer by
+// migrations/0010_social_queue_status_enum.sql so a direct D1 console write cannot bypass
+// it either.
+const QUEUE_STATUSES = ["draft", "scheduled", "posted", "partial", "failed", "dry_run"]
+const QUEUE_STATUS_SET = new Set(QUEUE_STATUSES)
 
 function corsHeaders(request) {
   const origin = request?.headers?.get("Origin") || ""
@@ -253,7 +268,15 @@ export async function onRequest({ request, env }) {
     if (!payload?.id) return json({ error: "id required" }, 400, request)
     const fields = []
     const values = []
-    if (payload.status) { fields.push("status = ?"); values.push(payload.status) }
+    // SEC-F2: status is an enum, not free text. Reject before the UPDATE is built so a bad
+    // value can never reach the audit trail (and so the DB trigger in 0010 is a backstop,
+    // never the thing that fails a request).
+    if (payload.status !== undefined) {
+      if (typeof payload.status !== "string" || !QUEUE_STATUS_SET.has(payload.status)) {
+        return json({ error: "invalid status", allowed: QUEUE_STATUSES }, 400, request)
+      }
+      fields.push("status = ?"); values.push(payload.status)
+    }
     if (payload.body) { fields.push("body = ?"); values.push(String(payload.body).slice(0, 8000)) }
     if (payload.platforms) { fields.push("platforms = ?"); values.push(JSON.stringify(payload.platforms)) }
     if (payload.scheduled_at !== undefined) { fields.push("scheduled_at = ?"); values.push(payload.scheduled_at ? Number(payload.scheduled_at) : null) }
@@ -271,17 +294,37 @@ export async function onRequest({ request, env }) {
     if (!payload?.id) return json({ error: "id required" }, 400, request)
     const item = await env.DB.prepare("SELECT * FROM social_queue WHERE id = ?").bind(payload.id).first()
     if (!item) return json({ error: "queue item not found" }, 404, request)
+
+    // SEC-F2 idempotency guard. A second dispatch of an item that already posted goes back
+    // out to every platform in item.platforms — a real double-post the moment Farcaster /
+    // Bluesky credentials exist. Refuse unless the caller asks for it explicitly: `force`
+    // must be the boolean true (`"true"`, 1 and other truthy shapes do not count).
+    if (item.status === "posted" && payload.force !== true) {
+      return json({
+        error: "already posted — refusing to re-dispatch",
+        status: item.status,
+        posted_at: item.posted_at ?? null,
+        results: item.results ?? null,
+        hint: "POST { id, force: true } to re-dispatch deliberately",
+      }, 409, request)
+    }
+
     let platforms = []
     try { platforms = JSON.parse(item.platforms) } catch { platforms = [] }
 
     const results = await dispatch(item, env, platforms)
     const live = results.filter((r) => r.mode === "live" && r.ok).length
     const attempted = results.filter((r) => r.mode === "live").length
-    const status = live > 0 && live === attempted ? "posted" : live > 0 ? "partial" : "dry_run"
+    // dry_run means nothing was sent to a real platform. If we did send and it failed, say
+    // so — `failed` (rather than a flattering dry_run) is the honest record of that attempt.
+    const status = live > 0 && live === attempted ? "posted" : live > 0 ? "partial" : attempted > 0 ? "failed" : "dry_run"
+    // posted_at is monotonic: a forced re-dispatch that posts nothing must not erase the
+    // timestamp of the post that actually happened.
+    const postedAt = live > 0 ? Math.floor(Date.now() / 1000) : item.posted_at ?? null
 
     await env.DB.prepare(
       "UPDATE social_queue SET status = ?, results = ?, posted_at = ?, updated_at = unixepoch() WHERE id = ?"
-    ).bind(status, JSON.stringify(results), live > 0 ? Math.floor(Date.now() / 1000) : null, item.id).run()
+    ).bind(status, JSON.stringify(results), postedAt, item.id).run()
 
     if (live > 0) {
       for (const platform of platforms) {
@@ -289,7 +332,7 @@ export async function onRequest({ request, env }) {
           .bind(platform).run()
       }
     }
-    return json({ id: item.id, status, results }, 200, request)
+    return json({ id: item.id, status, results, forced: payload.force === true }, 200, request)
   }
 
   // ── GET /health ─────────────────────────────────────────────────────────
@@ -314,8 +357,8 @@ export async function onRequest({ request, env }) {
       "GET /api/social/accounts": "platform registry + connection status",
       "GET /api/social/queue?status=": "queue items",
       "POST /api/social/queue": "create item { body, platforms[], scheduled_at? }",
-      "POST /api/social/queue/update": "update item { id, status?, body?, platforms?, scheduled_at? }",
-      "POST /api/social/publish": "dispatch item { id } (dry-run without credentials)",
+      "POST /api/social/queue/update": "update item { id, status?, body?, platforms?, scheduled_at? } — status must be draft|scheduled|posted|partial|failed|dry_run",
+      "POST /api/social/publish": "dispatch item { id, force? } (dry-run without credentials); 409 when already posted unless force: true",
       "GET /api/social/health": "rail health + queue counts",
     },
   }, 200, request)

@@ -179,6 +179,101 @@ Three things worth knowing before you trust the gate:
 - A PR branched **before** this lane landed carries no such check run and will sit at
   "Expected". Rebase it onto `main` — or, while `enforce_admins` is still `false`,
   admin-merge it deliberately: #62 and #91 predate the lane.
+- A **fork** PR is the other permanently-"Expected"/red case, and it is *not* fixable by
+  rebasing. It can never satisfy this context — that is the intended behaviour, and the
+  next section is the policy for it.
+
+## Fork PRs can never satisfy the required check — and that is the policy (SEC-98-5)
+
+**Decision (2026-09-15, from the PR #98 security review §SEC-98-5): the lane stays
+fork-hostile by design. An external PR is *re-landed inside the repo by a maintainer*
+after review, the internal PR is the one that goes green and merges, and the fork PR is
+closed with a pointer to it.** Do not make a fork PR green — not by widening the trigger,
+not by an admin override on the fork PR itself. The trigger stays `on: pull_request`.
+
+`SupercomputeA/Master_Main` is **public** (`private: false`), so forks are possible, and
+`on: pull_request` deliberately runs the fork's copy of the workflow **without repository
+secrets**: *"With the exception of `GITHUB_TOKEN`, secrets are not passed to the runner
+when a workflow is triggered from a forked repository"*
+([GitHub docs](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)).
+That is the property worth keeping — it is what stops a fork from reaching the prod deploy
+token this lane holds (see "Verified working" under "What is still needed"). The
+consequence is mechanical:
+
+    fork PR
+      └── build → deploy preview → verify    FAILS at "Deploy preview"
+          secrets.CLOUDFLARE_API_TOKEN and secrets.CLOUDFLARE_ACCOUNT_ID are empty,
+          so wrangler cannot authenticate and the step exits 1.
+
+Reproduced locally on 2026-09-15 by running the step's own command with both env vars
+set-but-empty and `CI=true`:
+
+```bash
+CLOUDFLARE_API_TOKEN= CLOUDFLARE_ACCOUNT_ID= CI=true \
+  npx wrangler pages deploy out --project-name=supercompute --branch pr-99999 --commit-dirty=true
+# ✘ [ERROR] In a non-interactive environment, it's necessary to set a
+#   CLOUDFLARE_API_TOKEN environment variable for wrangler to work.     (exit 1)
+```
+
+No preview is deployed, so with `strict: true` the context reports failure on every push
+to that PR and it cannot go green. Two platform facts that shape what you will actually
+see on a fork PR:
+
+- A run from a first-time contributor can sit at **"Awaiting approval"** until a maintainer
+  with write access clicks *Approve workflows to run*; a run left awaiting approval for 30
+  days is **deleted** ([docs](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/approve-runs-from-forks)).
+  So the check may read "Expected — Waiting for status to be reported" rather than plain
+  "failure" until someone approves the run.
+- The verdict-comment step is `if: always()`, so it may still run on a failed fork job —
+  with an empty `steps.deploy.outputs.url` it reports `Preview: (no preview deployed)`.
+  Do not read that comment as a deploy problem to debug; and do not wait for it, post the
+  policy note yourself.
+
+### The re-land procedure (what a maintainer actually does)
+
+1. **Review the diff as code, before anything runs with secrets.** A re-landed branch is a
+   *same-repo* branch, so the lane runs **that branch's** workflow file and its `npm ci`
+   dependency tree inside the step that holds `secrets.CLOUDFLARE_API_TOKEN` — the same
+   token `ci-cd.yml` deploys prod with. Read the PR for `.github/workflows/**`,
+   `package.json` scripts, `postinstall`/install-time hooks, and anything that executes at
+   build time. Handling that diff deliberately is the entire reason this policy is
+   "maintainer re-lands after review" instead of "let forks run".
+2. **If the diff touches CI or install-time code, do not re-land the branch.** Port the
+   non-CI files onto a fresh branch off `main` (cherry-pick) so the lane runs *our*
+   workflow file, not theirs.
+3. **Otherwise, lift the fork's head into an in-repo branch and continue as a normal PR:**
+
+   ```bash
+   gh pr checkout <N>                      # the fork head, as a local branch
+   git push origin HEAD:rel/fork-<N>       # in-repo now: this is what makes the lane run with secrets
+   gh pr create --base main --head rel/fork-<N> \
+     --title "<original title> (#<N> by @<author>)" \
+     --body "Re-land of #<N>. Original work by @<author>; preview verified by this lane before main."
+   ```
+
+   Preserve authorship if you squash or cherry-pick by hand: `git commit --author="Name <email>"`.
+4. **The internal PR is the one that merges** — lane green, one approving review, current
+   with `main` (the `strict` requirement). Then close the fork PR: *"Landed internally as
+   #NN — external PRs cannot carry this repo's preview secrets by design; see
+   `docs/testing-lane.md`."*
+
+### Considered and explicitly NOT the policy
+
+- **`pull_request_target`, or any second workflow on that trigger, to make fork PRs green.**
+  **Prohibited.** `pull_request_target` runs in the base repository's context *with* its
+  secrets and a write `GITHUB_TOKEN`; combine that with checking out the PR's head and
+  fork-controlled code executes in the token's step. The "safe" variant (comment on the PR,
+  never check out the head) buys nothing either: the lane's value *is* deploying and smoking
+  the PR's build, which is precisely the part that must not run on a fork's say-so.
+- **A separate, non-required build/test job for forks.** Deferred, not rejected: with no
+  secrets it can only run the network-free tier (build + header/CSP/unit checks), cannot
+  deploy a preview, and therefore cannot make the *required* context pass — it changes
+  nothing about mergeability, which is what this section settles. Add it if fork volume ever
+  justifies the feedback; it is a readable additive job, never a trigger change.
+- **"External PRs are not accepted; close on sight."** Rejected: the re-land path costs one
+  branch push, and discarding a real patch to avoid it is worse. If fork volume ever becomes
+  a problem, this is the documented fallback — but change this section first, do not decide
+  it in the moment.
 
 ## What is still needed
 

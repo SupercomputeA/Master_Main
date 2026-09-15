@@ -53,11 +53,16 @@ export default function Auth() {
   const { data: ensName } = useENSName(wagmiAddress)
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null)
   const [hasInjected, setHasInjected] = useState<boolean | null>(null)
+  const [isSafari, setIsSafari] = useState(false)
 
   // Detect a legacy injected provider once on the client. null = not yet known.
+  // Also flag Safari: MetaMask ships no Safari extension, so those visitors can
+  // only use WalletConnect or a remote-wallet connector — say so instead of
+  // offering a button that cannot work.
   useEffect(() => {
     const provider = typeof window !== "undefined" && Boolean((window as Window & { ethereum?: unknown }).ethereum)
     setHasInjected(provider)
+    setIsSafari(/^((?!chrome|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent))
   }, [])
 
   // Build the wallet list from wagmi's connectors, including EIP-6963
@@ -141,10 +146,11 @@ export default function Auth() {
             ))}
           </div>
 
-          {hasInjected === false && walletOptions.every((w) => w.id === "walletConnect") && !msg && (
+          {hasInjected === false && !walletOptions.some((w) => /metamask|injected/i.test(w.id)) && !msg && (
             <div className="auth-msg" style={{ color: "var(--gold-warm)", fontSize: 11 }}>
-              no browser wallet detected — enable your wallet extension for supercompute.io,
-              or continue with WalletConnect
+              {isSafari
+                ? "Safari has no browser-wallet extension — open supercompute.io in Chrome or Brave with MetaMask, or continue with WalletConnect below"
+                : "no browser wallet detected — enable your wallet extension for supercompute.io, or continue with WalletConnect"}
             </div>
           )}
 

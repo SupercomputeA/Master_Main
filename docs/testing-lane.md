@@ -83,6 +83,15 @@ telemetry writing — silently killing prod telemetry is a worse failure than a 
 refused report is loud (`console.error` → `wrangler pages deployment tail`) rather than a silent
 swallow.
 
+Measured on the **deployed** pair (2026-09-15, head `75101c3`, lane run 34929295839), not inferred: a
+`POST` to the preview's own collector — both the lane's deployment
+`deac77fc.supercompute.pages.dev` and the `pr-98.supercompute.pages.dev` branch alias — created **no**
+row, while the same `POST` to `https://supercompute.io/api/csp-report` created
+`2026-09-15|probe-f6b-prod-…|https://example.com|/probe-f6b|enforce` (`hits=1`), which was deleted
+again afterwards (`probe-*` rows in prod: `0`). That pair also settles the runtime half of the claim
+above: the deployed preview's Function saw a non-`main` `CF_PAGES_BRANCH`, so the platform does inject
+it into Pages Functions at run time, not only into builds.
+
 The writes that remain from a preview are the ones the browser sends to the *absolute* endpoint, and
 those are the next bullet.
 

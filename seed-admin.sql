@@ -50,8 +50,10 @@
 -- principals):
 --   node --test tests/social/admin-gate.test.js   # [item 1 (a)] cases + the backfill proof
 -- To revoke: DELETE FROM admin_wallets WHERE wallet_address = '<row>';
--- (Note: functions/api/subscribers.js still matches `wallet_address = ?` byte-exact, so a
--- checksummed row misses there too — that inconsistency is not this card's scope.)
+-- (SEC-F1d, card t_30f803f0: functions/api/subscribers.js used to match `wallet_address = ?`
+-- byte-exact and was the last authorizing reader that disagreed with the other three; it now
+-- sends `lower(wallet_address) = ?` too, so a checksummed row matches on every route. Guarded
+-- by tests/api/subscribers-admin.test.js — the four readers, one statement.)
 
 INSERT OR IGNORE INTO admin_wallets (id, wallet_address, role)
 VALUES

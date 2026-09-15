@@ -22,13 +22,27 @@ export const ADMIN_ADDR = '0x1a828cd220559479e2f761805da4ee722683323b'
 export const MIXED_CASE_ADDR = '0xe7A3Ed04F24b6482b4490ae06641Be4e4305Df34'
 export const RANDO_ADDR = '0x9999999999999999999999999999999999999999'
 
+// SEC-F1b (item 1): the live owners of the two ENS-named admin_wallets rows, resolved on
+// mainnet at block 25980491 via the ENS universal resolver (viem getEnsAddress) and
+// cross-checked against api.ensideas.com. Corroborated in-repo by seed-admin.sql,
+// docs/DECISION-ens-content-layer.md:43 and scripts/ipns-contenthash.mjs:103
+// (supercompute.eth), and on-chain by the reverse record on 0x5536EC4C… naming itself
+// `orami.eth` (orami.eth). `sessions.wallet_address` is ALWAYS one of these lowercase 0x
+// forms (login.js:120), never a name — which is why an ENS-named row can never match the
+// gate's `lower(wallet_address) = ?` and its owner needs an address row.
+export const SUPERCOMPUTE_ETH_ADDR = '0x5056a0729a7860a0c6f63575e74a51d5c2b85cf1'
+export const ORAMI_ETH_ADDR = '0x5536ec4cf7c0ce0dab48444afd1f69f4db2bf6f4'
+
 export const SESSION_ID = 'sess_t46a05469'
 export const EXPIRED_SESSION_ID = 'sess_expired'
 
 export const future = () => Math.floor(Date.now() / 1000) + 3600
 
 // sessions: Map<sessionId, { wallet_address, expires_at }>
-export function makeSocialEnv({ admins = [], users = new Map(), sessions = new Map(), failAdminLookup = false } = {}) {
+// failSessionLookup: make the SESSION read throw, like a D1 error on a missing table.
+//   Mirrors `failAdminLookup` — the gate's first DB touch is the session read, so this
+//   is how a non-JSON 500 (SEC-F1b, card t_f750de01) is exercised.
+export function makeSocialEnv({ admins = [], users = new Map(), sessions = new Map(), failAdminLookup = false, failSessionLookup = false } = {}) {
   const cacheStore = new Map()
   cacheStore.set('__sessions__', sessions)
   const env = makeAuthEnv({ cacheStore, adminAddresses: admins, existingUsers: users })
@@ -47,8 +61,13 @@ export function makeSocialEnv({ admins = [], users = new Map(), sessions = new M
     // auth harness does not model (`SELECT id, role FROM users` is login.js's). Mock
     // it here so the regression suite is genuinely RED against the old handler.
     const isUsersRoleLookup = /^SELECT role FROM users\b/.test(normalized)
+    const isSessionLookup = /SELECT wallet_address FROM sessions\b/.test(normalized)
     return {
       bind(...args) {
+        if (isSessionLookup && failSessionLookup) {
+          const boom = () => { throw new Error('D1_ERROR: no such table: sessions') }
+          return { first: async () => boom(), run: async () => boom(), all: async () => boom() }
+        }
         if (isAdminLookup) {
           if (failAdminLookup) {
             return {

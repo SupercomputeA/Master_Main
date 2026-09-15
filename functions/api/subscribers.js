@@ -5,6 +5,7 @@
 
 import { json } from './auth.js';
 import { TIERS, isValidTier, defaultExpirySeconds } from '../../lib/tiers.js';
+import { corsOrigin, corsHeadersFor } from '../_shared/cors.js';
 
 const VALID_TIERS = ['free', 'builder', 'operator', 'syndicate', 'lead'];
 
@@ -22,25 +23,6 @@ function isValidEmail(email) {
   return typeof email === 'string' && email.length <= 320 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function allowedOrigin(reqOrigin) {
-  let origin = 'https://supercompute.io';
-  if (!reqOrigin) return origin;
-  try {
-    const host = new URL(reqOrigin).hostname;
-    const ok = host === 'supercompute.io' || host === 'supercompute.pages.dev' || host === 'localhost' || host === '127.0.0.1' || host.endsWith('.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app');
-    if (ok) origin = reqOrigin;
-  } catch {}
-  return origin;
-}
-
-function corsHeaders(origin) {
-  return {
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
-}
-
 async function getSessionWallet(env, request) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ') || !env?.DB) return null;
@@ -54,10 +36,12 @@ async function getSessionWallet(env, request) {
 }
 
 export async function onRequest({ request, env }) {
-  const reqOrigin = request.headers.get('Origin') || '';
-  const origin = allowedOrigin(reqOrigin);
+  // Exact-origin allowlist — functions/_shared/cors.js (SEC-F4). The resolved
+  // origin never echoes a *.pages.dev / ngrok / localhost host that is not on
+  // env.CORS_ORIGIN, and the headers carry Vary: Origin.
+  const origin = corsOrigin(request, env);
   const j = (data, status = 200) => json(data, status, origin);
-  const headers = corsHeaders(origin);
+  const headers = corsHeadersFor(request, env);
 
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers });

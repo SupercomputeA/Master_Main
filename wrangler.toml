@@ -13,7 +13,14 @@ binding = "CACHE"
 id = "031b7cbbfed44d478d7d7c4abe67c666"
 
 [vars]
+# The exact-origin allowlist for every /api/* CORS response (functions/_shared/cors.js
+# is the only reader). Comma-separate for more than one. An origin that is not listed
+# here is never echoed back — no *.pages.dev / *.ngrok-free.app / localhost suffixes.
 CORS_ORIGIN = "https://supercompute.io"
+# Dev origins (localhost / 127.0.0.1) are NOT part of the production set. Opt in per
+# deployment instead:  npx wrangler pages dev out --binding ALLOW_DEV_ORIGINS=true
+# Leave ALLOW_DEV_ORIGINS unset here — setting it in this file would re-trust localhost
+# in production, which is exactly the SEC-F4 defect.
 QUANTA_TOKEN = "0x5ACDC563450cC35055d7344287C327fafB2b371A"
 # SCOM_STAKING — not deployed yet; zero-address makes staking API return defaults
 SCOM_STAKING = "0x0000000000000000000000000000000000000000"

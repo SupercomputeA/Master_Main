@@ -60,7 +60,6 @@ jobs:
       - name: Test the CSP inline-script gate itself
         run: node --test tests/csp/inline-scripts.test.mjs
 
-<<<<<<< HEAD
       # SEC-F3 (card t_49b40e3c): the same "guard the guard" rule for the /api/* CORS
       # allowlist — a production deployment must not answer a dev origin, and the
       # allowlist must stay in one module. No build output needed.
@@ -74,14 +73,13 @@ jobs:
       # again, which would keep a REVOKED admin in for the rest of its session.
       - name: Test the /api/social admin gate itself
         run: node --test tests/social/admin-gate.test.js
-=======
+
       # SEC-F2 (PR #62 review): social_queue.status / results are the operator audit trail.
       # The handler refuses a status outside the enum and refuses to re-dispatch an item
       # that already posted, and migrations/0010 enforces the enum at the storage layer too.
       # Both halves are executable invariants — run them without needing D1 or credentials.
       - name: Test the social publish queue guards (status enum + no double-post)
         run: node --test tests/social/queue-status-guard.test.mjs tests/social/status-enum-migration.test.mjs
->>>>>>> origin/security/social-queue-status-guard
 
       - name: Assert export ships no executable inline scripts (guards script-src 'self')
         run: node scripts/check-inline-scripts.mjs out

@@ -47,7 +47,7 @@ function walletRank(id: string): number {
 }
 
 export default function Auth() {
-  const { authing, session, profile } = useAuth()
+  const { authing, session, profile, authError } = useAuth()
   const { connect, connectors, isPending, error } = useConnect()
   const { address: wagmiAddress } = useAccount()
   const { data: ensName } = useENSName(wagmiAddress)
@@ -92,12 +92,27 @@ export default function Auth() {
     }
   }, [session])
 
+  // Surface the sign-in failure reason (backend unreachable, rejected
+  // signature, 401/403) instead of a stale "connecting…" state.
+  useEffect(() => {
+    if (authError) setMsg({ text: authError, ok: false })
+  }, [authError])
+
   // Surface wagmi errors
   useEffect(() => {
     if (error) {
       setMsg({ text: `// ${error.message}`, ok: false })
     }
   }, [error])
+
+  // If a connect attempt settles without a session (no wallet popup, user
+  // dismissed, provider missing), drop the stale "connecting…" line so the
+  // error/authError effect or the next click controls the message.
+  useEffect(() => {
+    if (!isPending && !authing && !session && !error) {
+      setMsg((prev) => (prev && prev.text.startsWith("// connecting") ? null : prev))
+    }
+  }, [isPending, authing, session, error])
 
   function handleWallet(walletId: string) {
     const connector = connectors.find(c => c.id === walletId)

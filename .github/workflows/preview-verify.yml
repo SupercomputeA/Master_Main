@@ -124,7 +124,9 @@ jobs:
           script: |
             const url = process.env.PREVIEW || '(no preview deployed)'
             const ok = process.env.JOB_STATUS === 'success'
+            const MARKER = '<!-- preview-verify -->'
             const body = [
+              MARKER,
               `### ${ok ? '✅' : '❌'} Preview verify — ${ok ? 'passed' : 'failed'}`,
               '',
               ok
@@ -140,9 +142,17 @@ jobs:
               '',
               '_Merge gate: this check must be green before main. See `docs/testing-lane.md`._',
             ].join('\n')
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body,
-            })
+            const { owner, repo } = context.repo
+            const issue_number = context.issue.number
+            // STICKY: update this PR's previous verdict instead of stacking another
+            // comment on every push. The newest run is the whole truth; restating it
+            // as a fresh comment buries the PR conversation. The MARKER is what makes
+            // the verdict findable again on the next run.
+            const prior = (
+              await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number, per_page: 100 })
+            ).find((c) => c.user?.type === 'Bot' && (c.body || '').includes(MARKER))
+            if (prior) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: prior.id, body })
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body })
+            }

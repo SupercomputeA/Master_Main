@@ -1,6 +1,8 @@
 # The testing lane — verify a build before it reaches main
 
-**Status:** ready for review (branch `ci/preview-verify`, PR opened, not merged).
+**Status:** ready for review (branch `ci/preview-verify`, PR #98, not merged). The
+required-status-check half of the gate is **already registered on `main`** — see
+"The gate is registered" below.
 **Directive:** Mone, 2026-09-15 — stop publishing straight to main; have a testing solution ready.
 
 ## Why this exists
@@ -31,7 +33,9 @@ PR opened
   └── 8. verdict comment on the PR    with the preview URL and repro commands
 ```
 
-Nothing reaches `main` until that preview is green. `.github/workflows/preview-verify.yml` implements it.
+Nothing reaches `main` until that preview is green. `.github/workflows/preview-verify.yml`
+implements it, and `build → deploy preview → verify` is now a **required** check on
+`main` — the lane is a gate, not a suggestion.
 
 ## Run it yourself (same scripts, any URL)
 
@@ -51,18 +55,53 @@ node scripts/test-auth-flow.mjs                                             # li
 - **check-inline-scripts** — keeps `script-src 'self'` truthful; the day an inline script appears, the strict CSP would break the page and this fails first.
 - **test-auth-flow** — proves the SIWE backend end-to-end without a browser (used it to clear the "login is broken" report earlier).
 
-## What is still needed to make this a hard gate
+## The gate is registered (2026-09-15)
 
-1. **Register the check as required on `main`** (branch protection, one call):
-   ```bash
-   gh api -X PATCH repos/SupercomputeA/Master_Main/branches/main/protection \
-     -f 'required_status_checks[strict]=true' \
-     -f 'required_status_checks[contexts][]=validate' \
-     -f 'required_status_checks[contexts][]=preview' # name of the preview-verify job once it has run once
-   ```
-   Until then this is a **signal**, not a gate: a red preview can still be admin-merged.
-2. **Pages-capable token in CI** — the preview deploy uses `secrets.CLOUDFLARE_API_TOKEN` (the same one `ci-cd.yml` deploys prod with). If that secret is ever narrowed, previews stop and the lane goes quiet — the workflow fails loudly rather than silently skipping.
-3. **Second GitHub identity** — main currently requires 1 approving review and every agent shares `Orami`, so reviews cannot be recorded and merges need an admin override. A bot/App collaborator turns this lane's verdict into a reviewable approval instead of an override.
+`main` requires **two** contexts, both pinned to GitHub Actions (app `15368`):
+
+    validate                            (already required before this lane)
+    build → deploy preview → verify     (this lane)
+
+```bash
+# read what main requires right now:
+gh api repos/SupercomputeA/Master_Main/branches/main/protection/required_status_checks --jq .contexts
+
+# how it was set — re-run this if it is ever unset:
+cat > /tmp/required-checks.json <<'JSON'
+{ "strict": true,
+  "checks": [ { "context": "validate", "app_id": 15368 },
+              { "context": "build → deploy preview → verify", "app_id": 15368 } ] }
+JSON
+gh api -X PATCH \
+  repos/SupercomputeA/Master_Main/branches/main/protection/required_status_checks \
+  --input /tmp/required-checks.json
+```
+
+Three things worth knowing before you trust the gate:
+
+- **The context must be the job's `name:` character for character.** `preview` is the
+  job *id*; it never reports, and a required context that never reports blocks *every*
+  future PR to `main` with "Expected — Waiting for status to be reported". That is the
+  exact trap this section exists to prevent.
+- **`enforce_admins` is `false`**, so an admin can still push a merge through. The gate
+  stops an *agent* from merging an unverified build; it does not lock Mone out.
+- A PR branched **before** this lane landed carries no such check run and will sit at
+  "Expected". Rebase it onto `main` (or admin-merge it deliberately): #62 and #91
+  predate the lane.
+
+## What is still needed
+
+1. **A second GitHub identity** — `main` requires 1 approving review and every agent
+   shares `Orami`, so reviews cannot be recorded and merges need an admin override.
+   PR #98 is blocked on exactly this and nothing else. A bot/App collaborator turns
+   this lane's verdict into a reviewable approval instead of an override.
+
+Verified working — needs no action:
+
+- **Pages-capable token** — the preview deploy uses `secrets.CLOUDFLARE_API_TOKEN`
+  (the same one `ci-cd.yml` deploys prod with) and deployed a real preview on the
+  first run. If it is ever narrowed, previews stop; the workflow fails loudly rather
+  than skipping silently, so the gate goes red instead of going quiet.
 
 ## Paused while this lands (Mone, 2026-09-15)
 

@@ -1,6 +1,6 @@
 /* Shared member-project data — used by the projects list, detail, and (as the
    default set) the create flow. Placeholder content until wired to the D1
-   `projects` table (see schema.sql / src/api/projects). */
+   `projects` table (see schema.sql / functions/api/projects.js). */
 
 export interface MemberProject {
   slug: string

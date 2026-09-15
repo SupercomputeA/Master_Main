@@ -9,27 +9,46 @@
 -- Apply: wrangler d1 execute supercompute-db --remote --file=./seed-admin.sql
 -- (INSERT OR IGNORE — safe to re-run, additive, never rewrites an existing row)
 --
--- ── Two key forms, and which reader honours which ───────────────────────────
--- `admin_wallets.wallet_address` holds BOTH 0x addresses and ENS names, and the readers
--- disagree about what a name means:
+-- ── The grant model: an ADDRESS row, and no other kind ──────────────────────
+-- A wallet is an admin because this table holds a row whose `wallet_address` is that wallet's
+-- 0x address. One rule, one statement, over a lowercase 0x principal — the statement these three
+-- authorizing readers send:
 --
---   login.js isAdmin()      address row, OR a name in ADMIN_ENS_NAMES that resolves to the
---                           signing wallet (resolves mainnet ENS, dual-binds, byte-exact
---                           compare). A name row therefore grants admin AT LOGIN to that
---                           name's current owner.
---   auth.js  isAdmin()      same shape (byte-exact, no lower() on the column).
---   /api/social/* gate      address rows ONLY, `lower(wallet_address) = ?` (case-insensitive
---                           on the column, which is why the checksummed 0xe7A3Ed04… row
---                           matches there). `sessions.wallet_address` is always a lowercase
---                           0x address (login.js:120), so an ENS-named row can never match it.
+--   SELECT role FROM admin_wallets WHERE lower(wallet_address) = ?
 --
--- ⇒ An ENS name that is an admin must ALSO have a row for its owner's address, or the
---   owner is login-bridged to admin and simultaneously 403'd out of /api/social/* (the
---   admin UI renders and every call inside it fails). That is SEC-F1b item 1, card
---   t_f750de01, decided as option (a): fix the data, keep the gate strict. The gate does
---   NOT resolve ENS per request — 2-3 mainnet eth_calls on the deny path is an amplifier
---   for any authenticated non-admin, and it would make authorization follow mutable name
---   ownership instead of a revocable row.
+--   login.js isAdmin()      functions/api/auth/login.js:48
+--   auth.js  isAdmin()      functions/api/auth.js:103
+--   /api/social/* gate      functions/api/social/[[catchall]].js:106
+--
+-- `lower()` on the column is why a row stored in EIP-55 checksummed form still matches — one
+-- live prod row is stored checksummed (0xe7A3Ed04F24b6482b4490ae06641Be4e4305Df34) while every
+-- session wallet is a lowercase 0x address, so a byte-exact compare would silently deny that
+-- admin. A reader that compares the column byte-exact answers the same row differently from
+-- these three, which is the SEC-F1 → F1b → F1c bug class: each remaining divergence is a tracked
+-- defect with its own card, noted under the rows below.
+--
+-- ⇒ ENS NAME ROWS ARE DOCUMENTATION, NOT GRANTS. A row whose text is a name can never match:
+--   each reader binds a lowercase 0x address — the login principal is `address.toLowerCase()`,
+--   `isValidAddress`-validated before any lookup (login.js:107-108) — and no reader of this
+--   table resolves ENS. The name rows below are kept for provenance: they record which name
+--   each address row was resolved from (see the resolution evidence). They authorize nothing,
+--   and a name whose owner is meant to be an admin needs that wallet's ADDRESS row — which is
+--   what admin_001_addr / admin_002_addr are.
+--
+-- ⇒ The name→admin bridge this header used to describe here — login.js resolving
+--   `ADMIN_ENS_NAMES` and matching the name row — was REMOVED by SEC-F1c (card t_df9c32a1),
+--   and it had NEVER FUNCTIONED. It called `resolveENS`, which used `ADDR_SELECTOR` and
+--   `ENS_RESOLVER` without ever defining either, so it threw `ReferenceError` before any
+--   network call, and isAdmin's `catch { return false }` read that as "not an admin". No
+--   wallet was ever granted admin by owning a name — the grant those owners hold came from the
+--   address rows in this file. Authorization deliberately does not follow mutable name
+--   ownership; it follows a revocable row. Proven by the "owning the name must not be an
+--   authorization input" assertion and its mutation self-check in tests/social/admin-gate.test.js.
+--
+-- ⇒ Revocation is one step: delete the wallet's address row (the statement is under the rows
+--   below). No live code writes this table — only this file, out of band, and the tests — so
+--   nothing can re-grant around that DELETE, and `users.role` is a derived cache written from
+--   this verdict alone (login.js:160/162), not a second source of grant.
 --
 -- ── Resolution evidence (mainnet block 25980491, 2026-09-14) ────────────────
 --   supercompute.eth → 0x5056a0729a7860a0c6f63575e74a51d5c2b85cf1
@@ -40,10 +59,14 @@
 --   orami.eth → 0x5536ec4cf7c0ce0dab48444afd1f69f4db2bf6f4
 --     same two sources; corroborated on-chain by that address's reverse record, which
 --     names itself `orami.eth` (viem getEnsName at block 25980500).
---   orami.base → NOT resolvable from mainnet ENS, and login.js only resolves
---     ADMIN_ENS_NAMES (supercompute.eth / orami.eth) via mainnet, so this row is inert for
---     the login bridge and needs no address row. Revisit if it is ever added to
---     ADMIN_ENS_NAMES.
+--     Both address rows are additions made by the SEC-F1b backfill (#103): the pre-backfill
+--     prod table held no row for either address and the broken name path granted nothing, so
+--     this backfill DID add two new login principals — not a reachability-only change.
+--     Recorded on t_f750de01, comment 214.
+--   orami.base → NOT resolvable from mainnet ENS, and NOT an admin. It exists in prod D1 as a
+--     name row outside this file (id 41ffe0547bd35d5f42a8c3fc25fb6fc3, read back 2026-09-15)
+--     and, under the address-only model, grants nothing and needs no address row. If the
+--     holder of orami.base is ever meant to be an admin, the fix is that wallet's ADDRESS row.
 --
 -- Re-verify before trusting the rows below (a name can be re-pointed, and then the address
 -- row, not the name, is the grant — the names are conveniences, the addresses are the

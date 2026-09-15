@@ -1,9 +1,9 @@
 name: token-capability-probe
 
 # SEC-F3 evidence probe (t_73e23314). Throwaway: deleted after the experiment.
-# Read-only capability fingerprint of the credential that a pull_request run can
-# reach today. Prints HTTP status, Cloudflare error codes and the token's ID
-# (an identifier, not a credential). NEVER prints the token value.
+# Read-only capability fingerprint of the credential a pull_request run can reach
+# today. Prints HTTP status, CF error codes, resource counts, zone names and the
+# token's ID (identifier, not a credential). NEVER prints the token value.
 
 on:
   pull_request:
@@ -25,8 +25,12 @@ jobs:
           probe() {
             code=$(curl -s -m 20 -o /tmp/r.json -w '%{http_code}' \
               -H "Authorization: Bearer $TOK" "https://api.cloudflare.com/client/v4$2" || echo ERR)
-            errs=$(jq -r '[.errors[]?.code] | join(",")' /tmp/r.json 2>/dev/null || echo parse)
-            echo "CAP $1 http=$code cf_err=${errs:--}"
+            info=$(jq -r '
+              if (.result|type)=="array" then "n="+(.result|length|tostring)
+              elif (.result|type)=="object" then "obj"
+              else "none" end
+              + " cf_err=" + ([.errors[]?.code]|join(","))' /tmp/r.json 2>/dev/null || echo parse)
+            echo "CAP $1 http=$code $info"
           }
           curl -s -m 20 -o /tmp/v.json -H "Authorization: Bearer $TOK" \
             https://api.cloudflare.com/client/v4/user/tokens/verify
@@ -34,11 +38,16 @@ jobs:
           tst=$(jq -r '.result.status // "none"' /tmp/v.json 2>/dev/null || echo none)
           echo "CAP verify token_id=$tid status=$tst"
           probe pages-projects  "/accounts/$ACCT/pages/projects"
+          probe pages-supercompute "/accounts/$ACCT/pages/projects/supercompute"
           probe account-tokens  "/accounts/$ACCT/tokens"
           probe user-tokens     "/user/tokens"
-          probe d1-databases    "/accounts/$ACCT/d1/database"
           probe kv-namespaces   "/accounts/$ACCT/storage/kv/namespaces"
           probe workers-scripts "/accounts/$ACCT/workers/scripts"
           probe zones           "/zones"
           probe account-members "/accounts/$ACCT/members"
-          probe account-details "/accounts/$ACCT"
+          probe dns-supercompute "/zones?name=supercompute.io"
+          zid=$(jq -r '.result[0].id // "none"' /tmp/r.json 2>/dev/null || echo none)
+          echo "CAP zone_id_for_supercompute=$zid"
+          if [ "$zid" != "none" ]; then
+            probe dns-records "/zones/$zid/dns_records"
+          fi

@@ -40,6 +40,18 @@ jobs:
       - name: Show Node version
         run: node --version
 
+      # Test gate. `npm test` is the repo's declared test entry point
+      # (package.json `scripts.test`, globbing tests/**/*.test.js).
+      # `*.test.js` does NOT match `*.test.mjs` under Node's test glob — verified
+      # on Node 24 — so the .mjs pattern is passed alongside it: otherwise a .mjs
+      # suite sits outside the gate and can regress without failing anything.
+      # No continue-on-error: a red suite fails `validate`, and `deploy` declares
+      # `needs: validate`, so it cannot reach production/staging/development.
+      - name: Run tests
+        run: |
+          npm test
+          node --test "tests/**/*.test.mjs"
+
       - name: Build Tina CMS admin
         run: npx tinacms build
         env:

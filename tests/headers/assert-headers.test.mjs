@@ -80,22 +80,26 @@ function canonicalReal() {
 }
 
 /**
- * The `script-src` directive exactly as the real file writes it.
+ * The shipped `script-src` directive, read OUT of the file under test instead of
+ * hard-coded. The value carries host sources that other cards add on purpose
+ * (#95 adds the Cloudflare Web Analytics beacon,
+ * `script-src 'self' https://static.cloudflareinsights.com`), and a hard-coded
+ * `"script-src 'self';"` needle turns any such addition into a false red here —
+ * which is exactly what it did on the #94+#95 tree (38/41, both failures
+ * "mutation needle not found"). The extra host stays allowed because the pins are
+ * floors, not a snapshot.
  *
- * Derived, not hard-coded: the needle has to survive a host being added to the
- * policy. It was hard-coded to `script-src 'self';` and that stopped matching the
- * moment `script-src` gained `https://static.cloudflareinsights.com` (the Web
- * Analytics carve-out, t_83174cd2) — the pins were untouched, only the needle
- * rotted, which reddened the two mutation tests below for the wrong reason.
+ * Anchored to the CSP header line on purpose: the file's own comments mention
+ * `script-src`, and a bare `/script-src[^;]*;/` runs across them into the header.
  */
 function scriptSrcDirective() {
   const line = /^ {2}Content-Security-Policy:(.*)$/m.exec(canonicalReal());
-  assert.ok(line, "public/_headers declares Content-Security-Policy — if that stops being true, revisit these tests");
+  assert.ok(line, "the file under test declares Content-Security-Policy — revisit these tests if that changes");
   const directive = line[1]
     .split(";")
     .map((part) => part.trim())
     .find((part) => part.split(/\s+/)[0].toLowerCase() === "script-src");
-  assert.ok(directive, "the policy declares script-src — if that stops being true, revisit these tests");
+  assert.ok(directive, "the file under test declares script-src — revisit these tests if that changes");
   return `${directive};`;
 }
 
@@ -227,17 +231,19 @@ test("an EXTRA connect-src host is fine — the pins are a floor, not a snapshot
 });
 
 test("fails when script-src gains 'unsafe-inline'", () => {
-  const needle = scriptSrcDirective();
-  const text = mutate(canonicalReal(), needle, needle.replace("'self'", "'self' 'unsafe-inline'"));
-  const { res, ok } = source(text);
+  const text = canonicalReal();
+  const directive = scriptSrcDirective();
+  const broken = mutate(text, directive, directive.replace(/;$/, " 'unsafe-inline';"));
+  const { res, ok } = source(broken);
   assert.equal(ok, false);
   assert.deepEqual(kinds(res), ["forbidden-source"]);
   assert.match(res.findings[0].detail, /check-inline-scripts/);
 });
 
 test("fails when script-src is removed", () => {
-  const text = mutate(canonicalReal(), scriptSrcDirective(), "");
-  const { res, ok } = source(text);
+  const text = canonicalReal();
+  const broken = mutate(text, scriptSrcDirective(), "");
+  const { res, ok } = source(broken);
   assert.equal(ok, false);
   assert.equal(kinds(res)[0], "missing-directive");
 });

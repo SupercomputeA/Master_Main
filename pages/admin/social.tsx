@@ -120,11 +120,19 @@ export default function AdminSocial() {
     setBusy(false)
   }
 
-  async function dispatchItem(id: string) {
+  // SEC-F2: the API refuses to re-dispatch an item that already posted — a second dispatch
+  // is a real post on every platform in the item. Re-dispatching therefore takes a
+  // deliberate confirmation, and only then does the client send the explicit force flag.
+  async function dispatchItem(item: QueueItem) {
+    const force = item.status === "posted"
+    if (force) {
+      const rails = item.platforms || "its platforms"
+      if (!window.confirm(`// ${item.id} is already posted.\n\nRe-dispatch to ${rails}? That publishes a second time on every rail.`)) return
+    }
     setBusy(true)
     try {
-      const res = await api("/publish", { method: "POST", body: JSON.stringify({ id }) })
-      setMsg(`// ${id} → ${res.status}`)
+      const res = await api("/publish", { method: "POST", body: JSON.stringify(force ? { id: item.id, force: true } : { id: item.id }) })
+      setMsg(`// ${item.id} → ${res.status}${force ? " (forced re-dispatch)" : ""}`)
       load()
     } catch (e) {
       setMsg(`// ${e instanceof Error ? e.message : String(e)}`)
@@ -323,8 +331,8 @@ export default function AdminSocial() {
               </div>
               <p style={{ fontSize: 12, color: "var(--fg)", lineHeight: 1.6, marginBottom: 10, whiteSpace: "pre-wrap" }}>{q.body}</p>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <button type="button" disabled={busy} onClick={() => dispatchItem(q.id)} style={{ fontFamily: "var(--font-mono)", fontSize: 10, padding: "5px 10px", background: "transparent", border: "1px solid var(--accent)", color: "var(--accent)", cursor: "pointer" }}>
-                  dispatch
+                <button type="button" disabled={busy} onClick={() => dispatchItem(q)} style={{ fontFamily: "var(--font-mono)", fontSize: 10, padding: "5px 10px", background: "transparent", border: "1px solid var(--accent)", color: "var(--accent)", cursor: "pointer" }}>
+                  {q.status === "posted" ? "re-dispatch ⚠" : "dispatch"}
                 </button>
                 <button type="button" onClick={() => setStatus(q.id, "posted")} style={{ fontFamily: "var(--font-mono)", fontSize: 10, padding: "5px 10px", background: "transparent", border: "1px solid var(--border)", color: "var(--muted)", cursor: "pointer" }}>
                   mark posted

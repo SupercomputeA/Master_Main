@@ -55,6 +55,7 @@ async function rpcCall(rpcUrls, method, params) {
 // that matched no ENS node, so /api/web3/resolve?name=supercompute.eth always
 // returned null. viem ships a battle-tested keccak256 implementation.
 import { namehash as viemNamehash, normalize as viemNormalize } from "viem/ens"
+import { corsOrigin, FALLBACK_ORIGIN } from "../../_shared/cors.js"
 
 const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
 
@@ -271,10 +272,15 @@ async function getSwapQuote(fromToken, toToken, amount, env) {
   }
 }
 
-function json(data, status = 200, origin = "https://supercompute.io") {
+function json(data, status = 200, origin = FALLBACK_ORIGIN) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": origin },
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": origin,
+      // Required on anything carrying a request-derived ACAO (SEC-F4).
+      "Vary": "Origin",
+    },
   })
 }
 
@@ -284,15 +290,9 @@ export async function onRequest({ request, env }) {
   const url = new URL(request.url)
   const path = url.pathname.replace("/api/web3", "") || "/"
   const method = request.method
-  const reqOrigin = request.headers.get("Origin") || ""
-  let allowedOrigin = "https://supercompute.io"
-  if (reqOrigin) {
-    try {
-      const host = new URL(reqOrigin).hostname
-      const allowed = host === "supercompute.io" || host === "supercompute.pages.dev" || host === "localhost" || host === "127.0.0.1" || host.endsWith(".pages.dev") || host.endsWith(".cloudflarestaging.com") || host.endsWith(".ngrok-free.app")
-      if (allowed) allowedOrigin = reqOrigin
-    } catch {}
-  }
+  // Exact-origin allowlist — functions/_shared/cors.js, sourced from env.CORS_ORIGIN
+  // (SEC-F4). The forged-origin echo (any *.pages.dev / ngrok / localhost host) is gone.
+  const allowedOrigin = corsOrigin(request, env)
 
   if (method === "OPTIONS") {
     return new Response(null, {
@@ -300,6 +300,7 @@ export async function onRequest({ request, env }) {
         "Access-Control-Allow-Origin": allowedOrigin,
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Vary": "Origin",
       },
     })
   }

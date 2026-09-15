@@ -10,6 +10,15 @@ its own versions over there.
 ## [Unreleased]
 
 ### Fixed
+- `/api/subscribers` (SEC-F1d, PR #104 stack follow-up) read `admin_wallets` with a byte-exact
+  `wallet_address = ?` while `login.js`, `functions/api/auth.js` and the `/api/social/*` gate all
+  read it with `lower(wallet_address) = ?`. One live prod row is stored checksummed
+  (`0xe7A3Ed04F24b6482b4490ae06641Be4e4305Df34`) and a session wallet is always lowercase, so that
+  admin was admitted everywhere except this route. It now sends the same statement as the other
+  three; `tests/api/subscribers-admin.test.js` drives the real handler over a real SQLite engine
+  (a JS-side mock is case-insensitive for every SQL shape and cannot see this), pins the class
+  (one statement for all four readers) and records that the legacy `src/worker.js` copy is on no
+  deploy path.
 - Social queue audit trail (SEC-F2, PR #62 review follow-up): `POST /api/social/queue/update`
   now rejects any `status` outside `draft | scheduled | posted | partial | failed | dry_run`
   with a `400` + the allowed list instead of writing the value verbatim, and

@@ -89,13 +89,20 @@ export async function onRequest({ request, env }) {
 
   // GET /api/subscribers?tier=X — admin-only tier stats
   if (request.method === 'GET' && subPath === '/') {
-    // Admin check via session
+    // Admin check via session.
+    // SEC-F1d (card t_30f803f0): `lower(wallet_address) = ?`, the same statement
+    // login.js, functions/api/auth.js and the /api/social/* gate send. This read used to
+    // be byte-exact, and one LIVE prod `admin_wallets` row is stored checksummed
+    // (0xe7A3Ed04F24b6482b4490ae06641Be4e4305Df34) while `sessions.wallet_address` — and
+    // the value getSessionWallet returns — is always lowercase. A byte-exact compare
+    // silently 403'd that admin on this route alone. Do not "simplify" it back; the
+    // real-engine guard in tests/api/subscribers-admin.test.js fails if it returns.
     const wallet = await getSessionWallet(env, request);
     let isAdmin = false;
     if (wallet && env?.DB) {
       try {
         const r = await env.DB.prepare(
-          'SELECT role FROM admin_wallets WHERE wallet_address = ?'
+          'SELECT role FROM admin_wallets WHERE lower(wallet_address) = ?'
         ).bind(wallet).first();
         isAdmin = r?.role === 'admin';
       } catch {}

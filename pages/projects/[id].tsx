@@ -1,12 +1,26 @@
 import type { GetStaticPaths, GetStaticProps } from "next"
+import { promises as fs } from "node:fs"
+import path from "node:path"
 import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 import { getAllProjects, getProject, type Project } from "../../lib/content"
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const projects = await getAllProjects()
+  // Dedicated static pages (e.g. pages/projects/solar-punk.tsx, presence.tsx)
+  // shadow the dynamic [id] route for their slug — exclude them so
+  // getStaticPaths returns unique paths per page.
+  let staticSlugs: string[] = []
+  try {
+    const files = await fs.readdir(path.join(process.cwd(), "pages", "projects"))
+    staticSlugs = files
+      .filter((f) => f.endsWith(".tsx") && !f.startsWith("[") && !f.startsWith("_"))
+      .map((f) => f.replace(/\.tsx$/, ""))
+  } catch {
+    staticSlugs = []
+  }
+  const projects = (await getAllProjects()).filter((p) => !staticSlugs.includes(p.slug))
   return {
-    paths: projects.map(p => ({ params: { id: p.slug } })),
+    paths: projects.map((p) => ({ params: { id: p.slug } })),
     fallback: false,
   }
 }

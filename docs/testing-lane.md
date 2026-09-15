@@ -41,6 +41,83 @@ this repo *is* an admin, so read the `enforce_admins` caveat under "The gate is
 registered" before treating the check as binding: it is a speed bump, not an
 enforcement, until #1 below lands.
 
+## A preview is not a sandbox — it runs against production data (SEC-98-6)
+
+The lane verifies **rendering**. It does not isolate **data**, and the name "preview" invites the
+wrong assumption, so here is exactly what a preview can reach. A preview is a deployment of the
+*same* Pages project (`supercompute`), which means the bindings `wrangler.toml` declares are the
+bindings it gets — `DB` → `supercompute-db` (**production** D1), `CACHE` → `031b7cbb…`
+(**production** KV) — and its Functions are real, not a static bundle. Measured on
+`https://pr-98.supercompute.pages.dev`, 2026-09-15, unauthenticated:
+
+| Path | Status |
+|---|---|
+| `/api/investors/metrics`, `/api/articles` | 200 |
+| `/api/subscribers` | 403 |
+| `/api/subscribers/admin/expire-sweep`, `/api/marketplace/list` | 405 |
+| `/api/csp-report` — `GET` / `POST` | 405 / **204** |
+
+**That 204 is a production write, proven, not inferred.** A `POST` from the preview carrying a
+made-up violation (`document-uri: https://pr-98.supercompute.pages.dev/probe`) showed up in the
+production table within the second:
+
+```bash
+npx wrangler d1 execute supercompute-db --remote --command \
+  "SELECT bucket_key, hits, datetime(first_seen,'unixepoch') FROM csp_reports WHERE violated_directive='probe-…'"
+# 2026-09-15|probe-…|https://example.com|https://pr-98.supercompute.pages.dev/probe|enforce | 1 | 2026-09-15 04:18:36
+```
+
+So every writing route is a production write reachable from a public URL that any PR mints:
+
+| Data | Written by |
+|---|---|
+| `csp_reports` | `api/csp-report.js` |
+| `users`, `sessions` | `api/auth.js`, `api/auth/login.js`, `api/auth/logout.js` |
+| `subscribers` | `api/subscribers.js`, `api/subscribers/pay.js`, `api/subscribers/admin/expire-sweep.js` |
+| `articles` | `api/articles.js`, `api/tina/webhook.js` |
+| `projects` | `api/projects.js` |
+| `marketplace_listings` | `api/marketplace/list.js`, `api/marketplace/buy.js` |
+| `investor_contacts` | `api/investors/contact.js` |
+| KV `CACHE` | SIWE nonce/message stores, auth rate-limit keys, investors-metrics and ENS caches |
+
+Two consequences worth stating rather than discovering later:
+
+- **Preview telemetry is production telemetry.** The policy carries *both* `report-uri
+  /api/csp-report` (document-relative — so a preview reports to the preview's own Function) and
+  `Reporting-Endpoints`/`Report-To` at the absolute `https://supercompute.io/api/csp-report`. A
+  violation on any preview lands in prod's `csp_reports` by either path: preview noise in the prod
+  rollup, inbound-writable by any PR preview.
+- **A preview can write identity rows.** `api/auth/login.js` inserts/updates `users` and upserts
+  `sessions`, and the SIWE nonce + rate-limit state live in the shared KV namespace.
+
+**Rule of thumb: treat a preview as production for data purposes, and as a *candidate* for
+rendering purposes.** The lane's guarantee stays the narrow one — the right surface is served for
+the routes it checks — and a green lane is never "this code is contained".
+
+### Real isolation — available, not done, and what it needs
+
+The environment mechanism exists: for Pages, `production` and `preview` are the only named
+environments, they are honoured **per deployment** (`wrangler pages deploy` resolves the block from
+the branch — `readPagesConfig({ …env: isProduction ? "production" : "preview" })`), and
+`d1_databases` / `kv_namespaces` are legal per-environment keys. So previews *can* be pointed at
+their own D1/KV. It was deliberately kept out of this PR because the card's own constraint —
+*prove it does not break the preview before it lands* — cannot be met from the fleet today:
+
+- it needs a second D1 (and KV) **with `migrations/*.sql` applied**, or every `/api/*` route on a
+  preview starts 500ing — the "verify" half of the lane included;
+- the change only takes effect at deploy time, so it can only be proven against a real preview, and
+  the credentials in play here are refused for Pages work port-wide: the ambient
+  `CLOUDFLARE_API_TOKEN` returns `Authentication error [code: 10000]`, and the OAuth token in
+  `~/.wrangler/config/default.toml` fails to refresh non-interactively
+  (`Failed to fetch auth token: 400`). Creating the second database and reading the project's
+  `deployment_configs` both need dashboard/Pages access.
+
+When someone with that access is in the room: create `supercompute-db-preview` (+ a preview KV),
+apply `migrations/*.sql` to it, add `[[env.preview.d1_databases]]` / `[[env.preview.kv_namespaces]]`
+to `wrangler.toml` with the production values left at the top level, push to a branch, then prove it
+on the deployed preview — a `POST /api/csp-report` from that preview must leave **no** new row in
+the production `csp_reports` table, and the smoke must stay green.
+
 ## Run it yourself (same scripts, any URL)
 
 ```bash

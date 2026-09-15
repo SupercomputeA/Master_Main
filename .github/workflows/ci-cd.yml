@@ -81,6 +81,17 @@ jobs:
       - name: Test the social publish queue guards (status enum + no double-post)
         run: node --test tests/social/queue-status-guard.test.mjs tests/social/status-enum-migration.test.mjs
 
+      # SEC-F1d (card t_30f803f0): /api/subscribers was the fourth reader of `admin_wallets`
+      # and the last one sending `wallet_address = ?` byte-exact, so the live checksummed prod
+      # row was 403'd on this route alone while login / functions/api/auth.js / the social gate
+      # admitted it. It now sends the same `lower(wallet_address) = ?` those three send, and
+      # this suite drives the REAL handler over a real SQLite engine, so a regression to the
+      # byte-exact form fails here instead of silently 403ing an admin in prod. It also pins
+      # the class (every reader sends one statement) and the decision that the legacy
+      # src/worker.js copy is on no deploy path.
+      - name: Test the /api/subscribers admin read itself
+        run: node --test tests/api/subscribers-admin.test.js
+
       - name: Assert export ships no executable inline scripts (guards script-src 'self')
         run: node scripts/check-inline-scripts.mjs out
 

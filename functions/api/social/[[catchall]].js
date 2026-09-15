@@ -15,16 +15,14 @@
 // - Substack has no public write API: its adapter is "manual" and only ever exports.
 // - Credentials are read from Cloudflare env; this file never logs or returns them.
 
-const ALLOWED_ORIGINS = new Set([
-  "https://supercompute.io",
-  "https://staging.supercompute.io",
-  "http://127.0.0.1:8793",
-  "http://localhost:3000",
-])
+import { allowOrigin } from "../../_shared/cors-origins.js"
 
-function corsHeaders(request) {
-  const origin = request?.headers?.get("Origin") || ""
-  const allow = ALLOWED_ORIGINS.has(origin) ? origin : "https://supercompute.io"
+// Exact-origin allowlist (audit pattern: never echo arbitrary origins). The list
+// lives in functions/_shared/cors-origins.js — production origins always, dev
+// origins (127.0.0.1 / localhost) only when the deployment sets ALLOW_DEV_ORIGINS
+// (SEC-F3, card t_49b40e3c: they used to ship in the prod set).
+function corsHeaders(request, env) {
+  const allow = allowOrigin(request?.headers?.get("Origin"), env)
   return {
     "Access-Control-Allow-Origin": allow,
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -33,10 +31,10 @@ function corsHeaders(request) {
   }
 }
 
-function json(data, status = 200, request) {
+function json(data, status = 200, request, env) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json", ...corsHeaders(request) },
+    headers: { "Content-Type": "application/json", ...corsHeaders(request, env) },
   })
 }
 
@@ -218,10 +216,10 @@ function connectionStatus(id, env) {
 export async function onRequest({ request, env }) {
   const url = new URL(request.url)
   const path = url.pathname.replace("/api/social", "") || "/"
-  if (request.method === "OPTIONS") return new Response(null, { headers: corsHeaders(request) })
+  if (request.method === "OPTIONS") return new Response(null, { headers: corsHeaders(request, env) })
 
   const gate = await requireAdmin(request, env)
-  if (gate.error) return json({ error: gate.error }, gate.status, request)
+  if (gate.error) return json({ error: gate.error }, gate.status, request, env)
 
   // ── GET /accounts ───────────────────────────────────────────────────────
   if (path === "/accounts" && request.method === "GET") {
@@ -230,7 +228,7 @@ export async function onRequest({ request, env }) {
       const live = connectionStatus(row.id, env)
       return { ...row, env_status: live.status, env_mode: live.mode }
     })
-    return json({ accounts }, 200, request)
+    return json({ accounts }, 200, request, env)
   }
 
   // ── GET /queue ──────────────────────────────────────────────────────────
@@ -240,14 +238,14 @@ export async function onRequest({ request, env }) {
       ? env.DB.prepare("SELECT * FROM social_queue WHERE status = ? ORDER BY COALESCE(scheduled_at, created_at) DESC LIMIT 100").bind(status)
       : env.DB.prepare("SELECT * FROM social_queue ORDER BY COALESCE(scheduled_at, created_at) DESC LIMIT 100")
     const rows = await stmt.all()
-    return json({ queue: rows.results || [] }, 200, request)
+    return json({ queue: rows.results || [] }, 200, request, env)
   }
 
   // ── POST /queue ─────────────────────────────────────────────────────────
   if (path === "/queue" && request.method === "POST") {
     const payload = await request.json().catch(() => null)
     if (!payload?.body || !Array.isArray(payload.platforms) || payload.platforms.length === 0) {
-      return json({ error: "body and platforms[] required" }, 400, request)
+      return json({ error: "body and platforms[] required" }, 400, request, env)
     }
     const id = `sq_${crypto.randomUUID().slice(0, 12)}`
     const scheduledAt = payload.scheduled_at ? Number(payload.scheduled_at) : null
@@ -262,33 +260,33 @@ export async function onRequest({ request, env }) {
       gate.wallet
     ).run()
     const row = await env.DB.prepare("SELECT * FROM social_queue WHERE id = ?").bind(id).first()
-    return json({ item: row }, 201, request)
+    return json({ item: row }, 201, request, env)
   }
 
   // ── POST /queue/update ──────────────────────────────────────────────────
   if (path === "/queue/update" && request.method === "POST") {
     const payload = await request.json().catch(() => null)
-    if (!payload?.id) return json({ error: "id required" }, 400, request)
+    if (!payload?.id) return json({ error: "id required" }, 400, request, env)
     const fields = []
     const values = []
     if (payload.status) { fields.push("status = ?"); values.push(payload.status) }
     if (payload.body) { fields.push("body = ?"); values.push(String(payload.body).slice(0, 8000)) }
     if (payload.platforms) { fields.push("platforms = ?"); values.push(JSON.stringify(payload.platforms)) }
     if (payload.scheduled_at !== undefined) { fields.push("scheduled_at = ?"); values.push(payload.scheduled_at ? Number(payload.scheduled_at) : null) }
-    if (fields.length === 0) return json({ error: "nothing to update" }, 400, request)
+    if (fields.length === 0) return json({ error: "nothing to update" }, 400, request, env)
     fields.push("updated_at = unixepoch()")
     values.push(payload.id)
     await env.DB.prepare(`UPDATE social_queue SET ${fields.join(", ")} WHERE id = ?`).bind(...values).run()
     const row = await env.DB.prepare("SELECT * FROM social_queue WHERE id = ?").bind(payload.id).first()
-    return json({ item: row }, 200, request)
+    return json({ item: row }, 200, request, env)
   }
 
   // ── POST /publish ───────────────────────────────────────────────────────
   if (path === "/publish" && request.method === "POST") {
     const payload = await request.json().catch(() => null)
-    if (!payload?.id) return json({ error: "id required" }, 400, request)
+    if (!payload?.id) return json({ error: "id required" }, 400, request, env)
     const item = await env.DB.prepare("SELECT * FROM social_queue WHERE id = ?").bind(payload.id).first()
-    if (!item) return json({ error: "queue item not found" }, 404, request)
+    if (!item) return json({ error: "queue item not found" }, 404, request, env)
     let platforms = []
     try { platforms = JSON.parse(item.platforms) } catch { platforms = [] }
 
@@ -307,7 +305,7 @@ export async function onRequest({ request, env }) {
           .bind(platform).run()
       }
     }
-    return json({ id: item.id, status, results }, 200, request)
+    return json({ id: item.id, status, results }, 200, request, env)
   }
 
   // ── GET /health ─────────────────────────────────────────────────────────
@@ -324,7 +322,7 @@ export async function onRequest({ request, env }) {
     const counts = await env.DB.prepare(
       "SELECT status, COUNT(*) AS n FROM social_queue GROUP BY status"
     ).all()
-    return json({ accounts, queue_counts: counts.results || [] }, 200, request)
+    return json({ accounts, queue_counts: counts.results || [] }, 200, request, env)
   }
 
   return json({
@@ -336,5 +334,5 @@ export async function onRequest({ request, env }) {
       "POST /api/social/publish": "dispatch item { id } (dry-run without credentials)",
       "GET /api/social/health": "rail health + queue counts",
     },
-  }, 200, request)
+  }, 200, request, env)
 }

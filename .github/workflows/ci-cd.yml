@@ -60,6 +60,12 @@ jobs:
       - name: Test the CSP inline-script gate itself
         run: node --test tests/csp/inline-scripts.test.mjs
 
+      # SEC-F3 (card t_49b40e3c): the same "guard the guard" rule for the /api/* CORS
+      # allowlist — a production deployment must not answer a dev origin, and the
+      # allowlist must stay in one module. No build output needed.
+      - name: Test the env-gated CORS allowlist itself
+        run: node --test tests/security/cors-origins.test.mjs
+
       # SEC-F1 (t_46a05469): authorization on /api/social/* is derived from
       # `admin_wallets` and ONLY `admin_wallets` — `users.role` is a derived cache
       # (login.js writes it from the admin_wallets decision) and must never be an
@@ -241,6 +247,13 @@ jobs:
       # therefore runs with CLOUDFLARE_D1_TOKEN (the D1 read+write token) and only
       # falls back to CLOUDFLARE_API_TOKEN when that secret is unset — with the
       # fallback the schema step fails as before and the run still goes red below.
+      # SEC-F3 (card t_49b40e3c): the tolerance on this step stays, and only for the
+      # reason spelled out above — a Cloudflare credential-scope problem must not wedge
+      # the static deploy. It is not a pass: the schema is asserted with no tolerance at
+      # all by the hard gate at the end of this job. What was removed from the step is
+      # the old in-step "assertion": `SELECT name FROM sqlite_master ...` exits 0 when it
+      # matches zero rows, so a migration that created nothing was indistinguishable
+      # from one that worked. A check that cannot fail is not a check.
       - name: Apply D1 migrations (idempotent)
         id: d1
         continue-on-error: true
@@ -249,8 +262,6 @@ jobs:
             echo "==> applying $f"
             wrangler d1 execute supercompute-db --remote --file="$f" --yes
           done
-          wrangler d1 execute supercompute-db --remote --yes \
-            --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('subscribers','marketplace_listings','csp_reports','social_accounts','social_queue') ORDER BY name;"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -314,12 +325,60 @@ jobs:
         run: |
           echo "Deployed supercompute website to supercompute.pages.dev (${{ github.ref_name }})"
 
-      # The D1 step above is allowed to fail so that a Cloudflare token-scope problem
-      # cannot freeze the site (it did: every push to main after 2026-09-11 21:06 was
-      # blocked, so /subscribe ship'd code sat undeployed). Re-raise it here so the run
-      # is still RED and the failure is impossible to miss — never silent.
-      - name: Fail loudly if the schema step failed
-        if: always() && steps.d1.outcome == 'failure'
+      # Hard gate on the schema (SEC-F3, card t_49b40e3c). The tolerance on the
+      # migration step above exists so that a Cloudflare token-scope problem cannot
+      # freeze the site (it did: every push to main after 2026-09-11 21:06 was blocked,
+      # so /subscribe ship'd code sat undeployed) — this step is what pays for it, with
+      # no tolerance of its own and two jobs:
+      #
+      #   1. re-raise a migration step that did not succeed — not just `failure`, so an
+      #      aborted step cannot read as fine (the old check tested `== 'failure'` only).
+      #   2. assert the tables are actually IN the database. `SELECT name FROM
+      #      sqlite_master ...` succeeds when it returns nothing, so the previous
+      #      assertion could not fail; this compares the table list against the expected
+      #      set and exits non-zero on any missing table.
+      #
+      # It runs after the deploy steps on purpose: shipping the static site must not
+      # depend on the D1 credential, but a broken schema must never be silent. A red run
+      # is the signal; a frozen deploy is not the fix.
+      - name: Assert the D1 schema landed (hard gate)
+        if: always()
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          D1_APPLY_OUTCOME: ${{ steps.d1.outcome }}
         run: |
-          echo "::error::D1 migrations did NOT apply — /api/subscribers and /api/marketplace will 500 until the schema lands. The Cloudflare API token needs D1 write scope for this project's database. The static site was deployed; the schema was not."
-          exit 1
+          set -uo pipefail
+          expected="csp_reports marketplace_listings social_accounts social_queue subscribers"
+          failed=0
+
+          if [ "${D1_APPLY_OUTCOME:-unknown}" != "success" ]; then
+            echo "::error::the D1 migration step did not succeed (outcome=${D1_APPLY_OUTCOME:-unknown}) — the Cloudflare token needs D1:Edit on supercompute-db."
+            failed=1
+          fi
+
+          # List every table rather than the expected names, so a name can only appear in
+          # the output if the table really exists: the check cannot be satisfied by its
+          # own query text.
+          out="$(wrangler d1 execute supercompute-db --remote --yes \
+            --command "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;" 2>&1)" || {
+            echo "$out"
+            echo "::error::could not read the table list from D1 — the schema is UNVERIFIED, which is not the same as verified."
+            exit 1
+          }
+          echo "$out"
+
+          missing=""
+          for t in $expected; do
+            printf '%s\n' "$out" | grep -qw "$t" || missing="$missing $t"
+          done
+
+          if [ -n "$missing" ]; then
+            echo "::error::D1 schema is missing table(s):$missing — the endpoints behind them 500 until the migration lands. The static site was deployed; the schema was not."
+            failed=1
+          fi
+
+          if [ "$failed" = "0" ]; then
+            echo "✓ D1 schema verified: $expected"
+          fi
+          [ "$failed" = "0" ] || exit 1

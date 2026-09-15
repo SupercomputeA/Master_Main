@@ -23,14 +23,15 @@ The common cause is structural: **merging to `main` was the only way to see a bu
 
 ```
 PR opened
-  ├── 1. build                        (static export)
-  ├── 2. header invariants            source _headers  ==  built out/_headers
-  ├── 3. CSP invariants               no executable inline script; report collector wired
-  ├── 4. unit tests                   header assertions, CSP suites
-  ├── 5. deploy THIS PR as a preview  → https://pr-<number>.supercompute.pages.dev
-  ├── 6. smoke the PREVIEW            routes + surface markers + closed debug paths
-  ├── 7. header drift vs the PREVIEW  what the preview actually serves
-  └── 8. verdict comment on the PR    with the preview URL and repro commands
+  ├── 1. conflict-marker scan       the tree under review is the tree that was resolved
+  ├── 2. build                        (static export)
+  ├── 3. header invariants            source _headers  ==  built out/_headers
+  ├── 4. CSP invariants               no executable inline script; report collector wired
+  ├── 5. unit tests                   header assertions, CSP suites
+  ├── 6. deploy THIS PR as a preview  → https://pr-<number>.supercompute.pages.dev
+  ├── 7. smoke the PREVIEW            routes + surface markers + closed debug paths
+  ├── 8. header drift vs the PREVIEW  what the preview actually serves
+  └── 9. verdict comment on the PR    with the preview URL and repro commands
 ```
 
 Nothing reaches `main` until that preview is green. `.github/workflows/preview-verify.yml`
@@ -49,6 +50,7 @@ node scripts/test-auth-flow.mjs                                             # li
 
 ## What each check would have caught
 
+- **conflict-marker scan** — a committed `<<<<<<<`/`>>>>>>>` means the tree under review is not the tree anyone resolved. It earned its place before shipping: its first clean-tree run found **489 conflict blocks committed into `yarn.lock` on `main`** by a develop merge (fixed in its own PR, which must land before this lane can go green).
 - **smoke-preview (markers, not just status)** — a `200` serving the *previous* page is the failure mode we keep hitting. `/staking` returning 200 with "awaiting liquidity" is a failure, and this flags it.
 - **smoke-preview (closed surfaces)** — `/demo`, `/api/debug`, `/api/admin`, `/_debug` must stay `404`. A published debug route is a silent exposure.
 - **assert-headers --url** — the only way to catch "the file is right but Pages did something else to it in transit".

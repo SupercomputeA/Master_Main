@@ -56,6 +56,13 @@ jobs:
         run: npx next build
 
       # ---- tier 1: no network, fast, deterministic -----------------------------
+      # Runs before anything else: a committed conflict marker means the tree
+      # being verified is not the tree anyone reviewed. Real incident 2026-09-15 —
+      # a stacked-branch absorb committed markers into ci-cd.yml and made the
+      # workflow file unparseable; nothing caught it until a human read the diff.
+      - name: No committed merge-conflict markers
+        run: node scripts/assert-no-conflict-markers.mjs
+
       - name: Header invariants (source + built copy must agree)
         run: |
           node scripts/assert-headers.mjs

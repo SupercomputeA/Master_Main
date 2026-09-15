@@ -1,6 +1,6 @@
--- 0002_social_command_center.sql
+-- 0009_social_command_center.sql
 -- Social media command center: platform registry + publish queue.
--- Apply: wrangler d1 execute supercompute-db --remote --file=./migrations/0002_social_command_center.sql
+-- Apply: wrangler d1 execute supercompute-db --remote --file=./migrations/0009_social_command_center.sql
 -- (idempotent — safe to re-run)
 
 CREATE TABLE IF NOT EXISTS social_accounts (

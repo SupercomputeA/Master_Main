@@ -237,12 +237,12 @@ jobs:
         id: d1
         continue-on-error: true
         run: |
-          for f in migrations/0002_marketplace.sql migrations/0006_add_subscribers.sql migrations/0008_csp_reports.sql; do
+          for f in migrations/0002_marketplace.sql migrations/0006_add_subscribers.sql migrations/0008_csp_reports.sql migrations/0009_social_command_center.sql; do
             echo "==> applying $f"
             wrangler d1 execute supercompute-db --remote --file="$f" --yes
           done
           wrangler d1 execute supercompute-db --remote --yes \
-            --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('subscribers','marketplace_listings','csp_reports') ORDER BY name;"
+            --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('subscribers','marketplace_listings','csp_reports','social_accounts','social_queue') ORDER BY name;"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

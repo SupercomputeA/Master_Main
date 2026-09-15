@@ -43,6 +43,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # merge-base against the PR base is needed by the marker scan
 
       - uses: actions/setup-node@v4
         with:
@@ -60,8 +62,15 @@ jobs:
       # being verified is not the tree anyone reviewed. Real incident 2026-09-15 —
       # a stacked-branch absorb committed markers into ci-cd.yml and made the
       # workflow file unparseable; nothing caught it until a human read the diff.
-      - name: No committed merge-conflict markers
-        run: node scripts/assert-no-conflict-markers.mjs
+      # --changed-only: main already carries pre-existing damage (yarn.lock, 489
+      # conflict blocks from a develop merge), which is reported but does not
+      # block every PR. Repair that separately.
+      - name: No committed merge-conflict markers (in this change)
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+        run: |
+          git fetch origin "${{ github.base_ref }}" --depth=1 || true
+          node scripts/assert-no-conflict-markers.mjs --changed-only --base "$BASE_REF"
 
       - name: Header invariants (source + built copy must agree)
         run: |

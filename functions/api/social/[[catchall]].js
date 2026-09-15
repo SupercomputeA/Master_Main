@@ -39,6 +39,27 @@ function json(data, status = 200, request, env) {
 }
 
 // ── admin gate ────────────────────────────────────────────────────────────
+// SOURCE OF TRUTH: `admin_wallets` — and only `admin_wallets`.
+//
+// This is the same table the canonical gates derive admin from
+// (functions/api/auth.js isAdmin, functions/api/auth/login.js ADMIN_QUERY).
+// login.js:166-176 writes `users.role` as a DERIVED CACHE of that decision; it is
+// never an input to it. Reading `users.role` first — as this file used to — made
+// `users` a second source of authorization truth, so a wallet removed from
+// `admin_wallets` kept admin on /api/social/* for the rest of its session while
+// every canonical endpoint already denied it (SEC-F1, PR #62 review).
+//
+// Fix: drop the cache read instead of merely reordering it. A fallback ("admin_wallets
+// miss ⇒ consult users.role") would reintroduce exactly the same revocation lag, so
+// there is no fallback: a wallet not in `admin_wallets` is not an admin here.
+//
+// The comparison stays `lower(wallet_address) = ?` — case-insensitive on the stored
+// column, which is strictly MORE robust than the canonical `wallet_address = ?`. Live
+// D1 carries a mixed-case row (0xe7A3Ed04F24b6482b4490ae06641Be4e4305Df34) that the
+// canonical case-sensitive query misses and this one matches. Do not regress it.
+//
+// Fail closed: if `admin_wallets` cannot be read (missing table, DB error), we cannot
+// prove admin, so the request is denied rather than granted from a cache.
 async function requireAdmin(request, env) {
   const authHeader = request.headers.get("Authorization")
   if (!authHeader?.startsWith("Bearer ")) return { error: "missing session", status: 401 }
@@ -50,17 +71,14 @@ async function requireAdmin(request, env) {
   if (!session) return { error: "session expired", status: 401 }
 
   const wallet = String(session.wallet_address || "").toLowerCase()
-  const user = await env.DB.prepare("SELECT role FROM users WHERE lower(wallet_address) = ?").bind(wallet).first()
-  let isAdmin = user?.role === "admin"
-  if (!isAdmin) {
-    try {
-      const allow = await env.DB.prepare(
-        "SELECT role FROM admin_wallets WHERE lower(wallet_address) = ?"
-      ).bind(wallet).first()
-      isAdmin = allow?.role === "admin"
-    } catch {
-      // admin_wallets table may not exist on this environment — ignore
-    }
+  let isAdmin = false
+  try {
+    const allow = await env.DB.prepare(
+      "SELECT role FROM admin_wallets WHERE lower(wallet_address) = ?"
+    ).bind(wallet).first()
+    isAdmin = allow?.role === "admin"
+  } catch {
+    isAdmin = false
   }
   if (!isAdmin) return { error: "admin role required", status: 403 }
   return { wallet }

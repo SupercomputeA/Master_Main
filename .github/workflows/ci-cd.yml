@@ -66,6 +66,14 @@ jobs:
       - name: Test the env-gated CORS allowlist itself
         run: node --test tests/security/cors-origins.test.mjs
 
+      # SEC-F1 (t_46a05469): authorization on /api/social/* is derived from
+      # `admin_wallets` and ONLY `admin_wallets` — `users.role` is a derived cache
+      # (login.js writes it from the admin_wallets decision) and must never be an
+      # authorization input. This suite fails if the gate starts trusting the cache
+      # again, which would keep a REVOKED admin in for the rest of its session.
+      - name: Test the /api/social admin gate itself
+        run: node --test tests/social/admin-gate.test.js
+
       - name: Assert export ships no executable inline scripts (guards script-src 'self')
         run: node scripts/check-inline-scripts.mjs out
 

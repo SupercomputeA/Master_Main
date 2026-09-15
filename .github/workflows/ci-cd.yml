@@ -77,7 +77,7 @@ jobs:
       - name: Test the CSP inline-script gate itself
         run: node --test tests/csp/inline-scripts.test.mjs
 
-      # SEC-F3 (card t_49b40e3c): the same "guard the guard" rule for the /api/* CORS
+# SEC-F3 (card t_49b40e3c): the same "guard the guard" rule for the /api/* CORS
       # allowlist — a production deployment must not answer a dev origin, and the
       # allowlist must stay in one module. No build output needed.
       - name: Test the env-gated CORS allowlist itself
@@ -108,6 +108,13 @@ jobs:
       # src/worker.js copy is on no deploy path.
       - name: Test the /api/subscribers admin read itself
         run: node --test tests/api/subscribers-admin.test.js
+
+      # Cloudflare's edge injects the Web Analytics beacon into every HTML
+      # navigation, so it never appears in `out/` for the check below to see. The
+      # only artifact that pins its two required hosts down is the policy itself
+      # (card t_83174cd2 — it was blocked with `script-src 'self'` in production).
+      - name: Test the Cloudflare Web Analytics beacon carve-out
+        run: node --test tests/csp/analytics-beacon.test.mjs
 
       - name: Assert export ships no executable inline scripts (guards script-src 'self')
         run: node scripts/check-inline-scripts.mjs out

@@ -76,9 +76,35 @@
 #   That is deliberately NOT taken — main's `same-origin-allow-popups` (PR #94) is
 #   newer and fixes popup wallet flows losing window.opener. Keeping #70's value
 #   would have silently broken wallet connect.
+#
+# Cloudflare Web Analytics beacon (card t_83174cd2): Web Analytics is enabled on
+# the zone, so Cloudflare's edge INJECTS this tag into every HTML *navigation*
+# response, at the end of <body>, after this repo's build is done:
+#
+#   <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v3…"
+#           integrity="sha512-iIg7k2xntmwu6/i…" crossorigin="anonymous"
+#           data-cf-beacon='{"version":"2024.11.0","token":"929f…","r":1,"spa":2}'></script>
+#
+# Nothing in this repo emits it and no build step regenerates it, so it cannot be
+# caught by scanning the export — it only exists in a served page. Under the
+# previous `script-src 'self'` every page load logged "Refused to load the script
+# … because it violates the following Content Security Policy directive:
+# script-src-elem" and the analytics never reported (verified in production:
+# csp_reports rows for /, /auth, /staking, /community, /app, /marketplace, and a
+# CDP securitypolicyviolation with blockedURI = the beacon URL).
+#
+# Two hosts, both named below, because the beacon both loads and posts:
+#   script-src  <- https://static.cloudflareinsights.com   (the tag's src)
+#   connect-src <- https://cloudflareinsights.com          (POST /cdn-cgi/rum)
+# The alternate fix — turning Web Analytics off — is a zone-level dashboard
+# change, not a repo one, so the beacon would keep being injected either way.
+# Allowing it here is the code-owned, reversible half: the script is
+# SRI-pinned by Cloudflare (integrity attribute above), loaded with
+# crossorigin=anonymous, and sends only RUM page-view data. If Web Analytics is
+# ever switched off at the zone, delete both hosts again in the same commit.
 
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://fonts.gstatic.com https://mainnet.base.org https://eth.drpc.org https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests; report-uri /api/csp-report; report-to csp
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://cloudflareinsights.com https://fonts.gstatic.com https://mainnet.base.org https://eth.drpc.org https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests; report-uri /api/csp-report; report-to csp
   Reporting-Endpoints: csp="https://supercompute.io/api/csp-report"
   Report-To: {"group":"csp","max_age":10886400,"endpoints":[{"url":"https://supercompute.io/api/csp-report"}]}
   X-Content-Type-Options: nosniff

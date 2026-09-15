@@ -1,0 +1,345 @@
+# SUPERCOMPUTE API Registry & Key Management
+# GitHub Issue #2: SCOM: Solid Keys
+#
+# METADATA ONLY — no actual secrets live here.
+# Infisical is the source of truth for all real credentials.
+# Workspace: 0b02f365-5ba5-4ac9-ad9e-bcd63803ee9c (env slug: dev)
+#
+# Rotation priority levels:
+#   P1-critical  — rotate immediately on compromise; backbone services
+#   P2-high      — rotate quarterly; external-facing integrations
+#   P3-standard  — rotate semi-annually; low-risk services
+#   P4-static    — no rotation unless changed manually (paths, IDs)
+
+registry_version: "1.0.0"
+last_audit: "2026-07-15"
+infisical:
+  workspace_id: "0b02f365-5ba5-4ac9-ad9e-bcd63803ee9c"
+  env_slug: "dev"
+  auth_mode: "Universal Auth M2M"
+  credentials:
+    - name: INFISICAL_CLIENT_ID
+      env_var: INFISICAL_CLIENT_ID
+    - name: INFISICAL_CLIENT_SECRET
+      env_var: INFISICAL_CLIENT_SECRET
+
+# ---------------------------------------------------------------------------
+# Service Groups
+# ---------------------------------------------------------------------------
+
+services:
+
+  # === Infrastructure & Compute ============================================
+
+  - group: "Infrastructure & Compute"
+    services:
+
+      - name: "NOUS Research"
+        description: "Hermes inference backbone — all agent LLM calls"
+        status: preliminary
+        rotation_priority: P1-critical
+        last_rotated: "2026-06-01"
+        endpoint:
+          base_url_env: NOUS_BASE_URL
+        credentials:
+          - name: NOUS_API_KEY
+            env_var: NOUS_API_KEY
+            type: api_key
+            infisical_path: "/Ops"
+        used_by:
+          - "Hermes core (all inference ops)"
+          - "All agent profiles"
+
+      - name: "OpenCode Zen"
+        description: "Claude Code integration for subagent delegation and PR workflows"
+        status: preliminary
+        rotation_priority: P1-critical
+        last_rotated: "2026-06-01"
+        credentials:
+          - name: OPENCODE_ZEN_API_KEY
+            env_var: OPENCODE-ZEN_API_KEY
+            type: api_key
+            infisical_path: "/Ops"
+        used_by:
+          - "Subagent delegation"
+          - "PR review workflows"
+
+  # === Credential Management ================================================
+
+  - group: "Credential Management"
+    services:
+
+      - name: "Infisical"
+        description: "Secrets vault — source of truth for all rotating credentials"
+        status: preliminary
+        rotation_priority: P1-critical
+        last_rotated: "2026-06-01"
+        credentials:
+          - name: INFISICAL_CLIENT_ID
+            env_var: INFISICAL_CLIENT_ID
+            type: client_id
+            infisical_path: "/"  # self-managed
+          - name: INFISICAL_CLIENT_SECRET
+            env_var: INFISICAL_CLIENT_SECRET
+            type: client_secret
+            infisical_path: "/"
+        auth_mode: "Universal Auth M2M"
+        manages: "All rotating secrets across the stack"
+
+  # === Communication & Voice ================================================
+
+  - group: "Communication & Voice"
+    services:
+
+      - name: "Vapi"
+        description: "Voice assistant for agent communication and voice calls"
+        status: preliminary
+        rotation_priority: P2-high
+        last_rotated: "2026-06-15"
+        credentials:
+          - name: VAPI_PUBLIC_KEY
+            env_var: VAPI_PUBLIC_KEY
+            type: public_key
+            infisical_path: "/Ops"
+          - name: VAPI_PRIVATE_KEY
+            env_var: VAPI_PRIVATE_KEY
+            type: private_key
+            infisical_path: "/Ops"
+          - name: MCP_VAPI_API_KEY
+            env_var: MCP_VAPI_API_KEY
+            type: api_key
+            infisical_path: "/Ops"
+        used_by:
+          - "Voice calls"
+          - "Agent communications"
+
+  # === AI & Content Generation ==============================================
+
+  - group: "AI & Content Generation"
+    services:
+
+      - name: "Krea"
+        description: "Image generation for design assets"
+        status: preliminary
+        rotation_priority: P2-high
+        last_rotated: "2026-06-15"
+        credentials:
+          - name: KREA_API_TOKEN
+            env_var: KREA_API_TOKEN
+            type: api_token
+            infisical_path: "/Ops"
+        used_by:
+          - "Design asset generation"
+          - "OpenDesign workflow"
+
+      - name: "Google AI Studio"
+        description: "Gemini / auxiliary vision fallback"
+        status: preliminary
+        rotation_priority: P2-high
+        last_rotated: "2026-06-15"
+        credentials:
+          - name: GOOGLE_AI_STUDIO_API_KEY
+            env_var: GOOGLE_AI_STUDIO_API_KEY
+            type: api_key
+            infisical_path: "/Ops"
+          - name: GOOGLE_AI_PROJECT
+            env_var: GOOGLE_AI_PROJECT
+            type: project_id
+            infisical_path: "/Ops"
+        used_by:
+          - "Auxiliary vision fallback"
+
+      - name: "Shopify"
+        description: "E-commerce integration"
+        status: preliminary
+        rotation_priority: P2-high
+        last_rotated: "2026-05-01"
+        credentials:
+          - name: SHOPIFY_ACCESS_TOKEN
+            env_var: SHOPIFY_ACCESS_TOKEN
+            type: access_token
+            infisical_path: "/Ops"
+          - name: SHOPIFY_API_VERSION
+            env_var: SHOPIFY_API_VERSION
+            type: version_string
+            infisical_path: "/Ops"
+        used_by:
+          - "E-commerce store integration"
+
+  # === Session & Platform Integration =======================================
+
+  - group: "Session & Platform Integration"
+    services:
+
+      - name: "Hermes Session Keys"
+        description: "Per-session routing and inference provider selection"
+        status: preliminary
+        rotation_priority: P2-high
+        last_rotated: "2026-07-01"
+        credentials:
+          - name: HERMES_SESSION_ID
+            env_var: HERMES_SESSION_ID
+            type: session_id
+          - name: HERMES_SESSION_KEY
+            env_var: HERMES_SESSION_KEY
+            type: session_key
+          - name: HERMES_SESSION_USER_ID
+            env_var: HERMES_SESSION_USER_ID
+            type: user_id
+          - name: HERMES_SESSION_CHAT_ID
+            env_var: HERMES_SESSION_CHAT_ID
+            type: chat_id
+          - name: HERMES_INFERENCE_PROVIDER
+            env_var: HERMES_INFERENCE_PROVIDER
+            type: provider_string
+        scope: "Per-session routing"
+
+      - name: "iMessage / BlueBubbles"
+        description: "iMessage integration via BlueBubbles bridge"
+        status: preliminary
+        rotation_priority: P3-standard
+        last_rotated: "2026-06-01"
+        credentials:
+          - name: BLUEBUBBLES_HOME_CHANNEL_THREAD_ID
+            env_var: BLUEBUBBLES_HOME_CHANNEL_THREAD_ID
+            type: thread_id
+            infisical_path: "/Ops"
+
+      - name: "Slack Integration"
+        description: "Slack channel routing for agent notifications"
+        status: preliminary
+        rotation_priority: P3-standard
+        last_rotated: "2026-06-01"
+        credentials:
+          - name: SLACK_HOME_CHANNEL_THREAD_ID
+            env_var: SLACK_HOME_CHANNEL_THREAD_ID
+            type: thread_id
+            infisical_path: "/Ops"
+
+      - name: "Spotify"
+        description: "Spotify playback control for agent sessions"
+        status: preliminary
+        rotation_priority: P3-standard
+        last_rotated: "2026-06-01"
+        credentials:
+          - name: HERMES_SPOTIFY_CLIENT_ID
+            env_var: HERMES_SPOTIFY_CLIENT_ID
+            type: client_id
+            infisical_path: "/Ops"
+
+  # === Configuration (Static) ===============================================
+
+  - group: "Configuration"
+    services:
+
+      - name: "Obsidian Vault Path"
+        description: "Local Obsidian vault path for note-taking integration"
+        status: static
+        rotation_priority: P4-static
+        last_rotated: "n/a"
+        credentials:
+          - name: OBSIDIAN_VAULT_PATH
+            env_var: OBSIDIAN_VAULT_PATH
+            type: file_path
+        note: "No rotation — path is stable unless vault location changes"
+
+# ---------------------------------------------------------------------------
+# Rotation Strategy
+# ---------------------------------------------------------------------------
+
+rotation:
+  cadence: quarterly
+  schedule_cron: "0 0 1 9,1,4,7 *"  # 1st of Sep, Jan, Apr, Jul
+
+  stagger_plan:
+    day_1:
+      description: "Credential root + compute backbone"
+      services:
+        - Infisical
+        - NOUS Research
+      risk: "Highest blast radius — rotate first to establish new baseline"
+
+    day_2:
+      description: "External communication services"
+      services:
+        - Vapi
+        - Krea
+      risk: "Moderate — downstream consumers can retry"
+
+    day_3:
+      description: "Fallback and commerce services"
+      services:
+        - Google AI Studio
+        - Shopify
+      risk: "Low traffic — safe to rotate mid-week"
+
+    day_4:
+      description: "Session and platform keys"
+      services:
+        - Hermes Session Keys
+        - iMessage / BlueBubbles
+        - Slack Integration
+        - Spotify
+      risk: "Per-session — rotating invalidates active sessions (notify users)"
+
+  pre_rotation:
+    - "Export current secrets (encrypted) to secure backup storage"
+    - "Review Infisical audit log for suspicious access"
+    - "Run dry-run rotation on staging environment"
+    - "Notify team via Telegram + Slack 24h before rotation"
+
+  post_rotation:
+    - "Verify all services authenticate with new keys"
+    - "Run integration tests on staging"
+    - "Update last_rotated timestamps in this registry"
+    - "Review Infisical audit log for rotation confirmation"
+    - "Create post-rotation runbook entry"
+
+  revocation_policy:
+    on_leak: "Immediate revocation + regenerate in next rotation window"
+    on_suspicious_access: "Revoke within 1h, investigate, regenerate"
+
+# ---------------------------------------------------------------------------
+# Key Audit Automation
+# ---------------------------------------------------------------------------
+
+audit:
+  cadence: weekly
+  schedule_cron: "0 9 * * 5"  # Fridays 9am
+  checks:
+    - "Last access timestamp per key (flag unused > 30 days)"
+    - "Infisical audit log anomalies"
+    - "Expired or about-to-expire tokens"
+    - "Keys not tagged with rotation_priority"
+  alert_channels:
+    - "Telegram (primary)"
+    - "Slack (secondary)"
+  alert_on:
+    - "Unused keys (age > 30 days)"
+    - "Suspicious access patterns"
+    - "Missing last_rotated timestamp"
+
+# ---------------------------------------------------------------------------
+# Security Rules
+# ---------------------------------------------------------------------------
+
+security_rules:
+  - "Never commit secrets — .env always in .gitignore"
+  - "Registry is metadata only — service names, URLs, status"
+  - "Infisical as source of truth — prod keys in shared folder, sourced at runtime"
+  - "Audit trail — Infisical logs all rotation + API calls"
+  - "Immediate revocation — if leaked, revoke + regenerate in next window"
+
+# ---------------------------------------------------------------------------
+# Handoff Checklist (Phase Exit)
+# ---------------------------------------------------------------------------
+
+handoff_checklist:
+  - "api-registry.yaml created + committed"
+  - "Rotation automation jobs scheduled (cron jobs)"
+  - "All keys marked with last_rotated timestamp"
+  - "Team trained on rotation process"
+  - "Integration tests pass on staging keys"
+  - "Infisical audit log reviewed (no suspicious access)"
+  - "Backup: Export current secrets (encrypted) to secure storage"
+  - "Create post-rotation runbook"

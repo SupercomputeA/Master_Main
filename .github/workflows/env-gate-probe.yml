@@ -1,0 +1,44 @@
+name: env-gate-probe
+
+# SEC-F3 evidence probe (t_73e23314). Throwaway: deleted after the experiment.
+# Question: can a pull_request-triggered run (ref refs/pull/<n>/merge) read an
+# environment-scoped secret when the environment's deployment branch policy is
+# "main" only? If not, moving the prod deploy token into such an environment
+# removes it from reach of any PR-controlled workflow.
+#
+# Prints ONLY whether the canary is present -- never the value.
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  allow:
+    name: allow-env (policy probe/* + refs/pull/*/merge)
+    runs-on: ubuntu-latest
+    environment: sec-f3-probe-allow
+    steps:
+      - name: canary?
+        env:
+          CANARY: ${{ secrets.SEC_F3_CANARY }}
+        run: |
+          echo "event=${{ github.event_name }}"
+          echo "ref=${{ github.ref }}"
+          if [ -n "$CANARY" ]; then echo "RESULT allow: canary PRESENT"; else echo "RESULT allow: canary ABSENT"; fi
+
+  block:
+    name: block-env (policy main only)
+    runs-on: ubuntu-latest
+    environment: sec-f3-probe-block
+    steps:
+      - name: canary?
+        env:
+          CANARY: ${{ secrets.SEC_F3_CANARY }}
+        run: |
+          echo "event=${{ github.event_name }}"
+          echo "ref=${{ github.ref }}"
+          if [ -n "$CANARY" ]; then echo "RESULT block: canary PRESENT"; else echo "RESULT block: canary ABSENT"; fi

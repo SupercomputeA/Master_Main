@@ -224,12 +224,51 @@ This gate guards a policy that lives in `public/_headers` and arrives with
 **PR #59**. Until that lands, the report prints
 `script-src NOT FOUND in _headers — this assertion has nothing to guard yet`.
 That is a warning, not a failure: the gate must not depend on PR ordering. Once
-the policy is present the line reads `script-src 'self'` and the gate is
-load-bearing.
+the policy is present the line reads `script-src 'self'
+https://static.cloudflareinsights.com` and the gate is load-bearing.
 
 If `script-src` ever contains `'unsafe-inline'`, the report says so explicitly —
 at that point this assertion has stopped being the thing keeping inline scripts
 safe.
+
+## The one cross-origin script host the policy names
+
+`script-src` is not `'self'` alone, and the reason is not in this repo: with Web
+Analytics enabled on the zone, Cloudflare's **edge** injects the RUM beacon tag
+into every HTML *navigation* response, after `next build` has finished:
+
+```html
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v3…"
+        integrity="sha512-…" crossorigin="anonymous" data-cf-beacon='…'></script>
+```
+
+It is invisible to the export scanner on purpose: `out/*.html` never contains it
+(`curl` without a navigation `Accept`/`Sec-Fetch-Mode: navigate` does not see it
+either), so no amount of parsing the build output can pin it down. The only
+artifact that can is the policy, which is why the carve-out is asserted by
+`tests/csp/analytics-beacon.test.mjs` instead of by `check-inline-scripts.mjs`.
+
+Two hosts are required, because the beacon both loads and posts — the second half
+is the one that gets forgotten:
+
+| Directive | Host | Why |
+|---|---|---|
+| `script-src` | `https://static.cloudflareinsights.com` | the injected tag's `src` |
+| `connect-src` | `https://cloudflareinsights.com` | the beacon's `POST /cdn-cgi/rum` |
+
+Under the previous `script-src 'self'` every page load logged a `script-src-elem`
+violation (card **t_83174cd2**; the production `csp_reports` table shows hits for
+`/`, `/auth`, `/staking`, `/community`, `/app`, `/marketplace`) and the analytics
+never reported. The alternative — turning Web Analytics off — is a zone-level
+dashboard change, not a repo one, so the beacon would keep being injected either
+way; allowing its two hosts is the code-owned, reversible half. If Web Analytics
+is ever switched off at the zone, remove both entries (and the matching
+expectations in `tests/csp/analytics-beacon.test.mjs`) in the same commit.
+
+The carve-out is deliberately narrow: `script-src` is exactly `'self'` plus that
+one host. No wildcard, no scheme source, no `'unsafe-inline'` — the test fails on
+any of those, so "fix the beacon by loosening the policy" is not an available
+move.
 
 ## Why static inspection, not a served-page probe
 

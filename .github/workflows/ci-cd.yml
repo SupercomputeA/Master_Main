@@ -60,6 +60,13 @@ jobs:
       - name: Test the CSP inline-script gate itself
         run: node --test tests/csp/inline-scripts.test.mjs
 
+      # Cloudflare's edge injects the Web Analytics beacon into every HTML
+      # navigation, so it never appears in `out/` for the check below to see. The
+      # only artifact that pins its two required hosts down is the policy itself
+      # (card t_83174cd2 — it was blocked with `script-src 'self'` in production).
+      - name: Test the Cloudflare Web Analytics beacon carve-out
+        run: node --test tests/csp/analytics-beacon.test.mjs
+
       - name: Assert export ships no executable inline scripts (guards script-src 'self')
         run: node scripts/check-inline-scripts.mjs out
 

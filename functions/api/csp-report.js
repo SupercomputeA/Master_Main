@@ -17,7 +17,13 @@
 //     hit counter, so the signal is a count and not a firehose;
 //   * strips the query string and fragment from every URL it stores (a blocked
 //     URL can carry a session token or a signed-URL secret) and length-caps
-//     every column.
+//     every column;
+//   * WRITES ONLY FROM THE PRODUCTION DEPLOYMENT (SEC-F6b, card t_92c5b532).
+//     A deployment whose `CF_PAGES_BRANCH` is present and is not the production
+//     branch answers 204 and stores nothing — previews run with the production
+//     bindings, so the document-relative `report-uri` in public/_headers used
+//     to let any PR preview write the production `csp_reports` table. The gate
+//     FAILS OPEN: an absent/empty/renamed variable keeps production writing.
 //
 // No PII is stored: no user agent, no referrer, no `script-sample` (the sample
 // is inline source code and can itself contain secrets).
@@ -32,6 +38,48 @@ const MAX_FIELD_CHARS = 200;
 const MAX_DISTINCT_KEYS_PER_DAY = 500;
 const OVERFLOW_BUCKET = "__overflow__";
 const SITE_ORIGIN = "https://supercompute.io";
+
+// ------------------------------------------------------ deployment scope ----
+//
+// SEC-F6b (card t_92c5b532). A preview is a deployment of the SAME Pages
+// project, so its Functions get the SAME bindings: `DB` -> the production
+// `supercompute-db`. `public/_headers` reports with the document-relative
+// `report-uri /api/csp-report`, so a violation on `pr-<n>.supercompute.pages.dev`
+// POSTs to that preview's own Function — and writes prod telemetry, reachable by
+// anyone who can load a preview URL. Measured before the guard existed: a POST
+// from `pr-98.supercompute.pages.dev` created the row
+// `2026-09-15|probe-…|https://example.com|https://pr-98.supercompute.pages.dev/probe|enforce`
+// in the production table (see docs/testing-lane.md §"A preview is not a sandbox").
+//
+// The branch signal is the deployment's own, not the request's: Cloudflare sets
+// `CF_PAGES`/`CF_PAGES_BRANCH`/`CF_PAGES_COMMIT_SHA`/`CF_PAGES_URL` in the
+// deployment's `env_vars`, which the platform documents as applying to "builds
+// and Pages Functions" — so `context.env` carries it at runtime, not just at
+// build time (`wrangler pages dev` injects the same four for dev/prod parity).
+// `ci-cd.yml` deploys production with an explicit `--branch main`; the preview
+// lane deploys `--branch pr-<n>`.
+//
+// FAIL OPEN, deliberately. A report is dropped only when the branch is a
+// non-empty string AND is not the production branch. A missing, empty, renamed
+// or platform-broken variable keeps production telemetry writing — silently
+// killing prod telemetry is a worse failure than keeping a preview's noise, and
+// this collector exists precisely so that we can see it stop.
+const PRODUCTION_BRANCH = "main";
+
+/** The deployment's branch, or "" when the platform did not give us one. */
+export function deploymentBranch(env) {
+  const raw = env && env.CF_PAGES_BRANCH;
+  return typeof raw === "string" ? raw.trim() : "";
+}
+
+/**
+ * True when this request must be dropped because the deployment serving it is
+ * NOT production. Fail open: an unreadable branch is treated as production.
+ */
+export function isNonProductionDeployment(env) {
+  const branch = deploymentBranch(env);
+  return branch !== "" && branch !== PRODUCTION_BRANCH;
+}
 
 // `blocked-uri` values that are keywords rather than URLs.
 const NON_URL_TOKENS = new Set([
@@ -298,6 +346,20 @@ export async function onRequest({ request, env }) {
 
   const reports = parseReports(text, request.headers.get("content-type") || "");
   if (reports.length === 0) return noContent();
+
+  // SEC-F6b: previews share the production bindings, so a non-production
+  // deployment must not reach the INSERT at all. Placed after parsing (nothing
+  // to drop otherwise, and a junk body costs no log line) and before the DB
+  // lookup (a preview never even touches the production handle). Loud on
+  // purpose: `wrangler pages deployment tail` must show a refused report
+  // instead of a silent swallow.
+  if (isNonProductionDeployment(env)) {
+    console.error(
+      `csp-report: dropped ${reports.length} report(s) from a non-production deployment ` +
+        `(CF_PAGES_BRANCH=${deploymentBranch(env)}) — preview telemetry never writes the production csp_reports table`,
+    );
+    return noContent();
+  }
 
   const db = env && env.DB;
   if (!db) {

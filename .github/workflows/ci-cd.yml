@@ -5,6 +5,19 @@ on:
     branches: [main, staging, development]
   pull_request:
     branches: [main, staging]
+  # Recovery path (2026-09-15). Before this, a push event was the ONLY way this
+  # lane could start, so when GitHub failed to deliver one the site sat on stale
+  # content with no way to re-fire the deploy. Real incident: #91 was merged to
+  # main as 94758a2 — the ref moved, Actions was operational, and **zero** workflow
+  # runs were created for that sha (0 for the commit, nothing queued repo-wide).
+  # `gh run rerun` is not a recovery: the re-run deploys *its own* commit, and the
+  # "Decide whether this run may move the production alias" step below deliberately
+  # skips a run whose sha is no longer the tip — so re-running an old run would
+  # publish the OLD build. Dispatch re-fires the lane at the ref you name, and the
+  # sha it produces IS the tip, so the gate + tip-election steps let it through:
+  #   gh workflow run "CI/CD" --ref main
+  # This adds a trigger; it does not change push/pull_request behaviour.
+  workflow_dispatch:
 
 jobs:
   validate:
@@ -27,6 +40,18 @@ jobs:
       - name: Show Node version
         run: node --version
 
+      # Test gate. `npm test` is the repo's declared test entry point
+      # (package.json `scripts.test`, globbing tests/**/*.test.js).
+      # `*.test.js` does NOT match `*.test.mjs` under Node's test glob — verified
+      # on Node 24 — so the .mjs pattern is passed alongside it: otherwise a .mjs
+      # suite sits outside the gate and can regress without failing anything.
+      # No continue-on-error: a red suite fails `validate`, and `deploy` declares
+      # `needs: validate`, so it cannot reach production/staging/development.
+      - name: Run tests
+        run: |
+          npm test
+          node --test "tests/**/*.test.mjs"
+
       - name: Build Next.js static export
         run: npx next build
         env:
@@ -45,15 +70,139 @@ jobs:
           test -f out/storefront.html && echo "✓ out/storefront.html exists"
           echo "✓ Next.js export complete"
 
+      # Guards `script-src 'self'` in public/_headers: the policy has no nonce,
+      # no hash and no 'unsafe-inline', so it is only safe while the export
+      # ships zero executable inline scripts and zero inline event handlers.
+      # See docs/csp-inline-script-invariant.md.
+      - name: Test the CSP inline-script gate itself
+        run: node --test tests/csp/inline-scripts.test.mjs
+
+      - name: Assert export ships no executable inline scripts (guards script-src 'self')
+        run: node scripts/check-inline-scripts.mjs out
+
+      # Header-VALUE pins (T-follow-up from the #94 verdict, security condition 3).
+      # `_headers` has silently shipped three wrong values: a path-less file that
+      # applied nothing (M1), XFO DENY contradicting frame-ancestors 'self' (M2),
+      # and COOP same-origin severing window.opener for the Coinbase Wallet popup
+      # (M3). A build cannot catch any of them — the file parses, the deploy goes
+      # green, and prod serves headers nobody asserted. This pair does:
+      #   * the suite drives the repo's REAL public/_headers and mutation-tests
+      #     every pin, so a pin that stops matching fails here;
+      #   * out/_headers is what Cloudflare actually receives, so --same-as is
+      #     what makes the pin describe what ships (verified byte-identical on
+      #     three real builds; if that ever stops being true the failure is loud).
+      # See docs/headers-invariant.md. Drift against prod: .github/workflows/header-drift.yml.
+      - name: Test the header-pin gate itself
+        run: node --test tests/headers/assert-headers.test.mjs
+
+      - name: Assert the pinned header values survive the build (COOP, XFO, CSP, no COEP)
+        run: node scripts/assert-headers.mjs --file out/_headers --same-as public/_headers
+
+      # Redirect-loop class (2026-09-11): Cloudflare Pages turns any '<name>.html'
+      # request into a 308 to '<name>', so a `_redirects` 200-rewrite whose TARGET ends
+      # in .html bounces the route between the two forever. It was live on
+      # supercompute.io — /terms and /privacy were unreachable (curl: Maximum (50)
+      # redirects followed) while they looked fine in source. /about has no rule and
+      # works; the rule is the defect. Guard the class, not just the two paths.
+      - name: Assert _redirects has no .html-target 200 rewrite
+        run: |
+          # Source must be a concrete path (not the `/*` SPA catch-all): the
+          # documented `/*  /index.html  200` fallback is legitimate.
+          bad="$(grep -nE '^/[^/*[:space:]][^[:space:]]*[[:space:]]+/[^[:space:]]*\.html[[:space:]]+200[[:space:]]*$' public/_redirects || true)"
+          if [ -n "$bad" ]; then
+            echo "✗ public/_redirects rewrites a path to a .html file with status 200:"
+            echo "$bad"
+            echo "  Pages 308s '<name>.html' to '<name>', so the rewrite loops the route."
+            echo "  Serve it natively — the asset is already exported by the build."
+            exit 1
+          fi
+          echo "✓ _redirects has no .html-target 200 rewrites"
+
+      # The legal pages are served natively (see the note in public/_redirects), so the
+      # only thing keeping /terms reachable is the exported asset. If it stops being
+      # exported the route silently falls through to `/*  /index.html` and serves the
+      # landing page under a legal URL — fail here instead.
+      - name: Assert legal pages are exported
+        run: |
+          for f in terms privacy; do
+            test -f "out/$f.html" || { echo "✗ out/$f.html missing — /$f is unreachable without a _redirects rule"; exit 1; }
+          done
+          echo "✓ out/terms.html + out/privacy.html exported"
+
+      # The 2026-09-15 /api/projects outage was code/schema drift that no build could see: the
+      # handler selected `ticker, stack`, the live D1 table carries `tagline, repo, coin, ...`,
+      # and D1's `no such column` escaped the Function into a bodyless `error code: 1101`. This
+      # suite drives the REAL handler over a REAL SQLite engine loaded with the REAL DDL
+      # (`schema.sql` + every `migrations/*.sql`), so the drift fails here instead of on prod.
+      # A mutation case re-installs the pre-fix column list and asserts the guard catches it.
+      # Live (repo <-> prod) drift is watched by .github/workflows/d1-schema-drift.yml.
+      - name: Assert /api/projects columns match the D1 schema (drift guard)
+        run: node --test tests/projects/schema-contract.test.mjs
+
       - name: Check for debug/code issues
         run: |
           echo "TODO count: $(grep -rc 'TODO' pages/ components/ lib/ 2>/dev/null | wc -l)" || true
           echo "✓ Code scan complete"
 
-  deploy:
+  # Election (t_7998fe88): which run is even allowed to enter the deploy lane.
+  # This job is deliberately NOT in the deploy concurrency group. GitHub cancels a
+  # *pending* job whenever a newer arrival joins the same group, and it has no notion
+  # of commit order — so a stale run's arrival can cancel the newest run's pending
+  # deploy. Observed live 2026-09-11, immediately after the first version of this fix
+  # shipped: run A (older merge) queued 1s after run B (newer merge) had queued, B was
+  # cancelled, then A's guard correctly refused to publish — and *nothing* deployed.
+  # Keeping non-tip runs out of the group closes that hole: the only jobs that enter
+  # it are tip commits, so entrants arrive in commit order and the newest always
+  # deploys. It also skips the ~4 minute build for runs nobody needs.
+  gate:
     needs: validate
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.elect.outputs.deploy }}
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Elect the branch tip
+        id: elect
+        run: |
+          set -uo pipefail
+          tip=""
+          if ! tip=$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" 2>/dev/null | cut -f1) || [ -z "$tip" ]; then
+            echo "::warning::could not read refs/heads/${GITHUB_REF_NAME} — allowing this deploy through"
+            tip="$GITHUB_SHA"
+          fi
+          echo "run sha : $GITHUB_SHA"
+          echo "tip     : $tip"
+          echo "attempt : $GITHUB_RUN_ATTEMPT"
+          if [ "${GITHUB_RUN_ATTEMPT:-1}" != "1" ]; then
+            echo "manual re-run (attempt $GITHUB_RUN_ATTEMPT) — deploying the requested commit"
+          elif [ "$tip" = "$GITHUB_SHA" ]; then
+            echo "this run is the newest commit on ${GITHUB_REF_NAME}"
+          else
+            echo "::warning::$GITHUB_SHA has been superseded by $tip — staying out of the deploy queue so the newer run keeps the alias"
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: [validate, gate]
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/development') && needs.gate.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    # Serialize deploys per branch (t_7998fe88). Two merges to `main` in the same
+    # minute used to build+deploy concurrently and the LAST one to finish claimed the
+    # production alias, even when its commit was the OLDER of the two — prod silently
+    # regressed to 9de3c8c6 while c6fe38dd (the newer merge) had already deployed.
+    # cancel-in-progress MUST stay false: cancelling the newer run would leave the
+    # older build live. Only runs that won the `gate` election above (tip commits, in
+    # commit order) ever reach this group, and the in-job re-check below stops a run
+    # whose commit was superseded mid-build from being the last writer.
+    concurrency:
+      group: pages-deploy-${{ github.ref }}
+      cancel-in-progress: false
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
@@ -86,13 +235,100 @@ jobs:
           cp -r functions out/functions
           echo "✓ Functions copied to out/functions/"
 
+      # Build provenance inside the shipped bytes: `curl -s https://supercompute.io/`
+      # now names the exact commit that produced the live HTML, so "which build is
+      # live?" is a body check instead of an inference from CI status (t_7998fe88).
+      - name: Stamp build provenance into the exported HTML
+        run: |
+          stamp="<!-- supercompute build ${GITHUB_SHA} ${GITHUB_REF_NAME} $(date -u +%Y-%m-%dT%H:%M:%SZ) -->"
+          count=0
+          while IFS= read -r f; do
+            sed -i "s|</body>|${stamp}</body>|" "$f"
+            count=$((count + 1))
+          done < <(find out -name '*.html' -type f)
+          echo "stamped ${count} HTML files"
+          grep -o "supercompute build [0-9a-f]*" out/index.html | head -1
+
       - name: Install Wrangler
         run: npm install -g wrangler@4
 
-      - name: Deploy to Cloudflare Pages (production)
+      # Schema before code: the subscriber funnel (/api/subscribers, the tier gate)
+      # 500s when its tables are missing, and `wrangler pages deploy` never runs
+      # migrations. Only migrations written to be safely re-runnable
+      # (CREATE TABLE / CREATE INDEX IF NOT EXISTS) belong in this list — anything
+      # that ALTERs or rebuilds a table must be applied deliberately instead.
+      #
+      # continue-on-error: this step talks to a stricter Cloudflare credential than the
+      # deploy above (D1 writes need D1:Edit, which the Pages token never had — run
+      # 34647683246 died on the import endpoint with `Authentication error [code: 10000]`
+      # on 2026-09-11). A credential/scope problem must not be able to wedge the static
+      # deploy — it did, for half an hour, while `/subscribe` sat merged and unshipped —
+      # but it must never be silent either: the outcome is re-raised as a hard failure
+      # after the deploy steps below.
+      #
+      # D1 writes need D1:Edit, which the Pages token does not have. The step
+      # therefore runs with CLOUDFLARE_D1_TOKEN (the D1 read+write token) and only
+      # falls back to CLOUDFLARE_API_TOKEN when that secret is unset — with the
+      # fallback the schema step fails as before and the run still goes red below.
+      # `projects` is in this list for the same reason `/api/subscribers` is: the table was
+      # declared in migrations/0001 but that file was never applied by CI, so the API handler and
+      # the live table drifted until GET /api/projects answered a bodyless `error code: 1101` on
+      # 2026-09-15. 0001 is `CREATE TABLE/INDEX IF NOT EXISTS` throughout, so on production it is
+      # a no-op; on a fresh database it creates the table the handler actually reads.
+      # Repo <-> live drift is watched daily by .github/workflows/d1-schema-drift.yml.
+      - name: Apply D1 migrations (idempotent)
+        id: d1
+        continue-on-error: true
+        run: |
+          for f in migrations/0001_admin_wallets_and_projects.sql migrations/0002_marketplace.sql migrations/0006_add_subscribers.sql migrations/0008_csp_reports.sql; do
+            echo "==> applying $f"
+            wrangler d1 execute supercompute-db --remote --file="$f" --yes
+          done
+          wrangler d1 execute supercompute-db --remote --yes \
+            --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('admin_wallets','projects','subscribers','marketplace_listings','csp_reports') ORDER BY name;"
+          # Column-level readback: /api/projects 500'd because `projects` existed but lacked the
+          # columns the handler selects, so "the table is there" is not the assertion that matters.
+          wrangler d1 execute supercompute-db --remote --yes \
+            --command "SELECT name FROM pragma_table_info('projects') WHERE name IN ('id','name','tagline','description','status','repo','coin','chain','created_at','updated_at') ORDER BY name;"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # Second half of the serialization guarantee (t_7998fe88). The concurrency group
+      # keeps two deploys from overlapping; this keeps an *older* commit from being the
+      # last writer. Evaluated immediately before the deploy because the branch tip can
+      # move during the ~4 minute build. A manual re-run (attempt > 1) is an operator
+      # asking for that specific commit and is always allowed through.
+      - name: Decide whether this run may move the production alias
+        id: tip
         if: github.ref == 'refs/heads/main'
         run: |
-          wrangler pages deploy out --project-name=supercompute --commit-dirty=true
+          set -uo pipefail
+          tip=""
+          if ! tip=$(git ls-remote origin refs/heads/main 2>/dev/null | cut -f1) || [ -z "$tip" ]; then
+            echo "::warning::could not read the origin/main tip — allowing this deploy through"
+            tip="$GITHUB_SHA"
+          fi
+          echo "run sha  : $GITHUB_SHA"
+          echo "main tip : $tip"
+          echo "attempt  : $GITHUB_RUN_ATTEMPT"
+          if [ "${GITHUB_RUN_ATTEMPT:-1}" != "1" ]; then
+            echo "manual re-run (attempt $GITHUB_RUN_ATTEMPT) — deploying the requested commit"
+          elif [ "$tip" = "$GITHUB_SHA" ]; then
+            echo "this run is the newest commit on main"
+          else
+            echo "::warning::superseded by $tip — skipping the production deploy so the newer build keeps the alias"
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Cloudflare Pages (production)
+        if: github.ref == 'refs/heads/main' && steps.tip.outputs.deploy == 'true'
+        run: |
+          # --branch main is explicit: Pages resolves the production alias from the
+          # branch, and an implicit target is how a build lands on the wrong alias.
+          wrangler pages deploy out --project-name=supercompute --branch main --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -116,3 +352,13 @@ jobs:
       - name: Verify deployment
         run: |
           echo "Deployed supercompute website to supercompute.pages.dev (${{ github.ref_name }})"
+
+      # The D1 step above is allowed to fail so that a Cloudflare token-scope problem
+      # cannot freeze the site (it did: every push to main after 2026-09-11 21:06 was
+      # blocked, so /subscribe ship'd code sat undeployed). Re-raise it here so the run
+      # is still RED and the failure is impossible to miss — never silent.
+      - name: Fail loudly if the schema step failed
+        if: always() && steps.d1.outcome == 'failure'
+        run: |
+          echo "::error::D1 migrations did NOT apply — /api/subscribers and /api/marketplace will 500 until the schema lands. The Cloudflare API token needs D1 write scope for this project's database. The static site was deployed; the schema was not."
+          exit 1

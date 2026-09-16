@@ -4,8 +4,9 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import { useAccount, useSignMessage, useDisconnect } from "wagmi"
 import { useConnect } from "wagmi"
 import { useEnsName } from "wagmi"
-import { base } from "wagmi/chains"
+import { mainnet } from "wagmi/chains"
 import { getNonce, getMessage, login, logout as apiLogout } from "./siwe"
+import { formatAddress } from "./ens"
 
 type Profile = { name: string; role: string; address?: string; wallet_address?: string; ensName?: string } | null
 
@@ -13,6 +14,7 @@ type AuthContextType = {
   session: string | null
   profile: Profile
   authing: boolean
+  authError: string | null
   connect: () => void
   disconnect: () => void
   isAdmin: boolean
@@ -22,6 +24,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   authing: false,
+  authError: null,
   connect: () => {},
   disconnect: () => {},
   isAdmin: false,
@@ -32,11 +35,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { connect: wagmiConnect, connectors } = useConnect()
   const { disconnect: wagmiDisconnect } = useDisconnect()
   const { signMessageAsync } = useSignMessage()
-  const { data: ensName } = useEnsName({ address, chainId: base.id })
+  const { data: ensName } = useEnsName({ address, chainId: mainnet.id })
 
   const [session, setSession] = useState<string | null>(null)
   const [profile, setProfile] = useState<Profile>(null)
   const [authing, setAuthing] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
 
   useEffect(() => {
     const s = localStorage.getItem("session")
@@ -45,13 +49,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ;(async () => {
         try {
           const r = await fetch(`/api/auth/profile`, { headers: { Authorization: `Bearer ${s}` } })
-          const d = (await r.json()) as { user?: { name: string; role: string } }
-          if (d.user) setProfile(d.user)
+          const d = (await r.json()) as { user?: { name: string; role: string; address?: string; wallet_address?: string } }
+          if (d.user) {
+            // The server stores the canonical shortened 0x as `name`; on
+            // rehydrate we prefer the resolved ENS (set below in the
+            // ensName effect) and fall back to the server-provided name.
+            // Keep this effect idempotent — only run once on mount.
+            setProfile({ ...d.user, address: d.user.address || d.user.wallet_address, ensName: ensName || undefined })
+          }
           else localStorage.removeItem("session")
         } catch { localStorage.removeItem("session") }
       })()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Once wagmi resolves the user's ENS (or refines it after reconnection),
+  // re-format the stored profile.name so the UI shows ENS-first.
+  useEffect(() => {
+    setProfile((prev) => prev ? { ...prev, ensName: ensName || undefined, name: formatAddress(prev.address, ensName) || prev.name } : prev)
+  }, [ensName])
 
   useEffect(() => {
     if (isConnected && address && !session) signIn(address)
@@ -59,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signIn(addr: string) {
     setAuthing(true)
+    setAuthError(null)
     try {
       const nonce = await getNonce()
       const message = await getMessage(addr, nonce)
@@ -67,9 +85,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (result.session) {
         setSession(result.session)
         localStorage.setItem("session", result.session)
-        if (result.user) setProfile({ ...result.user as { name: string; role: string }, ensName: ensName || undefined })
+        if (result.user) {
+          // ENS-aware display: prefer resolved ENS, fall back to shortened 0x.
+          // For the canonical supercompute.eth wallet, this guarantees the
+          // project handle is shown everywhere the profile is rendered.
+          const displayName = formatAddress(addr, ensName)
+          setProfile({ ...result.user as { name: string; role: string }, name: displayName, address: addr, ensName: ensName || undefined })
+        }
       }
-    } catch { wagmiDisconnect() }
+    } catch (e) {
+      wagmiDisconnect()
+      const reason = e instanceof Error ? e.message : String(e)
+      // Surface the real failure (backend unreachable, rejected signature, 401/403)
+      // instead of silently returning to a stale "connecting…" state.
+      setAuthError(reason.includes("denied") || reason.includes("rejected") || reason.includes("UserRejected")
+        ? "// signature not approved — try again and confirm in the wallet"
+        : `// sign-in failed — ${reason}`)
+    }
     setAuthing(false)
   }
 
@@ -89,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [session, wagmiDisconnect])
 
   return (
-    <AuthContext.Provider value={{ session, profile, authing, connect, disconnect, isAdmin: profile?.role === "admin" }}>
+    <AuthContext.Provider value={{ session, profile, authing, authError, connect, disconnect, isAdmin: profile?.role === "admin" }}>
       {children}
     </AuthContext.Provider>
   )

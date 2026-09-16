@@ -149,7 +149,11 @@ jobs:
 
       # ---- verdict on the PR ---------------------------------------------------
       - name: Comment the verdict
-        if: always()
+        # PR-ONLY. The verdict comment is a PR artifact, and on workflow_dispatch
+        # there is no issue number: `context.issue.number` is empty, so the
+        # `issues//comments` call 404s and the job fails — a manual test of the lane
+        # produced a red REQUIRED check on the head SHA. Gate it to PR events.
+        if: ${{ always() && github.event_name == 'pull_request' }}
         uses: actions/github-script@v7
         env:
           PREVIEW: ${{ steps.deploy.outputs.url }}

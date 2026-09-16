@@ -26,24 +26,7 @@
 // anywhere in this codebase — do not add one here.
 
 import { json } from "../auth.js";
-
-function allowedOrigin(reqOrigin) {
-  let origin = "https://supercompute.io";
-  if (!reqOrigin) return origin;
-  try {
-    const host = new URL(reqOrigin).hostname;
-    const ok =
-      host === "supercompute.io" ||
-      host === "supercompute.pages.dev" ||
-      host === "localhost" ||
-      host === "127.0.0.1" ||
-      host.endsWith(".pages.dev") ||
-      host.endsWith(".cloudflarestaging.com") ||
-      host.endsWith(".ngrok-free.app");
-    if (ok) origin = reqOrigin;
-  } catch {}
-  return origin;
-}
+import { corsOrigin, corsHeadersFor } from "../../_shared/cors.js";
 
 async function sessionWallet(env, request) {
   const authHeader = request.headers.get("Authorization");
@@ -61,17 +44,13 @@ async function sessionWallet(env, request) {
 }
 
 export async function onRequest({ request, env }) {
-  const origin = allowedOrigin(request.headers.get("Origin") || "");
+  const origin = corsOrigin(request, env);
   const j = (data, status = 200) => json(data, status, origin);
 
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": origin,
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
+      headers: corsHeadersFor(request, env, { "Access-Control-Allow-Methods": "GET, OPTIONS" }),
     });
   }
 

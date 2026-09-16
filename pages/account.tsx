@@ -1,6 +1,7 @@
 import PublicLayout from "../components/PublicLayout"
 import Footer from "../components/Footer"
 import { useAuth } from "../lib/auth"
+import { formatAddress, SUPERCOMPUTE_WALLET, SUPERCOMPUTE_ENS } from "../lib/ens"
 
 const modules = [
   { id: "M1", title: "Blockchain Fundamentals", progress: 100, credential: "NFT #001" },
@@ -30,6 +31,16 @@ const activityLog = [
 
 export default function Account() {
   const { session, profile } = useAuth()
+  // Wallet shown in the "Wallet" row. The /api/auth/profile handler stores
+  // a shortened 0x as `name`; profile.address is the canonical 0x. The
+  // profile object's name is already ENS-aware from lib/auth.tsx.
+  const walletAddress = profile?.address || profile?.wallet_address
+  // Format project wallet as supercompute.eth everywhere it's referenced;
+  // for other users, render ENS-first with 0x fallback.
+  const isProjectWallet = walletAddress?.toLowerCase() === SUPERCOMPUTE_WALLET.toLowerCase()
+  const walletDisplay = isProjectWallet
+    ? formatAddress(SUPERCOMPUTE_WALLET, SUPERCOMPUTE_ENS)
+    : formatAddress(walletAddress, profile?.ensName)
 
   return (
     <PublicLayout title="SUPERCOMPUTE · Profile">
@@ -67,7 +78,7 @@ export default function Account() {
               <div style={{ background: "var(--bg)", padding: "14px 20px", display: "flex", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 12, color: "var(--muted)" }}>Wallet</span>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--muted)" }}>
-                  {session?.startsWith("dev_") ? "0xDev...0000" : "0x742d...f44e"}
+                  {session?.startsWith("dev_") ? "0xDev...0000" : walletDisplay}
                 </span>
               </div>
               <div style={{ background: "var(--bg)", padding: "14px 20px", display: "flex", justifyContent: "space-between" }}>

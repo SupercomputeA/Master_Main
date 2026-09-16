@@ -1,3 +1,19 @@
+# Legal pages — /terms and /privacy are served natively by Cloudflare Pages from
+# terms.html / privacy.html, exactly like /about and /projects.
+#
+# DO NOT re-add `/terms /terms.html 200`-style rewrites. A 200-rewrite whose target
+# ends in `.html` fights Pages' built-in `.html` -> clean-URL 308 and the route loops
+# forever:
+#   /terms -> 308 /terms -> 308 /terms -> ...   (curl: Maximum (50) redirects followed)
+# It was live on supercompute.io: both legal pages were unreachable in production
+# (2026-09-11), which is what the TikTok Content Posting app form needs to point at.
+# Control that isolates the cause: /about.html -> 308 /about -> 200 (no rule, works)
+# and /terms.html -> 308 /terms -> loop (rule present). Same export, same normalisation.
+# The rules were added 2026-07-29 (b6e80dd) because the pages did not exist then, so the
+# `/*  /index.html  200` catch-all below served index.html for /terms. pages/terms.tsx
+# and pages/privacy.tsx exist again since PR #18 — with real .html assets the catch-all
+# no longer applies and the rewrites are both unnecessary and harmful.
+
 # NewsDesk article routing:
 # Markdown articles (aave, aerodrome, nypd, newsdesk-launch, token-gating,
 # on-chain-identity, welcome-to-supercompute) get their own pre-rendered HTML
@@ -20,5 +36,28 @@
 /app/article/kg/*         /app/article/kg/[id]         200
 /app/publishing/*/edit    /app/publishing/[id]/edit    200
 
-# SPA fallback — route all remaining non-file, non-API 404s to index.html
-/*    /index.html   200
+# Marketplace listing detail — /project/[id] is a statically exported shell that reads the
+# listing id from the client router and fetches /api/marketplace?id=<id>. Because the site
+# uses `output: "export"`, only the literal /project/[id] asset exists, so a real id
+# (/project/abc123) must be mapped onto that shell here. Without this rule every
+# "View listing" link rendered by /marketplace 404s on production.
+# Must come BEFORE the /* SPA catch-all.
+/project/*    /project/[id]    200
+
+# NO CATCH-ALL SPA FALLBACK HERE.
+# This site is a Next.js static export (`output: "export"` in next.config.js), so every
+# route has a real file in out/ — /terms -> terms.html, /staking -> staking.html,
+# /app/projects/new -> app/projects/new.html — and Cloudflare Pages maps clean URLs onto
+# those files itself.
+#
+# A `/*  /index.html  200` SPA fallback was rejected by the Pages redirects parser as an
+# infinite loop (the /index.html target is matched by /* again), so it was silently ignored
+# both locally and in production. Verified independently 2026-09-16:
+#   /definitely-not-a-real-page-xyz -> HTTP 404, the exported 404 shell (2,585 B)
+#   /                               -> HTTP 200, index.html (7,956 B)
+# i.e. unknown paths fall through to 404.html, NOT to index.html. Removing the dead rule
+# changes no live behaviour: real routes keep serving their own file.
+#
+# NOTE: the "Must come BEFORE the /* SPA catch-all" annotations above are now historical —
+# the catch-all they referred to does not exist. The specific rules above still matter
+# relative to ONE ANOTHER, so they stay listed in this order.

@@ -4,7 +4,7 @@
 // GET  /api/subscribers?tier=X — admin-only tier stats
 
 import { json } from './auth.js';
-import { TIERS, isValidTier, defaultExpirySeconds } from '../../lib/tiers.js';
+import { TIERS, isPaidTier, defaultExpirySeconds } from '../../lib/tiers.js';
 
 const VALID_TIERS = ['free', 'builder', 'operator', 'syndicate', 'lead'];
 
@@ -67,6 +67,12 @@ export async function onRequest({ request, env }) {
   const subPath = url.pathname.replace('/api/subscribers', '') || '/';
 
   // GET /api/subscribers/me — current subscriber by session wallet
+  //
+  // NOTE: this branch is unreachable on Cloudflare Pages. `functions/api/subscribers.js`
+  // is only mounted at the exact path /api/subscribers, so /api/subscribers/me is served
+  // by functions/api/subscribers/me.js instead (added 2026-09-11 — this branch was dead
+  // code and /me 404'd in production). Kept as an identical fallback in case Pages routing
+  // ever hands the sub-path here.
   if (request.method === 'GET' && subPath === '/me') {
     const wallet = await getSessionWallet(env, request);
     if (!wallet) return j({ subscriber: null }, 200);
@@ -122,7 +128,12 @@ export async function onRequest({ request, env }) {
 
     const { wallet: rawWallet, email, tier, source, tx_hash, metadata } = body || {};
 
-    if (!isValidTier(tier || '')) return j({ error: 'invalid tier', valid: VALID_TIERS }, 400);
+    // Validate against VALID_TIERS, not lib/tiers.js `isValidTier()`: 'lead' is a
+    // subscription-state pseudo-tier for the wallet-less email fallback on /subscribe,
+    // not a purchasable tier, so it deliberately does not live in TIERS. Using
+    // isValidTier() here rejected every email signup with `400 invalid tier` even
+    // though VALID_TIERS (and the page) list 'lead'. Fixed 2026-09-11.
+    if (!VALID_TIERS.includes(tier || '')) return j({ error: 'invalid tier', valid: VALID_TIERS }, 400);
 
     const wallet = rawWallet ? rawWallet.toLowerCase() : null;
     if (wallet && !isValidAddress(wallet)) return j({ error: 'invalid wallet address' }, 400);
@@ -138,7 +149,7 @@ export async function onRequest({ request, env }) {
           wallet_address: wallet,
           email: email || null,
           tier,
-          status: tier === 'lead' ? 'active' : 'pending',
+          status: isPaidTier(tier) ? 'pending' : 'active',
           joined_at: Math.floor(Date.now() / 1000),
           expires_at: defaultExpirySeconds(tier),
           source: source || 'web',
@@ -165,9 +176,16 @@ export async function onRequest({ request, env }) {
       const id = existing?.id || generateId();
       const joinedAt = existing?.joined_at || Math.floor(Date.now() / 1000);
       const expiresAt = defaultExpirySeconds(tier);
-      // Lead tier for email-only capture — auto-activates (no payment).
-      // Paid tiers stay 'pending' until payment rails confirm.
-      const status = tier === 'lead' ? 'active' : 'pending';
+      // Status follows the payment rail, not a hardcoded tier name:
+      //   paid tiers  (builder/operator/syndicate) → 'pending' until /api/subscribers/pay
+      //                                              verifies the EIP-3009 authorization
+      //   free + lead (no payment rail)            → 'active' immediately
+      // Bug fixed 2026-09-11: this used to read `tier === 'lead' ? 'active' : 'pending'`,
+      // which left every Free signup stuck at 'pending' with no payment step to clear it.
+      // entitlementsFor() requires status === 'active', so Free subscribers got an empty
+      // dashboard and a gate verdict of passed:false tier:null forever — while the tier
+      // price is $0 and pages/subscribe.tsx already renders the "tier is active" branch.
+      const status = isPaidTier(tier) ? 'pending' : 'active';
       const metaJson = metadata ? JSON.stringify(metadata) : null;
 
       if (existing) {
@@ -210,7 +228,7 @@ export async function onRequest({ request, env }) {
         try {
           await env.DB.prepare(
             `UPDATE subscribers SET tier = ?, status = ?, expires_at = ?, updated_at = ? WHERE email = ?`
-          ).bind(tier, tier === 'lead' ? 'active' : 'pending', defaultExpirySeconds(tier), Math.floor(Date.now() / 1000), email.toLowerCase()).run();
+          ).bind(tier, isPaidTier(tier) ? 'pending' : 'active', defaultExpirySeconds(tier), Math.floor(Date.now() / 1000), email.toLowerCase()).run();
           const row = await env.DB.prepare('SELECT * FROM subscribers WHERE email = ?').bind(email.toLowerCase()).first();
           return j({ ok: true, subscriber: row }, 200);
         } catch {}

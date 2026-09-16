@@ -387,3 +387,103 @@ test("the stored row never contains a secret from a query string", async () => {
   assert.ok(!dump.includes("utm_source"));
   assert.equal([...db.rows.values()][0].blocked_origin, "https://cdn.example.net");
 });
+
+// ------------------------------------------- deployment scope (SEC-F6b) ----
+//
+// Preview deployments run with the PRODUCTION bindings, so the collector gates
+// the write on the deployment's own branch (`CF_PAGES_BRANCH`, injected by the
+// platform into the deployment's env_vars — which apply to Pages Functions).
+// The gate must hold in BOTH directions: a preview must not write, and an
+// unreadable branch must still write (fail open — a silently dead production
+// telemetry pipeline is a worse failure than a preview's noise).
+
+async function withCapturedErrors(fn) {
+  const lines = [];
+  const real = console.error;
+  console.error = (...args) => lines.push(args.map(String).join(" "));
+  try {
+    await fn();
+  } finally {
+    console.error = real;
+  }
+  return lines;
+}
+
+test("a non-production deployment drops the report instead of writing it", async () => {
+  const db = new FakeD1();
+  const lines = await withCapturedErrors(async () => {
+    const res = await onRequest({
+      request: post(LEGACY, "application/csp-report"),
+      env: { DB: db, CF_PAGES_BRANCH: "pr-98" },
+    });
+    // A browser must still never get an error page, and nothing may be stored.
+    assert.equal(res.status, 204);
+    assert.equal(await res.text(), "");
+    assert.equal(db.calls.length, 0, "no statement may even be prepared");
+    assert.equal(db.rows.size, 0);
+  });
+  assert.ok(
+    lines.some((line) => line.includes("non-production") && line.includes("pr-98")),
+    `the drop must be loud and name the branch, got: ${JSON.stringify(lines)}`,
+  );
+});
+
+test("every non-production branch shape is dropped, not just pr-<n>", async () => {
+  for (const branch of ["pr-98", "staging", "development", "secf6/preview-csp-telemetry-guard", "main-copy"]) {
+    const db = new FakeD1();
+    const res = await onRequest({
+      request: post(LEGACY, "application/csp-report"),
+      env: { DB: db, CF_PAGES_BRANCH: branch },
+    });
+    assert.equal(res.status, 204, branch);
+    assert.equal(db.calls.length, 0, `${branch} must not write`);
+  }
+});
+
+test("the production branch still writes — the gate is scoped to non-production", async () => {
+  for (const branch of ["main", " main "]) {
+    const db = new FakeD1();
+    const res = await onRequest({
+      request: post(LEGACY, "application/csp-report"),
+      env: { DB: db, CF_PAGES_BRANCH: branch },
+    });
+    assert.equal(res.status, 204, branch);
+    assert.equal(db.rows.size, 1, `${JSON.stringify(branch)} must write`);
+    assert.equal([...db.rows.values()][0].hits, 1);
+  }
+});
+
+test("an unreadable branch fails OPEN and keeps production telemetry writing", async () => {
+  // Absent, empty, whitespace, non-string, and a RENAMED variable: all of these
+  // mean "the platform did not tell us the branch", and all must still write.
+  const cases = [
+    ["absent", undefined],
+    ["empty", ""],
+    ["whitespace", "   "],
+    ["null", null],
+    ["number", 1],
+    ["renamed", undefined, { CF_PAGES_BRANCH_NAME: "pr-98" }],
+  ];
+  for (const [label, branch, extra] of cases) {
+    const db = new FakeD1();
+    const env = { DB: db, ...(extra || {}) };
+    if (label !== "absent") env.CF_PAGES_BRANCH = branch;
+    const res = await onRequest({ request: post(LEGACY, "application/csp-report"), env });
+    assert.equal(res.status, 204, label);
+    assert.equal(db.rows.size, 1, `${label} must fail open and write`);
+  }
+});
+
+test("deploymentBranch/isNonProductionDeployment expose the exact gate rule", async () => {
+  const { deploymentBranch, isNonProductionDeployment } = await import(
+    "../../functions/api/csp-report.js"
+  );
+  assert.equal(deploymentBranch({ CF_PAGES_BRANCH: " pr-9 " }), "pr-9");
+  assert.equal(deploymentBranch({}), "");
+  assert.equal(deploymentBranch(undefined), "");
+  assert.equal(deploymentBranch({ CF_PAGES_BRANCH: 7 }), "");
+  assert.equal(isNonProductionDeployment({ CF_PAGES_BRANCH: "pr-9" }), true);
+  assert.equal(isNonProductionDeployment({ CF_PAGES_BRANCH: "main" }), false);
+  assert.equal(isNonProductionDeployment({}), false, "fail open");
+  assert.equal(isNonProductionDeployment(undefined), false, "fail open");
+});

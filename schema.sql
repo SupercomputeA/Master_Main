@@ -72,19 +72,36 @@ CREATE TABLE admin_wallets (
 );
 
 -- Projects
+-- LIVE production shape (see migrations/0001_admin_wallets_and_projects.sql for the incident
+-- note): production has never had `ticker`/`stack`. Keep this identical to that migration —
+-- `tests/projects/schema-contract.test.mjs` asserts the API handler against both.
 CREATE TABLE projects (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
-  ticker TEXT,
-  stack TEXT,
+  tagline TEXT,
+  repo TEXT DEFAULT '',
+  coin TEXT DEFAULT '',
+  status TEXT DEFAULT 'Coming Soon',
+  sort_order INTEGER DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  featured INTEGER DEFAULT 0,
   description TEXT,
-  status TEXT DEFAULT 'active',
-  created_at INTEGER DEFAULT (unixepoch()),
-  updated_at INTEGER DEFAULT (unixepoch())
+  funding_goal_usd REAL DEFAULT 0,
+  cover_image_url TEXT,
+  website_url TEXT,
+  github_url TEXT,
+  twitter_url TEXT,
+  chain TEXT,
+  contract_address TEXT,
+  creator_name TEXT,
+  risks TEXT,
+  milestones TEXT
 );
 
 CREATE INDEX idx_admin_wallets_address ON admin_wallets(wallet_address);
 CREATE INDEX idx_projects_status ON projects(status);
+CREATE INDEX idx_projects_featured ON projects(featured);
 
 -- Subscribers (tier-based membership — funnel: /subscribe → /dashboard)
 CREATE TABLE subscribers (

@@ -132,11 +132,6 @@ export default function Auth() {
         <title>SUPERCOMPUTE · Sign in</title>
       </Head>
 
-      <div className="hud-corner tl" />
-      <div className="hud-corner tr" />
-      <div className="hud-corner bl" />
-      <div className="hud-corner br" />
-
       <div className="tpl-auth">
         <div className="auth-card">
           <div className="eyebrow">./auth --connect<span className="caret" /></div>

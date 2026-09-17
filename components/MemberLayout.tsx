@@ -110,10 +110,6 @@ export default function MemberLayout({
       </aside>
 
       <main className={`mem-main${wide ? " mem-wide" : ""}`}>
-        <div className="hud-corner embed tl" />
-        <div className="hud-corner embed tr" />
-        <div className="hud-corner embed bl" />
-        <div className="hud-corner embed br" />
         <div className="mem-inner">
           <div className="tpl-member">
             {banner && (

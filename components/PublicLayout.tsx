@@ -39,12 +39,6 @@ export default function PublicLayout({
         <meta name="description" content="Design with liberation in mind — Web3 tools and knowledge infrastructure for communities." />
       </Head>
 
-      {/* HUD corners bracket the full viewport on public pages */}
-      <div className="hud-corner tl" />
-      <div className="hud-corner tr" />
-      <div className="hud-corner bl" />
-      <div className="hud-corner br" />
-
       <div className="pub-scroll">
         <header className="pub-header">
           <nav className="pub-nav">

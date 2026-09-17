@@ -12,18 +12,23 @@ export const getStaticProps: GetStaticProps = async () => {
 }
 
 interface TokenData {
+  ok?: boolean
+  error?: string
+  detail?: string
+  partial?: boolean
+  failedFields?: string[]
   address: string
-  deployed: boolean
+  deployed?: boolean
   chain: string
-  name: string
-  symbol: string
-  decimals: number
-  totalSupply: number
-  totalSupplyFormatted: string
-  owner: string | null
-  explorer: string
+  name?: string
+  symbol?: string
+  decimals?: number
+  totalSupply?: string
+  totalSupplyFormatted?: string
+  owner?: string | null
+  explorer?: string
   timestamp: string
-  walletBalance?: number
+  walletBalance?: string
   walletBalanceFormatted?: string
 }
 
@@ -43,17 +48,27 @@ export default function Token({ projects }: { projects: Project[] }) {
   const { session } = useAuth()
   const [tokenData, setTokenData] = useState<TokenData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [rpcError, setRpcError] = useState(false)
 
   useEffect(() => {
     const wallet = session
     const url = wallet ? `/api/token?wallet=${wallet}` : "/api/token"
     fetch(url)
       .then((r) => r.json())
-      .then((d: unknown) => setTokenData(d as TokenData))
-      .catch(() => {})
+      .then((d: unknown) => {
+        const data = d as TokenData
+        if (data && data.ok === false) {
+          setRpcError(true)
+        }
+        setTokenData(data)
+      })
+      .catch(() => {
+        setRpcError(true)
+      })
       .finally(() => setLoading(false))
   }, [session])
 
+  const isError = rpcError || (tokenData && tokenData.ok === false)
   const supplyDisplay = tokenData?.totalSupplyFormatted
     ? formatSupply(tokenData.totalSupplyFormatted)
     : "—"
@@ -94,20 +109,50 @@ export default function Token({ projects }: { projects: Project[] }) {
         </div>
       </section>
 
+      {/* RPC error banner */}
+      {isError && (
+        <section className="section">
+          <div style={{
+            background: "var(--surface)",
+            border: "1px solid var(--border-warm)",
+            padding: "16px 20px",
+            fontFamily: "var(--font-mono)",
+            fontSize: 11,
+            color: "var(--muted)",
+          }}>
+            <span style={{ color: "var(--accent)" }}>// RPC unreachable</span> — on-chain data is temporarily unavailable.
+            The contract is deployed on Base; the read endpoint could not reach the RPC.
+            See <a href={tokenData?.explorer || `https://basescan.org/token/0x5ACDC563450cC35055d7344287C327fafB2b371A`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "none" }}>Basescan</a> for live data.
+          </div>
+        </section>
+      )}
+
       {/* On-chain data — live from Base RPC */}
       <section className="section">
         <div className="section-header">
           <div className="label">// on-chain data</div>
           <div><h2 className="display-md">Token State</h2></div>
         </div>
+        {isError ? (
+          <div style={{
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
+            padding: "40px",
+            textAlign: "center",
+            color: "var(--muted)",
+            fontSize: 12,
+          }}>
+            On-chain data unavailable — RPC endpoint unreachable.
+          </div>
+        ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Name</div>
             <div style={{ fontFamily: "var(--font-mono)", fontSize: 20, fontWeight: 700, color: "var(--accent)" }}>
-              {loading ? "—" : "$QUANTA"}
+              {loading ? "—" : (tokenData?.name || "—")}
             </div>
             <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
-              {tokenData?.symbol ? `$${tokenData.symbol}` : "$QUANTA"}
+              {tokenData?.symbol ? `$${tokenData.symbol}` : "—"}
             </div>
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
@@ -116,7 +161,7 @@ export default function Token({ projects }: { projects: Project[] }) {
               {loading ? "—" : supplyDisplay}
             </div>
             <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
-              {tokenData ? `${tokenData.decimals} decimals` : "—"}
+              {tokenData ? `${tokenData.decimals ?? "—"} decimals` : "—"}
             </div>
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
@@ -136,9 +181,10 @@ export default function Token({ projects }: { projects: Project[] }) {
             <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>contract owner</div>
           </div>
         </div>
+        )}
 
         {/* Wallet balance for connected users */}
-        {session && (
+        {session && !isError && (
           <div style={{ marginTop: 12, background: "var(--surface)", border: "1px solid var(--border-warm)", padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div className="label-sm" style={{ marginBottom: 4 }}>// Your Balance</div>
@@ -153,7 +199,7 @@ export default function Token({ projects }: { projects: Project[] }) {
         )}
 
         {/* Explorer link */}
-        {tokenData && (
+        {tokenData && !isError && tokenData.explorer && (
           <div style={{ marginTop: 12, fontFamily: "var(--font-mono)", fontSize: 11 }}>
             <a href={tokenData.explorer} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "none" }}>
               → View on Basescan

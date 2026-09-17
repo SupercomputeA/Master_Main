@@ -104,10 +104,10 @@ export default function ModulePage({ mod }: { mod: SchoolModuleContent }) {
         </h1>
         <p className="hero-sub">{mod.description}</p>
         <div className="hero-meta">
-          <div className="meta-item"><div className="label-sm">Duration</div><div className="val" style={{ fontSize: 16 }}>{mod.duration}</div></div>
-          <div className="meta-item"><div className="label-sm">Lessons</div><div className="val" style={{ fontSize: 16 }}>{mod.lessons.length}</div></div>
-          <div className="meta-item"><div className="label-sm">Difficulty</div><div className="val" style={{ fontSize: 16, color: mod.color }}>{mod.difficulty}</div></div>
-          <div className="meta-item"><div className="label-sm">Access</div><div className="val" style={{ fontSize: 16 }}>{mod.access.toUpperCase()}</div></div>
+          <div className="meta-item"><div className="label-sm" style={{ textTransform: "none", letterSpacing: "0.02em" }}>Duration</div><div className="val" style={{ fontSize: 16, textTransform: "none" }}>{mod.duration}</div></div>
+          <div className="meta-item"><div className="label-sm" style={{ textTransform: "none", letterSpacing: "0.02em" }}>Lessons</div><div className="val" style={{ fontSize: 16, textTransform: "none" }}>{mod.lessons.length}</div></div>
+          <div className="meta-item"><div className="label-sm" style={{ textTransform: "none", letterSpacing: "0.02em" }}>Difficulty</div><div className="val" style={{ fontSize: 16, textTransform: "none", color: mod.color }}>{mod.difficulty}</div></div>
+          <div className="meta-item"><div className="label-sm" style={{ textTransform: "none", letterSpacing: "0.02em" }}>Access</div><div className="val" style={{ fontSize: 16, textTransform: "none" }}>{mod.access.charAt(0).toUpperCase() + mod.access.slice(1)}</div></div>
         </div>
       </section>
 

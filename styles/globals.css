@@ -80,28 +80,6 @@ body::after {
   background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
 }
 
-/* ─── HUD corners (signature, 4 viewport-pinned brackets) ──────────────── */
-
-.hud-corner {
-  position: fixed; width: 32px; height: 32px;
-  border: 2px solid var(--hud-yellow); z-index: 4; pointer-events: none;
-}
-.hud-corner.tl { top: 18px;    left: 18px;    border-right: none; border-bottom: none; }
-.hud-corner.tr { top: 18px;    right: 18px;   border-left: none;  border-bottom: none; }
-.hud-corner.bl { bottom: 18px; left: 18px;    border-right: none; border-top: none; }
-.hud-corner.br { bottom: 18px; right: 18px;   border-left: none;  border-top: none; }
-
-/* Member-app variant: corners bracket the .main content area, not viewport. */
-.hud-corner.embed { position: absolute; }
-
-@media (max-width: 700px) {
-  .hud-corner { width: 22px; height: 22px; }
-  .hud-corner.tl, .hud-corner.tr { top: 10px; }
-  .hud-corner.bl, .hud-corner.br { bottom: 10px; }
-  .hud-corner.tl, .hud-corner.bl { left: 10px; }
-  .hud-corner.tr, .hud-corner.br { right: 10px; }
-}
-
 /* ─── LAYOUT ──────────────────────────────────────────────────────────── */
 
 .main {

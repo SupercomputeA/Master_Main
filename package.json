@@ -21,6 +21,9 @@
     "test:cors": "node --test tests/security/cors-origins.test.mjs",
     "test:social": "node --test tests/social/admin-gate.test.js",
     "check:inline-scripts": "node scripts/check-inline-scripts.mjs out",
+    "test:headers": "node --test tests/headers/assert-headers.test.mjs",
+    "check:headers": "node scripts/assert-headers.mjs",
+    "check:headers:live": "node scripts/assert-headers.mjs --url https://supercompute.io",
     "preview": "wrangler pages project . --preview"
   },
   "dependencies": {

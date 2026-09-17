@@ -1,0 +1,196 @@
+name: Preview verify (PR)
+
+# THE TESTING LANE.
+#
+# Problem this solves: today the ONLY way to see a build is to merge to main and
+# look at prod. That is how we shipped three header defects, a dead wallet button
+# and an unverified page — each discovered by a human visiting afterwards.
+#
+# This workflow gives every PR its own deployed preview and runs the full
+# verification set against THAT deployment before anyone merges:
+#
+#   1. build                        — the artifact itself
+#   2. fast, network-free checks    — source headers, built headers, inline scripts, CSP suites
+#   3. deploy the PR preview        — Cloudflare Pages branch deployment (pr-<number>)
+#   4. smoke the preview            — routes + surface markers + closed debug surfaces
+#   5. header assertions vs preview — what the preview actually SERVES
+#   6. sticky PR comment            — the verdict, with the preview URL, on the PR
+#
+# Non-negotiable design notes:
+#   - The preview URL is the deliverable. "It builds" is not verification.
+#   - A failing marker means the WRONG SURFACE is live (200 with the old page is
+#     the failure mode we keep hitting), so smoke checks markers, not just status.
+#   - Secrets are never echoed: wrangler reads them from env, the job logs only
+#     the resulting URL.
+#   - This job is additive: it never touches prod, and it cannot deploy main.
+
+on:
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch: # test the lane itself on demand (e.g. after changing it)
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: preview-verify-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: build → deploy preview → verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # merge-base against the PR base is needed by the marker scan
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Build (static export)
+        run: npx next build
+
+      # ---- tier 1: no network, fast, deterministic -----------------------------
+      # Runs before anything else: a committed conflict marker means the tree
+      # being verified is not the tree anyone reviewed. Real incident 2026-09-15 —
+      # a stacked-branch absorb committed markers into ci-cd.yml and made the
+      # workflow file unparseable; nothing caught it until a human read the diff.
+      # --changed-only: main already carries pre-existing damage (yarn.lock, 489
+      # conflict blocks from a develop merge), which is reported but does not
+      # block every PR. Repair that separately.
+      # BASE RESOLUTION: actions/checkout fetches ONLY the PR head ref, so
+      # `origin/<base>` does NOT exist in the workspace — a bare
+      # `git fetch origin <base>` writes FETCH_HEAD and leaves no remote-tracking
+      # ref, which made this step fail on every PR (run 35144034267, PR #69).
+      # Fetch with an explicit refspec, with full history so `git merge-base` is
+      # computable when the base has moved ahead of the branch.
+      - name: No committed merge-conflict markers (in this change)
+        env:
+          BASE_REF: ${{ github.base_ref || 'main' }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -uo pipefail
+          BASE="origin/${BASE_REF}"
+          if git fetch --no-tags origin "+refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"; then
+            echo "base resolved: ${BASE} @ $(git rev-parse --short "${BASE}")"
+          elif [ -n "${BASE_SHA:-}" ] && git fetch --no-tags origin "${BASE_SHA}"; then
+            BASE="${BASE_SHA}"
+            echo "base resolved via PR base SHA: ${BASE}"
+          else
+            echo "::warning::could not resolve the PR base ref or SHA — the marker scan will report and pass this run"
+            BASE="(unresolved)"
+          fi
+          node scripts/assert-no-conflict-markers.mjs --changed-only --base "$BASE"
+
+      - name: Header invariants (source + built copy must agree)
+        run: |
+          node scripts/assert-headers.mjs
+          node scripts/assert-headers.mjs --file out/_headers --same-as public/_headers
+
+      - name: CSP invariants (no executable inline script; report collector)
+        run: |
+          node scripts/check-inline-scripts.mjs out
+          npm run test:csp
+
+      - name: Header assertion unit tests
+        run: npm run test:headers
+
+      # ---- tier 2: deploy a preview of THIS pull request -----------------------
+      - name: Deploy preview
+        id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -o pipefail
+          npx wrangler pages deploy out \
+            --project-name=supercompute \
+            --branch pr-${{ github.event.pull_request.number }} \
+            --commit-dirty=true | tee /tmp/deploy.log
+          URL=$(grep -oE 'https://[a-z0-9]+\.supercompute\.pages\.dev' /tmp/deploy.log | head -1)
+          if [ -z "$URL" ]; then
+            echo "::error::preview deploy produced no URL — see the log above"
+            exit 1
+          fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "preview: $URL"
+
+      - name: Wait for the preview to answer
+        env:
+          PREVIEW: ${{ steps.deploy.outputs.url }}
+        run: |
+          for i in $(seq 1 12); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$PREVIEW/" || true)
+            echo "attempt $i: $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "::error::preview never returned 200"
+          exit 1
+
+      # ---- tier 3: verify the DEPLOYED preview, not the source tree ------------
+      - name: Smoke the preview (routes + surface markers)
+        env:
+          PREVIEW: ${{ steps.deploy.outputs.url }}
+        run: node scripts/smoke-preview.mjs "$PREVIEW"
+
+      - name: Header drift vs the preview (what it actually serves)
+        env:
+          PREVIEW: ${{ steps.deploy.outputs.url }}
+        run: node scripts/assert-headers.mjs --url "$PREVIEW"
+
+      # ---- verdict on the PR ---------------------------------------------------
+      - name: Comment the verdict
+        # PR-ONLY. The verdict comment is a PR artifact, and on workflow_dispatch
+        # there is no issue number: `context.issue.number` is empty, so the
+        # `issues//comments` call 404s and the job fails — a manual test of the lane
+        # produced a red REQUIRED check on the head SHA. Gate it to PR events.
+        if: ${{ always() && github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
+        env:
+          PREVIEW: ${{ steps.deploy.outputs.url }}
+          JOB_STATUS: ${{ job.status }}
+        with:
+          script: |
+            const url = process.env.PREVIEW || '(no preview deployed)'
+            const ok = process.env.JOB_STATUS === 'success'
+            const MARKER = '<!-- preview-verify -->'
+            const body = [
+              MARKER,
+              `### ${ok ? '✅' : '❌'} Preview verify — ${ok ? 'passed' : 'failed'}`,
+              '',
+              ok
+                ? 'Build, header invariants, CSP invariants, preview deploy, route smoke and served-header drift all passed against the deployed preview.'
+                : 'One or more verification steps failed. The preview is listed below — reproduce locally with the commands in `docs/testing-lane.md`.',
+              '',
+              `**Preview:** ${url}`,
+              '',
+              '```bash',
+              `node scripts/smoke-preview.mjs ${url}`,
+              `node scripts/assert-headers.mjs --url ${url}`,
+              '```',
+              '',
+              '_Merge gate: this check must be green before main. See `docs/testing-lane.md`._',
+            ].join('\n')
+            const { owner, repo } = context.repo
+            const issue_number = context.issue.number
+            // STICKY: update this PR's previous verdict instead of stacking another
+            // comment on every push. The newest run is the whole truth; restating it
+            // as a fresh comment buries the PR conversation. The MARKER is what makes
+            // the verdict findable again on the next run.
+            const prior = (
+              await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number, per_page: 100 })
+            ).find((c) => c.user?.type === 'Bot' && (c.body || '').includes(MARKER))
+            if (prior) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: prior.id, body })
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body })
+            }

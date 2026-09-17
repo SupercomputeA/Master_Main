@@ -5,6 +5,19 @@ on:
     branches: [main, staging, development]
   pull_request:
     branches: [main, staging]
+  # Recovery path (2026-09-15). Before this, a push event was the ONLY way this
+  # lane could start, so when GitHub failed to deliver one the site sat on stale
+  # content with no way to re-fire the deploy. Real incident: #91 was merged to
+  # main as 94758a2 — the ref moved, Actions was operational, and **zero** workflow
+  # runs were created for that sha (0 for the commit, nothing queued repo-wide).
+  # `gh run rerun` is not a recovery: the re-run deploys *its own* commit, and the
+  # "Decide whether this run may move the production alias" step below deliberately
+  # skips a run whose sha is no longer the tip — so re-running an old run would
+  # publish the OLD build. Dispatch re-fires the lane at the ref you name, and the
+  # sha it produces IS the tip, so the gate + tip-election steps let it through:
+  #   gh workflow run "CI/CD" --ref main
+  # This adds a trigger; it does not change push/pull_request behaviour.
+  workflow_dispatch:
 
 jobs:
   validate:
@@ -26,6 +39,18 @@ jobs:
 
       - name: Show Node version
         run: node --version
+
+      # Test gate. `npm test` is the repo's declared test entry point
+      # (package.json `scripts.test`, globbing tests/**/*.test.js).
+      # `*.test.js` does NOT match `*.test.mjs` under Node's test glob — verified
+      # on Node 24 — so the .mjs pattern is passed alongside it: otherwise a .mjs
+      # suite sits outside the gate and can regress without failing anything.
+      # No continue-on-error: a red suite fails `validate`, and `deploy` declares
+      # `needs: validate`, so it cannot reach production/staging/development.
+      - name: Run tests
+        run: |
+          npm test
+          node --test "tests/**/*.test.mjs"
 
       - name: Build Tina CMS admin
         run: npx tinacms build
@@ -84,6 +109,24 @@ jobs:
       - name: Assert export ships no executable inline scripts (guards script-src 'self')
         run: node scripts/check-inline-scripts.mjs out
 
+      # Header-VALUE pins (T-follow-up from the #94 verdict, security condition 3).
+      # `_headers` has silently shipped three wrong values: a path-less file that
+      # applied nothing (M1), XFO DENY contradicting frame-ancestors 'self' (M2),
+      # and COOP same-origin severing window.opener for the Coinbase Wallet popup
+      # (M3). A build cannot catch any of them — the file parses, the deploy goes
+      # green, and prod serves headers nobody asserted. This pair does:
+      #   * the suite drives the repo's REAL public/_headers and mutation-tests
+      #     every pin, so a pin that stops matching fails here;
+      #   * out/_headers is what Cloudflare actually receives, so --same-as is
+      #     what makes the pin describe what ships (verified byte-identical on
+      #     three real builds; if that ever stops being true the failure is loud).
+      # See docs/headers-invariant.md. Drift against prod: .github/workflows/header-drift.yml.
+      - name: Test the header-pin gate itself
+        run: node --test tests/headers/assert-headers.test.mjs
+
+      - name: Assert the pinned header values survive the build (COOP, XFO, CSP, no COEP)
+        run: node scripts/assert-headers.mjs --file out/_headers --same-as public/_headers
+
       # Redirect-loop class (2026-09-11): Cloudflare Pages turns any '<name>.html'
       # request into a 308 to '<name>', so a `_redirects` 200-rewrite whose TARGET ends
       # in .html bounces the route between the two forever. It was live on
@@ -114,6 +157,16 @@ jobs:
             test -f "out/$f.html" || { echo "✗ out/$f.html missing — /$f is unreachable without a _redirects rule"; exit 1; }
           done
           echo "✓ out/terms.html + out/privacy.html exported"
+
+      # The 2026-09-15 /api/projects outage was code/schema drift that no build could see: the
+      # handler selected `ticker, stack`, the live D1 table carries `tagline, repo, coin, ...`,
+      # and D1's `no such column` escaped the Function into a bodyless `error code: 1101`. This
+      # suite drives the REAL handler over a REAL SQLite engine loaded with the REAL DDL
+      # (`schema.sql` + every `migrations/*.sql`), so the drift fails here instead of on prod.
+      # A mutation case re-installs the pre-fix column list and asserts the guard catches it.
+      # Live (repo <-> prod) drift is watched by .github/workflows/d1-schema-drift.yml.
+      - name: Assert /api/projects columns match the D1 schema (drift guard)
+        run: node --test tests/projects/schema-contract.test.mjs
 
       - name: Check for debug/code issues
         run: |
@@ -261,14 +314,26 @@ jobs:
       # the old in-step "assertion": `SELECT name FROM sqlite_master ...` exits 0 when it
       # matches zero rows, so a migration that created nothing was indistinguishable
       # from one that worked. A check that cannot fail is not a check.
+      # `projects` is in this list for the same reason `/api/subscribers` is: the table was
+      # declared in migrations/0001 but that file was never applied by CI, so the API handler and
+      # the live table drifted until GET /api/projects answered a bodyless `error code: 1101` on
+      # 2026-09-15. 0001 is `CREATE TABLE/INDEX IF NOT EXISTS` throughout, so on production it is
+      # a no-op; on a fresh database it creates the table the handler actually reads.
+      # Repo <-> live drift is watched daily by .github/workflows/d1-schema-drift.yml.
       - name: Apply D1 migrations (idempotent)
         id: d1
         continue-on-error: true
         run: |
-          for f in migrations/0002_marketplace.sql migrations/0006_add_subscribers.sql migrations/0008_csp_reports.sql migrations/0009_social_command_center.sql migrations/0010_social_queue_status_enum.sql; do
+          for f in migrations/0001_admin_wallets_and_projects.sql migrations/0002_marketplace.sql migrations/0006_add_subscribers.sql migrations/0008_csp_reports.sql migrations/0009_social_command_center.sql migrations/0010_social_queue_status_enum.sql; do
             echo "==> applying $f"
             wrangler d1 execute supercompute-db --remote --file="$f" --yes
           done
+          wrangler d1 execute supercompute-db --remote --yes \
+            --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('admin_wallets','projects','subscribers','marketplace_listings','csp_reports','social_queue','social_posts') ORDER BY name;"
+          # Column-level readback: /api/projects 500'd because `projects` existed but lacked the
+          # columns the handler selects, so "the table is there" is not the assertion that matters.
+          wrangler d1 execute supercompute-db --remote --yes \
+            --command "SELECT name FROM pragma_table_info('projects') WHERE name IN ('id','name','tagline','description','status','repo','coin','chain','created_at','updated_at') ORDER BY name;"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

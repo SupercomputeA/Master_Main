@@ -75,66 +75,36 @@ async function recordFailedAttempt(env, address) {
   await env.CACHE.put(key, JSON.stringify(data), { expirationTtl: RATE_LIMIT_WINDOW });
 }
 
-// ── ENS Resolution ───────────────────────────────────────────────────────────
-// Node's `crypto.createHash('sha3-256')` is NIST SHA-3, NOT Ethereum's Keccak-256.
-// The previous local implementation produced garbage hashes, breaking the
-// `isAdmin` ENS-name path. viem ships a battle-tested keccak256 implementation.
-import { namehash as viemNamehash } from 'viem/ens';
+// ── ENS resolution is not an authorization input (and is gone from this module) ──
+// SEC-F1c (card t_df9c32a1) removed the exported `resolveENS` this module used to carry. The
+// admin path that imported it (login.js's isAdmin, bridging an address signer to an admin ENS
+// row) is gone too: a name row in `admin_wallets` is documentation, an ADDRESS row is the
+// grant, and no reader resolves ENS on a request path (see isAdmin below).
+//
+// Worth keeping on the record: that resolver was broken from the day it was added (897b0dc,
+// "admin ENS login") — it used `ADDR_SELECTOR` and `ENS_RESOLVER` without ever defining
+// either, so it threw `ReferenceError: ADDR_SELECTOR is not defined` on every call before
+// reaching the network, and login.js's `catch { return false }` turned that into "not an
+// admin". The two constants exist only in the local resolvers that own them
+// (functions/api/ens/[[action]].js, functions/api/web3/[[catchall]].js), which are the places
+// that resolve names on purpose. So the ENS-name bridge was latent, never live: nobody was
+// ever granted admin by owning a name — the grant those owners hold came from the audited
+// `seed-admin.sql` address backfill.
 
-function namehashEncode(name) {
-  return viemNamehash(name).slice(2); // strip 0x
-}
-
-async function resolveENS(addressOrName) {
-  // Already an address
-  if (addressOrName.startsWith('0x') && addressOrName.length === 42) {
-    return addressOrName.toLowerCase();
-  }
-  // ENS name — resolve via public Ethereum RPC (eth_call to ENS resolver),
-  // trying multiple RPCs in order (publicnode blocks Workers egress).
-  const namehash = namehashEncode(addressOrName);
-  const data = '0x' + ADDR_SELECTOR + namehash;
-  const ETH_RPCS = [
-    'https://ethereum-rpc.publicnode.com',
-    'https://ethereum.publicnode.com',
-    'https://cloudflare-eth.com',
-    'https://eth.llamarpc.com',
-    'https://1rpc.io/eth',
-  ];
-  for (const rpc of ETH_RPCS) {
-    try {
-      const res = await fetch(rpc, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'eth_call',
-          params: [{ to: ENS_RESOLVER, data }, 'latest'],
-          id: 1,
-        }),
-      });
-      const json = await res.json();
-      const result = json.result || '0x';
-      if (result !== '0x' && result.length === 66) {
-        return '0x' + result.slice(-40);
-      }
-    } catch (e) { /* try next RPC */ }
-  }
-  return null;
-}
 // ── Auth checks ─────────────────────────────────────────────────────────────
+// The admin principal is an ADDRESS row in `admin_wallets`, and only that.
+// SEC-F1c (card t_df9c32a1): same rule as login.js and the /api/social/* gate, so every
+// reader of `admin_wallets` that authorizes now agrees. This reader used to resolve a name
+// handed in as the wallet and compare byte-exact. The name branch is gone — a name row is
+// documentation, not a grant — and the comparison is `lower(wallet_address) = ?`, so a row
+// stored checksummed (one live prod row is) still matches the lowercase address that every
+// session carries. The whole ENS machinery this module used to carry is gone (above), so
+// restoring a name-grant path takes a deliberate act rather than two missing constants.
+const ADMIN_QUERY = 'SELECT role FROM admin_wallets WHERE lower(wallet_address) = ?';
 async function isAdmin(env, wallet) {
   if (!env?.DB) return false;
   try {
-    // Direct address check
-    let resolved = wallet;
-    if (!wallet.startsWith('0x')) {
-      resolved = await resolveENS(wallet);
-      if (!resolved) return false;
-    }
-    const r = await env.DB.prepare(
-      'SELECT role FROM admin_wallets WHERE wallet_address = ? OR wallet_address = ?'
-    ).bind(wallet.toLowerCase(), resolved.toLowerCase()).first();
+    const r = await env.DB.prepare(ADMIN_QUERY).bind(String(wallet).toLowerCase()).first();
     return r?.role === 'admin';
   } catch { return false; }
 }
@@ -253,4 +223,4 @@ export async function onRequest({ request, env }) {
   });
 }
 
-export { verifySession, isAdmin, generateNonce, json, hexToBytes, isValidAddress, resolveENS };
+export { verifySession, isAdmin, generateNonce, json, hexToBytes, isValidAddress };

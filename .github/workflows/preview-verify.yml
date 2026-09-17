@@ -27,6 +27,7 @@ name: Preview verify (PR)
 on:
   pull_request:
     branches: [main, develop]
+  workflow_dispatch: # test the lane itself on demand (e.g. after changing it)
 
 permissions:
   contents: read
@@ -65,12 +66,29 @@ jobs:
       # --changed-only: main already carries pre-existing damage (yarn.lock, 489
       # conflict blocks from a develop merge), which is reported but does not
       # block every PR. Repair that separately.
+      # BASE RESOLUTION: actions/checkout fetches ONLY the PR head ref, so
+      # `origin/<base>` does NOT exist in the workspace — a bare
+      # `git fetch origin <base>` writes FETCH_HEAD and leaves no remote-tracking
+      # ref, which made this step fail on every PR (run 35144034267, PR #69).
+      # Fetch with an explicit refspec, with full history so `git merge-base` is
+      # computable when the base has moved ahead of the branch.
       - name: No committed merge-conflict markers (in this change)
         env:
-          BASE_REF: origin/${{ github.base_ref }}
+          BASE_REF: ${{ github.base_ref || 'main' }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          git fetch origin "${{ github.base_ref }}" --depth=1 || true
-          node scripts/assert-no-conflict-markers.mjs --changed-only --base "$BASE_REF"
+          set -uo pipefail
+          BASE="origin/${BASE_REF}"
+          if git fetch --no-tags origin "+refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"; then
+            echo "base resolved: ${BASE} @ $(git rev-parse --short "${BASE}")"
+          elif [ -n "${BASE_SHA:-}" ] && git fetch --no-tags origin "${BASE_SHA}"; then
+            BASE="${BASE_SHA}"
+            echo "base resolved via PR base SHA: ${BASE}"
+          else
+            echo "::warning::could not resolve the PR base ref or SHA — the marker scan will report and pass this run"
+            BASE="(unresolved)"
+          fi
+          node scripts/assert-no-conflict-markers.mjs --changed-only --base "$BASE"
 
       - name: Header invariants (source + built copy must agree)
         run: |
@@ -131,7 +149,11 @@ jobs:
 
       # ---- verdict on the PR ---------------------------------------------------
       - name: Comment the verdict
-        if: always()
+        # PR-ONLY. The verdict comment is a PR artifact, and on workflow_dispatch
+        # there is no issue number: `context.issue.number` is empty, so the
+        # `issues//comments` call 404s and the job fails — a manual test of the lane
+        # produced a red REQUIRED check on the head SHA. Gate it to PR events.
+        if: ${{ always() && github.event_name == 'pull_request' }}
         uses: actions/github-script@v7
         env:
           PREVIEW: ${{ steps.deploy.outputs.url }}

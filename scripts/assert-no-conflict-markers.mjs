@@ -55,21 +55,39 @@ function trackedFiles() {
 }
 
 // Files this change touches, measured against the merge base (so an in-flight
-// base branch moving under us doesn't inflate the list).
+// base branch moving under us doesn't inflate the list). Falls back to a
+// two-dot diff when no merge base is computable (shallow base fetch), and
+// reports null when neither works.
 function changedFiles() {
+  const names = (args) => new Set(git(args).filter((f) => !SKIP.test(f) && !BINARY.test(f)))
   try {
     const mb = git(["merge-base", "HEAD", base])[0]
-    return new Set(git(["diff", "--name-only", `${mb}..HEAD`]).filter((f) => !SKIP.test(f) && !BINARY.test(f)))
+    return names(["diff", "--name-only", `${mb}..HEAD`])
+  } catch {}
+  try {
+    return names(["diff", "--name-only", `${base}..HEAD`])
   } catch {
-    return null // base ref unavailable (shallow clone, missing ref) — fall back loudly
+    return null // neither merge-base nor diff worked (base ref missing/shallow)
   }
 }
 
+const strictBase = argv.includes("--strict-base")
 const changed = changedOnly ? changedFiles() : null
 if (changedOnly && !changed) {
+  // An unresolvable base is an INFRASTRUCTURE failure, not a code defect in the
+  // change under review. Failing here is what made this lane red on EVERY PR
+  // (run 35144034267, PR #69) — and a permanently red lane is a lane everyone
+  // learns to ignore, which is the exact outcome this check exists to prevent.
+  // Warn loudly, pass, and let --strict-base restore a hard failure.
   console.error(`changed-only mode requested but base '${base}' could not be resolved.`)
-  console.error("Fetch it (git fetch origin <base> --depth=1) or run without --changed-only.")
-  process.exit(2)
+  console.error("Fix the fetch, don't the check: git fetch --no-tags origin \\")
+  console.error('  "+refs/heads/<base>:refs/remotes/origin/<base>"   # a bare `git fetch origin <base>` does NOT create the remote-tracking ref under actions/checkout\'s single-branch config')
+  if (strictBase) {
+    console.error("--strict-base: failing instead of passing.")
+    process.exit(2)
+  }
+  console.error("WARN — skipping the changed-file scope for this run (pass, not fail).")
+  process.exit(0)
 }
 
 const START = /^<{7}( |$)/

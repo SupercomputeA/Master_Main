@@ -42,6 +42,7 @@ const ADMIN_GROUPS: NavGroup[] = [
       { href: "/admin", label: "Dashboard" },
       { href: "/admin/users", label: "Users" },
       { href: "/admin/content", label: "Content" },
+      { href: "/admin/social", label: "Social Command" },
       { href: "/admin/analytics", label: "Analytics" },
       { href: "/admin/settings", label: "Settings" },
     ],

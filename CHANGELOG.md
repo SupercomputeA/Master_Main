@@ -10,6 +10,17 @@ its own versions over there.
 ## [Unreleased]
 
 ### Fixed
+- Social queue audit trail (SEC-F2, PR #62 review follow-up): `POST /api/social/queue/update`
+  now rejects any `status` outside `draft | scheduled | posted | partial | failed | dry_run`
+  with a `400` + the allowed list instead of writing the value verbatim, and
+  `POST /api/social/publish` refuses (`409`) to re-dispatch an item that already posted unless
+  the caller sends an explicit `force: true` — the same call used to go back out to every
+  platform in the item, i.e. a real double-post the moment Farcaster/Bluesky credentials exist.
+  `migrations/0010_social_queue_status_enum.sql` makes the enum a storage invariant as well
+  (BEFORE INSERT/UPDATE triggers — additive and idempotent, no table rebuild), a dispatch that
+  reached a live platform and failed is now recorded `failed` rather than a flattering
+  `dry_run`, and `posted_at` is never erased by a forced re-dispatch. Both halves are covered
+  by `tests/social/` in CI.
 - CI: production Pages deploys are serialized per branch (`concurrency` on the
   `deploy` job, `cancel-in-progress: false`) and only the current tip of `main` may
   move the production alias. Two merges landing in the same minute used to deploy

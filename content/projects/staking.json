@@ -1,0 +1,28 @@
+{
+  "slug": "staking",
+  "title": "Staking at Supercompute",
+  "tagline": "Ethereum validators that buy the cluster — staking funds DGX compute",
+  "description": "Staking at Supercompute turns validator rewards into owned hardware: genesis is one NVIDIA DGX Spark and one Ethereum validator node, scaling to five DGX Spark units and three validators (32 ETH each, 96 ETH bonded). The launch node is the funding vehicle for the first DGX Spark purchase. Early stage — genesis plan; structure and timeline in progress.",
+  "category": "Infrastructure",
+  "status": "Early Stage",
+  "chain": "Ethereum",
+  "agents": 0,
+  "tokenSymbol": "",
+  "tokenName": "",
+  "tokenAddress": "",
+  "tokenPrice": "",
+  "tvl": "",
+  "goal": 0,
+  "raised": 0,
+  "investors": 0,
+  "progress": 0,
+  "scomRequired": 0,
+  "updates": [
+    {
+      "from": "Admin",
+      "date": "2026-09-09T00:00:00.000Z",
+      "text": "Genesis plan set: 1 DGX Spark + 1 validator node online; target 5x DGX Spark and 3 Ethereum validator nodes (32 ETH each). Launch node funds the first DGX Spark purchase.",
+      "type": "milestone"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "moduleId": "BC-01",
+  "title": "Base Chain Fundamentals",
+  "subtitle": "The L2 Powering Supercompute",
+  "description": "Understand Base \u2014 Coinbase's L2 built on the OP Stack. Learn how it works, why it matters, and how to build on it. Gas fees, bridging, sequencers, and the Base ecosystem.",
+  "difficulty": "Beginner",
+  "access": "free",
+  "duration": "2.5 hours",
+  "credential": "",
+  "icon": "\ud83d\udd35",
+  "color": "#6FA3E5",
+  "done": true,
+  "lessons": [
+    {
+      "id": "BC-01-01",
+      "title": "What is Base?",
+      "description": "Base architecture, the OP Stack, and Coinbase's role as sequencer.",
+      "duration": "20 min",
+      "topics": "Layer 2, OP Stack, Rollups, Coinbase"
+    },
+    {
+      "id": "BC-01-02",
+      "title": "Bridging to Base",
+      "description": "How to move assets from Ethereum to Base \u2014 official bridge vs third-party.",
+      "duration": "25 min",
+      "topics": "Official bridge, Third-party bridges, Bridge risk, Gas costs"
+    },
+    {
+      "id": "BC-01-03",
+      "title": "Gas on Base",
+      "description": "How gas works on L2, why it's cheaper, and optimization techniques.",
+      "duration": "20 min",
+      "topics": "Gas fees, EIP-1559, L1 data costs, Calldata optimization"
+    },
+    {
+      "id": "BC-01-04",
+      "title": "Base Ecosystem",
+      "description": "Key protocols and projects building on Base \u2014 Aerodrome, Uniswap, Compound, and more.",
+      "duration": "30 min",
+      "topics": "Aerodrome, Uniswap V3, Compound, Base ecosystem map"
+    },
+    {
+      "id": "BC-01-05",
+      "title": "Building on Base",
+      "description": "Developer tooling, RPC endpoints, testnets, and deployment patterns for Base.",
+      "duration": "25 min",
+      "topics": "RPC endpoints, Base Sepolia, Hardhat/Foundry, Deployment scripts"
+    },
+    {
+      "id": "BC-01-06",
+      "title": "Base vs Other L2s",
+      "description": "Comparing Base to Arbitrum, Optimism, zkSync \u2014 trade-offs and use cases.",
+      "duration": "20 min",
+      "topics": "Arbitrum, Optimism, zkSync, L2 comparison"
+    }
+  ]
+}

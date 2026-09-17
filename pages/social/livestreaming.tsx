@@ -7,7 +7,7 @@ const streams = [
     date: "2026-05-28",
     time: "14:00 UTC",
     status: "upcoming" as const,
-    desc: "Real-time coverage of the $SCOM token launch on Base. Watch initial liquidity deployment, price discovery, and community reaction.",
+    desc: "Real-time coverage of the $QUANTA token launch on Base. Watch initial liquidity deployment, price discovery, and community reaction.",
   },
   {
     title: "AGENT FLEET DEEP DIVE — Quanta Sovereigna Live",

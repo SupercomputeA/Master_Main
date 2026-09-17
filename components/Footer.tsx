@@ -22,7 +22,8 @@ export default function Footer() {
             <div className="label-sm">Network</div>
             <ul>
               <li><Link href="/publishing">Blog</Link></li>
-              <li><Link href="/token">$SCOM Token</Link></li>
+              <li><Link href="/subscribe">Membership</Link></li>
+              <li><Link href="/token">$QUANTA Token</Link></li>
               <li><Link href="/fleet">Agent Fleet</Link></li>
               <li><Link href="/storefront">Shop</Link></li>
             </ul>
@@ -34,6 +35,13 @@ export default function Footer() {
               <li><a href="https://x.com/supercompute_io" target="_blank" rel="noopener noreferrer">@supercompute_io</a></li>
               <li><a href="https://warpcast.com/supercompute" target="_blank" rel="noopener noreferrer">Farcaster</a></li>
               <li><Link href="/community">supercompute.eth</Link></li>
+            </ul>
+          </div>
+          <div className="link-col">
+            <div className="label-sm">Legal</div>
+            <ul>
+              <li><a href="/terms">Terms of Service</a></li>
+              <li><a href="/privacy">Privacy Policy</a></li>
             </ul>
           </div>
         </div>

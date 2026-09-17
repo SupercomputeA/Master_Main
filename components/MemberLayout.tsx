@@ -24,14 +24,12 @@ const MEMBER_GROUPS: NavGroup[] = [
     items: [
       { href: "/app/school", label: "School" },
       { href: "/app/article/1", label: "Discussions" },
-      { href: "/publishing", label: "Resources" },
     ],
   },
   {
     label: "Portfolio",
     items: [
       { href: "/app/token", label: "Token Tracker" },
-      { href: "/admin/analytics", label: "Analytics" },
       { href: "/app/token", label: "Transactions" },
     ],
   },
@@ -46,13 +44,6 @@ const ADMIN_GROUPS: NavGroup[] = [
       { href: "/admin/content", label: "Content" },
       { href: "/admin/analytics", label: "Analytics" },
       { href: "/admin/settings", label: "Settings" },
-    ],
-  },
-  {
-    label: "Member",
-    items: [
-      { href: "/app", label: "Member Home" },
-      { href: "/app/projects", label: "Projects" },
     ],
   },
 ]

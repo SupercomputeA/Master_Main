@@ -1,12 +1,26 @@
 import type { GetStaticPaths, GetStaticProps } from "next"
+import { promises as fs } from "node:fs"
+import path from "node:path"
 import PublicLayout from "../../components/PublicLayout"
 import Footer from "../../components/Footer"
 import { getAllProjects, getProject, type Project } from "../../lib/content"
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const projects = await getAllProjects()
+  // Dedicated static pages (e.g. pages/projects/solar-punk.tsx, presence.tsx)
+  // shadow the dynamic [id] route for their slug — exclude them so
+  // getStaticPaths returns unique paths per page.
+  let staticSlugs: string[] = []
+  try {
+    const files = await fs.readdir(path.join(process.cwd(), "pages", "projects"))
+    staticSlugs = files
+      .filter((f) => f.endsWith(".tsx") && !f.startsWith("[") && !f.startsWith("_"))
+      .map((f) => f.replace(/\.tsx$/, ""))
+  } catch {
+    staticSlugs = []
+  }
+  const projects = (await getAllProjects()).filter((p) => !staticSlugs.includes(p.slug))
   return {
-    paths: projects.map(p => ({ params: { id: p.slug } })),
+    paths: projects.map((p) => ({ params: { id: p.slug } })),
     fallback: false,
   }
 }
@@ -46,7 +60,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--border)", border: "1px solid var(--border)", marginBottom: 20 }}>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Symbol</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 700, color: "var(--accent)" }}>{project.tokenSymbol}</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 24, fontWeight: 700, color: "var(--accent)" }}>{project.tokenSymbol}</div>
           </div>
           <div style={{ background: "var(--bg)", padding: "20px" }}>
             <div className="label-sm" style={{ marginBottom: 4 }}>// Price</div>

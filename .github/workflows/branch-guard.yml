@@ -1,0 +1,53 @@
+name: branch-guard
+
+# Fleet trunk policy: main/develop are PR-only
+# (supercompute-devops/docs/branch-strategy.md).
+#
+# A merged PR LANDS AS A PUSH to the trunk, so the old "fail closed on any push"
+# guard fired on exactly the event it was meant to permit: every merge to main
+# carried one or two permanently red branch-guard runs and "is main green?" stopped
+# being answerable (t_424dc0c3 / t_f1050fbf). The guard now asks the API whether the
+# pushed commit landed through a merged PR (`.github/scripts/trunk-push-check.sh`);
+# a genuine `git push origin main` from a workstation still fails closed.
+#
+# This file is the ONLY branch-guard in the repo — the duplicate
+# `ci-branch-guard.yml` (byte-identical, hence two red runs per merge) was deleted in
+# the same change. Do not re-add a second copy: two workflows with `name: branch-guard`
+# produce two check runs under one name.
+#
+# The manual negative control ("does this still fail on a genuine direct push?") lives in
+# `branch-guard-probe.yml`, NOT here: a dispatch attaches its check run to the tip of the
+# ref it was dispatched from, so running the control from this workflow left a red check on
+# main's tip and reddened this workflow's badge — the very ambiguity this guard exists to
+# remove. Keep the control separate so this workflow's runs, checks and badge on main
+# reflect real trunk events (PR landings and direct pushes) only.
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check head branch naming
+        if: github.event_name == 'pull_request'
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          echo "$BRANCH" | grep -qE '^(feature|design|project|test|security|hotfix|fix|docs|ci|chore|refactor)/' \
+            || { echo "✗ Branch '$BRANCH' violates fleet naming (see supercompute-devops/docs/branch-strategy.md)"; exit 1; }
+          echo "✓ '$BRANCH' is a valid fleet lane."
+
+      - name: Allow PR landings; fail closed on direct trunk push
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: .github/scripts/trunk-push-check.sh "${GITHUB_SHA}" "${GITHUB_REF_NAME}"

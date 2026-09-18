@@ -22,6 +22,7 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
@@ -207,6 +208,7 @@ jobs:
   # deploys. It also skips the ~4 minute build for runs nobody needs.
   gate:
     needs: validate
+    timeout-minutes: 5
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
     outputs:
@@ -241,6 +243,7 @@ jobs:
 
   deploy:
     needs: [validate, gate]
+    timeout-minutes: 15
     if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/development') && needs.gate.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     # Serialize deploys per branch (t_7998fe88). Two merges to `main` in the same
@@ -338,12 +341,12 @@ jobs:
         id: d1
         continue-on-error: true
         run: |
-          for f in migrations/0001_admin_wallets_and_projects.sql migrations/0002_marketplace.sql migrations/0006_add_subscribers.sql migrations/0008_csp_reports.sql migrations/0009_social_command_center.sql migrations/0010_social_queue_status_enum.sql; do
+          for f in migrations/0001_admin_wallets_and_projects.sql migrations/0002_marketplace.sql migrations/0006_add_subscribers.sql migrations/0007_kg_nodes_and_edges.sql migrations/0008_csp_reports.sql migrations/0009_social_command_center.sql migrations/0010_social_queue_status_enum.sql; do
             echo "==> applying $f"
             wrangler d1 execute supercompute-db --remote --file="$f" --yes
           done
           wrangler d1 execute supercompute-db --remote --yes \
-            --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('admin_wallets','projects','subscribers','marketplace_listings','csp_reports','social_queue','social_posts') ORDER BY name;"
+            --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('admin_wallets','kg_edges','kg_nodes','projects','subscribers','marketplace_listings','csp_reports','social_queue','social_posts') ORDER BY name;"
           # Column-level readback: /api/projects 500'd because `projects` existed but lacked the
           # columns the handler selects, so "the table is there" is not the assertion that matters.
           wrangler d1 execute supercompute-db --remote --yes \
@@ -382,6 +385,7 @@ jobs:
           echo "deploy=true" >> "$GITHUB_OUTPUT"
 
       - name: Deploy to Cloudflare Pages (production)
+        id: deploy-prod
         if: github.ref == 'refs/heads/main' && steps.tip.outputs.deploy == 'true'
         run: |
           # --branch main is explicit: Pages resolves the production alias from the
@@ -390,6 +394,24 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Verify production alias moved
+        if: github.ref == 'refs/heads/main' && steps.deploy-prod.outcome == 'success'
+        run: |
+          set -uo pipefail
+          url="https://supercompute.io"
+          expected="supercompute build ${GITHUB_SHA}"
+          for i in $(seq 1 18); do
+            body=$(curl -fsS -L --max-time 10 "$url" 2>/dev/null || true)
+            if printf '%s' "$body" | grep -q "$expected"; then
+              echo "✓ production alias serves ${GITHUB_SHA}"
+              exit 0
+            fi
+            echo "attempt $i: production alias not yet on ${GITHUB_SHA}, retrying..."
+            sleep 10
+          done
+          echo "::error::production alias did not move to ${GITHUB_SHA} within 3 minutes"
+          exit 1
 
       - name: Deploy to Cloudflare Pages (staging)
         if: github.ref == 'refs/heads/staging'
@@ -435,7 +457,7 @@ jobs:
           D1_APPLY_OUTCOME: ${{ steps.d1.outcome }}
         run: |
           set -uo pipefail
-          expected="csp_reports marketplace_listings social_accounts social_queue subscribers"
+          expected="csp_reports marketplace_listings projects social_accounts social_queue social_posts subscribers"
           failed=0
 
           if [ "${D1_APPLY_OUTCOME:-unknown}" != "success" ]; then

@@ -1,0 +1,1086 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPB Character Style Sheet — SOLAR · Zauri Format</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=EB+Garamond:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── SOLAR tokens (locked 2026-08-01) ── */
+:root {
+  --cast-black: #0B0B0D;
+  --ink: #141317;
+  --gold-24k: #C9A24A;
+  --gold-deep: #8C6A28;
+  --gold-leaf: #E8C97A;
+  --bone: #F1ECDF;
+  --linen: #E7DEC8;
+  --bronze: #7A5A2A;
+  --ash: #3A3A3F;
+  --font-display: "Fraunces", "Times New Roman", serif;
+  --font-body: "Inter", "Helvetica Neue", sans-serif;
+  --font-archive: "EB Garamond", "Times New Roman", serif;
+  --font-label: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 64px;
+  --gold-rule: 1px solid var(--gold-deep);
+  --gold-rule-strong: 2px solid var(--gold-24k);
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--cast-black);
+  color: var(--gold-leaf);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Canvas ── */
+.page {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+}
+
+/* ── Gold Rule ── */
+.gold-rule { background: var(--gold-deep); height: 1px; width: 100%; }
+.gold-rule--strong { background: var(--gold-24k); height: 2px; width: 100%; }
+
+/* ── Header ── */
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-lg);
+  align-items: end;
+  padding-bottom: var(--space-xl);
+}
+.header__left {}
+.header__eyebrow {
+  font-family: var(--font-label);
+  font-size: 0.65rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin-bottom: var(--space-xs);
+}
+.header__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: var(--bone);
+}
+.header__title .title-gold { color: var(--gold-24k); }
+.header__tagline {
+  font-family: var(--font-archive);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--gold-leaf);
+  max-width: 58ch;
+  margin-top: var(--space-sm);
+  opacity: 0.88;
+}
+.header__meta {
+  font-family: var(--font-label);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  text-align: right;
+  line-height: 2;
+}
+.header__meta span { color: var(--gold-24k); }
+
+/* ── Section label ── */
+.section-label {
+  font-family: var(--font-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin-bottom: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gold-deep);
+  opacity: 0.45;
+}
+
+/* ── Bio block ── */
+.bio-block {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--space-lg);
+  border: var(--gold-rule);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+.bio-block__specs {}
+.bio-block__specs h2 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--bone);
+  margin-bottom: var(--space-sm);
+}
+.bio-prose {
+  font-family: var(--font-archive);
+  font-size: 0.95rem;
+  color: var(--gold-leaf);
+  line-height: 1.6;
+  max-width: 62ch;
+}
+.spec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px var(--space-md);
+  margin-top: var(--space-md);
+}
+.spec-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(140,106,40,0.3);
+}
+.spec-row:last-child { border-bottom: none; }
+.spec-key {
+  font-family: var(--font-label);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-24k);
+}
+.spec-val {
+  font-family: var(--font-archive);
+  font-size: 0.88rem;
+  color: var(--bone);
+  line-height: 1.3;
+}
+.spec-val em { color: var(--gold-leaf); font-style: normal; }
+.bio-block__palette {}
+.bio-block__palette h3 {
+  font-family: var(--font-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin-bottom: var(--space-sm);
+}
+.swatch-row { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
+.swatch { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.swatch__chip {
+  width: 52px;
+  height: 52px;
+  border: var(--gold-rule);
+}
+.swatch__name {
+  font-family: var(--font-label);
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bone);
+  opacity: 0.7;
+  text-align: center;
+}
+.swatch__hex {
+  font-family: var(--font-label);
+  font-size: 0.48rem;
+  color: var(--gold-deep);
+}
+.palette-note {
+  font-family: var(--font-archive);
+  font-size: 0.82rem;
+  color: var(--gold-leaf);
+  font-style: italic;
+  margin-top: var(--space-sm);
+  line-height: 1.5;
+}
+
+/* ── Key Features ── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+}
+.feature-card {
+  border: var(--gold-rule);
+  padding: var(--space-sm) var(--space-md);
+}
+.feature-card__name {
+  font-family: var(--font-label);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-24k);
+  margin-bottom: 3px;
+}
+.feature-card__desc {
+  font-family: var(--font-archive);
+  font-size: 0.85rem;
+  color: var(--bone);
+  line-height: 1.4;
+}
+
+/* ── Hero Portrait ── */
+.hero-section { margin-bottom: var(--space-xl); }
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+.hero-card {
+  border: var(--gold-rule);
+  overflow: hidden;
+}
+.hero-card__header {
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--gold-deep);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.hero-card__class {
+  font-family: var(--font-label);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cast-black);
+}
+.hero-card__name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 550;
+  color: var(--cast-black);
+  letter-spacing: -0.01em;
+}
+.hero-frame {
+  width: 100%;
+  aspect-ratio: 608 / 1088;
+  background: var(--ash);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+.hero-card__caption {
+  padding: var(--space-xs) var(--space-sm);
+  font-family: var(--font-archive);
+  font-size: 0.78rem;
+  color: var(--gold-leaf);
+  font-style: italic;
+}
+
+/* ── Turn Arounds ── */
+.turn-section { margin-bottom: var(--space-xl); }
+.turn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr 1px 1fr;
+  gap: 0;
+  align-items: stretch;
+}
+.ta-divider { background: var(--gold-deep); }
+.ta-col { display: flex; flex-direction: column; gap: var(--space-xs); }
+.ta-view { border: var(--gold-rule); overflow: hidden; }
+.ta-view img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  filter: sepia(12%) contrast(1.04);
+}
+.ta-label {
+  font-family: var(--font-label);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  text-align: center;
+  padding: 3px 0;
+}
+.ta-sub {
+  font-family: var(--font-archive);
+  font-size: 0.75rem;
+  color: var(--gold-leaf);
+  font-style: italic;
+  text-align: center;
+}
+
+/* ── Modes ── */
+.modes-section { margin-bottom: var(--space-xl); }
+.modes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+.mode-card { border: var(--gold-rule); overflow: hidden; }
+.mode-card__header {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--gold-deep);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mode-card__name {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 550;
+  color: var(--cast-black);
+  letter-spacing: -0.01em;
+}
+.mode-card__badge {
+  font-family: var(--font-label);
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--cast-black);
+  color: var(--gold-leaf);
+  padding: 2px 6px;
+  border-radius: 1px;
+}
+.mode-card__image {
+  width: 100%;
+  aspect-ratio: 608 / 1088;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  filter: sepia(10%);
+}
+.mode-card__body {
+  padding: var(--space-md);
+  background: var(--ink);
+}
+.mode-card__desc {
+  font-family: var(--font-archive);
+  font-size: 0.9rem;
+  color: var(--bone);
+  line-height: 1.55;
+}
+
+/* ── Life Stages ── */
+.stages-section { margin-bottom: var(--space-xl); }
+.stages-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); }
+.stage-card {}
+.stage-card__image {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  border: var(--gold-rule);
+  filter: sepia(8%);
+}
+.stage-card__label {
+  font-family: var(--font-label);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin-top: var(--space-xs);
+  text-align: center;
+}
+.stage-card__name {
+  font-family: var(--font-archive);
+  font-size: 0.8rem;
+  color: var(--bone);
+  text-align: center;
+  margin-top: 2px;
+}
+.stage-card__desc {
+  font-family: var(--font-archive);
+  font-size: 0.75rem;
+  color: var(--gold-leaf);
+  font-style: italic;
+  text-align: center;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+/* ── Details & Materials ── */
+.details-section { margin-bottom: var(--space-xl); }
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-md);
+}
+.detail-block { border: var(--gold-rule); overflow: hidden; }
+.detail-block__header {
+  padding: var(--space-xs) var(--space-md);
+  background: var(--gold-deep);
+}
+.detail-block__title {
+  font-family: var(--font-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cast-black);
+}
+.detail-block__body { padding: var(--space-sm) var(--space-md); }
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-sm);
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(140,106,40,0.25);
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-row__name {
+  font-family: var(--font-archive);
+  font-size: 0.85rem;
+  color: var(--bone);
+}
+.detail-row__note {
+  font-family: var(--font-label);
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  color: var(--gold-deep);
+  white-space: nowrap;
+}
+
+/* ── Symbolism ── */
+.symbolism-section { margin-bottom: var(--space-xl); }
+.symbolism-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-md);
+}
+.sym-item { display: flex; align-items: center; gap: var(--space-md); }
+.sym-item__icon {
+  width: 40px;
+  height: 40px;
+  border: var(--gold-rule);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--ink);
+}
+.sym-item__glyph {
+  font-size: 1.2rem;
+  color: var(--gold-24k);
+  font-family: serif;
+  line-height: 1;
+}
+.sym-item__text {}
+.sym-item__name {
+  font-family: var(--font-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-24k);
+}
+.sym-item__desc {
+  font-family: var(--font-archive);
+  font-size: 0.78rem;
+  color: var(--bone);
+  opacity: 0.8;
+  margin-top: 2px;
+  line-height: 1.35;
+}
+
+/* ── Closing ── */
+.closing {
+  text-align: center;
+  padding: var(--space-2xl) var(--space-lg);
+  border-top: var(--gold-rule-strong);
+}
+.closing__emblem {
+  width: 56px;
+  height: 56px;
+  border: var(--gold-rule);
+  border-radius: 50%;
+  margin: 0 auto var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+}
+.closing__inner {
+  width: 28px;
+  height: 28px;
+  border: var(--gold-rule);
+  border-radius: 50%;
+}
+.closing__line {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  font-weight: 600;
+  color: var(--gold-leaf);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-sm);
+}
+.closing__sub {
+  font-family: var(--font-archive);
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--gold-deep);
+  letter-spacing: 0.02em;
+}
+.closing__id {
+  margin-top: var(--space-lg);
+  font-family: var(--font-label);
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  opacity: 0.55;
+}
+
+/* ── Assay stamp ── */
+.assay-stamp {
+  position: fixed;
+  bottom: var(--space-md);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-label);
+  font-size: 0.52rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  opacity: 0.45;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ── Footer ── */
+.sheet-footer {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-label);
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-md);
+  border-top: var(--gold-rule);
+  opacity: 0.6;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .header { grid-template-columns: 1fr; }
+  .header__meta { text-align: left; }
+  .bio-block { grid-template-columns: 1fr; }
+  .turn-grid { grid-template-columns: 1fr 1px 1fr; }
+  .ta-divider:nth-child(4) { display: none; }
+  .modes-grid { grid-template-columns: 1fr; }
+  .stages-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .turn-grid { grid-template-columns: 1fr; }
+  .ta-divider { display: none; }
+  .stages-grid { grid-template-columns: repeat(2, 1fr); }
+  .page { padding: var(--space-lg) var(--space-md) var(--space-xl); }
+}
+</style>
+</head>
+<body>
+
+<div class="page" role="article" aria-label="SPB Character Style Sheet, SOLAR · Zauri Format">
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header">
+    <div class="header__left">
+      <div class="header__eyebrow">SolarPunk Black · SOLAR Design System · Zauri Character Sheet</div>
+      <h1 class="header__title">SOLAR<span class="title-gold">·</span>ORONATION</h1>
+      <p class="header__tagline">Space-faring Black people, ceremonial and calm. Gold is the constant; ivory is the second class. Jewelry is the costume.</p>
+    </div>
+    <div class="header__meta">
+      <div>CANON <span>2026-08-04 LOCKED</span></div>
+      <div>FORMAT <span>Zauri · 1240px</span></div>
+      <div>DESIGN SYS <span>user:solar (SOLAR)</span></div>
+      <div>POOL ONLY <span>NO new generation</span></div>
+    </div>
+  </header>
+
+  <div class="gold-rule--strong" style="margin-bottom: var(--space-xl);"></div>
+
+  <!-- ═══ BIO BLOCK ═══ -->
+  <section aria-labelledby="bio-heading">
+    <div class="section-label">§01 · Character Specs</div>
+    <div class="bio-block">
+      <div class="bio-block__specs">
+        <h2 id="bio-heading">Two classes, one people</h2>
+        <p class="bio-prose">
+          ORONATION is the SolarPunk Black character system. It defines a single lineage of
+          space-faring Black people rendered in two class palettes: <em>SOLAR</em> (Black &amp; Gold)
+          and <em>SOLAR·BIANCO</em> (Black &amp; White &amp; Gold). Subjects span the full lifespan —
+          babe, youth, adult, elder — across male, female, and curvy/muscular body types.
+          Garments are tailored and ceremonial, never denim, casual, or streetwear; the
+          accent language is jewelry only. There are no symbols, logos, glyphs, or faction marks
+          anywhere on the figure.
+        </p>
+        <div class="spec-grid">
+          <div class="spec-row">
+            <span class="spec-key">Species</span>
+            <span class="spec-val">Homo sapiens · <em>Lunar-Illumina descendant</em></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Heritage</span>
+            <span class="spec-val">Earth &amp; Space-Born · multi-generational</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Affiliation</span>
+            <span class="spec-val">Quanta Sovereigna · ORONATION Collective</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Role</span>
+            <span class="spec-val">Living archive · Class-bound</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Class A</span>
+            <span class="spec-val">SOLAR — <em>Black &amp; Gold</em></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Class B</span>
+            <span class="spec-val">SOLAR·BIANCO — <em>Black &amp; White &amp; Gold</em></span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Canon frame</span>
+            <span class="spec-val">608 × 1088 portrait</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Age ladder</span>
+            <span class="spec-val"><em>Babe · Youth · Young Adult · Adult · Elder</em></span>
+          </div>
+        </div>
+      </div>
+      <div class="bio-block__palette">
+        <h3 class="bio-block__palette">Skin &amp; Eye Swatches</h3>
+        <div class="swatch-row">
+          <div class="swatch">
+            <div class="swatch__chip" style="background:#1A0F0A;"></div>
+            <span class="swatch__name">Obsidian</span>
+            <span class="swatch__hex">#1A0F0A</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background:#3A2618;"></div>
+            <span class="swatch__name">Walnut</span>
+            <span class="swatch__hex">#3A2618</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background:#5B3A24;"></div>
+            <span class="swatch__name">Amber</span>
+            <span class="swatch__hex">#5B3A24</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background:#7B5236;"></div>
+            <span class="swatch__name">Copper</span>
+            <span class="swatch__hex">#7B5236</span>
+          </div>
+        </div>
+        <div class="swatch-row" style="margin-top:10px;">
+          <div class="swatch">
+            <div class="swatch__chip" style="background:#E8C97A;"></div>
+            <span class="swatch__name">Gold Leaf</span>
+            <span class="swatch__hex">#E8C97A</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background:#1F1410;"></div>
+            <span class="swatch__name">Cast-Black</span>
+            <span class="swatch__hex">#1F1410</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background:#C9A24A;"></div>
+            <span class="swatch__name">Gold 24k</span>
+            <span class="swatch__hex">#C9A24A</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background:#A8D8EA;"></div>
+            <span class="swatch__name">Icy Blue</span>
+            <span class="swatch__hex">#A8D8EA</span>
+          </div>
+        </div>
+        <p class="palette-note">
+          Gold is the constant. The skin tone is a single warm-brown family — never ashy,
+          never gray, never blue. Eyes are the gold spectrum or icy blue; icy blue is
+          permitted only as an iris color.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-rule" style="margin-bottom: var(--space-xl);"></div>
+
+  <!-- ═══ KEY FEATURES ═══ -->
+  <section aria-labelledby="features-heading">
+    <div class="section-label">Key Style Features</div>
+    <h2 id="features-heading" style="font-family:var(--font-display);font-size:1.5rem;font-weight:600;color:var(--bone);margin-bottom:var(--space-sm);letter-spacing:-0.01em;">Sacred iconography vocabulary</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-card__name">Hair</div>
+        <div class="feature-card__desc">White / silver — chosen-lineage trait. Voluminous afro, sculpted locs, or braided styles. The hair is ceremonial regalia.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__name">Eyes</div>
+        <div class="feature-card__desc">Large, expressive, anime-influenced. Gold-leaf or icy blue irises only — no other hues. Direct, calm gaze.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__name">Collar</div>
+        <div class="feature-card__desc">High mandarin collar. Deep V-neck on female figures. Structured shoulder silhouette — never shoulder pads.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__name">Halo</div>
+        <div class="feature-card__desc">Circular gold ring motif behind the head. Byzantine sacred iconography — THE symbol, not a symbol. Rotating radial halo: ancestral family glyph passed to the child.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__name">Jewelry</div>
+        <div class="feature-card__desc">Layered draped gold chains (vestments), large hoop earrings, thin gold circlets, cuffs, torques. The ONLY accent language permitted.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__name">Rendering</div>
+        <div class="feature-card__desc">Semi-realistic digital painting. Anime-influenced face on realistic anatomy. Soft luminous lighting. No cartoon, no streetwear, no armor.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__name">Guild Classes</div>
+        <div class="feature-card__desc">Spacer (space suit) · Earthside (everyday) · Ascendant (full ethereal self) · Space Ship (vessel). Jewelry is the costume across all.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__name">Wrist Tech</div>
+        <div class="feature-card__desc">Wearable wrist tech — technology on the wrist, not armor. Astro-Quantum Compass, star-chart interface. Same jewelry aesthetic raised to instrument-grade.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-rule" style="margin-bottom: var(--space-xl);"></div>
+
+  <!-- ═══ HERO PORTRAITS ═══ -->
+  <section aria-labelledby="hero-heading">
+    <div class="section-label">§03 · Hero Portraits — Group Anchors</div>
+    <h2 id="hero-heading" style="font-family:var(--font-display);font-size:1.5rem;font-weight:600;color:var(--bone);margin-bottom:var(--space-md);letter-spacing:-0.01em;">The two class anchors</h2>
+    <div class="hero-grid">
+      <div class="hero-card">
+        <div class="hero-card__header">
+          <span class="hero-card__class">Class A · SOLAR</span>
+          <span class="hero-card__name">Black &amp; Gold</span>
+        </div>
+        <div class="hero-frame">
+          <img
+            src="msb235rs-HNoAMqAHj3w5ZLVwfx8Vj_j7XArug9opeH3PuFdJ3v1_LcEoLte0.png"
+            alt="Class A (SOLAR — Black &amp; Gold) anchor: multi-generational Black family in tailored ceremonial wear with heavy gold jewelry — the canon Class A reference"
+            loading="eager"
+          >
+        </div>
+        <div class="hero-card__caption">Multi-generational Black &amp; Gold family — Class A anchor · 608×1088</div>
+      </div>
+      <div class="hero-card">
+        <div class="hero-card__header">
+          <span class="hero-card__class">Class B · SOLAR·BIANCO</span>
+          <span class="hero-card__name">Black &amp; White &amp; Gold</span>
+        </div>
+        <div class="hero-frame">
+          <img
+            src="msb235ry-L6SnnIhi2WL_UZ25uFVqi_M5Oy1Jrh.png"
+            alt="Class B (SOLAR·BIANCO — Black &amp; White &amp; Gold) anchor: group of Black people in white draped jackets with heavy gold jewelry — the canon Class B reference"
+            loading="eager"
+          >
+        </div>
+        <div class="hero-card__caption">White-draped ensemble with gold — Class B anchor · 608×1088</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-rule" style="margin-bottom: var(--space-xl);"></div>
+
+  <!-- ═══ TURN-AROUNDS ═══ -->
+  <section aria-labelledby="turn-heading">
+    <div class="section-label">§04 · Full-Body Turn-Around · FRONT · SIDE · BACK</div>
+    <h2 id="turn-heading" style="font-family:var(--font-display);font-size:1.5rem;font-weight:600;color:var(--bone);margin-bottom:var(--space-md);letter-spacing:-0.01em;">Three-quarter stance, all sides</h2>
+    <div class="turn-grid">
+      <div class="ta-col">
+        <div class="ta-view">
+          <img
+            src="msb235rs-HNoAMqAHj3w5ZLVwfx8Vj_j7XArug9opeH3PuFdJ3v1_LcEoLte0.png"
+            alt="SOLAR character front-facing ceremonial portrait — Class A"
+          >
+        </div>
+        <div class="ta-label">Front · Class A</div>
+        <div class="ta-sub">Gold choker · cuffs · hoops · ceremonial robe</div>
+      </div>
+      <div class="ta-divider"></div>
+      <div class="ta-col">
+        <div class="ta-view">
+          <img
+            src="msb235rj-9RJTLy2wec48gQQmAGM-5_L6SnnIhi2WL_UZ25uFVqi_M5Oy1Jrh.png"
+            alt="SOLAR·BIANCO character three-quarter portrait — Class B white mantle and gold filigree"
+          >
+        </div>
+        <div class="ta-label">Three-Quarter · Class B</div>
+        <div class="ta-sub">White mantle · gold + white-metal cuffs</div>
+      </div>
+      <div class="ta-divider"></div>
+      <div class="ta-col">
+        <div class="ta-view">
+          <img
+            src="msb235rs-HNoAMqAHj3w5ZLVwfx8Vj_j7XArug9opeH3PuFdJ3v1_LcEoLte0.png"
+            alt="SOLAR character — same Class A anchor as rear reference"
+          >
+        </div>
+        <div class="ta-label">Back · Class A (same anchor)</div>
+        <div class="ta-sub">Rear presentation · drape line visible</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-rule" style="margin-bottom: var(--space-xl);"></div>
+
+  <!-- ═══ MODES ═══ -->
+  <section aria-labelledby="modes-heading">
+    <div class="section-label">§05 · Modes · Space Bound · Earth Bound</div>
+    <h2 id="modes-heading" style="font-family:var(--font-display);font-size:1.5rem;font-weight:600;color:var(--bone);margin-bottom:var(--space-md);letter-spacing:-0.01em;">Two settings, one character</h2>
+    <div class="modes-grid">
+      <div class="mode-card">
+        <div class="mode-card__header">
+          <span class="mode-card__name">Space Bound</span>
+          <span class="mode-card__badge">Astral · Ascendant</span>
+        </div>
+        <img
+          class="mode-card__image"
+          src="msb235rq-EI5hWo7nyndB7J04bi4Ik_Brt4G1YL.jpg"
+          alt="Space Bound — Kai-Ellion Thomas, Astro Navigator: white ceremonial coat with 24k gold filigree, gold-visored helmet, star-chart cloak — cosmic celestial cartographer"
+        >
+        <div class="mode-card__body">
+          <p class="mode-card__desc">
+            Kai-Ellion Thomas. Astro Navigator of the Ascended — celestial cartographers exploring cosmic consciousness and protecting ancient knowledge. White ceremonial coat filigreed in 24k gold. Open chest plate, mandarin collar, layered gold chain. Gravity Tuner dagger, Astro-Quantum Compass on wrist. The stars do not guide the lost. They remind us who we are.
+          </p>
+        </div>
+      </div>
+      <div class="mode-card">
+        <div class="mode-card__header">
+          <span class="mode-card__name">Earth Bound</span>
+          <span class="mode-card__badge">Terrestrial · Courtly</span>
+        </div>
+        <img
+          class="mode-card__image"
+          src="msb235ry-L6SnnIhi2WL_UZ25uFVqi_M5Oy1Jrh.png"
+          alt="Earth Bound — SOLAR·BIANCO ensemble: white draped jackets and ceremonial robes, heavy gold chains and medallions, calm grounded posture — the Earth-bound register"
+        >
+        <div class="mode-card__body">
+          <p class="mode-card__desc">
+            White draped jackets and robes on a dark cast base. Heavy gold chains, medallions, earrings, headpieces. Calm, ceremonial posture; no symbols or faction language. This is the Earth-bound register — the same lineage at home, adorned in ceremony.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-rule" style="margin-bottom: var(--space-xl);"></div>
+
+  <!-- ═══ LIFE STAGES ═══ -->
+  <section aria-labelledby="stages-heading">
+    <div class="section-label">§06 · Life Stages · Babe · Youth · Adult · Elder</div>
+    <h2 id="stages-heading" style="font-family:var(--font-display);font-size:1.5rem;font-weight:600;color:var(--bone);margin-bottom:var(--space-md);letter-spacing:-0.01em;">The lifecycle is the user journey</h2>
+    <div class="stages-grid">
+      <div class="stage-card">
+        <img
+          class="stage-card__image"
+          src="msb235s1-OtjB9tIX1BWdGy_03TsFY_NaT0cYdh.jpg"
+          alt="Life stage Babe: infant at base of the multi-generational group — rounded, small, single gold band"
+        >
+        <div class="stage-card__label">Stage · BABE</div>
+        <div class="stage-card__name">Mint State</div>
+        <div class="stage-card__desc">Rounded · minimal jewelry · single gold band or chain. Starts class.</div>
+      </div>
+      <div class="stage-card">
+        <img
+          class="stage-card__image"
+          src="msb235s1-OtjB9tIX1BWdGy_03TsFY_NaT0cYdh.jpg"
+          alt="Life stage Youth: child from the Class A group — gold band and small medallion, class progress badge"
+        >
+        <div class="stage-card__label">Stage · YOUTH</div>
+        <div class="stage-card__name">In Class</div>
+        <div class="stage-card__desc">Growing · gold band + small medallion · class progress badge.</div>
+      </div>
+      <div class="stage-card">
+        <img
+          class="stage-card__image"
+          src="msb235rs-HNoAMqAHj3w5ZLVwfx8Vj_j7XArug9opeH3PuFdJ3v1_LcEoLte0.png"
+          alt="Life stage Adult: full ceremonial figure from the Class A group — full jewelry language, complete class"
+        >
+        <div class="stage-card__label">Stage · ADULT</div>
+        <div class="stage-card__name">Class Complete</div>
+        <div class="stage-card__desc">Full jewelry language · curvy women, muscular men · class completion.</div>
+      </div>
+      <div class="stage-card">
+        <img
+          class="stage-card__image"
+          src="msb235s1-OtjB9tIX1BWdGy_03TsFY_NaT0cYdh.jpg"
+          alt="Life stage Elder: the most senior figures of the group — heaviest gold, headpieces, mentor/legacy tier"
+        >
+        <div class="stage-card__label">Stage · ELDER</div>
+        <div class="stage-card__name">Mentor / Legacy</div>
+        <div class="stage-card__desc">Dignified · grey/white hair · heaviest gold, headpieces · mentor.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-rule" style="margin-bottom: var(--space-xl);"></div>
+
+  <!-- ═══ DETAILS & MATERIALS ═══ -->
+  <section aria-labelledby="details-heading">
+    <div class="section-label">§07 · Details &amp; Materials · Fabric · Metal · Jewelry · Tech · Halo</div>
+    <h2 id="details-heading" style="font-family:var(--font-display);font-size:1.5rem;font-weight:600;color:var(--bone);margin-bottom:var(--space-md);letter-spacing:-0.01em;">Costume-as-jewelry</h2>
+    <div class="details-grid">
+      <div class="detail-block">
+        <div class="detail-block__header">
+          <div class="detail-block__title">Fabrics</div>
+        </div>
+        <div class="detail-block__body">
+          <div class="detail-row"><span class="detail-row__name">White Linen / Silk Robes</span><span class="detail-row__note">ceremonial base</span></div>
+          <div class="detail-row"><span class="detail-row__name">Structured Drape</span><span class="detail-row__note">high-collar tunics</span></div>
+          <div class="detail-row"><span class="detail-row__name">Gold-Embroidered Cloak</span><span class="detail-row__note">astrolabe motifs</span></div>
+          <div class="detail-row"><span class="detail-row__name">Long Coat / Overcoat</span><span class="detail-row__note">Space Bound mode</span></div>
+          <div class="detail-row"><span class="detail-row__name">Draped Jacket</span><span class="detail-row__note">Earth Bound mode</span></div>
+        </div>
+      </div>
+      <div class="detail-block">
+        <div class="detail-block__header">
+          <div class="detail-block__title">Metals</div>
+        </div>
+        <div class="detail-block__body">
+          <div class="detail-row"><span class="detail-row__name">24k Gold</span><span class="detail-row__note">chains, circlets, filigree</span></div>
+          <div class="detail-row"><span class="detail-row__name">Antique Gold / Bronze</span><span class="detail-row__note">armor hardware, deep patina</span></div>
+          <div class="detail-row"><span class="detail-row__name">White Metal</span><span class="detail-row__note">Class B accents</span></div>
+          <div class="detail-row"><span class="detail-row__name">Gold-Plate Visors</span><span class="detail-row__note">Space Bound helmet</span></div>
+        </div>
+      </div>
+      <div class="detail-block">
+        <div class="detail-block__header">
+          <div class="detail-block__title">Jewelry</div>
+        </div>
+        <div class="detail-block__body">
+          <div class="detail-row"><span class="detail-row__name">Layered Draped Chain Vestments</span><span class="detail-row__note">religious hierarchy</span></div>
+          <div class="detail-row"><span class="detail-row__name">Large Gold Hoop Earrings</span><span class="detail-row__note">defining accessory</span></div>
+          <div class="detail-row"><span class="detail-row__name">Thin Gold Circlets</span><span class="detail-row__note">never tiara</span></div>
+          <div class="detail-row"><span class="detail-row__name">Arm Cuffs &amp; Bracelets</span><span class="detail-row__note">gold baroque</span></div>
+          <div class="detail-row"><span class="detail-row__name">Pendant Necklaces</span><span class="detail-row__note">celestial motifs</span></div>
+        </div>
+      </div>
+      <div class="detail-block">
+        <div class="detail-block__header">
+          <div class="detail-block__title">Radial Halo · THE Symbol</div>
+        </div>
+        <div class="detail-block__body">
+          <div class="detail-row"><span class="detail-row__name">Gold ring halo</span><span class="detail-row__note">rotating · sacred</span></div>
+          <div class="detail-row"><span class="detail-row__name">Ancestral family glyph</span><span class="detail-row__note">passed to the child</span></div>
+          <div class="detail-row"><span class="detail-row__name">Byzantine iconography</span><span class="detail-row__note">THE symbol only</span></div>
+          <div class="detail-row"><span class="detail-row__name">No crosses / emblems / letters</span><span class="detail-row__note">strict constraint</span></div>
+        </div>
+      </div>
+      <div class="detail-block">
+        <div class="detail-block__header">
+          <div class="detail-block__title">Tech · Wrist-Mounted</div>
+        </div>
+        <div class="detail-block__body">
+          <div class="detail-row"><span class="detail-row__name">Astro-Quantum Compass</span><span class="detail-row__note">rotating ring device</span></div>
+          <div class="detail-row"><span class="detail-row__name">Star-chart Interface</span><span class="detail-row__note">holographic blue display</span></div>
+          <div class="detail-row"><span class="detail-row__name">Gravity Tuner Dagger</span><span class="detail-row__note">ceremonial weapon</span></div>
+          <div class="detail-row"><span class="detail-row__name">Gold-Visored Helmet</span><span class="detail-row__note">astronaut-samurai</span></div>
+        </div>
+      </div>
+      <div class="detail-block">
+        <div class="detail-block__header">
+          <div class="detail-block__title">Guild Classes</div>
+        </div>
+        <div class="detail-block__body">
+          <div class="detail-row"><span class="detail-row__name">Spacer</span><span class="detail-row__note">space suit, EVA</span></div>
+          <div class="detail-row"><span class="detail-row__name">Earthside</span><span class="detail-row__note">everyday ceremonial</span></div>
+          <div class="detail-row"><span class="detail-row__name">Ascendant</span><span class="detail-row__note">full ethereal self</span></div>
+          <div class="detail-row"><span class="detail-row__name">Space Ship</span><span class="detail-row__note">vessel class</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-rule" style="margin-bottom: var(--space-xl);"></div>
+
+  <!-- ═══ SYMBOLISM ═══ -->
+  <section aria-labelledby="symbol-heading">
+    <div class="section-label">§08 · Symbolism · Gold · White · Circle · Line</div>
+    <h2 id="symbol-heading" style="font-family:var(--font-display);font-size:1.5rem;font-weight:600;color:var(--bone);margin-bottom:var(--space-md);letter-spacing:-0.01em;">The language has four marks</h2>
+    <div class="symbolism-grid">
+      <div class="sym-item">
+        <div class="sym-item__icon"><span class="sym-item__glyph">&#9675;</span></div>
+        <div class="sym-item__text">
+          <div class="sym-item__name">Gold</div>
+          <div class="sym-item__desc">Divinity, lineage, wealth — the sole accent permitted. Worn, not painted.</div>
+        </div>
+      </div>
+      <div class="sym-item">
+        <div class="sym-item__icon"><span class="sym-item__glyph">&#9633;</span></div>
+        <div class="sym-item__text">
+          <div class="sym-item__name">White / Ivory</div>
+          <div class="sym-item__desc">Purity, ceremony, chosen-lineage hair. Never blue-white.</div>
+        </div>
+      </div>
+      <div class="sym-item">
+        <div class="sym-item__icon"><span class="sym-item__glyph">&#9711;</span></div>
+        <div class="sym-item__text">
+          <div class="sym-item__name">Circle</div>
+          <div class="sym-item__desc">Halo rings, hoop earrings, circlets — no end, no start. The orb of the wearer.</div>
+        </div>
+      </div>
+      <div class="sym-item">
+        <div class="sym-item__icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="2" y1="11" x2="20" y2="11" stroke="#C9A24A" stroke-width="1.5"/>
+            <circle cx="11" cy="11" r="3" fill="#C9A24A"/>
+          </svg>
+        </div>
+        <div class="sym-item__text">
+          <div class="sym-item__name">Line</div>
+          <div class="sym-item__desc">Gold rule hairline dividers, filigree, chain links. The structural constant.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-rule--strong" style="margin-top: var(--space-xl); margin-bottom: var(--space-xl);"></div>
+
+  <!-- ═══ CLOSING TAGLINE ═══ -->
+  <footer class="closing" aria-label="closing tagline">
+    <div class="closing__emblem">
+      <div class="closing__inner"></div>
+    </div>
+    <div class="closing__line">Adorned — Not Armored</div>
+    <div class="closing__sub">SOLAR — where jewelry is costume, and costume is devotion.</div>
+    <div class="closing__id">SOLAR · ORONATION · SPB Character Style Sheet · ASSAY REF. 001 · 2026-08-04</div>
+  </footer>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="sheet-footer">
+    <span>SPB Character Style Sheet · v1 · 2026-08-04 · Pool-only composition</span>
+    <span>Pool: msb235s1 · msb235rs · msb235rj · msb235ry · msb235rq · spb-style-reference-sacred.png</span>
+    <span>SOLAR · user:solar · Zauri Format</span>
+  </div>
+
+</div><!-- /page -->
+
+<div class="assay-stamp" aria-hidden="true">SOLAR · ASSAY · 2026 · ORONATION · SPB-CHAR-SHEET-001 · NO FAL</div>
+
+</body>
+</html>

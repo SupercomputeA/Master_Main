@@ -175,13 +175,15 @@ test('[real engine] a lowercase admin row keeps working (the seed-admin.sql form
 test('[real engine] MUTATION SELF-CHECK: reverting this route to byte-exact 403s that admin again', async () => {
   // Fails if the mutation stops applying (the SQL text moved and this guard needs updating)
   // and fails if a reverted route is admitted. The mutant is written OUT of tree, with its
-  // two relative imports rewritten to absolute file URLs so it resolves from os.tmpdir().
+  // three relative imports rewritten to absolute file URLs so it resolves from os.tmpdir().
   const src = readFileSync(HANDLER_PATH, 'utf8');
   const authUrl = pathToFileURL(path.join(REPO_ROOT, 'functions/api/auth.js')).href;
   const tiersUrl = pathToFileURL(path.join(REPO_ROOT, 'lib/tiers.js')).href;
+  const corsUrl = pathToFileURL(path.join(REPO_ROOT, 'functions/_shared/cors.js')).href;
   const mutant = src
     .replace("from './auth.js'", `from '${authUrl}'`)
     .replace("from '../../lib/tiers.js'", `from '${tiersUrl}'`)
+    .replace("from '../_shared/cors.js'", `from '${corsUrl}'`)
     .replace(ADMIN_SQL, 'SELECT role FROM admin_wallets WHERE wallet_address = ?');
 
   assert.notEqual(mutant, src, 'the mutation must apply — the handler imports or the admin SQL text changed');

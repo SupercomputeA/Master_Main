@@ -28,7 +28,7 @@ export default function ProjectBrowse({ projects }: { projects: Project[] }) {
         </div>
         {projects.length === 0 ? (
           <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "40px", textAlign: "center", color: "var(--muted)", fontSize: 12 }}>
-            No projects yet. Editors add projects via TinaCMS at /admin.
+            No projects yet. Editors add projects via the local TinaCMS admin (npm run tina:dev).
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 1, background: "var(--border)", border: "1px solid var(--border)" }}>

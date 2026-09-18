@@ -36,6 +36,14 @@
 /app/article/kg/*         /app/article/kg/[id]         200
 /app/publishing/*/edit    /app/publishing/[id]/edit    200
 
+# Legacy TinaCMS admin SPA used to be served from public/admin/index.html and
+# answered /admin/ (trailing slash). That file is gone (t_f0ba29a2) — it was a
+# dead Vite SPA that needed a localhost:4001 dev server and was the sole source
+# of CSP violations in the export. Normalise /admin/ onto the real Next.js admin
+# dashboard at /admin (out/admin.html) instead of letting it fall through to
+# the 404 shell.
+/admin/    /admin    301
+
 # Marketplace listing detail — /project/[id] is a statically exported shell that reads the
 # listing id from the client router and fetches /api/marketplace?id=<id>. Because the site
 # uses `output: "export"`, only the literal /project/[id] asset exists, so a real id

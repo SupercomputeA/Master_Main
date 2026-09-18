@@ -37,6 +37,12 @@ npm-debug.log*
 .next/
 out/
 tsconfig.tsbuildinfo
+
+# TinaCMS admin — LOCAL DEV ONLY (npm run tina:dev). Never commit or deploy:
+# the legacy Vite SPA in public/admin/ was non-functional in production (needs
+# localhost:4001) and was the sole source of CSP violations there. t_f0ba29a2
+public/admin/
+.tina-admin/
 # Environment trigger files
 PRODUCTION.md
 STAGING.md

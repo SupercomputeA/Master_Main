@@ -1,5 +1,7 @@
 # Dependencies
-node_modules/
+# No trailing slash: also matches the node_modules symlink used by
+# per-card git worktrees (which git otherwise offers to commit).
+node_modules
 
 # Cloudflare
 .wrangler/

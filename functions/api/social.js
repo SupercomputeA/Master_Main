@@ -25,19 +25,11 @@
 // handler (same trap as farcaster — see supercompute-site-ops skill).
 
 import { verifySession, isAdmin } from './auth.js';
-
-const ALLOWED_ORIGINS = new Set([
-  'https://supercompute.io',
-  'https://staging.supercompute.io',
-  'http://127.0.0.1:8793',
-  'http://127.0.0.1:8899',
-  'http://localhost:3000',
-  'http://localhost:8899',
-]);
+import { allowOrigin } from '../_shared/cors-origins.js';
 
 function corsHeaders(request) {
   const origin = request?.headers?.get('Origin') || '';
-  const allow = ALLOWED_ORIGINS.has(origin) ? origin : 'https://supercompute.io';
+  const allow = allowOrigin(origin, request.env);
   return {
     'Access-Control-Allow-Origin': allow,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',

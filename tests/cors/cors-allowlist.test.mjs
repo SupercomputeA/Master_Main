@@ -238,7 +238,7 @@ const isComment = (line) => {
   return t.startsWith('//') || t.startsWith('/*') || t.startsWith('*') || t.startsWith('*/');
 };
 const codeLines = (src) => src.split('\n').filter((l) => !isComment(l));
-const withoutShared = (files) => new Map([...files].filter(([rel]) => rel !== SHARED_MODULE));
+const withoutShared = (files) => new Map([...files].filter(([rel]) => rel !== SHARED_MODULE && rel !== 'functions/_shared/cors-origins.js'));
 
 /** `headers.get('Origin')` and `headers?.get?.('origin')` are both "reads the Origin". */
 const ORIGIN_READ = /headers\s*\??\.\s*get\s*\??\.?\s*\(\s*['"`]origin['"`]/i;

@@ -302,7 +302,7 @@ async function pinKubo(dir) {
 async function main() {
   if (!(await pathExists(buildDir))) {
     err(`build directory not found: ${buildDir}`)
-    err(`run \`npm run build\` first, or pass the build dir as the first arg.`)
+    err(`run \`npm run next:build\` first, or pass the build dir as the first arg.`)
     process.exit(2)
   }
   const s = await stat(buildDir)

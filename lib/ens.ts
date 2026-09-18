@@ -20,6 +20,8 @@ import { mainnet } from "wagmi/chains"
 export const SUPERCOMPUTE_WALLET = "0x1a828cd220559479e2f761805da4ee722683323B" as const
 export const SUPERCOMPUTE_ENS = "supercompute.eth" as const
 export const ENS_RESOLVER_ENDPOINT = "/api/ens" as const
+// The canonical ENS RPC implementation lives under /api/web3/*; the /api/ens/*
+// route is a thin shim that proxies to it so both client conventions work.
 export const ENS_CACHE_TTL_SECONDS = 3600 as const
 export const ENS_CACHE_PREFIX = "ens:v1" as const
 

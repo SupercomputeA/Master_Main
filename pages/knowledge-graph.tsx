@@ -15,7 +15,9 @@ interface KGNode {
 
 interface GraphData {
   nodes: KGNode[]
-  edges: [string, string][]
+  edges: KgEdge[]
+  meta?: unknown
+  source?: "d1" | "static"
 }
 
 const GRAPH_CATEGORIES: Record<string, string> = {
@@ -36,8 +38,9 @@ const GRAPHS = [
   { id: "articles", label: "KG Articles", icon: "📄" },
 ]
 
-type KgEdge = [string, string]
-type KgResponse = { graph: GraphData; mcp?: boolean }
+type KgEdge = [string, string, string?]
+type KgGraph = { nodes: KGNode[]; edges: KgEdge[]; meta?: unknown; source?: "d1" | "static" }
+type KgResponse = { graph: KgGraph; mcp?: boolean; source?: "d1" | "static" }
 
 type PhysicsSettings = {
   repulsion: number      // charge force: 2000 / dist^2
@@ -55,6 +58,14 @@ export default function KnowledgeGraphPage() {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null)
   const [selectedNode, setSelectedNode] = useState<KGNode | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  // Server-side search hits from D1 / static fallback. When present they
+  // override the client-side filter so search returns real DB entities.
+  const [serverHits, setServerHits] = useState<KGNode[] | null>(null)
+  const [searchSource, setSearchSource] = useState<"d1" | "static" | null>(null)
+  // Where the active graph payload came from ("d1" | "static"); displayed
+  // in the stats footer so operators can see whether D1 is wired without
+  // opening devtools.
+  const [graphSource, setGraphSource] = useState<"d1" | "static" | null>(null)
   const [physics, setPhysics] = useState<PhysicsSettings>({
     repulsion: 2000,
     linkStrength: 0.008,
@@ -74,12 +85,16 @@ export default function KnowledgeGraphPage() {
     setLoading(true)
     setError(null)
     setSelectedNode(null)
+    setServerHits(null)
+    setSearchSource(null)
+    setGraphSource(null)
     fetch(`/api/kg/graph?graph=${graphId}`)
       .then(r => r.json() as Promise<KgResponse>)
       .then(d => {
         // Ignore stale responses: a later graph switch may have superseded this fetch.
         if (requestedGraphRef.current !== graphId) return
-        setGraphData((d as { graph: GraphData }).graph)
+        setGraphData(d.graph)
+        setGraphSource(d.source || null)
         positionsRef.current = new Map()
         setLoading(false)
       })
@@ -105,8 +120,34 @@ export default function KnowledgeGraphPage() {
     }
   }, [router.isReady, router.query.graph, router.query.mode, router.query.timeline])
 
+  // Debounced server-side search. Hits /api/kg/search (D1, with static
+  // fallback) so the entity count and labels come from real data.
+  useEffect(() => {
+    const q = searchQuery.trim()
+    if (!q) {
+      setServerHits(null)
+      setSearchSource(null)
+      return
+    }
+    const handle = setTimeout(() => {
+      const ctrl = new AbortController()
+      fetch(`/api/kg/search?graph=${graphId}&q=${encodeURIComponent(q)}`, { signal: ctrl.signal })
+        .then(r => r.json() as Promise<{ results?: KGNode[]; source?: "d1" | "static" }>)
+        .then(d => {
+          setServerHits(d.results || [])
+          setSearchSource(d.source || null)
+        })
+        .catch(() => { /* swallow — keep client filter as fallback */ })
+    }, 200)
+    return () => clearTimeout(handle)
+  }, [graphId, searchQuery])
+
   const filteredNodes = useMemo(() => {
     if (!graphData) return []
+    // Prefer server results when present — these are the D1 / static
+    // truth. The client filter remains for instant keystroke feedback
+    // before the debounce fires.
+    if (serverHits) return serverHits
     if (!searchQuery.trim()) return graphData.nodes
     const q = searchQuery.toLowerCase()
     return graphData.nodes.filter(n =>
@@ -114,7 +155,7 @@ export default function KnowledgeGraphPage() {
       n.type?.toLowerCase().includes(q) ||
       (n.description || "").toLowerCase().includes(q)
     )
-  }, [graphData, searchQuery])
+  }, [graphData, searchQuery, serverHits])
 
   // Story Timeline: temporal nodes (milestones/dates/events/incidents) sorted chronologically.
   const temporalNodes = useMemo(() => {
@@ -470,7 +511,7 @@ export default function KnowledgeGraphPage() {
         {/* Search */}
         <input
           type="text"
-          placeholder="// search nodes..."
+          placeholder="// search nodes (server-side, D1)..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           style={{
@@ -479,6 +520,11 @@ export default function KnowledgeGraphPage() {
             padding: "10px 14px", outline: "none", width: "100%", boxSizing: "border-box",
           }}
         />
+        {searchSource && (
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--mono-blue)", marginTop: -16, marginBottom: 12 }}>
+            // search source: {searchSource === "d1" ? "D1" : "static fallback"} · {filteredNodes.length} hits
+          </div>
+        )}
 
         {/* Mode switcher + physics tuning */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -724,6 +770,11 @@ export default function KnowledgeGraphPage() {
             <span>{graphData.nodes.length} entities</span>
             <span>{graphData.edges.length} relationships</span>
             <span>{new Set(graphData.nodes.map(n => n.type)).size} types</span>
+            {graphSource && (
+              <span style={{ color: "var(--gold-warm)" }}>
+                // source: {graphSource === "d1" ? "D1" : "static fallback"}
+              </span>
+            )}
           </div>
         )}
 

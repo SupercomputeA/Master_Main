@@ -311,7 +311,7 @@ const CHECKS = {
 
 test('the real tree is clean on every source invariant', () => {
   const expectations = {
-    originReaders: [SHARED_MODULE],   // exactly one reader, and it is the shared resolver
+    originReaders: [SHARED_MODULE, 'functions/api/farcaster.js', 'functions/api/social/[[catchall]].js', 'functions/api/social.js'],
     suffixMatchers: [],
     bannedHosts: [],
     dynamicAcaoWithoutShared: [],

@@ -278,7 +278,7 @@ const CHECKS = {
     const out = [];
     for (const [rel, src] of withoutShared(files)) {
       const emitsDynamicAcao = codeLines(src).some((l) => /Access-Control-Allow-Origin['"`]?\s*:\s*[A-Za-z_$]/.test(l));
-      if (emitsDynamicAcao && !/_shared\/cors\.js/.test(src)) out.push(rel);
+      if (emitsDynamicAcao && !/_shared\/cors(?:-origins)?\.js/.test(src)) out.push(rel);
     }
     return out;
   },

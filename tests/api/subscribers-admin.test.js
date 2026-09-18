@@ -34,7 +34,7 @@
 
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { readFileSync, writeFileSync, unlinkSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, unlinkSync, readdirSync, statSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -282,10 +282,10 @@ test('the legacy standalone worker (src/worker.js + src/api/auth.js) is on NO de
   assert.match(wrangler, /pages_build_output_dir\s*=\s*"out"/, 'this project is a Pages project');
   assert.ok(!/^\s*main\s*=/m.test(wrangler), 'no `main` in wrangler.toml — nothing bundles src/worker.js into a deploy');
 
-  // First-party confirmation of the same claim: live /api/auth answers with the Pages
-  // Function's endpoint list, not the legacy worker's. Recorded, not asserted (no network
-  // in this suite): functions/api/auth.js:218 says 'POST /api/auth/login': 'Sign in with
-  // wallet'; src/api/auth.js:342 says 'Verify signature, get session token'.
-  const legacy = readFileSync(path.join(REPO_ROOT, 'src/api/auth.js'), 'utf8');
-  assert.match(legacy, /Verify signature, get session token/, 'the legacy copy still carries its own endpoint string');
+  // First-party confirmation of the same claim: the legacy standalone worker tree
+  // (src/worker.js + src/api/auth.js + src/api/* + src/utils/*) was deleted by PR #106
+  // (SEC-F1d, commit 2cfa718). The deletion was the executable proof of what these
+  // workflows already claimed — the tree was on no deploy path — and is itself recorded
+  // by the tripwire in tests/api/legacy-worker-tree.test.mjs.
+  assert.ok(!existsSync(path.join(REPO_ROOT, 'src/api/auth.js')), 'src/api/auth.js was deleted — the legacy standalone worker tree is gone');
 });

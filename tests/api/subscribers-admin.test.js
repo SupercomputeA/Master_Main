@@ -34,7 +34,7 @@
 
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { readFileSync, writeFileSync, unlinkSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, unlinkSync, readdirSync, statSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -175,13 +175,15 @@ test('[real engine] a lowercase admin row keeps working (the seed-admin.sql form
 test('[real engine] MUTATION SELF-CHECK: reverting this route to byte-exact 403s that admin again', async () => {
   // Fails if the mutation stops applying (the SQL text moved and this guard needs updating)
   // and fails if a reverted route is admitted. The mutant is written OUT of tree, with its
-  // two relative imports rewritten to absolute file URLs so it resolves from os.tmpdir().
+  // three relative imports rewritten to absolute file URLs so it resolves from os.tmpdir().
   const src = readFileSync(HANDLER_PATH, 'utf8');
   const authUrl = pathToFileURL(path.join(REPO_ROOT, 'functions/api/auth.js')).href;
   const tiersUrl = pathToFileURL(path.join(REPO_ROOT, 'lib/tiers.js')).href;
+  const corsUrl = pathToFileURL(path.join(REPO_ROOT, 'functions/_shared/cors.js')).href;
   const mutant = src
     .replace("from './auth.js'", `from '${authUrl}'`)
     .replace("from '../../lib/tiers.js'", `from '${tiersUrl}'`)
+    .replace("from '../_shared/cors.js'", `from '${corsUrl}'`)
     .replace(ADMIN_SQL, 'SELECT role FROM admin_wallets WHERE wallet_address = ?');
 
   assert.notEqual(mutant, src, 'the mutation must apply — the handler imports or the admin SQL text changed');
@@ -280,10 +282,10 @@ test('the legacy standalone worker (src/worker.js + src/api/auth.js) is on NO de
   assert.match(wrangler, /pages_build_output_dir\s*=\s*"out"/, 'this project is a Pages project');
   assert.ok(!/^\s*main\s*=/m.test(wrangler), 'no `main` in wrangler.toml — nothing bundles src/worker.js into a deploy');
 
-  // First-party confirmation of the same claim: live /api/auth answers with the Pages
-  // Function's endpoint list, not the legacy worker's. Recorded, not asserted (no network
-  // in this suite): functions/api/auth.js:218 says 'POST /api/auth/login': 'Sign in with
-  // wallet'; src/api/auth.js:342 says 'Verify signature, get session token'.
-  const legacy = readFileSync(path.join(REPO_ROOT, 'src/api/auth.js'), 'utf8');
-  assert.match(legacy, /Verify signature, get session token/, 'the legacy copy still carries its own endpoint string');
+  // First-party confirmation of the same claim: the legacy standalone worker tree
+  // (src/worker.js + src/api/auth.js + src/api/* + src/utils/*) was deleted by PR #106
+  // (SEC-F1d, commit 2cfa718). The deletion was the executable proof of what these
+  // workflows already claimed — the tree was on no deploy path — and is itself recorded
+  // by the tripwire in tests/api/legacy-worker-tree.test.mjs.
+  assert.ok(!existsSync(path.join(REPO_ROOT, 'src/api/auth.js')), 'src/api/auth.js was deleted — the legacy standalone worker tree is gone');
 });

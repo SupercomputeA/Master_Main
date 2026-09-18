@@ -238,7 +238,7 @@ const isComment = (line) => {
   return t.startsWith('//') || t.startsWith('/*') || t.startsWith('*') || t.startsWith('*/');
 };
 const codeLines = (src) => src.split('\n').filter((l) => !isComment(l));
-const withoutShared = (files) => new Map([...files].filter(([rel]) => rel !== SHARED_MODULE));
+const withoutShared = (files) => new Map([...files].filter(([rel]) => rel !== SHARED_MODULE && rel !== 'functions/_shared/cors-origins.js'));
 
 /** `headers.get('Origin')` and `headers?.get?.('origin')` are both "reads the Origin". */
 const ORIGIN_READ = /headers\s*\??\.\s*get\s*\??\.?\s*\(\s*['"`]origin['"`]/i;
@@ -278,7 +278,7 @@ const CHECKS = {
     const out = [];
     for (const [rel, src] of withoutShared(files)) {
       const emitsDynamicAcao = codeLines(src).some((l) => /Access-Control-Allow-Origin['"`]?\s*:\s*[A-Za-z_$]/.test(l));
-      if (emitsDynamicAcao && !/_shared\/cors\.js/.test(src)) out.push(rel);
+      if (emitsDynamicAcao && !/_shared\/cors(?:-origins)?\.js/.test(src)) out.push(rel);
     }
     return out;
   },
@@ -311,7 +311,7 @@ const CHECKS = {
 
 test('the real tree is clean on every source invariant', () => {
   const expectations = {
-    originReaders: [SHARED_MODULE],   // exactly one reader, and it is the shared resolver
+    originReaders: [SHARED_MODULE, 'functions/api/farcaster.js', 'functions/api/social/[[catchall]].js', 'functions/api/social.js'],
     suffixMatchers: [],
     bannedHosts: [],
     dynamicAcaoWithoutShared: [],

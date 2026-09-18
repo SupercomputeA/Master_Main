@@ -797,7 +797,8 @@ test('[real engine] SEC-F1c MUTATION SELF-CHECK: restore the bridge (and the con
   assert.ok(!shippedRegion.includes('ADMIN_ENS_NAMES'), 'the shipped block must not carry the bridge');
 
   const mutantSrc = `${LOGIN_SRC.slice(0, start)}${WORKING_BRIDGE_BLOCK}${LOGIN_SRC.slice(end)}`
-    .replace("from '../auth.js'", `from '${pathToFileURL(AUTH_PATH).href}'`);
+    .replace("from '../auth.js'", `from '${pathToFileURL(AUTH_PATH).href}'`)
+    .replace("from '../../_shared/cors.js'", `from '${pathToFileURL(path.resolve(REPO_ROOT, 'functions/_shared/cors.js')).href}'`);
   assert.notEqual(mutantSrc, LOGIN_SRC, 'the mutation must apply — the source moved, so update this guard');
 
   // The mutant has to live INSIDE the tree (a gitignored scratch dir): login.js imports

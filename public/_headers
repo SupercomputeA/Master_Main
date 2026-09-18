@@ -57,6 +57,25 @@
 #     preview origin; only modern-Chrome (report-to) reports go to prod.
 #   - The collector is same-origin and adds NO new browser-side origin, so
 #     connect-src is unchanged by this addition.
+#
+# HSTS + expanded Permissions-Policy (F6 salvage from PR #70, recovered 2026-09-18):
+#   HSTS: 1 year, includeSubDomains, NO preload (preload is a separate, deliberate
+#   commitment). includeSubDomains was checked against every name resolving under
+#   the zone: only supercompute.io / www / staging serve content; the rest are 522
+#   (no origin behind them) or 404, identical over https. Any FUTURE subdomain
+#   answering only plain HTTP will hard-fail in browsers that have seen this
+#   header. Rollback is a one-line removal here plus Clear-HSTS in the CF
+#   dashboard — never a preload.
+#   Permissions-Policy payment=(), usb=(): verified unused before extending —
+#   0 hits for PaymentRequest | canMakePayment | navigator.usb across the built
+#   export and across lib/ components/ pages/ functions/. The fiat ramp
+#   (components/FiatRamp.tsx) is a top-level window.open() — a separate document
+#   this policy does not cover. A WebUSB hardware wallet would need usb=(self).
+#
+#   DROPPED FROM #70: it also carried `Cross-Origin-Opener-Policy: same-origin`.
+#   That is deliberately NOT taken — main's `same-origin-allow-popups` (PR #94) is
+#   newer and fixes popup wallet flows losing window.opener. Keeping #70's value
+#   would have silently broken wallet connect.
 
 /*
   Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://fonts.gstatic.com https://mainnet.base.org https://eth.drpc.org https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests; report-uri /api/csp-report; report-to csp
@@ -66,7 +85,8 @@
   X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin
   Cross-Origin-Opener-Policy: same-origin-allow-popups
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
 
 # Immutable hashed build assets
 /_next/static/*

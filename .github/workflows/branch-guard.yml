@@ -42,7 +42,7 @@ jobs:
         env:
           BRANCH: ${{ github.head_ref }}
         run: |
-          echo "$BRANCH" | grep -qE '^(feature|design|project|test|security|hotfix|fix|docs|ci|chore|refactor)/' \
+          echo "$BRANCH" | grep -qE '^(feature|feat|design|project|test|security|hotfix|fix|docs|ci|chore|refactor)/' \
             || { echo "✗ Branch '$BRANCH' violates fleet naming (see supercompute-devops/docs/branch-strategy.md)"; exit 1; }
           echo "✓ '$BRANCH' is a valid fleet lane."
 

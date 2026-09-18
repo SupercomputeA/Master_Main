@@ -16,6 +16,7 @@
 //   - Do NOT write a securities disclaimer here. That's counsel's job.
 
 import { json, verifySession } from '../auth.js';
+import { corsHeadersFor } from '../../_shared/cors.js';
 
 // Tunables — keep these in this file rather than env so the limits are
 // obvious to anyone reading the code.
@@ -48,27 +49,11 @@ function trim(value, max) {
   return t.slice(0, max);
 }
 
-function corsHeaders(reqOrigin) {
-  let allowedOrigin = 'https://supercompute.io';
-  if (reqOrigin) {
-    try {
-      const host = new URL(reqOrigin).hostname;
-      const allowed =
-        host === 'supercompute.io' ||
-        host === 'supercompute.pages.dev' ||
-        host === 'localhost' ||
-        host === '127.0.0.1' ||
-        host.endsWith('.pages.dev') ||
-        host.endsWith('.cloudflarestaging.com') ||
-        host.endsWith('.ngrok-free.app');
-      if (allowed) allowedOrigin = reqOrigin;
-    } catch {}
-  }
-  return {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
+// Exact-origin allowlist — functions/_shared/cors.js (SEC-F4), sourced from
+// env.CORS_ORIGIN. No *.pages.dev / *.ngrok-free.app / localhost echo, and the
+// shared helper adds Vary: Origin.
+function corsHeaders(request, env) {
+  return corsHeadersFor(request, env, { methods: 'POST, OPTIONS', headers: 'Content-Type, Authorization' });
 }
 
 // Lightweight email regex — full RFC validation belongs upstream. This is
@@ -94,7 +79,7 @@ async function fireZapier(webhookUrl, payload) {
 }
 
 export async function onRequest({ request, env }) {
-  const cors = corsHeaders(request.headers.get('Origin'));
+  const cors = corsHeaders(request, env);
   const respond = (data, status = 200) =>
     new Response(JSON.stringify(data), {
       status,

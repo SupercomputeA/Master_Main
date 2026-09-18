@@ -21,6 +21,8 @@
 //   ens:v1:reverse:<lowercase-address>
 //   ens:v1:avatar:<lowercase-q>
 
+import { corsHeadersFor } from "../../_shared/cors.js"
+
 const DEFAULT_RPC = "https://ethereum-rpc.publicnode.com"
 const CACHE_TTL = 3600 // 1 hour — ENS state can change; never cache longer
 
@@ -253,28 +255,12 @@ async function resolveAvatar(q, env) {
 
 // ── CORS ───────────────────────────────────────────────────────────────────
 
-function corsHeaders(reqOrigin) {
-  let allowedOrigin = "https://supercompute.io"
-  if (reqOrigin) {
-    try {
-      const host = new URL(reqOrigin).hostname
-      const allowed =
-        host === "supercompute.io" ||
-        host === "supercompute.pages.dev" ||
-        host === "localhost" ||
-        host === "127.0.0.1" ||
-        host.endsWith(".pages.dev") ||
-        host.endsWith(".cloudflarestaging.com") ||
-        host.endsWith(".ngrok-free.app")
-      if (allowed) allowedOrigin = reqOrigin
-    } catch {}
-  }
+// Exact-origin allowlist — see functions/_shared/cors.js (SEC-F4). The shared
+// helper emits ACAO + Vary: Origin; Cache-Control is this route's own.
+function corsHeaders(request, env) {
   return {
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    ...corsHeadersFor(request, env, { methods: "GET, POST, OPTIONS" }),
     "Cache-Control": "public, max-age=60, s-maxage=300",
-    "Vary": "Origin",
   }
 }
 
@@ -284,7 +270,7 @@ export async function onRequest({ request, env }) {
   const url = new URL(request.url)
   const path = url.pathname.replace("/api/ens", "").replace(/^\/+|\/+$/g, "") || ""
   const method = request.method
-  const cors = corsHeaders(request.headers.get("Origin"))
+  const cors = corsHeaders(request, env)
 
   if (method === "OPTIONS") {
     return new Response(null, { status: 204, headers: cors })

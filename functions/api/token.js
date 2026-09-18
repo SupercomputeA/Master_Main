@@ -7,6 +7,8 @@
 // from the CF edge are listed first. See references/browser-rpc-csp-origins.md
 // for the measured host-behaviour matrix.
 
+import { corsOrigin } from '../_shared/cors.js'
+
 const RPC_ENDPOINTS = [
   "https://mainnet.base.org",
   "https://1rpc.io/base",
@@ -122,16 +124,9 @@ function formatUnits(value, decimals) {
 
 export async function onRequest({ request, env }) {
   const url = new URL(request.url)
-  const reqOrigin = request.headers.get("Origin") || ""
-  let allowedOrigin = "https://supercompute.io"
-  if (reqOrigin) {
-    try {
-      const host = new URL(reqOrigin).hostname
-      if (host === "supercompute.io" || host.endsWith(".pages.dev") || host === "localhost" || host === "127.0.0.1") {
-        allowedOrigin = reqOrigin
-      }
-    } catch {}
-  }
+  // Exact-origin allowlist — functions/_shared/cors.js, sourced from env.CORS_ORIGIN
+  // (SEC-F4). No TLD suffix and no localhost: those hosts are attacker-registrable.
+  const allowedOrigin = corsOrigin(request, env)
 
   if (request.method === "OPTIONS") {
     return new Response(null, {
@@ -139,6 +134,7 @@ export async function onRequest({ request, env }) {
         "Access-Control-Allow-Origin": allowedOrigin,
         "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
+        "Vary": "Origin",
       },
     })
   }
@@ -149,6 +145,7 @@ export async function onRequest({ request, env }) {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": allowedOrigin,
       "Cache-Control": "public, max-age=30",
+      "Vary": "Origin",
     },
   })
 

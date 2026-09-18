@@ -90,6 +90,7 @@ async function recordFailedAttempt(env, address) {
 // that resolve names on purpose. So the ENS-name bridge was latent, never live: nobody was
 // ever granted admin by owning a name — the grant those owners hold came from the audited
 // `seed-admin.sql` address backfill.
+import { corsOrigin, FALLBACK_ORIGIN } from '../_shared/cors.js';
 
 // ── Auth checks ─────────────────────────────────────────────────────────────
 // The admin principal is an ADDRESS row in `admin_wallets`, and only that.
@@ -123,10 +124,17 @@ async function verifySession(env, authHeader) {
   } catch { return { valid: false, wallet: null }; }
 }
 
-function json(data, status = 200, origin = 'https://supercompute.io') {
+function json(data, status = 200, origin = FALLBACK_ORIGIN) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': origin },
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': origin,
+      // Vary: Origin is required on every response that can carry an ACAO
+      // derived from the request, or a shared cache can pin one origin's
+      // response and serve it to another (SEC-F4).
+      'Vary': 'Origin',
+    },
   });
 }
 
@@ -135,28 +143,18 @@ export async function onRequest({ request, env }) {
   const url = new URL(request.url);
   const path = url.pathname.replace('/api/auth', '') || '/';
   const method = request.method;
-  const reqOrigin = request.headers.get('Origin') || '';
-  let allowedOrigin = 'https://supercompute.io';
-  if (reqOrigin) {
-    try {
-      const u = new URL(reqOrigin);
-      const host = u.hostname;
-      const devHost = host === 'localhost' || host === '127.0.0.1';
-      // Only exact owned HTTPS origins are reflected; no wildcard *.pages.dev
-      // (would reflect attacker.pages.dev). Preview branches are
-      // <branch>.supercompute.pages.dev, covered by the owned suffix below.
-      const httpsOk = u.protocol === 'https:' && (u.port === '' || u.port === '443');
-      const allowed =
-        (httpsOk && (host === 'supercompute.io' || host === 'staging.supercompute.io' || host === 'supercompute.pages.dev' || host.endsWith('.supercompute.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app'))) ||
-        devHost; // local dev servers run over http on arbitrary ports
-      if (allowed) allowedOrigin = reqOrigin;
-    } catch {}
-  }
+  // Exact-origin allowlist — the list lives in functions/_shared/cors.js and comes
+  // from env.CORS_ORIGIN. Nothing from the request is reflected unless it is
+  // literally on that list: no *.pages.dev / *.ngrok-free.app / *.cloudflarestaging.com
+  // suffix and no localhost, because anyone can register those hosts (SEC-F4, card
+  // t_492fdb5b). A preview deploy is same-origin, so it needs no allowlist entry.
+  const allowedOrigin = corsOrigin(request, env);
 
   const cors = {
     'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin',
   };
 
   if (method === 'OPTIONS') return new Response(null, { headers: cors });

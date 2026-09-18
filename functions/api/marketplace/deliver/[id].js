@@ -3,30 +3,13 @@
 // Only the buyer (the wallet in the listing's sold_to column) can fetch the
 // deliverable. Returns either a signed R2 URL or a memo of the on-chain tx hash.
 
-const CORS_ALLOW = [
-  'supercompute.io',
-  'supercompute.pages.dev',
-  'localhost',
-  '127.0.0.1',
-]
+import { corsOrigin, corsHeaders as corsHeadersShared } from '../../../_shared/cors.js'
 
-function corsHeaders(origin) {
-  let allowedOrigin = 'https://supercompute.io'
-  try {
-    const host = new URL(origin).hostname
-    const ok =
-      CORS_ALLOW.includes(host) ||
-      host.endsWith('.pages.dev') ||
-      host.endsWith('.cloudflarestaging.com') ||
-      host.endsWith('.ngrok-free.app')
-    if (ok) allowedOrigin = origin
-  } catch {}
-  return {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  }
-}
+// CORS: exact-origin allowlist only. The list and the resolver live in
+// functions/_shared/cors.js (SEC-F4) — `origin` here is already resolved by
+// corsOrigin(), so this cannot echo a host that is not on env.CORS_ORIGIN.
+
+const corsHeaders = (origin) => corsHeadersShared(origin, { methods: 'GET, OPTIONS', headers: 'Content-Type, Authorization' })
 
 const j = (data, status, origin) =>
   new Response(JSON.stringify(data), {
@@ -69,7 +52,7 @@ async function presignR2(env, key) {
 // request, so this route answered Cloudflare error 1101 (500) for all callers,
 // including the buyer's post-purchase receipt fetch.
 export async function onRequest({ params, request, env }) {
-  const origin = request.headers.get('Origin') || ''
+  const origin = corsOrigin(request, env)
   if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders(origin) })
   if (request.method !== 'GET') return j({ error: 'GET required' }, 405, origin)
 

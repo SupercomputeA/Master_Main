@@ -9,6 +9,8 @@
 // rows in our own D1, or `null` when the source was unavailable. We do NOT
 // invent metrics.
 
+import { corsHeadersFor } from '../../_shared/cors.js';
+
 const ROBINHOOD_PUBLIC_RPC = 'https://rpc.mainnet.chain.robinhood.com';
 const ROBINHOOD_CHAIN_ID = 4663;
 const SUPERCOMPUTE_ETH = '0x1a828cd220559479e2f761805da4ee722683323B';
@@ -99,31 +101,15 @@ async function readD1Counts(env) {
   return out;
 }
 
-function corsHeaders(reqOrigin) {
-  let allowedOrigin = 'https://supercompute.io';
-  if (reqOrigin) {
-    try {
-      const host = new URL(reqOrigin).hostname;
-      const allowed =
-        host === 'supercompute.io' ||
-        host === 'supercompute.pages.dev' ||
-        host === 'localhost' ||
-        host === '127.0.0.1' ||
-        host.endsWith('.pages.dev') ||
-        host.endsWith('.cloudflarestaging.com') ||
-        host.endsWith('.ngrok-free.app');
-      if (allowed) allowedOrigin = reqOrigin;
-    } catch {}
-  }
-  return {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
+// Exact-origin allowlist — functions/_shared/cors.js (SEC-F4), sourced from
+// env.CORS_ORIGIN. No *.pages.dev / *.ngrok-free.app / localhost echo, and the
+// shared helper adds Vary: Origin.
+function corsHeaders(request, env) {
+  return corsHeadersFor(request, env, { methods: 'GET, OPTIONS', headers: 'Content-Type' });
 }
 
 export async function onRequest({ request, env }) {
-  const cors = corsHeaders(request.headers.get('Origin'));
+  const cors = corsHeaders(request, env);
   const respond = (data, status = 200) =>
     new Response(JSON.stringify(data), {
       status,

@@ -75,16 +75,20 @@ jobs:
       - name: No committed merge-conflict markers (in this change)
         env:
           BASE_REF: ${{ github.base_ref || 'main' }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
         run: |
           set -uo pipefail
           BASE="origin/${BASE_REF}"
+          RESOLVED=0
           if git fetch --no-tags origin "+refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"; then
             echo "base resolved: ${BASE} @ $(git rev-parse --short "${BASE}")"
+            RESOLVED=1
           elif [ -n "${BASE_SHA:-}" ] && git fetch --no-tags origin "${BASE_SHA}"; then
             BASE="${BASE_SHA}"
             echo "base resolved via PR base SHA: ${BASE}"
-          else
+            RESOLVED=1
+          fi
+          if [ "$RESOLVED" -eq 0 ]; then
             echo "::warning::could not resolve the PR base ref or SHA — the marker scan will report and pass this run"
             BASE="(unresolved)"
           fi

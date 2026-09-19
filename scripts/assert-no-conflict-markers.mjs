@@ -82,6 +82,7 @@ if (changedOnly && !changed) {
   console.error(`changed-only mode requested but base '${base}' could not be resolved.`)
   console.error("Fix the fetch, don't the check: git fetch --no-tags origin \\")
   console.error('  "+refs/heads/<base>:refs/remotes/origin/<base>"   # a bare `git fetch origin <base>` does NOT create the remote-tracking ref under actions/checkout\'s single-branch config')
+  console.error('or pass the base SHA directly via --base <sha>.')
   if (strictBase) {
     console.error("--strict-base: failing instead of passing.")
     process.exit(2)

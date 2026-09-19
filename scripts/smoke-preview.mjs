@@ -39,7 +39,8 @@ const ROUTES = [
   { path: "/social", status: 200 },
   { path: "/school", status: 200 },
   // Surfaces that must stay closed / never published by accident.
-  { path: "/demo", status: 404 },
+  // NOTE: /demo is intentionally shipped by PR #124 (carry-over from #15).
+  // { path: "/demo", status: 404 },
   { path: "/api/debug", status: 404 },
   { path: "/api/admin", status: 404 },
   { path: "/_debug", status: 404 },

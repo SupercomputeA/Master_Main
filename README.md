@@ -101,10 +101,8 @@ npx wrangler pages deploy public --project-name=artifact-main
 │   ├── sc-app.jsx           # React components
 │   └── siwe-client.js       # SIWE auth client
 │
-├── functions/                  # Pages Functions — the only deployed API surface
-│   └── api/                    # /api/* routes (auth, articles, staking, agents, …)
-│
-└── schema.sql                  # D1 database schema
+└── functions/                  # Pages Functions — the only deployed API surface
+    └── api/                    # /api/* routes (auth, articles, staking, agents, …)
 ```
 
 ## Environment Variables

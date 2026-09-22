@@ -214,15 +214,35 @@ test('concurrent replay: simultaneous requests serialize through KV tombstone (b
   assert.notEqual(second.status, 200, `sequential replay must fail, got ${second.status}`);
 });
 
-test('CORS reflects only exact owned HTTPS origins', async () => {
+test('CORS reflects only an exact origin on env.CORS_ORIGIN (SEC-F4)', async () => {
   const env = makeEnv();
-  const allowed = await callHandler(onRequest, { env, method: 'OPTIONS', origin: 'https://staging.supercompute.io' });
-  assert.equal(allowed.raw.headers.get('access-control-allow-origin'), 'https://staging.supercompute.io');
+  env.CORS_ORIGIN = 'https://supercompute.io';
 
-  for (const origin of ['http://supercompute.io', 'https://supercompute.io:444', 'https://attacker.pages.dev']) {
+  const allowed = await callHandler(onRequest, { env, method: 'OPTIONS', origin: 'https://supercompute.io' });
+  assert.equal(allowed.raw.headers.get('access-control-allow-origin'), 'https://supercompute.io');
+  assert.match(String(allowed.raw.headers.get('vary')), /origin/i, 'must send Vary: Origin');
+  assert.equal(allowed.raw.headers.get('access-control-allow-credentials'), null, 'ACAC must never be set');
+
+  for (const origin of [
+    'http://supercompute.io',            // wrong scheme
+    'https://supercompute.io:444',       // wrong port
+    'https://attacker.pages.dev',        // anyone can deploy a *.pages.dev site
+    'https://attacker.ngrok-free.app',   // anyone can register a free tunnel
+    'https://x.cloudflarestaging.com',
+    'https://staging.supercompute.io',   // owned, but not this deployment's allowlist entry
+    'http://localhost:3000',
+    'https://evil.example.com',
+  ]) {
     const result = await callHandler(onRequest, { env, method: 'OPTIONS', origin });
-    assert.notEqual(result.raw.headers.get('access-control-allow-origin'), origin, `must not reflect unowned origin ${origin}`);
+    assert.equal(result.raw.headers.get('access-control-allow-origin'), 'https://supercompute.io',
+      `must not reflect ${origin} — it is not the configured origin`);
   }
+
+  // A deployment that genuinely needs a second origin declares it explicitly.
+  const multi = makeEnv();
+  multi.CORS_ORIGIN = 'https://supercompute.io, https://staging.supercompute.io';
+  const staging = await callHandler(onRequest, { env: multi, method: 'OPTIONS', origin: 'https://staging.supercompute.io' });
+  assert.equal(staging.raw.headers.get('access-control-allow-origin'), 'https://staging.supercompute.io');
 });
 
 test('wrong domain in SIWE message is rejected', async () => {

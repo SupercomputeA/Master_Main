@@ -5,31 +5,12 @@
 // Anyone authenticated can list — no subscription gate (admin override placeholder kept).
 
 import { json } from '../auth.js'
+import { corsOrigin, corsHeaders as corsHeadersShared } from '../../_shared/cors.js'
 
-const CORS_ALLOW = [
-  'supercompute.io',
-  'supercompute.pages.dev',
-  'localhost',
-  '127.0.0.1',
-]
-
-function corsHeaders(origin) {
-  let allowedOrigin = 'https://supercompute.io'
-  try {
-    const host = new URL(origin).hostname
-    const ok =
-      CORS_ALLOW.includes(host) ||
-      host.endsWith('.pages.dev') ||
-      host.endsWith('.cloudflarestaging.com') ||
-      host.endsWith('.ngrok-free.app')
-    if (ok) allowedOrigin = origin
-  } catch {}
-  return {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  }
-}
+// CORS: exact-origin allowlist only. The list and the resolver live in
+// functions/_shared/cors.js (SEC-F4) — `origin` here is already resolved by
+// corsOrigin(), so this cannot echo a host that is not on env.CORS_ORIGIN.
+const corsHeaders = (origin) => corsHeadersShared(origin, { methods: 'POST, OPTIONS', headers: 'Content-Type, Authorization' })
 
 const j = (data, status, origin) =>
   new Response(JSON.stringify(data), {
@@ -65,7 +46,7 @@ function makeId() {
 }
 
 export async function onRequest({ request, env }) {
-  const origin = request.headers.get('Origin') || ''
+  const origin = corsOrigin(request, env)
   if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders(origin) })
   if (request.method !== 'POST') return j({ error: 'POST required' }, 405, origin)
 

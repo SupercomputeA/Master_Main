@@ -2,6 +2,8 @@
 // Serves modules and lessons from D1 (if populated) with fallback to JSON files.
 // Supports: GET /api/school (list modules), GET /api/school?id=DF-01 (single module)
 
+import { corsOrigin } from '../_shared/cors.js'
+
 const SCHOOL_MODULES = [
   {
     moduleId: "WS-01",
@@ -275,16 +277,9 @@ const SCHOOL_MODULES = [
 
 export async function onRequest({ request, env }) {
   const url = new URL(request.url)
-  const reqOrigin = request.headers.get("Origin") || ""
-  let allowedOrigin = "https://supercompute.io"
-  if (reqOrigin) {
-    try {
-      const host = new URL(reqOrigin).hostname
-      if (host === "supercompute.io" || host.endsWith(".pages.dev") || host === "localhost" || host === "127.0.0.1") {
-        allowedOrigin = reqOrigin
-      }
-    } catch {}
-  }
+  // Exact-origin allowlist — functions/_shared/cors.js, sourced from env.CORS_ORIGIN
+  // (SEC-F4). No TLD suffix and no localhost: those hosts are attacker-registrable.
+  const allowedOrigin = corsOrigin(request, env)
 
   if (request.method === "OPTIONS") {
     return new Response(null, {
@@ -292,6 +287,7 @@ export async function onRequest({ request, env }) {
         "Access-Control-Allow-Origin": allowedOrigin,
         "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
+        "Vary": "Origin",
       },
     })
   }
@@ -302,6 +298,7 @@ export async function onRequest({ request, env }) {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": allowedOrigin,
       "Cache-Control": "public, max-age=300",
+      "Vary": "Origin",
     },
   })
 

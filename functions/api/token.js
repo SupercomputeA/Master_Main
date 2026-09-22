@@ -1,15 +1,22 @@
 // functions/api/token.js — $QUANTA token data from Base Chain
-// Uses multicall3 to batch all ERC-20 reads into a single RPC request.
-// Multicall3 on Base: 0xcA11bde05977b3631167028862bE2a173976CA11
+// Uses individual eth_call + eth_getCode against multiple public Base RPCs.
+// On total RPC failure, returns { ok: false, error: "..." } — NEVER fabricated data.
+//
+// RPC endpoint order matters: Cloudflare Workers edge IPs are blocked by some
+// public RPCs (llamarpc returns 525, blastapi times out). The ones that work
+// from the CF edge are listed first. See references/browser-rpc-csp-origins.md
+// for the measured host-behaviour matrix.
+
+import { corsOrigin } from '../_shared/cors.js'
 
 const RPC_ENDPOINTS = [
+  "https://mainnet.base.org",
+  "https://1rpc.io/base",
+  "https://base-rpc.publicnode.com",
   "https://base.llamarpc.com",
   "https://base.public.blastapi.io",
-  "https://1rpc.io/base",
-  "https://mainnet.base.org",
 ]
 
-const MULTICALL3 = "0xcA11bde05977b3631167028862bE2a173976CA11"
 const QUANTA_TOKEN = "0x5ACDC563450cC35055d7344287C327fafB2b371A"
 
 const SELECTORS = {
@@ -21,85 +28,7 @@ const SELECTORS = {
   balanceOf: "0x70a08231",
 }
 
-// Encode a single eth_call to multicall3.aggregate3
-// aggregate3(bool requireSuccess, Call[] calls)
-// Call = (address target, bytes callData)
-function encodeMulticall(calls) {
-  // selector
-  let hex = "0x82ad56cb"
-  // requireSuccess = true (1)
-  hex += "0000000000000000000000000000000000000000000000000000000000000001"
-  // offset to calls array (0x60 = 96 bytes from start = after selector + 2 words)
-  hex += "0000000000000000000000000000000000000000000000000000000000000060"
-  // array length
-  hex += calls.length.toString(16).padStart(64, "0")
-
-  // For each call, encode (address, bytes)
-  // Each Call struct = 2 dynamic-ish fields:
-  //   word 0: target (address, left-padded to 32)
-  //   word 1: offset to callData (relative to start of this struct)
-  //   word 2: callData length
-  //   word 3+: callData (padded to 32)
-  //
-  // But the offset is relative to the start of the struct's data area.
-  // For a (address, bytes) tuple:
-  //   offset = 0x40 (64 bytes) — points past the two fixed words
-  // So each struct is:
-  //   [target][0x40][len][data...]
-
-  let allStructs = ""
-  for (let i = 0; i < calls.length; i++) {
-    const target = calls[i].target.toLowerCase().slice(2).padStart(64, "0")
-    const cd = calls[i].data.slice(2)
-    // Offset to bytes data: 0x40 (2 words after target+offset)
-    allStructs += target
-    allStructs += "0000000000000000000000000000000000000000000000000000000000000040"
-    // Length of callData
-    allStructs += (cd.length / 2).toString(16).padStart(64, "0")
-    // callData padded to 32-byte boundary
-    const paddedCd = cd.padEnd(Math.ceil(cd.length / 64) * 64, "0")
-    allStructs += paddedCd
-  }
-
-  hex += allStructs
-  return hex
-}
-
-// Decode multicall3 aggregate3 return: (bool[] success, bytes[] returnData)
-function decodeMulticallResult(hexResult) {
-  if (!hexResult || hexResult === "0x") return []
-  const hex = hexResult.slice(2)
-
-  // First word: offset to success array
-  const successOffset = parseInt(hex.slice(0, 64), 16) * 2
-  // success array length
-  const successLen = parseInt(hex.slice(successOffset, successOffset + 64), 16)
-  // success array values (each 1 bool, padded to 32)
-  const successes = []
-  for (let i = 0; i < successLen; i++) {
-    const s = parseInt(hex.slice(successOffset + 64 + i * 64, successOffset + 64 + i * 64 + 64), 16)
-    successes.push(s === 1)
-  }
-
-  // Second word: offset to returnData array
-  const returnDataOffset = parseInt(hex.slice(64, 128), 16) * 2
-  // returnData array length
-  const returnDataLen = parseInt(hex.slice(returnDataOffset, returnDataOffset + 64), 16)
-
-  const returnDatas = []
-  let pos = returnDataOffset + 64
-  for (let i = 0; i < returnDataLen; i++) {
-    // Offset to this bytes element (relative to start of returnData array)
-    const elemOffset = parseInt(hex.slice(pos, pos + 64), 16) * 2
-    const dataStart = returnDataOffset + elemOffset + 64 // skip offset to length
-    const dataLen = parseInt(hex.slice(dataStart, dataStart + 64), 16) * 2
-    const data = "0x" + hex.slice(dataStart + 64, dataStart + 64 + dataLen)
-    returnDatas.push(data)
-    pos += 64 // move to next offset
-  }
-
-  return returnDatas
-}
+// ── RPC helpers ─────────────────────────────────────────────────────────────
 
 async function rpcCall(rpcUrl, method, params) {
   try {
@@ -117,76 +46,87 @@ async function rpcCall(rpcUrl, method, params) {
   }
 }
 
+// Try every RPC endpoint until one returns a non-null result.
+// Returns { result, endpoint } on success, { result: null, error } on total failure.
 async function rpcCallAny(method, params) {
+  let lastError = "all RPC endpoints failed"
   for (const rpc of RPC_ENDPOINTS) {
     const result = await rpcCall(rpc, method, params)
-    if (result !== null) return result
+    if (result !== null && result !== undefined) {
+      return { result, endpoint: rpc }
+    }
+    lastError = `last tried: ${rpc} returned null`
   }
-  return null
+  return { result: null, error: lastError }
 }
 
+// ── ABI decode helpers ───────────────────────────────────────────────────────
+
 function decodeString(hexResult) {
-  if (!hexResult || hexResult === "0x") return ""
+  if (!hexResult || hexResult === "0x") return null
   const hex = hexResult.slice(2)
   if (hex.length < 128) {
     // Some tokens use non-standard encoding (short strings in single slot)
-    // Try to decode as packed string
     if (hex.length >= 64) {
-      // If the first word is small, it might be a string stored directly
       const len = parseInt(hex.slice(0, 64), 16)
       if (len > 0 && len < 32 && hex.length >= 64 + len * 2) {
         try {
           return new TextDecoder().decode(
             new Uint8Array(hex.slice(64, 64 + len * 2).match(/.{2}/g).map(b => parseInt(b, 16)))
           )
-        } catch {}
+        } catch {
+          return null
+        }
       }
     }
-    return ""
+    return null
   }
   const strLen = parseInt(hex.slice(64, 128), 16)
+  if (strLen <= 0 || strLen > 1024) return null // sanity guard
   const strHex = hex.slice(128, 128 + strLen * 2)
   try {
     return new TextDecoder().decode(
       new Uint8Array(strHex.match(/.{2}/g).map(b => parseInt(b, 16)))
     )
   } catch {
-    return ""
+    return null
   }
 }
 
 function decodeUint(hexResult) {
-  if (!hexResult || hexResult === "0x") return 0
-  return Number(BigInt(hexResult))
+  if (!hexResult || hexResult === "0x") return null
+  try {
+    return BigInt(hexResult)
+  } catch {
+    return null
+  }
 }
 
 function decodeAddress(hexResult) {
   if (!hexResult || hexResult === "0x" || hexResult.length < 42) return null
-  return "0x" + hexResult.slice(-40)
+  const addr = "0x" + hexResult.slice(-40).toLowerCase()
+  // Filter out zero addresses (no owner set)
+  if (addr === "0x0000000000000000000000000000000000000000") return null
+  return addr
 }
 
 function formatUnits(value, decimals) {
-  if (!value || value === "0") return "0"
+  if (!value || value === 0n) return "0"
   const v = BigInt(value)
   const divisor = BigInt(10) ** BigInt(decimals)
   const intPart = v / divisor
   const fracPart = v % divisor
-  const fracStr = fracPart.toString().padStart(decimals, "0").slice(0, 6)
+  const fracStr = fracPart.toString().padStart(Number(decimals), "0").slice(0, 6)
   return `${intPart}.${fracStr}`
 }
 
+// ── Handler ──────────────────────────────────────────────────────────────────
+
 export async function onRequest({ request, env }) {
   const url = new URL(request.url)
-  const reqOrigin = request.headers.get("Origin") || ""
-  let allowedOrigin = "https://supercompute.io"
-  if (reqOrigin) {
-    try {
-      const host = new URL(reqOrigin).hostname
-      if (host === "supercompute.io" || host.endsWith(".pages.dev") || host === "localhost" || host === "127.0.0.1") {
-        allowedOrigin = reqOrigin
-      }
-    } catch {}
-  }
+  // Exact-origin allowlist — functions/_shared/cors.js, sourced from env.CORS_ORIGIN
+  // (SEC-F4). No TLD suffix and no localhost: those hosts are attacker-registrable.
+  const allowedOrigin = corsOrigin(request, env)
 
   if (request.method === "OPTIONS") {
     return new Response(null, {
@@ -194,6 +134,7 @@ export async function onRequest({ request, env }) {
         "Access-Control-Allow-Origin": allowedOrigin,
         "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
+        "Vary": "Origin",
       },
     })
   }
@@ -204,79 +145,114 @@ export async function onRequest({ request, env }) {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": allowedOrigin,
       "Cache-Control": "public, max-age=30",
+      "Vary": "Origin",
     },
   })
 
-  const tokenAddr = env?.QUANTA_TOKEN || QUANTA_TOKEN
+  const tokenAddr = (env?.QUANTA_TOKEN || QUANTA_TOKEN).toLowerCase()
   const wallet = url.searchParams.get("wallet")
 
-  // Build multicall calls array
-  const calls = [
-    { target: tokenAddr, data: SELECTORS.name },
-    { target: tokenAddr, data: SELECTORS.symbol },
-    { target: tokenAddr, data: SELECTORS.decimals },
-    { target: tokenAddr, data: SELECTORS.totalSupply },
-    { target: tokenAddr, data: SELECTORS.owner },
+  // ── Step 1: eth_getCode — is the contract deployed? ─────────────────────
+  const codeResult = await rpcCallAny("eth_getCode", [tokenAddr, "latest"])
+  const codeRaw = codeResult.result
+
+  if (codeRaw === null) {
+    // Total RPC failure — we cannot determine deployment status, and we must
+    // not fabricate "not deployed" (false) because the contract IS live.
+    // Return an explicit error state so the caller knows the data is missing,
+    // not zero.
+    return j({
+      ok: false,
+      error: "rpc_unavailable",
+      detail: "All Base RPC endpoints failed — cannot read on-chain token data.",
+      address: tokenAddr,
+      chain: "base",
+      timestamp: new Date().toISOString(),
+    }, 503)
+  }
+
+  const deployed = codeRaw !== "0x" && codeRaw.length > 4
+
+  if (!deployed) {
+    // Contract genuinely not deployed at this address — this is a real state,
+    // not a fabrication. Return it honestly.
+    return j({
+      ok: true,
+      deployed: false,
+      address: tokenAddr,
+      chain: "base",
+      explorer: `https://basescan.org/token/${tokenAddr}`,
+      timestamp: new Date().toISOString(),
+    }, 200)
+  }
+
+  // ── Step 2: Read token metadata via individual eth_calls ─────────────────
+  // We use individual calls rather than multicall3 because some RPCs
+  // do not support multicall or return unexpected encoded results.
+  // Each call is independent — a single field failing does not corrupt the rest.
+  const readFields = [
+    { key: "name", method: "eth_call", params: [{ to: tokenAddr, data: SELECTORS.name }, "latest"], decoder: decodeString },
+    { key: "symbol", method: "eth_call", params: [{ to: tokenAddr, data: SELECTORS.symbol }, "latest"], decoder: decodeString },
+    { key: "decimals", method: "eth_call", params: [{ to: tokenAddr, data: SELECTORS.decimals }, "latest"], decoder: decodeUint },
+    { key: "totalSupply", method: "eth_call", params: [{ to: tokenAddr, data: SELECTORS.totalSupply }, "latest"], decoder: decodeUint },
+    { key: "owner", method: "eth_call", params: [{ to: tokenAddr, data: SELECTORS.owner }, "latest"], decoder: decodeAddress },
   ]
 
+  // If wallet is provided, also read its balance
   if (wallet) {
-    const balanceData = SELECTORS.balanceOf + "000000000000000000000000" + wallet.slice(2).toLowerCase()
-    calls.push({ target: tokenAddr, data: balanceData })
+    const w = wallet.startsWith("0x") ? wallet.toLowerCase() : "0x" + wallet.toLowerCase()
+    const balanceData = SELECTORS.balanceOf + "000000000000000000000000" + w.slice(2)
+    readFields.push({ key: "walletBalance", method: "eth_call", params: [{ to: tokenAddr, data: balanceData }, "latest"], decoder: decodeUint })
   }
-
-  // Single multicall3 request — one RPC round-trip
-  const mcData = encodeMulticall(calls)
-  const mcResult = await rpcCallAny("eth_call", [{ to: MULTICALL3, data: mcData }, "latest"])
-
-  // Also get code in a separate call (can't easily multicall eth_getCode)
-  const codeRaw = await rpcCallAny("eth_getCode", [tokenAddr, "latest"])
-
-  const deployed = codeRaw && codeRaw !== "0x" && codeRaw.length > 4
-
-  // Parse multicall results
-  let name = ""
-  let symbol = ""
-  let decimals = 18
-  let totalSupply = 0
-  let owner = null
-  let walletBalance = null
-
-  if (mcResult) {
-    const results = decodeMulticallResult(mcResult)
-    if (results.length >= 5) {
-      name = decodeString(results[0]) || "Quanta Sovereigna"
-      symbol = decodeString(results[1]) || "QUANTA"
-      decimals = decodeUint(results[2]) || 18
-      totalSupply = decodeUint(results[3])
-      owner = decodeAddress(results[4])
-      if (wallet && results.length >= 6) {
-        walletBalance = decodeUint(results[5])
-      }
-    }
-  }
-
-  // Fallback to hardcoded name/symbol if RPC failed
-  if (!name) name = "Quanta Sovereigna"
-  if (!symbol) symbol = "QUANTA"
 
   const data = {
+    ok: true,
+    deployed: true,
     address: tokenAddr,
-    deployed,
     chain: "base",
-    name,
-    symbol,
-    decimals,
-    totalSupply,
-    totalSupplyFormatted: totalSupply ? formatUnits(String(totalSupply), decimals) : "0",
-    owner,
     explorer: `https://basescan.org/token/${tokenAddr}`,
     timestamp: new Date().toISOString(),
   }
 
-  if (wallet) {
-    data.walletBalance = walletBalance || 0
-    data.walletBalanceFormatted = formatUnits(String(walletBalance || 0), decimals)
+  const failures = []
+  for (const field of readFields) {
+    const { result, error } = await rpcCallAny(field.method, field.params)
+    if (result === null) {
+      failures.push(field.key)
+      // For optional fields, leave undefined rather than fabricating
+      // For required fields, we still continue — partial data is better than none
+      // and the caller can check `failures` to know what's missing.
+      continue
+    }
+    const decoded = field.decoder(result)
+    if (decoded !== null && decoded !== undefined) {
+      data[field.key] = decoded
+    }
   }
 
-  return j(data)
+  // Format totalSupply as string for display
+  if (data.totalSupply !== undefined && data.decimals !== undefined) {
+    data.totalSupplyFormatted = formatUnits(data.totalSupply, data.decimals)
+  } else if (data.totalSupply !== undefined) {
+    data.totalSupplyFormatted = String(data.totalSupply)
+  }
+
+  // Format walletBalance
+  if (data.walletBalance !== undefined && data.decimals !== undefined) {
+    data.walletBalanceFormatted = formatUnits(data.walletBalance, data.decimals)
+  } else if (data.walletBalance !== undefined) {
+    data.walletBalanceFormatted = String(data.walletBalance)
+  }
+
+  // Convert BigInts to strings for JSON serialization
+  if (data.totalSupply !== undefined) data.totalSupply = data.totalSupply.toString()
+  if (data.walletBalance !== undefined) data.walletBalance = data.walletBalance.toString()
+  if (data.decimals !== undefined) data.decimals = Number(data.decimals)
+
+  if (failures.length > 0) {
+    data.partial = true
+    data.failedFields = failures
+  }
+
+  return j(data, 200)
 }

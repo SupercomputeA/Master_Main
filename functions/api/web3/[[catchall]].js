@@ -15,6 +15,8 @@ const BASE_RPCS = [
   "https://base-rpc.publicnode.com",
   "https://1rpc.io/base",
 ]
+const ROBINHOOD_RPC = "https://rpc.mainnet.chain.robinhood.com"
+const ROBINHOOD_CHAIN_ID = 4663
 
 const ENS_RESOLVER = "0x231b0ee14048e9dccd1d247744d114a4eb5e8e63"
 const ADDR_SELECTOR = "3b3b57de"
@@ -58,6 +60,7 @@ async function rpcCall(rpcUrls, method, params) {
 // that matched no ENS node, so /api/web3/resolve?name=supercompute.eth always
 // returned null. viem ships a battle-tested keccak256 implementation.
 import { namehash as viemNamehash, normalize as viemNormalize } from "viem/ens"
+import { corsOrigin, FALLBACK_ORIGIN } from "../../_shared/cors.js"
 
 const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
 
@@ -274,10 +277,15 @@ async function getSwapQuote(fromToken, toToken, amount, env) {
   }
 }
 
-function json(data, status = 200, origin = "https://supercompute.io") {
+function json(data, status = 200, origin = FALLBACK_ORIGIN) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": origin },
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": origin,
+      // Required on anything carrying a request-derived ACAO (SEC-F4).
+      "Vary": "Origin",
+    },
   })
 }
 
@@ -287,15 +295,9 @@ export async function onRequest({ request, env }) {
   const url = new URL(request.url)
   const path = url.pathname.replace("/api/web3", "") || "/"
   const method = request.method
-  const reqOrigin = request.headers.get("Origin") || ""
-  let allowedOrigin = "https://supercompute.io"
-  if (reqOrigin) {
-    try {
-      const host = new URL(reqOrigin).hostname
-      const allowed = host === "supercompute.io" || host === "supercompute.pages.dev" || host === "localhost" || host === "127.0.0.1" || host.endsWith(".pages.dev") || host.endsWith(".cloudflarestaging.com") || host.endsWith(".ngrok-free.app")
-      if (allowed) allowedOrigin = reqOrigin
-    } catch {}
-  }
+  // Exact-origin allowlist — functions/_shared/cors.js, sourced from env.CORS_ORIGIN
+  // (SEC-F4). The forged-origin echo (any *.pages.dev / ngrok / localhost host) is gone.
+  const allowedOrigin = corsOrigin(request, env)
 
   if (method === "OPTIONS") {
     return new Response(null, {
@@ -303,6 +305,7 @@ export async function onRequest({ request, env }) {
         "Access-Control-Allow-Origin": allowedOrigin,
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Vary": "Origin",
       },
     })
   }
@@ -460,6 +463,26 @@ export async function onRequest({ request, env }) {
     if (!wallet) return j({ error: "wallet required" }, 400)
     const position = await getStakingPosition(wallet, env)
     return j(position)
+  }
+
+  if (method === "GET" && path === "/chain") {
+    // Live proof endpoint — Robinhood Chain mainnet (Arbitrum L2, 4663).
+    // Used by TradeDesk demo: returns the chainId the proxy actually reached.
+    try {
+      const chainIdHex = await rpcCall(ROBINHOOD_RPC, "eth_chainId", [])
+      const blockNumberHex = await rpcCall(ROBINHOOD_RPC, "eth_blockNumber", [])
+      const chainId = parseInt(chainIdHex, 16)
+      return j({
+        ok: chainId === ROBINHOOD_CHAIN_ID,
+        chainId,
+        expected: ROBINHOOD_CHAIN_ID,
+        name: "Robinhood Chain",
+        rpc: ROBINHOOD_RPC,
+        blockNumber: parseInt(blockNumberHex, 16),
+      })
+    } catch (e) {
+      return j({ ok: false, error: String(e && e.message || e) }, 502)
+    }
   }
 
   if (method === "GET" && path === "/swap/quote") {

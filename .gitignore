@@ -1,5 +1,7 @@
 # Dependencies
-node_modules/
+# No trailing slash: also matches the node_modules symlink used by
+# per-card git worktrees (which git otherwise offers to commit).
+node_modules
 
 # Cloudflare
 .wrangler/
@@ -37,6 +39,12 @@ npm-debug.log*
 .next/
 out/
 tsconfig.tsbuildinfo
+
+# TinaCMS admin — LOCAL DEV ONLY (npm run tina:dev). Never commit or deploy:
+# the legacy Vite SPA in public/admin/ was non-functional in production (needs
+# localhost:4001) and was the sole source of CSP violations there. t_f0ba29a2
+public/admin/
+.tina-admin/
 # Environment trigger files
 PRODUCTION.md
 STAGING.md

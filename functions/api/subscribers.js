@@ -5,6 +5,7 @@
 
 import { json } from './auth.js';
 import { TIERS, isPaidTier, defaultExpirySeconds } from '../../lib/tiers.js';
+import { corsOrigin, corsHeadersFor } from '../_shared/cors.js';
 
 const VALID_TIERS = ['free', 'builder', 'operator', 'syndicate', 'lead'];
 
@@ -22,25 +23,6 @@ function isValidEmail(email) {
   return typeof email === 'string' && email.length <= 320 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function allowedOrigin(reqOrigin) {
-  let origin = 'https://supercompute.io';
-  if (!reqOrigin) return origin;
-  try {
-    const host = new URL(reqOrigin).hostname;
-    const ok = host === 'supercompute.io' || host === 'supercompute.pages.dev' || host === 'localhost' || host === '127.0.0.1' || host.endsWith('.pages.dev') || host.endsWith('.cloudflarestaging.com') || host.endsWith('.ngrok-free.app');
-    if (ok) origin = reqOrigin;
-  } catch {}
-  return origin;
-}
-
-function corsHeaders(origin) {
-  return {
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
-}
-
 async function getSessionWallet(env, request) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ') || !env?.DB) return null;
@@ -54,10 +36,12 @@ async function getSessionWallet(env, request) {
 }
 
 export async function onRequest({ request, env }) {
-  const reqOrigin = request.headers.get('Origin') || '';
-  const origin = allowedOrigin(reqOrigin);
+  // Exact-origin allowlist — functions/_shared/cors.js (SEC-F4). The resolved
+  // origin never echoes a *.pages.dev / ngrok / localhost host that is not on
+  // env.CORS_ORIGIN, and the headers carry Vary: Origin.
+  const origin = corsOrigin(request, env);
   const j = (data, status = 200) => json(data, status, origin);
-  const headers = corsHeaders(origin);
+  const headers = corsHeadersFor(request, env);
 
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers });
@@ -89,13 +73,20 @@ export async function onRequest({ request, env }) {
 
   // GET /api/subscribers?tier=X — admin-only tier stats
   if (request.method === 'GET' && subPath === '/') {
-    // Admin check via session
+    // Admin check via session.
+    // SEC-F1d (card t_30f803f0): `lower(wallet_address) = ?`, the same statement
+    // login.js, functions/api/auth.js and the /api/social/* gate send. This read used to
+    // be byte-exact, and one LIVE prod `admin_wallets` row is stored checksummed
+    // (0xe7A3Ed04F24b6482b4490ae06641Be4e4305Df34) while `sessions.wallet_address` — and
+    // the value getSessionWallet returns — is always lowercase. A byte-exact compare
+    // silently 403'd that admin on this route alone. Do not "simplify" it back; the
+    // real-engine guard in tests/api/subscribers-admin.test.js fails if it returns.
     const wallet = await getSessionWallet(env, request);
     let isAdmin = false;
     if (wallet && env?.DB) {
       try {
         const r = await env.DB.prepare(
-          'SELECT role FROM admin_wallets WHERE wallet_address = ?'
+          'SELECT role FROM admin_wallets WHERE lower(wallet_address) = ?'
         ).bind(wallet).first();
         isAdmin = r?.role === 'admin';
       } catch {}

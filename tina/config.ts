@@ -8,8 +8,18 @@ export default defineConfig({
   clientId: process.env.NEXT_PUBLIC_TINA_CLIENT_ID || "b77cb4b2-e33c-47ed-a714-7a7613e614bc",
   token: process.env.TINA_TOKEN || process.env.NEXT_PUBLIC_TINA_TOKEN || "x",
 
+  // NOTE (2026-09-11): the TinaCMS admin is a LOCAL DEV TOOL ONLY.
+  // It is served from the Vite dev server at http://localhost:4001 by
+  // `npm run tina:dev` / `npm run dev`. It must never be deployed:
+  //   * outputFolder is deliberately OUTSIDE public/ so a stray `tinacms build`
+  //     can never be copied into the Next.js static export (out/).
+  //   * public/admin/ used to ship the legacy Vite SPA to production, where it
+  //     was non-functional (it needs localhost:4001) and produced 5 CSP
+  //     violations (2 inline scripts, 1 inline onerror handler, 2 localhost:4001
+  //     script tags). It was deleted in chore/remove-legacy-tina-admin — do not
+  //     re-add it to public/. See kanban t_f0ba29a2.
   build: {
-    outputFolder: "admin",
+    outputFolder: "../.tina-admin", // resolved relative to publicFolder -> <repo>/.tina-admin
     publicFolder: "public",
   },
 

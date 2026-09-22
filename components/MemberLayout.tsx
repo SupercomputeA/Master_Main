@@ -42,6 +42,7 @@ const ADMIN_GROUPS: NavGroup[] = [
       { href: "/admin", label: "Dashboard" },
       { href: "/admin/users", label: "Users" },
       { href: "/admin/content", label: "Content" },
+      { href: "/app/social", label: "Social Ops" },
       { href: "/admin/analytics", label: "Analytics" },
       { href: "/admin/settings", label: "Settings" },
     ],
@@ -109,10 +110,6 @@ export default function MemberLayout({
       </aside>
 
       <main className={`mem-main${wide ? " mem-wide" : ""}`}>
-        <div className="hud-corner embed tl" />
-        <div className="hud-corner embed tr" />
-        <div className="hud-corner embed bl" />
-        <div className="hud-corner embed br" />
         <div className="mem-inner">
           <div className="tpl-member">
             {banner && (

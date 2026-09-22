@@ -5,7 +5,7 @@
   "description": "TradeDesk is the Supercompute multi-chain trading terminal. Strategies execute via the agent fleet, with explicit risk caps and pre-trade approvals.",
   "category": "Tool",
   "status": "Beta",
-  "chain": "Base, Arbitrum",
+  "chain": "Robinhood Chain (4663)",
   "agents": 1,
   "tokenSymbol": "$TDR",
   "tokenName": "Supercompute",

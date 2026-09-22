@@ -4,8 +4,45 @@ import { injected, coinbaseWallet } from "wagmi/connectors"
 
 import { walletConnect } from "wagmi/connectors"
 
-// WalletConnect project ID from cloud.walletconnect.com (public client ID, not a secret)
+// WalletConnect project ID from cloud.walletconnect.com (public client id, not a secret)
 const WC_PROJECT_ID = "195c4b15eafe2c2f160bd7c1512ba93a"
+
+// Robinhood Chain (Arbitrum L2) — chain ID 4663 mainnet / 46630 testnet.
+// ETH gas token. Canonical def mirrored from supercompute-tradedesk
+// components/tradedesk/lib/chain.ts (verified 2026-08-05, live RPC 8/21).
+export const robinhoodChain = {
+  id: 4663,
+  name: "Robinhood Chain",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://rpc.mainnet.chain.robinhood.com"] },
+    public: { http: ["https://rpc.mainnet.chain.robinhood.com"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "Robinhood Explorer",
+      url: "https://robinhoodchain.blockscout.com",
+    },
+  },
+  testnet: false,
+} as const
+
+export const robinhoodTestnet = {
+  id: 46630,
+  name: "Robinhood Chain Testnet",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://rpc.testnet.chain.robinhood.com"] },
+    public: { http: ["https://rpc.testnet.chain.robinhood.com"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "Robinhood Testnet Explorer",
+      url: "https://explorer.testnet.chain.robinhood.com",
+    },
+  },
+  testnet: true,
+} as const
 
 const connectors = [
   injected(),
@@ -34,14 +71,16 @@ const connectors = [
 const RPC = {
   [base.id]: "https://mainnet.base.org",
   [mainnet.id]: "https://eth.drpc.org",
+  [robinhoodChain.id]: "https://rpc.mainnet.chain.robinhood.com",
 } as const
 
 export const wagmiConfig = createConfig({
   ssr: false,
-  chains: [base, mainnet],
+  chains: [base, mainnet, robinhoodChain],
   connectors,
   transports: {
     [base.id]: http(RPC[base.id]),
     [mainnet.id]: http(RPC[mainnet.id]),
+    [robinhoodChain.id]: http(RPC[robinhoodChain.id]),
   },
 })

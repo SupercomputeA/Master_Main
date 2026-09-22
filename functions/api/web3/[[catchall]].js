@@ -19,6 +19,9 @@ const BASE_RPCS = [
 const ENS_RESOLVER = "0x231b0ee14048e9dccd1d247744d114a4eb5e8e63"
 const ADDR_SELECTOR = "3b3b57de"
 
+const ROBINHOOD_RPC = "https://rpc.mainnet.chain.robinhood.com"
+const ROBINHOOD_CHAIN_ID = 4663
+
 function hexToBytes(hex) {
   const h = hex.replace("0x", "")
   return new Uint8Array(h.length / 2).map((_, i) => parseInt(h.substr(i * 2, 2), 16))
@@ -468,6 +471,26 @@ export async function onRequest({ request, env }) {
     return j(quote)
   }
 
+  if (method === "GET" && path === "/chain") {
+    // Live proof endpoint — Robinhood Chain mainnet (Arbitrum L2, 4663).
+    // Returns the chainId + blockNumber the RPC actually reached.
+    try {
+      const chainIdHex = await rpcCall(ROBINHOOD_RPC, "eth_chainId", [])
+      const blockNumberHex = await rpcCall(ROBINHOOD_RPC, "eth_blockNumber", [])
+      const chainId = parseInt(chainIdHex, 16)
+      return j({
+        ok: chainId === ROBINHOOD_CHAIN_ID,
+        chainId,
+        expected: ROBINHOOD_CHAIN_ID,
+        name: "Robinhood Chain",
+        rpc: ROBINHOOD_RPC,
+        blockNumber: parseInt(blockNumberHex, 16),
+      })
+    } catch (e) {
+      return j({ ok: false, error: String(e && e.message || e) }, 502)
+    }
+  }
+
   return j({
     endpoints: {
       "GET /api/web3/resolve": "ENS name → address",
@@ -478,6 +501,7 @@ export async function onRequest({ request, env }) {
       "GET /api/web3/staking": "Staking pool stats",
       "GET /api/web3/staking/position": "User staking position",
       "GET /api/web3/swap/quote": "Swap quote from DEX",
+      "GET /api/web3/chain": "Live Robinhood Chain 4663 proof (chainId + blockNumber)",
     },
   })
 }

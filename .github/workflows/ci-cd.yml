@@ -71,15 +71,16 @@ jobs:
           npm test
           node --test "tests/**/*.test.mjs"
 
-      # Tina may fail on external PRs without secrets. On protected branches
-      # the failure must be visible; on PRs from forks we degrade gracefully.
+      # Tina may fail on PRs without secrets (forks) or against protected branches
+      # not configured in TinaCloud. On protected/main branch pushes the failure
+      # must be visible; on PRs from forks we degrade gracefully.
       - name: Build Tina CMS admin
         run: npx tinacms build
         env:
           NEXT_PUBLIC_TINA_CLIENT_ID: ${{ vars.NEXT_PUBLIC_TINA_CLIENT_ID }}
           TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
           TINA_BRANCH: ${{ github.ref_name }}
-        continue-on-error: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
 
       - name: Build Next.js static export
         run: npx next build

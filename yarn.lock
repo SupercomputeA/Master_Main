@@ -2756,6 +2756,10 @@
   resolved "https://registry.npmjs.org/@speed-highlight/core/-/core-1.2.15.tgz"
   integrity sha512-BMq1K3DsElxDWawkX6eLg9+CKJrTVGCBAWVuHXVUV2u0s2711qiChLSId6ikYPfxhdYocLNt3wWwSvDiTvFabw==
 
+"@supercompute/tradedesk@https://github.com/SupercomputeA/supercompute-tradedesk.git#b439704da7cb14036eb9913265d329adfe7fe97f":
+  version "0.1.0"
+  resolved "https://github.com/SupercomputeA/supercompute-tradedesk.git#b439704da7cb14036eb9913265d329adfe7fe97f"
+
 "@svgr/babel-plugin-add-jsx-attribute@8.0.0":
   version "8.0.0"
   resolved "https://registry.npmjs.org/@svgr/babel-plugin-add-jsx-attribute/-/babel-plugin-add-jsx-attribute-8.0.0.tgz"

@@ -52,6 +52,16 @@ jobs:
           node-version: 22
           cache: npm
 
+      # Private git dependencies resolve to ssh:// URLs in package-lock.json.
+      # GitHub Actions has no SSH key, so rewrite them to HTTPS using the
+      # job token before npm ci runs.
+      - name: Rewrite git dependencies to HTTPS
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "ssh://git@github.com/"
+          git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "git@github.com:"
+
       - name: Install
         run: npm ci --no-audit --no-fund
 

@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20250430.0",
+    "@supercompute/tradedesk": "https://github.com/SupercomputeA/supercompute-tradedesk.git#b439704da7cb14036eb9913265d329adfe7fe97f",
     "@ensdomains/content-hash": "^3.1.1",
     "@ethereum-attestation-service/eas-sdk": "^2.9.1",
     "@tanstack/react-query": "^5.100.11",

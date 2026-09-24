@@ -19,19 +19,28 @@ on:
   # This adds a trigger; it does not change push/pull_request behaviour.
   workflow_dispatch:
 
+# Cancel stale workflow runs for the same ref (e.g. a PR that gets rapid updates),
+# but do NOT cancel the deploy concurrency group — that group uses a separate
+# `pages-deploy-` prefix and `cancel-in-progress: false` to protect the alias.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  NODE_VERSION: '24'
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
@@ -40,6 +49,15 @@ jobs:
 
       - name: Show Node version
         run: node --version
+
+      # Hardening: lint/typecheck where configured. These use --if-present so a
+      # project without the script does not fail; if the script exists, a red
+      # result fails `validate` before the build.
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Type check
+        run: npm run typecheck --if-present
 
       # Test gate. `npm test` is the repo's declared test entry point
       # (package.json `scripts.test`, globbing tests/**/*.test.js).
@@ -52,6 +70,17 @@ jobs:
         run: |
           npm test
           node --test "tests/**/*.test.mjs"
+
+      # Tina may fail on PRs without secrets (forks) or against protected branches
+      # not configured in TinaCloud. On protected/main branch pushes the failure
+      # must be visible; on PRs from forks we degrade gracefully.
+      - name: Build Tina CMS admin
+        run: npx tinacms build
+        env:
+          NEXT_PUBLIC_TINA_CLIENT_ID: ${{ vars.NEXT_PUBLIC_TINA_CLIENT_ID }}
+          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+          TINA_BRANCH: ${{ github.ref_name }}
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
 
       - name: Build Next.js static export
         run: npx next build
@@ -213,8 +242,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       deploy: ${{ steps.elect.outputs.deploy }}
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
 
@@ -257,8 +284,12 @@ jobs:
     concurrency:
       group: pages-deploy-${{ github.ref }}
       cancel-in-progress: false
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    # Environment gate: production deploys require the `production` environment;
+    # staging/development use their respective environments. This is a guardrail,
+    # not a behavior change to the branch matrix.
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || github.ref == 'refs/heads/staging' && 'staging' || 'development' }}
+      url: ${{ github.ref == 'refs/heads/main' && 'https://supercompute.io' || github.ref == 'refs/heads/staging' && 'https://staging.supercompute.io' || 'https://development.supercompute.pages.dev' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -267,7 +298,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
@@ -302,9 +333,6 @@ jobs:
           done < <(find out -name '*.html' -type f)
           echo "stamped ${count} HTML files"
           grep -o "supercompute build [0-9a-f]*" out/index.html | head -1
-
-      - name: Install Wrangler
-        run: npm install -g wrangler@4
 
       # Schema before code: the subscriber funnel (/api/subscribers, the tier gate)
       # 500s when its tables are missing, and `wrangler pages deploy` never runs
@@ -343,13 +371,13 @@ jobs:
         run: |
           for f in migrations/0001_admin_wallets_and_projects.sql migrations/0002_marketplace.sql migrations/0006_add_subscribers.sql migrations/0007_kg_nodes_and_edges.sql migrations/0008_csp_reports.sql migrations/0009_social_command_center.sql migrations/0010_social_queue_status_enum.sql; do
             echo "==> applying $f"
-            wrangler d1 execute supercompute-db --remote --file="$f" --yes
+            npx wrangler d1 execute supercompute-db --remote --file="$f" --yes
           done
-          wrangler d1 execute supercompute-db --remote --yes \
+          npx wrangler d1 execute supercompute-db --remote --yes \
             --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('admin_wallets','kg_edges','kg_nodes','projects','subscribers','marketplace_listings','csp_reports','social_queue','social_posts') ORDER BY name;"
           # Column-level readback: /api/projects 500'd because `projects` existed but lacked the
           # columns the handler selects, so "the table is there" is not the assertion that matters.
-          wrangler d1 execute supercompute-db --remote --yes \
+          npx wrangler d1 execute supercompute-db --remote --yes \
             --command "SELECT name FROM pragma_table_info('projects') WHERE name IN ('id','name','tagline','description','status','repo','coin','chain','created_at','updated_at') ORDER BY name;"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
@@ -390,7 +418,7 @@ jobs:
         run: |
           # --branch main is explicit: Pages resolves the production alias from the
           # branch, and an implicit target is how a build lands on the wrong alias.
-          wrangler pages deploy out --project-name=supercompute --branch main --commit-dirty=true
+          npx wrangler pages deploy out --project-name=supercompute --branch main --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -414,24 +442,36 @@ jobs:
           exit 1
 
       - name: Deploy to Cloudflare Pages (staging)
+        id: deploy-staging
         if: github.ref == 'refs/heads/staging'
         run: |
-          wrangler pages deploy out --project-name=supercompute --branch staging --commit-dirty=true
+          npx wrangler pages deploy out --project-name=supercompute --branch staging --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deploy to Cloudflare Pages (development)
+        id: deploy-development
         if: github.ref == 'refs/heads/development'
         run: |
-          wrangler pages deploy out --project-name=supercompute --branch development --commit-dirty=true
+          npx wrangler pages deploy out --project-name=supercompute --branch development --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Verify deployment
+        if: steps.deploy-prod.outcome == 'success' || steps.deploy-staging.outcome == 'success' || steps.deploy-development.outcome == 'success'
         run: |
-          echo "Deployed supercompute website to supercompute.pages.dev (${{ github.ref_name }})"
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            URL="https://supercompute.io"
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            URL="https://staging.supercompute.io"
+          else
+            URL="https://development.supercompute.pages.dev"
+          fi
+          echo "Checking $URL ..."
+          curl -fsS --max-time 30 -o /dev/null "$URL" || { echo "ERROR: $URL did not return 200" >&2; exit 1; }
+          echo "✓ Deployed and reachable: $URL"
 
       # Hard gate on the schema (SEC-F3, card t_49b40e3c). The tolerance on the
       # migration step above exists so that a Cloudflare token-scope problem cannot
@@ -468,7 +508,7 @@ jobs:
           # List every table rather than the expected names, so a name can only appear in
           # the output if the table really exists: the check cannot be satisfied by its
           # own query text.
-          out="$(wrangler d1 execute supercompute-db --remote --yes \
+          out="$(npx wrangler d1 execute supercompute-db --remote --yes \
             --command "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;" 2>&1)" || {
             echo "$out"
             echo "::error::could not read the table list from D1 — the schema is UNVERIFIED, which is not the same as verified."

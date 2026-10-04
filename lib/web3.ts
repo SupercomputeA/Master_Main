@@ -49,6 +49,7 @@ const connectors = [
   coinbaseWallet({ appName: "Supercompute" }),
   walletConnect({ projectId: WC_PROJECT_ID }),
 ]
+
 // Browser RPC endpoints are a CSP trust boundary. Every host used here MUST also
 // appear in `connect-src` in public/_headers, or the browser blocks the read.
 //

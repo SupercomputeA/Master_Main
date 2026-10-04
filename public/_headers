@@ -15,7 +15,8 @@
 #   MUST be listed in connect-src below:
 #     base    -> https://mainnet.base.org   (viem's Base default)
 #     mainnet -> https://eth.drpc.org
-#   Both are pinned explicitly in lib/web3.ts so this stays a static mapping. A
+#     robinhood -> https://rpc.mainnet.chain.robinhood.com  (chain 4663)
+#   All three are pinned explicitly in lib/web3.ts so this stays a static mapping. A
 #   bare http() would resolve to chain.rpcUrls.default.http[0] at request time:
 #   for mainnet that is https://eth.merkle.io, which 429s (Cloudflare error 1015)
 #   under ordinary traffic, so mainnet is pinned to a host that answers reads.
@@ -104,7 +105,7 @@
 # ever switched off at the zone, delete both hosts again in the same commit.
 
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://cloudflareinsights.com https://fonts.gstatic.com https://mainnet.base.org https://eth.drpc.org https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests; report-uri /api/csp-report; report-to csp
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.neynar.com https://cloudflareinsights.com https://fonts.gstatic.com https://mainnet.base.org https://eth.drpc.org https://rpc.mainnet.chain.robinhood.com https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org https://www.youtube.com https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests; report-uri /api/csp-report; report-to csp
   Reporting-Endpoints: csp="https://supercompute.io/api/csp-report"
   Report-To: {"group":"csp","max_age":10886400,"endpoints":[{"url":"https://supercompute.io/api/csp-report"}]}
   X-Content-Type-Options: nosniff

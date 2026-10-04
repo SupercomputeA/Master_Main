@@ -7,7 +7,7 @@
 // with `next/dynamic({ ssr: false })` in pages/tradedesk.tsx so that the
 // wagmi hooks inside don't run during `next export` prerender.
 
-import TradeDesk from "@supercompute/tradedesk/components/tradedesk"
+import TradeDesk from "./tradedesk"
 
 export default function TradeDeskMount() {
   return <TradeDesk mode="read-only" />
